@@ -1,0 +1,101 @@
+-- Enable necessary PostgreSQL extensions
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "postgis";
+
+-- Table: User
+-- Central entity for all user types handling authentication and core identification.
+CREATE TABLE "User" (
+    "userId" UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
+    "mobileNumber" VARCHAR(15) NOT NULL,
+    "email" VARCHAR(255),
+    "userType" VARCHAR(20) NOT NULL CHECK ("userType" IN ('CUSTOMER', 'VENDOR', 'RIDER', 'ADMINISTRATOR')),
+    "status" VARCHAR(25) NOT NULL CHECK ("status" IN ('PENDING_VERIFICATION', 'ACTIVE', 'SUSPENDED', 'DEACTIVATED')),
+    "cognitoSub" VARCHAR(255) NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "UC_User_MobileNumber" UNIQUE ("mobileNumber"),
+    CONSTRAINT "UC_User_Email" UNIQUE ("email"),
+    CONSTRAINT "UC_User_CognitoSub" UNIQUE ("cognitoSub"),
+    CONSTRAINT "CHK_User_MobileNumber_Format" CHECK ("mobileNumber" ~ '^[6-9]\d{9}$'), -- Simple check for 10-digit Indian mobile numbers
+    CONSTRAINT "CHK_User_Email_Format" CHECK ("email" IS NULL OR "email" ~* '^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$')
+);
+
+CREATE INDEX "IX_User_UserType_Status" ON "User" ("userType", "status");
+CREATE INDEX "IX_User_CreatedAt" ON "User" ("createdAt");
+
+-- Table: CustomerProfile
+-- Stores profile information specific to Customers.
+CREATE TABLE "CustomerProfile" (
+    "customerProfileId" UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL,
+    "firstName" VARCHAR(100) NOT NULL,
+    "lastName" VARCHAR(100),
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "UC_CustomerProfile_UserId" UNIQUE ("userId"),
+    CONSTRAINT "FK_CustomerProfile_User" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE CASCADE
+);
+
+-- Table: Address
+-- Stores physical addresses for users.
+CREATE TABLE "Address" (
+    "addressId" UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL,
+    "addressLine1" VARCHAR(255) NOT NULL,
+    "addressLine2" VARCHAR(255),
+    "city" VARCHAR(100) NOT NULL,
+    "postalCode" VARCHAR(10) NOT NULL,
+    "state" VARCHAR(100) NOT NULL,
+    "location" GEOGRAPHY(Point, 4326) NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "FK_Address_User" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE CASCADE
+);
+
+CREATE INDEX "IX_Address_UserId" ON "Address" ("userId");
+CREATE INDEX "IX_Address_Location_Spatial_GIST" ON "Address" USING GIST ("location");
+
+-- Table: UserConsent
+-- Tracks user consent for data processing activities.
+CREATE TABLE "UserConsent" (
+    "userConsentId" UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL,
+    "consentType" VARCHAR(100) NOT NULL,
+    "isGranted" BOOLEAN NOT NULL,
+    "version" VARCHAR(20) NOT NULL,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "UC_UserConsent_User_Type_Version" UNIQUE ("userId", "consentType", "version"),
+    CONSTRAINT "FK_UserConsent_User" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE CASCADE
+);
+
+CREATE INDEX "IX_UserConsent_User_Type" ON "UserConsent" ("userId", "consentType");
+
+-- Table: AuditLog
+-- An immutable log of all critical actions performed by administrators.
+CREATE TABLE "AuditLog" (
+    "auditLogId" BIGSERIAL NOT NULL PRIMARY KEY,
+    "adminId" UUID NOT NULL,
+    "action" VARCHAR(100) NOT NULL,
+    "targetEntity" VARCHAR(100),
+    "targetEntityId" VARCHAR(255),
+    "changedData" JSONB,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "FK_AuditLog_AdminUser" FOREIGN KEY ("adminId") REFERENCES "User"("userId") ON DELETE RESTRICT
+);
+
+CREATE INDEX "IX_AuditLog_AdminId_Date" ON "AuditLog" ("adminId", "createdAt");
+CREATE INDEX "IX_AuditLog_Target" ON "AuditLog" ("targetEntity", "targetEntityId");
+
+-- Table: SystemConfiguration
+-- A key-value store for system-wide, admin-configurable settings.
+CREATE TABLE "SystemConfiguration" (
+    "configKey" VARCHAR(100) NOT NULL PRIMARY KEY,
+    "configValue" TEXT NOT NULL,
+    "description" TEXT,
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedBy" UUID NOT NULL,
+    CONSTRAINT "FK_SystemConfiguration_AdminUser" FOREIGN KEY ("updatedBy") REFERENCES "User"("userId") ON DELETE RESTRICT
+);

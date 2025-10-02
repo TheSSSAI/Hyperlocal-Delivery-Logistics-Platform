@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: DashboardWidget</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================== */
+    /* 1. Design System Tokens & Base Styles           */
+    /* =============================================== */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      --font-weight-regular: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      /* Colors */
+      --color-primary-100: #E6F0FF;
+      --color-primary-500: #0068FF;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-200: #D3D9E1;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-500: #8E9BAA;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-success: #00C875;
+      --color-semantic-error: #FF4D4D;
+      --color-secondary-50: #E5F9F1;
+      --color-secondary-900: #003D24;
+
+      /* Spacing */
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutrals-gray-50);
+      padding: var(--space-32);
+    }
+
+    .showcase-header {
+      text-align: center;
+      margin-bottom: var(--space-32);
+    }
+    .showcase-header h1 {
+      font-size: 36px;
+      margin-bottom: var(--space-8);
+      color: var(--color-neutrals-gray-900);
+    }
+    .showcase-header p {
+      font-size: 18px;
+      color: var(--color-neutrals-gray-700);
+      margin: 0;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--space-24);
+    }
+    
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    /* =============================================== */
+    /* 2. Atomic Dependency Styles                     */
+    /* =============================================== */
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .spinner {
+      animation: spin 0.8s linear infinite;
+      border-radius: 50%;
+      border: 4px solid var(--color-primary-500);
+      border-right-color: transparent;
+      width: 48px;
+      height: 48px;
+    }
+
+    .alert {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      padding: var(--space-16);
+      border-radius: var(--border-radius-lg);
+      border: 1px solid;
+      font-size: var(--font-size-caption);
+      width: 100%;
+    }
+    .alert__icon { flex-shrink: 0; font-size: 20px; }
+    .alert--error {
+      background-color: #FFEBEB;
+      border-color: var(--color-semantic-error);
+      color: #8B0000;
+    }
+
+    /* =============================================== */
+    /* 3. Organism Component: DashboardWidget          */
+    /* =============================================== */
+    .dashboard-widget {
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-neutrals-gray-100);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .dashboard-widget__header {
+      padding: var(--space-16) var(--space-24);
+      border-bottom: 1px solid var(--color-neutrals-gray-100);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .dashboard-widget__title {
+      font-size: var(--font-size-body);
+      font-weight: 600;
+      color: var(--color-neutrals-gray-900);
+    }
+
+    .dashboard-widget__body {
+      padding: var(--space-24);
+      flex-grow: 1;
+      position: relative;
+      min-height: 150px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* --- States --- */
+    .widget-state-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-neutrals-white);
+      z-index: 2;
+    }
+    
+    .dashboard-widget[data-state="loading"] .widget-state-overlay[data-state-content="loading"],
+    .dashboard-widget[data-state="error"] .widget-state-overlay[data-state-content="error"] {
+      display: flex;
+    }
+
+    /* --- KPI Card Variant --- */
+    .dashboard-widget--kpi .dashboard-widget__body {
+      justify-content: space-between;
+      gap: var(--space-16);
+    }
+
+    .kpi-value {
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--color-neutrals-gray-900);
+    }
+
+    .kpi-trend {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      font-size: var(--font-size-caption);
+      font-weight: 600;
+    }
+
+    .kpi-trend__icon {
+      font-size: 20px;
+    }
+
+    .kpi-trend--positive {
+      color: var(--color-semantic-success);
+    }
+
+    .kpi-trend--negative {
+      color: var(--color-semantic-error);
+    }
+
+    /* --- Line Chart Variant --- */
+    .dashboard-widget--chart .dashboard-widget__body {
+      padding: var(--space-16);
+      height: 250px;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 100%;
+    }
+    .chart-container svg { width: 100%; height: 100%; }
+    .chart__grid-line { stroke: var(--color-neutrals-gray-100); stroke-width: 1; }
+    .chart__axis-line { stroke: var(--color-neutrals-gray-300); stroke-width: 1; }
+    .chart__data-line { stroke: var(--color-primary-500); stroke-width: 2; fill: none; }
+    .chart__area { fill: var(--color-primary-100); opacity: 0.5; }
+    .chart__label { font-size: 10px; fill: var(--color-neutrals-gray-500); }
+
+    /* --- List Widget Variant --- */
+    .list-widget {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-16);
+      width: 100%;
+    }
+
+    .list-widget__item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .list-widget__label {
+      font-weight: 500;
+      color: var(--color-neutrals-gray-700);
+    }
+
+    .list-widget__value {
+      font-weight: 600;
+      color: var(--color-neutrals-gray-900);
+    }
+
+    /* --- Responsive --- */
+    @media (max-width: 768px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+      .kpi-value {
+        font-size: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase">
+    <header class="showcase-header">
+      <h1>Dashboard Widget</h1>
+      <p>A versatile organism for displaying various data points on dashboards.</p>
+    </header>
+
+    <div class="dashboard-grid">
+      <!-- KPI Card Variant -->
+      <section class="dashboard-widget dashboard-widget--kpi" data-state="with-data" aria-labelledby="kpi-title-1">
+        <header class="dashboard-widget__header">
+          <h2 id="kpi-title-1" class="dashboard-widget__title">Total Orders (Today)</h2>
+        </header>
+        <div class="dashboard-widget__body">
+          <div class="kpi-value">1,204</div>
+          <div class="kpi-trend kpi-trend--positive">
+            <svg class="kpi-trend__icon" viewBox="0 0 24 24" fill="currentColor"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"></path></svg>
+            <span>+12.5% from yesterday</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Line Chart Variant -->
+      <section class="dashboard-widget dashboard-widget--chart" data-state="with-data" aria-labelledby="chart-title-1">
+        <header class="dashboard-widget__header">
+          <h2 id="chart-title-1" class="dashboard-widget__title">Orders per Minute</h2>
+        </header>
+        <div class="dashboard-widget__body">
+          <div class="chart-container" role="img" aria-label="A line chart showing orders per minute over the last hour, peaking at 35 orders.">
+            <svg viewBox="0 0 300 150">
+              <!-- Accessible Data Table -->
+              <foreignObject class="sr-only">
+                <table>
+                  <caption>Orders per Minute Data</caption>
+                  <thead><tr><th>Time</th><th>Orders</th></tr></thead>
+                  <tbody>
+                    <tr><td>-60min</td><td>15</td></tr>
+                    <tr><td>-30min</td><td>35</td></tr>
+                    <tr><td>Now</td><td>25</td></tr>
+                  </tbody>
+                </table>
+              </foreignObject>
+              <!-- Grid Lines -->
+              <line class="chart__grid-line" x1="0" y1="50" x2="300" y2="50"></line>
+              <line class="chart__grid-line" x1="0" y1="100" x2="300" y2="100"></line>
+              <!-- Axis -->
+              <line class="chart__axis-line" x1="0" y1="150" x2="300" y2="150"></line>
+              <!-- Data -->
+              <polyline class="chart__data-line" points="0,100 50,80 100,90 150,50 200,60 250,70 300,80"></polyline>
+              <polygon class="chart__area" points="0,150 0,100 50,80 100,90 150,50 200,60 250,70 300,80 300,150"></polygon>
+              <!-- Labels -->
+              <text class="chart__label" x="0" y="148">-1hr</text>
+              <text class="chart__label" x="140" y="148">-30min</text>
+              <text class="chart__label" x="280" y="148">Now</text>
+            </svg>
+          </div>
+        </div>
+      </section>
+
+      <!-- List Widget Variant -->
+      <section class="dashboard-widget dashboard-widget--list" data-state="with-data" aria-labelledby="list-title-1">
+        <header class="dashboard-widget__header">
+          <h2 id="list-title-1" class="dashboard-widget__title">Top Active Riders</h2>
+        </header>
+        <div class="dashboard-widget__body">
+          <ul class="list-widget">
+            <li class="list-widget__item">
+              <span class="list-widget__label">Rohan Patel</span>
+              <span class="list-widget__value">2 Active Orders</span>
+            </li>
+            <li class="list-widget__item">
+              <span class="list-widget__label">Suresh Kumar</span>
+              <span class="list-widget__value">1 Active Order</span>
+            </li>
+            <li class="list-widget__item">
+              <span class="list-widget__label">Amit Singh</span>
+              <span class="list-widget__value">1 Active Order</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Loading State -->
+      <section class="dashboard-widget" data-state="loading" aria-labelledby="loading-title-1" aria-busy="true">
+        <header class="dashboard-widget__header">
+          <h2 id="loading-title-1" class="dashboard-widget__title">Active Riders</h2>
+        </header>
+        <div class="dashboard-widget__body">
+          <div class="widget-state-overlay" data-state-content="loading">
+            <div class="spinner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Error State -->
+      <section class="dashboard-widget" data-state="error" aria-labelledby="error-title-1">
+        <header class="dashboard-widget__header">
+          <h2 id="error-title-1" class="dashboard-widget__title">Payment Success Rate</h2>
+        </header>
+        <div class="dashboard-widget__body">
+          <div class="widget-state-overlay" data-state-content="error" role="alert">
+            <div class="alert alert--error">
+              <svg class="alert__icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
+              <span>Failed to load data.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+       <!-- KPI Card Variant (Negative Trend) -->
+      <section class="dashboard-widget dashboard-widget--kpi" data-state="with-data" aria-labelledby="kpi-title-2">
+        <header class="dashboard-widget__header">
+          <h2 id="kpi-title-2" class="dashboard-widget__title">Avg. Delivery Time</h2>
+        </header>
+        <div class="dashboard-widget__body">
+          <div class="kpi-value">32<span style="font-size: 24px; color: var(--color-neutrals-gray-500); margin-left: 4px;">min</span></div>
+          <div class="kpi-trend kpi-trend--negative">
+            <svg class="kpi-trend__icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"></path></svg>
+            <span>+8% from yesterday</span>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

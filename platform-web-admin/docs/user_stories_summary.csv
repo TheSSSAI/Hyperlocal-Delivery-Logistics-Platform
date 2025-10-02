@@ -1,0 +1,2 @@
+"total_stories","total_story_points","must_have_stories","should_have_stories","could_have_stories","epics_identified","estimated_sprints","key_dependencies"
+"11","73","11","0","0","[""Platform Infrastructure and DevOps"",""Identity & Access Microservice"",""Order Management Microservice"",""Customer Mobile App (React Native)""]","4","[""AWS Account Access"",""Backend API contracts for all microservices"",""Third-party service accounts (Razorpay, Mapbox, Firebase)""]"

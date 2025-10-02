@@ -1,0 +1,54 @@
+flowchart TD
+    subgraph "Order Placement"
+        A(Start) -->|Customer Places Order| B[Order Placed]
+        B --> C{Payment Method?}
+        C -->|Online Payment| D[Create Payment Intent]
+        D --> E{Payment Succeeded?}
+        E -->|Yes| G[Status: Pending Vendor Acceptance]
+        E -->|No / Delayed| F[Status: Payment Pending Confirmation]
+        F -->|Reconciliation Job: Success| G
+        F -->|Reconciliation Job: Failure| H[Status: Cancelled]
+        C -->|Cash on Delivery| G
+    end
+
+    subgraph "Vendor Fulfillment"
+        G --> I{Vendor Action?}
+        I -->|Accepts & Selects Prep Time| J[Status: Preparing]
+        I -->|Rejects| H
+        I -->|Times Out (System)| H
+        J --> K[Status: Ready for Pickup]
+    end
+
+    subgraph "Logistics & Delivery"
+        K --> L{Trigger Rider Allocation}
+        L -->|Success| M[Status: In Transit]
+        L -->|Failure (System)| N[Status: Allocation Failed]
+        M --> O[Status: Arrived at Destination]
+        O --> P[Status: Delivered]
+    end
+
+    subgraph "Customer Cancellation Paths"
+        B -.->|Grace Period| Q(Customer Cancels)
+        G -.->|Grace Period| Q
+        J -.->|After Rider Assigned| R(Customer Cancels w/ Fee)
+        M -.->|After Rider Assigned| R
+        Q --> H
+        R --> H
+    end
+
+    subgraph "Final States"
+        P --> S([Success: Delivered])
+        H --> T([Failure: Cancelled])
+        N --> U([Failure: Allocation Failed])
+    end
+
+    %% Styling
+    classDef startEnd fill:#e8f5e9,stroke:#4caf50,color:#000
+    classDef process fill:#e3f2fd,stroke:#2196f3,color:#000
+    classDef decision fill:#fff9c4,stroke:#fbc02d,color:#000
+    classDef failure fill:#ffebee,stroke:#d32f2f,color:#000
+
+    class A,S startEnd
+    class B,D,F,G,J,K,L,M,O,P,Q,R process
+    class C,E,I,L decision
+    class H,N,T,U failure

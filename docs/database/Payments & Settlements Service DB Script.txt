@@ -1,0 +1,64 @@
+-- Enable UUID generation extension
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Define custom ENUM types for status fields
+CREATE TYPE payment_status_enum AS ENUM ('PENDING', 'SUCCESS', 'FAILED', 'REFUNDED');
+CREATE TYPE financial_transaction_type_enum AS ENUM ('SALE', 'COMMISSION', 'PAYOUT', 'REFUND', 'CANCELLATION_FEE');
+CREATE TYPE payout_status_enum AS ENUM ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED');
+
+-- Table: Payment
+-- Records all payment transactions associated with orders.
+CREATE TABLE Payment (
+    paymentId UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    orderId UUID NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    status payment_status_enum NOT NULL,
+    gatewayTransactionId VARCHAR(255) NOT NULL,
+    gatewayResponse JSONB DEFAULT '{}',
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT UC_Payment_GatewayTransactionId UNIQUE (gatewayTransactionId)
+);
+
+-- Table: Payout
+-- Represents a settlement of funds to a vendor or rider.
+CREATE TABLE Payout (
+    payoutId UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    userId UUID NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    periodStartDate DATE NOT NULL,
+    periodEndDate DATE NOT NULL,
+    status payout_status_enum NOT NULL DEFAULT 'PENDING',
+    payoutGatewayTransactionId VARCHAR(255),
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT UC_Payout_GatewayTransactionId UNIQUE (payoutGatewayTransactionId)
+);
+
+-- Table: FinancialTransaction
+-- An immutable double-entry ledger for all monetary movements.
+CREATE TABLE FinancialTransaction (
+    financialTransactionId UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    orderId UUID,
+    payoutId UUID,
+    debitAccount VARCHAR(100) NOT NULL,
+    creditAccount VARCHAR(100) NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    description TEXT,
+    transactionType financial_transaction_type_enum NOT NULL,
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_FinancialTransaction_Payout FOREIGN KEY (payoutId) REFERENCES Payout(payoutId)
+);
+
+-- Indexes for the Payment table
+CREATE INDEX IX_Payment_OrderId ON Payment USING btree (orderId);
+CREATE INDEX IX_Payment_Status_Created ON Payment USING btree (status, createdAt);
+
+-- Indexes for the FinancialTransaction table
+CREATE INDEX IX_FinancialTransaction_DebitAccount_Date ON FinancialTransaction USING btree (debitAccount, createdAt);
+CREATE INDEX IX_FinancialTransaction_CreditAccount_Date ON FinancialTransaction USING btree (creditAccount, createdAt);
+CREATE INDEX IX_FinancialTransaction_OrderId ON FinancialTransaction USING btree (orderId);
+
+-- Indexes for the Payout table
+CREATE INDEX IX_Payout_User_Period ON Payout USING btree (userId, periodStartDate, periodEndDate);
+CREATE INDEX IX_Payout_Status_Date ON Payout USING btree (status, createdAt);

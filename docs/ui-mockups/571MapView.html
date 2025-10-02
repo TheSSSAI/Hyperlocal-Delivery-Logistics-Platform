@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MapView Component</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--color-neutrals-gray_50);
+      color: var(--color-neutrals-gray_900);
+      line-height: 1.6;
+      padding: 32px;
+    }
+
+    /* Design System Tokens */
+    :root {
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray_50: #F7F9FC;
+      --color-neutrals-gray_100: #E9EDF2;
+      --color-neutrals-gray_200: #D3D9E1;
+      --color-neutrals-gray_400: #A5B0BD;
+      --color-neutrals-gray_600: #717C88;
+      --color-neutrals-gray_700: #555D66;
+      --color-neutrals-gray_900: #1C1F22;
+      --color-semantic-success: #00C875;
+      --color-semantic-warning: #FFB800;
+      --color-semantic-error: #FF4D4D;
+      
+      /* Spacing */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+      
+      /* Typography */
+      --font-body: 16px;
+      --font-caption: 14px;
+      --font-h4: 20px;
+      --font-weight-normal: 400;
+      --font-weight-semibold: 600;
+      
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --shadow-md: 0px 6px 12px rgba(28, 31, 34, 0.1);
+    }
+    
+    /* Screen Scaffolding & Typography */
+    .screen-container { max-width: 1280px; margin: 0 auto; }
+    .screen-header { margin-bottom: var(--space-32); border-bottom: 1px solid var(--color-neutrals-gray_200); padding-bottom: var(--space-16); }
+    h1 { font-size: 36px; color: var(--color-neutrals-gray_900); }
+    h2 { font-size: 28px; color: var(--color-neutrals-gray_900); margin-top: var(--space-32); margin-bottom: var(--space-24); }
+    h3 { font-size: 20px; font-weight: var(--font-weight-semibold); color: var(--color-neutrals-gray_700); margin-bottom: var(--space-16); }
+    p.description { color: var(--color-neutrals-gray_600); margin-bottom: var(--space-16); max-width: 800px; }
+
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: var(--space-32);
+    }
+    .variant-group { background-color: var(--color-neutrals-white); padding: var(--space-24); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
+    
+    /* Icon Component */
+    .icon {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        stroke-width: 0;
+        stroke: currentColor;
+        fill: currentColor;
+    }
+    
+    /* Spinner Component */
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid var(--color-primary-100);
+        border-top-color: var(--color-primary-500);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+
+    /* Button Component */
+    .btn {
+        font-family: inherit;
+        font-size: var(--font-body);
+        font-weight: var(--font-weight-semibold);
+        padding: var(--space-12) var(--space-24);
+        border-radius: var(--border-radius-md);
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-8);
+    }
+    .btn--primary {
+        background-color: var(--color-primary-500);
+        color: var(--color-neutrals-white);
+    }
+    .btn--primary:hover { background-color: var(--color-primary-600); box-shadow: var(--shadow-md); }
+    .btn--secondary {
+        background-color: transparent;
+        color: var(--color-primary-500);
+        border: 1px solid var(--color-primary-500);
+    }
+    .btn--secondary:hover { background-color: var(--color-primary-50); }
+    .btn--block { display: block; width: 100%; text-align: center; justify-content: center; }
+
+    /* MapView Component Styles */
+    .map-view-container {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 10;
+        background-color: var(--color-neutrals-gray_100);
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+        box-shadow: 0 0 0 1px var(--color-neutrals-gray_200) inset;
+    }
+    .map-canvas {
+        width: 100%;
+        height: 100%;
+        background-image:
+            linear-gradient(var(--color-neutrals-gray_200) 1px, transparent 1px),
+            linear-gradient(to right, var(--color-neutrals-gray_200) 1px, transparent 1px);
+        background-size: 40px 40px;
+        transition: transform 0.2s ease-out;
+    }
+
+    /* Loading State Overlay */
+    .loading-overlay {
+        position: absolute;
+        inset: 0;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10;
+    }
+
+    /* Map Markers */
+    .map-marker {
+        position: absolute;
+        transform: translate(-50%, -100%);
+        font-size: 36px;
+        transition: left 1s linear, top 1s linear;
+    }
+    .map-marker__icon { font-size: 1.2em; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+    .map-marker--vendor { color: var(--color-neutrals-gray_700); }
+    .map-marker--customer { color: var(--color-primary-500); }
+    .map-marker--rider { color: var(--color-semantic-success); }
+    @keyframes pulse {
+        0%, 100% { transform: translate(-50%, -100%) scale(1); }
+        50% { transform: translate(-50%, -100%) scale(1.1); }
+    }
+    .map-marker--rider { animation: pulse 1.5s ease-in-out infinite; }
+    
+    /* Route Line */
+    .route-line {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+    .route-line path {
+        stroke-width: 5;
+        stroke: var(--color-primary-500);
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+    }
+    
+    /* Live Tracking Panel */
+    .tracking-info-panel {
+        position: absolute;
+        bottom: var(--space-16);
+        left: var(--space-16);
+        right: var(--space-16);
+        background-color: var(--color-neutrals-white);
+        padding: var(--space-16);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        display: flex;
+        align-items: center;
+        gap: var(--space-16);
+    }
+    .tracking-info-panel__avatar {
+        width: 48px; height: 48px;
+        background-color: var(--color-neutrals-gray_100);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-size: 24px; color: var(--color-neutrals-gray_600);
+    }
+    .tracking-info-panel__details { flex-grow: 1; }
+    .tracking-info-panel__name { font-weight: var(--font-weight-semibold); color: var(--color-neutrals-gray_900); }
+    .tracking-info-panel__status { font-size: var(--font-caption); color: var(--color-neutrals-gray_600); }
+    .tracking-info-panel__eta { font-size: var(--font-h4); font-weight: var(--font-weight-semibold); color: var(--color-primary-600); text-align: right; }
+    .tracking-info-panel__eta span { font-size: var(--font-caption); font-weight: var(--font-weight-normal); color: var(--color-neutrals-gray_600); display: block; }
+    
+    /* Signal Lost State */
+    .signal-lost-overlay {
+        position: absolute;
+        top: var(--space-16);
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--color-semantic-warning);
+        color: var(--color-neutrals-gray_900);
+        padding: var(--space-8) var(--space-16);
+        border-radius: var(--border-radius-md);
+        font-size: var(--font-caption);
+        font-weight: var(--font-weight-semibold);
+        z-index: 5;
+    }
+    .map-marker--stale { opacity: 0.6; animation: none; }
+    
+    /* Address Picker */
+    .address-picker-center-pin {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -100%);
+        font-size: 48px;
+        color: var(--color-semantic-error);
+        pointer-events: none;
+        z-index: 5;
+    }
+    .address-confirm-panel {
+        position: absolute;
+        bottom: var(--space-16);
+        left: var(--space-16);
+        right: var(--space-16);
+        background-color: var(--color-neutrals-white);
+        padding: var(--space-16);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-md);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-12);
+    }
+    .address-confirm-panel p {
+        font-size: var(--font-caption); color: var(--color-neutrals-gray_600);
+    }
+    .address-confirm-panel h4 {
+        font-size: var(--font-body); font-weight: var(--font-weight-semibold);
+    }
+    
+    /* Geofencing Tool */
+    .geofencing-container {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: var(--space-24);
+    }
+    .geofencing-controls {
+        background-color: var(--color-neutrals-white);
+        padding: var(--space-24);
+        border-radius: var(--border-radius-lg);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-16);
+    }
+    .geofence-polygon {
+        fill: rgba(0, 104, 255, 0.2);
+        stroke: var(--color-primary-500);
+        stroke-width: 2;
+        stroke-dasharray: 4;
+        pointer-events: none;
+    }
+    .geofence-vertex {
+        fill: var(--color-neutrals-white);
+        stroke: var(--color-primary-600);
+        stroke-width: 2;
+        cursor: grab;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-container">
+    <header class="screen-header">
+      <h1>Component: MapView</h1>
+      <p class="description">This specialized component provides interactive map functionalities for various user flows, including live tracking, address selection, and administrative geofencing.</p>
+    </header>
+
+    <div class="screen-content">
+        <!-- Variant: Live Tracking -->
+        <h2>Variant: Live Tracking</h2>
+        <p class="description">Used by customers to track the real-time progress of their delivery from the vendor to their location.</p>
+        <div class="grid-container">
+            <div class="variant-group">
+                <h3>State: Normal Operation</h3>
+                <div id="live-tracking-map" class="map-view-container">
+                    <div class="map-canvas"></div>
+                    <svg class="route-line" viewBox="0 0 100 60">
+                        <path d="M 15 50 C 30 50, 40 10, 85 10"></path>
+                    </svg>
+                    <div class="map-marker map-marker--vendor" style="top: 50%; left: 15%;">
+                        <svg class="icon map-marker__icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    </div>
+                    <div class="map-marker map-marker--customer" style="top: 10%; left: 85%;">
+                        <svg class="icon map-marker__icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    </div>
+                    <div id="rider-marker" class="map-marker map-marker--rider" style="top: 50%; left: 15%;">
+                        <svg class="icon map-marker__icon" viewBox="0 0 24 24"><path d="M15.5 1.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM5.5 11c-.83 0-1.5.67-1.5 1.5v5c0 .83.67 1.5 1.5 1.5h1c.83 0 1.5-.67 1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5h-1zm12 0c-.83 0-1.5.67-1.5 1.5v5c0 .83.67 1.5 1.5 1.5h1c.83 0 1.5-.67 1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5h-1zM18.8 9.1L16.2 6H7.8L5.2 9.1C4.44 9.55 4 10.45 4 11.4V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7.6c0-.95-.44-1.85-1.2-2.3zM8.33 16H6.5v-2.5h1.83V16zm5.17-5.5H10.5v-1h3.01v1zm0 2.5H10.5v-1h3.01v1zm0 2.5H10.5v-1h3.01v1zm4-2.5h-1.83V16h1.83v-2.5z"/></svg>
+                    </div>
+                    <div class="tracking-info-panel">
+                        <div class="tracking-info-panel__avatar">
+                             <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+                        </div>
+                        <div class="tracking-info-panel__details">
+                            <div class="tracking-info-panel__name">Rohan S.</div>
+                            <div class="tracking-info-panel__status">Is on the way to you</div>
+                        </div>
+                        <div class="tracking-info-panel__eta">
+                            ~8 min <span>ETA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="variant-group">
+                <h3>State: Signal Lost</h3>
+                 <div class="map-view-container">
+                    <div class="map-canvas"></div>
+                    <div class="signal-lost-overlay">Last seen 2 min ago</div>
+                    <svg class="route-line" viewBox="0 0 100 60">
+                        <path d="M 15 50 C 30 50, 40 10, 85 10" style="stroke-dasharray: 5; opacity: 0.5;"></path>
+                    </svg>
+                    <div class="map-marker map-marker--vendor" style="top: 50%; left: 15%;"><svg class="icon map-marker__icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+                    <div class="map-marker map-marker--customer" style="top: 10%; left: 85%;"><svg class="icon map-marker__icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>
+                    <div class="map-marker map-marker--rider map-marker--stale" style="top: 32%; left: 55%;">
+                        <svg class="icon map-marker__icon" viewBox="0 0 24 24"><path d="M15.5 1.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3zM5.5 11c-.83 0-1.5.67-1.5 1.5v5c0 .83.67 1.5 1.5 1.5h1c.83 0 1.5-.67 1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5h-1zm12 0c-.83 0-1.5.67-1.5 1.5v5c0 .83.67 1.5 1.5 1.5h1c.83 0 1.5-.67 1.5-1.5v-5c0-.83-.67-1.5-1.5-1.5h-1zM18.8 9.1L16.2 6H7.8L5.2 9.1C4.44 9.55 4 10.45 4 11.4V19c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7.6c0-.95-.44-1.85-1.2-2.3zM8.33 16H6.5v-2.5h1.83V16zm5.17-5.5H10.5v-1h3.01v1zm0 2.5H10.5v-1h3.01v1zm0 2.5H10.5v-1h3.01v1zm4-2.5h-1.83V16h1.83v-2.5z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Variant: Address Picker -->
+        <h2>Variant: Address Picker</h2>
+        <p class="description">Used by customers to precisely select their delivery location by dragging a map under a fixed pin.</p>
+        <div class="grid-container">
+            <div class="variant-group">
+                <h3>State: Interactive</h3>
+                <div class="map-view-container">
+                    <div id="draggable-map" class="map-canvas" style="cursor: grab;"></div>
+                    <div class="address-picker-center-pin">
+                         <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                    </div>
+                    <div class="address-confirm-panel">
+                        <div>
+                            <p>SELECTED LOCATION</p>
+                            <h4>123, Marine Drive, Nariman Point</h4>
+                        </div>
+                        <button class="btn btn--primary btn--block">Confirm Address</button>
+                    </div>
+                </div>
+            </div>
+             <div class="variant-group">
+                <h3>State: Loading</h3>
+                 <div class="map-view-container">
+                    <div class="map-canvas" style="opacity: 0.5;"></div>
+                    <div class="loading-overlay">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Variant: Geofencing Tool -->
+        <h2>Variant: Geofencing Tool (Admin)</h2>
+        <p class="description">An administrative tool for creating and editing polygonal operational zones on a map.</p>
+        <div class="geofencing-container">
+            <div class="geofencing-controls">
+                <h3>Zone Details</h3>
+                <div style="display:flex; flex-direction:column; gap: var(--space-8);">
+                    <label for="zone-name" style="font-size: var(--font-caption); font-weight:var(--font-weight-semibold); color: var(--color-neutrals-gray_600);">ZONE NAME</label>
+                    <input type="text" id="zone-name" value="Mumbai South" style="padding: var(--space-8); border: 1px solid var(--color-neutrals-gray_200); border-radius: var(--border-radius-md); font-size: var(--font-body);">
+                </div>
+                <div style="display:flex; flex-direction:column; gap: var(--space-8);">
+                    <label style="font-size: var(--font-caption); font-weight:var(--font-weight-semibold); color: var(--color-neutrals-gray_600);">ACTIONS</label>
+                    <button id="draw-btn" class="btn btn--secondary">Start Drawing</button>
+                    <button class="btn btn--secondary" disabled>Delete Last Point</button>
+                </div>
+                 <div style="margin-top: auto; display:flex; flex-direction:column; gap: var(--space-12);">
+                    <button class="btn btn--secondary">Cancel</button>
+                    <button class="btn btn--primary">Save Zone</button>
+                </div>
+            </div>
+            <div class="variant-group" style="padding: 0;">
+                <div id="geofence-map" class="map-view-container" style="border-radius: var(--border-radius-lg);">
+                    <div class="map-canvas" style="cursor: crosshair;"></div>
+                    <svg class="route-line" viewBox="0 0 400 250">
+                        <polygon id="geofence-polygon" class="geofence-polygon" points="150,50 250,80 280,180 120,200 80,100" />
+                        <circle class="geofence-vertex" cx="150" cy="50" r="6"/>
+                        <circle class="geofence-vertex" cx="250" cy="80" r="6"/>
+                        <circle class="geofence-vertex" cx="280" cy="180" r="6"/>
+                        <circle class="geofence-vertex" cx="120" cy="200" r="6"/>
+                        <circle class="geofence-vertex" cx="80" cy="100" r="6"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+  
+  <script>
+    // --- Live Tracking Simulation ---
+    const riderMarker = document.getElementById('rider-marker');
+    if (riderMarker) {
+        const path = [
+            { top: 50, left: 15 },
+            { top: 48, left: 25 },
+            { top: 40, left: 35 },
+            { top: 32, left: 55 },
+            { top: 20, left: 70 },
+            { top: 10, left: 85 },
+        ];
+        let currentStep = 0;
+        setInterval(() => {
+            currentStep = (currentStep + 1) % path.length;
+            const nextPos = path[currentStep];
+            riderMarker.style.top = `${nextPos.top}%`;
+            riderMarker.style.left = `${nextPos.left}%`;
+        }, 2000);
+    }
+
+    // --- Address Picker Simulation ---
+    const draggableMap = document.getElementById('draggable-map');
+    if (draggableMap) {
+        let isDragging = false;
+        let startX, startY;
+        let currentX = 0, currentY = 0;
+        let lastX = 0, lastY = 0;
+
+        draggableMap.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            draggableMap.style.cursor = 'grabbing';
+            startX = e.pageX - lastX;
+            startY = e.pageY - lastY;
+        });
+
+        document.addEventListener('mouseup', () => {
+            if(isDragging) {
+                isDragging = false;
+                draggableMap.style.cursor = 'grab';
+                lastX = currentX;
+                lastY = currentY;
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+            currentX = e.pageX - startX;
+            currentY = e.pageY - startY;
+            draggableMap.style.transform = `translate(${currentX}px, ${currentY}px)`;
+        });
+    }
+    
+    // --- Geofencing Tool Simulation ---
+    const geofenceMap = document.getElementById('geofence-map');
+    const drawBtn = document.getElementById('draw-btn');
+    const polygon = document.getElementById('geofence-polygon');
+
+    if (geofenceMap && drawBtn) {
+        let isDrawing = false;
+        let points = [];
+        
+        drawBtn.addEventListener('click', () => {
+            isDrawing = true;
+            points = [];
+            polygon.setAttribute('points', '');
+            // Clear existing circle vertices
+            geofenceMap.querySelectorAll('.geofence-vertex').forEach(v => v.remove());
+            drawBtn.textContent = 'Drawing... (Click on map)';
+            drawBtn.disabled = true;
+        });
+
+        geofenceMap.addEventListener('click', (e) => {
+            if (!isDrawing) return;
+            
+            const rect = geofenceMap.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            points.push({x, y});
+            
+            // Update SVG polygon
+            const pointsString = points.map(p => `${p.x},${p.y}`).join(' ');
+            polygon.setAttribute('points', pointsString);
+
+            // Add a vertex circle
+            const vertex = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+            vertex.setAttribute('class', 'geofence-vertex');
+            vertex.setAttribute('cx', x);
+            vertex.setAttribute('cy', y);
+            vertex.setAttribute('r', 6);
+            polygon.parentElement.appendChild(vertex);
+        });
+    }
+
+  </script>
+</body>
+</html>

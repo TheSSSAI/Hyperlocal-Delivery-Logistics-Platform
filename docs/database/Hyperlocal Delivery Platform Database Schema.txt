@@ -1,0 +1,531 @@
+-- Hyperlocal Delivery Platform Database Schema for PostgreSQL
+-- Version: 1.0
+
+-- ========= PRELIMINARIES =========
+
+-- Enable necessary extensions
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "postgis";
+
+-- ========= ENUMERATED TYPES =========
+
+CREATE TYPE user_type_enum AS ENUM ('CUSTOMER', 'VENDOR', 'RIDER', 'ADMINISTRATOR');
+CREATE TYPE user_status_enum AS ENUM ('PENDING_VERIFICATION', 'ACTIVE', 'SUSPENDED', 'DEACTIVATED');
+CREATE TYPE order_status_enum AS ENUM ('PAYMENT_PENDING', 'PENDING_VENDOR_ACCEPTANCE', 'ACCEPTED', 'PREPARING', 'READY_FOR_PICKUP', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED', 'ALLOCATION_FAILED');
+CREATE TYPE payment_method_enum AS ENUM ('UPI', 'CREDIT_DEBIT_CARD', 'COD');
+CREATE TYPE payment_status_enum AS ENUM ('PENDING', 'SUCCESS', 'FAILED', 'REFUNDED');
+CREATE TYPE delivery_task_status_enum AS ENUM ('PENDING_ALLOCATION', 'OFFERED', 'ACCEPTED', 'AT_STORE', 'PICKED_UP', 'AT_DESTINATION', 'DELIVERED', 'FAILED');
+CREATE TYPE pod_type_enum AS ENUM ('PHOTO', 'OTP');
+CREATE TYPE reviewee_type_enum AS ENUM ('VENDOR', 'RIDER');
+CREATE TYPE support_ticket_status_enum AS ENUM ('OPEN', 'IN_PROGRESS', 'CLOSED');
+CREATE TYPE financial_transaction_type_enum AS ENUM ('SALE', 'COMMISSION', 'PAYOUT', 'REFUND', 'CANCELLATION_FEE');
+CREATE TYPE payout_status_enum AS ENUM ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED');
+
+-- ========= TABLE DEFINITIONS =========
+
+-- Central User Table
+CREATE TABLE "User" (
+    "userId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "mobileNumber" VARCHAR(15) NOT NULL UNIQUE,
+    "email" VARCHAR(255) UNIQUE,
+    "userType" user_type_enum NOT NULL,
+    "status" user_status_enum NOT NULL DEFAULT 'PENDING_VERIFICATION',
+    "cognitoSub" VARCHAR(255) NOT NULL UNIQUE,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT "CHK_User_IndianMobileFormat" CHECK ("mobileNumber" ~ '^\\+91[6-9]\\d{9}$')
+);
+
+-- Customer Profile
+CREATE TABLE "CustomerProfile" (
+    "customerProfileId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL UNIQUE,
+    "firstName" VARCHAR(100) NOT NULL,
+    "lastName" VARCHAR(100),
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Address Table (used by Users and Vendors)
+CREATE TABLE "Address" (
+    "addressId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL,
+    "addressLine1" VARCHAR(255) NOT NULL,
+    "addressLine2" VARCHAR(255),
+    "city" VARCHAR(100) NOT NULL,
+    "postalCode" VARCHAR(10) NOT NULL,
+    "state" VARCHAR(100) NOT NULL,
+    "location" GEOGRAPHY(Point, 4326) NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Vendor Profile
+CREATE TABLE "VendorProfile" (
+    "vendorProfileId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL UNIQUE,
+    "storeName" VARCHAR(255) NOT NULL,
+    "description" TEXT,
+    "addressId" UUID NOT NULL,
+    "latitude" DECIMAL(9, 6),
+    "longitude" DECIMAL(9, 6),
+    "averageRating" DECIMAL(3, 2) NOT NULL DEFAULT 0.0,
+    "commissionRate" DECIMAL(5, 2) NOT NULL DEFAULT 15.00,
+    "isOnline" BOOLEAN NOT NULL DEFAULT false,
+    "documentUrls" JSONB DEFAULT '{}',
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT "CHK_VendorProfile_AverageRating" CHECK ("averageRating" BETWEEN 0 AND 5),
+    CONSTRAINT "CHK_VendorProfile_CommissionRate" CHECK ("commissionRate" BETWEEN 0 AND 100)
+);
+
+-- Rider Profile
+CREATE TABLE "RiderProfile" (
+    "riderProfileId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL UNIQUE,
+    "firstName" VARCHAR(100) NOT NULL,
+    "lastName" VARCHAR(100) NOT NULL,
+    "vehicleDetails" JSONB DEFAULT '{}',
+    "bankAccountDetails" TEXT, -- Encrypted at application level
+    "documentUrls" JSONB DEFAULT '{}',
+    "averageRating" DECIMAL(3, 2) NOT NULL DEFAULT 0.0,
+    "cashInHand" DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    "isOnline" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT "CHK_RiderProfile_AverageRating" CHECK ("averageRating" BETWEEN 0 AND 5)
+);
+
+-- Operational Zones
+CREATE TABLE "OperationalZone" (
+    "zoneId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "name" VARCHAR(100) NOT NULL UNIQUE,
+    "geoPolygon" GEOMETRY NOT NULL,
+    "deliveryRadiusKm" DECIMAL(5, 2) NOT NULL DEFAULT 7.0,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Vendor Business Hours
+CREATE TABLE "VendorBusinessHour" (
+    "businessHourId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "vendorProfileId" UUID NOT NULL,
+    "dayOfWeek" INT NOT NULL,
+    "openTime" TIME,
+    "closeTime" TIME,
+    "isClosed" BOOLEAN NOT NULL DEFAULT false,
+    CONSTRAINT "UC_VendorBusinessHour_Vendor_Day" UNIQUE ("vendorProfileId", "dayOfWeek"),
+    CONSTRAINT "CHK_VendorBusinessHour_DayOfWeek" CHECK ("dayOfWeek" BETWEEN 0 AND 6)
+);
+
+-- Vendor Licenses
+CREATE TABLE "VendorLicense" (
+    "licenseId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "vendorProfileId" UUID NOT NULL,
+    "licenseNumber" VARCHAR(100) NOT NULL,
+    "expiryDate" DATE NOT NULL,
+    "licenseType" VARCHAR(50) NOT NULL,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Product Categories
+CREATE TABLE "ProductCategory" (
+    "productCategoryId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "vendorProfileId" UUID NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
+    "description" TEXT,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT "UC_ProductCategory_Vendor_Name" UNIQUE ("vendorProfileId", "name")
+);
+
+-- Products
+CREATE TABLE "Product" (
+    "productId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "vendorProfileId" UUID NOT NULL,
+    "productCategoryId" UUID NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "description" TEXT,
+    "price" DECIMAL(10, 2) NOT NULL,
+    "imageUrl" VARCHAR(2048),
+    "stockQuantity" INT NOT NULL DEFAULT 0,
+    "limitedStockThreshold" INT DEFAULT 5,
+    "isAvailable" BOOLEAN NOT NULL DEFAULT true,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT "CHK_Product_PricePositive" CHECK ("price" > 0),
+    CONSTRAINT "CHK_Product_StockNonNegative" CHECK ("stockQuantity" >= 0),
+    CONSTRAINT "CHK_Product_ThresholdNonNegative" CHECK ("limitedStockThreshold" >= 0)
+);
+
+-- Orders Table (Partitioned)
+CREATE TABLE "Order" (
+    "orderId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "customerId" UUID NOT NULL,
+    "vendorId" UUID NOT NULL,
+    "deliveryAddressId" UUID NOT NULL,
+    "customerName" VARCHAR(201),
+    "vendorStoreName" VARCHAR(255),
+    "subtotal" DECIMAL(10, 2) NOT NULL,
+    "taxes" DECIMAL(10, 2) NOT NULL,
+    "deliveryFee" DECIMAL(10, 2) NOT NULL,
+    "totalAmount" DECIMAL(10, 2) NOT NULL,
+    "status" order_status_enum NOT NULL,
+    "paymentMethod" payment_method_enum NOT NULL,
+    "vendorInstructions" TEXT,
+    "riderInstructions" TEXT,
+    "placedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+) PARTITION BY RANGE ("placedAt");
+-- Note: Partitions must be created and managed separately, e.g., CREATE TABLE Order_y2024m01 PARTITION OF "Order" FOR VALUES FROM ('2024-01-01') TO ('2024-02-01');
+
+-- Order Items
+CREATE TABLE "OrderItem" (
+    "orderItemId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "orderId" UUID NOT NULL,
+    "productId" UUID NOT NULL,
+    "quantity" INT NOT NULL,
+    "priceAtTimeOfOrder" DECIMAL(10, 2) NOT NULL,
+    "productName" VARCHAR(255) NOT NULL,
+    CONSTRAINT "UC_OrderItem_Order_Product" UNIQUE ("orderId", "productId"),
+    CONSTRAINT "CHK_OrderItem_QuantityPositive" CHECK ("quantity" > 0)
+);
+
+-- Order Status History (Partitioned)
+CREATE TABLE "OrderStatusHistory" (
+    "orderStatusHistoryId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "orderId" UUID NOT NULL,
+    "status" VARCHAR(30) NOT NULL,
+    "actor" VARCHAR(50) NOT NULL,
+    "notes" TEXT,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+) PARTITION BY RANGE ("createdAt");
+-- Note: Partitions must be created and managed separately.
+
+-- Payments
+CREATE TABLE "Payment" (
+    "paymentId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "orderId" UUID NOT NULL,
+    "amount" DECIMAL(10, 2) NOT NULL,
+    "status" payment_status_enum NOT NULL,
+    "gatewayTransactionId" VARCHAR(255) NOT NULL UNIQUE,
+    "gatewayResponse" JSONB DEFAULT '{}',
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Delivery Tasks
+CREATE TABLE "DeliveryTask" (
+    "deliveryTaskId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "orderId" UUID NOT NULL UNIQUE,
+    "riderId" UUID,
+    "status" delivery_task_status_enum NOT NULL DEFAULT 'PENDING_ALLOCATION',
+    "earnings" DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    "tip" DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    "pickedUpAt" TIMESTAMPTZ,
+    "deliveredAt" TIMESTAMPTZ,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Proof of Delivery
+CREATE TABLE "ProofOfDelivery" (
+    "podId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "deliveryTaskId" UUID NOT NULL UNIQUE,
+    "podType" pod_type_enum NOT NULL,
+    "podData" VARCHAR(2048) NOT NULL,
+    "latitude" DECIMAL(9, 6) NOT NULL,
+    "longitude" DECIMAL(9, 6) NOT NULL,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Rider Location History (Partitioned)
+CREATE TABLE "RiderLocationHistory" (
+    "locationId" BIGSERIAL PRIMARY KEY,
+    "riderId" UUID NOT NULL,
+    "latitude" DECIMAL(9, 6) NOT NULL,
+    "longitude" DECIMAL(9, 6) NOT NULL,
+    "accuracy" FLOAT,
+    "timestamp" TIMESTAMPTZ NOT NULL
+) PARTITION BY RANGE ("timestamp");
+-- Note: Partitions must be created and managed separately.
+
+-- Ratings and Reviews
+CREATE TABLE "RatingReview" (
+    "ratingReviewId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "orderId" UUID NOT NULL,
+    "reviewerId" UUID NOT NULL,
+    "revieweeId" UUID NOT NULL,
+    "revieweeType" reviewee_type_enum NOT NULL,
+    "rating" INT NOT NULL,
+    "reviewText" TEXT,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT "UC_RatingReview_Order_Reviewee" UNIQUE ("orderId", "revieweeId"),
+    CONSTRAINT "CHK_RatingReview_RatingRange" CHECK ("rating" BETWEEN 1 AND 5)
+);
+
+-- Chat Messages (Partitioned)
+CREATE TABLE "ChatMessage" (
+    "chatMessageId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "orderId" UUID NOT NULL,
+    "senderId" UUID NOT NULL,
+    "messageText" TEXT NOT NULL,
+    "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+) PARTITION BY RANGE ("createdAt");
+-- Note: Partitions must be created and managed separately.
+
+-- Support Tickets
+CREATE TABLE "SupportTicket" (
+    "supportTicketId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL,
+    "subject" VARCHAR(255) NOT NULL,
+    "description" TEXT NOT NULL,
+    "status" support_ticket_status_enum NOT NULL DEFAULT 'OPEN',
+    "assignedAdminId" UUID,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Audit Log (Partitioned)
+CREATE TABLE "AuditLog" (
+    "auditLogId" BIGSERIAL PRIMARY KEY,
+    "adminId" UUID NOT NULL,
+    "action" VARCHAR(100) NOT NULL,
+    "targetEntity" VARCHAR(100),
+    "targetEntityId" VARCHAR(255),
+    "changedData" JSONB DEFAULT '{}',
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+) PARTITION BY RANGE ("createdAt");
+-- Note: Partitions must be created and managed separately.
+
+-- Payouts
+CREATE TABLE "Payout" (
+    "payoutId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL,
+    "amount" DECIMAL(10, 2) NOT NULL,
+    "periodStartDate" DATE NOT NULL,
+    "periodEndDate" DATE NOT NULL,
+    "status" payout_status_enum NOT NULL DEFAULT 'PENDING',
+    "payoutGatewayTransactionId" VARCHAR(255) UNIQUE,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- Financial Transactions Ledger
+CREATE TABLE "FinancialTransaction" (
+    "financialTransactionId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "orderId" UUID,
+    "payoutId" UUID,
+    "debitAccount" VARCHAR(100) NOT NULL,
+    "creditAccount" VARCHAR(100) NOT NULL,
+    "amount" DECIMAL(10, 2) NOT NULL,
+    "description" TEXT,
+    "transactionType" financial_transaction_type_enum NOT NULL,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- User Consent
+CREATE TABLE "UserConsent" (
+    "userConsentId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "userId" UUID NOT NULL,
+    "consentType" VARCHAR(100) NOT NULL,
+    "isGranted" BOOLEAN NOT NULL,
+    "version" VARCHAR(20) NOT NULL,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT "UC_UserConsent_User_Type_Version" UNIQUE ("userId", "consentType", "version")
+);
+
+-- System Configuration
+CREATE TABLE "SystemConfiguration" (
+    "configKey" VARCHAR(100) PRIMARY KEY,
+    "configValue" TEXT NOT NULL,
+    "description" TEXT,
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    "updatedBy" UUID NOT NULL
+);
+
+-- ========= INDEXES =========
+
+-- Indexes for User Table
+CREATE INDEX "IX_User_UserType_Status" ON "User" ("userType", "status");
+CREATE INDEX "IX_User_CreatedAt" ON "User" ("createdAt");
+
+-- Indexes for VendorProfile Table
+CREATE INDEX "IX_VendorProfile_StoreName" ON "VendorProfile" ("storeName");
+CREATE INDEX "FT_VendorProfile_Description" ON "VendorProfile" USING GIN (to_tsvector('english', "description"));
+CREATE INDEX "IX_VendorProfile_Online_RatingDesc" ON "VendorProfile" ("isOnline", "averageRating" DESC);
+CREATE INDEX "IX_VendorProfile_Location_Spatial" ON "VendorProfile" USING GIST (ST_MakePoint("longitude", "latitude"));
+
+-- Indexes for RiderProfile Table
+CREATE INDEX "IX_RiderProfile_FullName" ON "RiderProfile" ("firstName", "lastName");
+
+-- Indexes for Address Table
+CREATE INDEX "IX_Address_UserId" ON "Address" ("userId");
+CREATE INDEX "IX_Address_Location_Spatial_GIST" ON "Address" USING GIST ("location");
+
+-- Indexes for OperationalZone Table
+CREATE INDEX "IX_OperationalZone_GeoPolygon" ON "OperationalZone" USING GIST ("geoPolygon");
+
+-- Indexes for Product Table
+CREATE INDEX "IX_Product_Vendor_Availability" ON "Product" ("vendorProfileId", "isAvailable", "isDeleted");
+CREATE INDEX "FT_Product_Name_Description" ON "Product" USING GIN (to_tsvector('english', "name" || ' ' || "description"));
+
+-- Indexes for Order Table
+CREATE INDEX "IX_Order_CustomerId_Status" ON "Order" ("customerId", "status");
+CREATE INDEX "IX_Order_VendorId_Status" ON "Order" ("vendorId", "status");
+CREATE INDEX "IX_Order_Status_PlacedAt" ON "Order" ("status", "placedAt");
+
+-- Indexes for OrderStatusHistory Table
+CREATE INDEX "IX_OrderStatusHistory_OrderId_CreatedAt" ON "OrderStatusHistory" ("orderId", "createdAt");
+
+-- Indexes for Payment Table
+CREATE INDEX "IX_Payment_OrderId" ON "Payment" ("orderId");
+
+-- Indexes for DeliveryTask Table
+CREATE INDEX "IX_DeliveryTask_RiderId_Status" ON "DeliveryTask" ("riderId", "status");
+CREATE INDEX "IX_DeliveryTask_Status_CreatedAt" ON "DeliveryTask" ("status", "createdAt");
+
+-- Indexes for RiderLocationHistory Table
+CREATE INDEX "IX_RiderLocationHistory_Rider_Timestamp" ON "RiderLocationHistory" ("riderId", "timestamp");
+
+-- Indexes for RatingReview Table
+CREATE INDEX "IX_RatingReview_Reviewee" ON "RatingReview" ("revieweeId", "revieweeType");
+
+-- Indexes for ChatMessage Table
+CREATE INDEX "IX_ChatMessage_Order_CreatedAt" ON "ChatMessage" ("orderId", "createdAt");
+
+-- Indexes for SupportTicket Table
+CREATE INDEX "IX_SupportTicket_Status_AssignedAdmin" ON "SupportTicket" ("status", "assignedAdminId");
+
+-- Indexes for AuditLog Table
+CREATE INDEX "IX_AuditLog_Target" ON "AuditLog" ("targetEntity", "targetEntityId");
+
+-- Indexes for FinancialTransaction Table
+CREATE INDEX "IX_FinancialTransaction_DebitAccount_Date" ON "FinancialTransaction" ("debitAccount", "createdAt");
+CREATE INDEX "IX_FinancialTransaction_CreditAccount_Date" ON "FinancialTransaction" ("creditAccount", "createdAt");
+
+-- Indexes for Payout Table
+CREATE INDEX "IX_Payout_User_Period" ON "Payout" ("userId", "periodStartDate", "periodEndDate");
+
+
+-- ========= FOREIGN KEY CONSTRAINTS =========
+
+-- CustomerProfile -> User
+ALTER TABLE "CustomerProfile" ADD CONSTRAINT "FK_CustomerProfile_User" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- VendorProfile -> User & Address
+ALTER TABLE "VendorProfile" ADD CONSTRAINT "FK_VendorProfile_User" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "VendorProfile" ADD CONSTRAINT "FK_VendorProfile_Address" FOREIGN KEY ("addressId") REFERENCES "Address"("addressId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- RiderProfile -> User
+ALTER TABLE "RiderProfile" ADD CONSTRAINT "FK_RiderProfile_User" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Address -> User
+ALTER TABLE "Address" ADD CONSTRAINT "FK_Address_User" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- VendorBusinessHour -> VendorProfile
+ALTER TABLE "VendorBusinessHour" ADD CONSTRAINT "FK_VendorBusinessHour_VendorProfile" FOREIGN KEY ("vendorProfileId") REFERENCES "VendorProfile"("vendorProfileId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- VendorLicense -> VendorProfile
+ALTER TABLE "VendorLicense" ADD CONSTRAINT "FK_VendorLicense_VendorProfile" FOREIGN KEY ("vendorProfileId") REFERENCES "VendorProfile"("vendorProfileId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- ProductCategory -> VendorProfile
+ALTER TABLE "ProductCategory" ADD CONSTRAINT "FK_ProductCategory_VendorProfile" FOREIGN KEY ("vendorProfileId") REFERENCES "VendorProfile"("vendorProfileId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Product -> VendorProfile & ProductCategory
+ALTER TABLE "Product" ADD CONSTRAINT "FK_Product_VendorProfile" FOREIGN KEY ("vendorProfileId") REFERENCES "VendorProfile"("vendorProfileId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "Product" ADD CONSTRAINT "FK_Product_ProductCategory" FOREIGN KEY ("productCategoryId") REFERENCES "ProductCategory"("productCategoryId") ON DELETE RESTRICT ON UPDATE CASCADE; -- Use RESTRICT instead of SET NULL to maintain data integrity
+
+-- Order -> User(Customer), User(Vendor), Address
+ALTER TABLE "Order" ADD CONSTRAINT "FK_Order_Customer" FOREIGN KEY ("customerId") REFERENCES "User"("userId") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Order" ADD CONSTRAINT "FK_Order_Vendor" FOREIGN KEY ("vendorId") REFERENCES "User"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Order" ADD CONSTRAINT "FK_Order_Address" FOREIGN KEY ("deliveryAddressId") REFERENCES "Address"("addressId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- OrderItem -> Order, Product
+ALTER TABLE "OrderItem" ADD CONSTRAINT "FK_OrderItem_Order" FOREIGN KEY ("orderId") REFERENCES "Order"("orderId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "OrderItem" ADD CONSTRAINT "FK_OrderItem_Product" FOREIGN KEY ("productId") REFERENCES "Product"("productId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- OrderStatusHistory -> Order
+ALTER TABLE "OrderStatusHistory" ADD CONSTRAINT "FK_OrderStatusHistory_Order" FOREIGN KEY ("orderId") REFERENCES "Order"("orderId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Payment -> Order
+ALTER TABLE "Payment" ADD CONSTRAINT "FK_Payment_Order" FOREIGN KEY ("orderId") REFERENCES "Order"("orderId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- DeliveryTask -> Order, User(Rider)
+ALTER TABLE "DeliveryTask" ADD CONSTRAINT "FK_DeliveryTask_Order" FOREIGN KEY ("orderId") REFERENCES "Order"("orderId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "DeliveryTask" ADD CONSTRAINT "FK_DeliveryTask_Rider" FOREIGN KEY ("riderId") REFERENCES "User"("userId") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- ProofOfDelivery -> DeliveryTask
+ALTER TABLE "ProofOfDelivery" ADD CONSTRAINT "FK_ProofOfDelivery_DeliveryTask" FOREIGN KEY ("deliveryTaskId") REFERENCES "DeliveryTask"("deliveryTaskId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- RiderLocationHistory -> User(Rider)
+ALTER TABLE "RiderLocationHistory" ADD CONSTRAINT "FK_RiderLocationHistory_Rider" FOREIGN KEY ("riderId") REFERENCES "User"("userId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- RatingReview -> Order, User(Reviewer), User(Reviewee)
+ALTER TABLE "RatingReview" ADD CONSTRAINT "FK_RatingReview_Order" FOREIGN KEY ("orderId") REFERENCES "Order"("orderId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "RatingReview" ADD CONSTRAINT "FK_RatingReview_Reviewer" FOREIGN KEY ("reviewerId") REFERENCES "User"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "RatingReview" ADD CONSTRAINT "FK_RatingReview_Reviewee" FOREIGN KEY ("revieweeId") REFERENCES "User"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- ChatMessage -> Order, User(Sender)
+ALTER TABLE "ChatMessage" ADD CONSTRAINT "FK_ChatMessage_Order" FOREIGN KEY ("orderId") REFERENCES "Order"("orderId") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ChatMessage" ADD CONSTRAINT "FK_ChatMessage_Sender" FOREIGN KEY ("senderId") REFERENCES "User"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- SupportTicket -> User(Creator), User(Admin Assignee)
+ALTER TABLE "SupportTicket" ADD CONSTRAINT "FK_SupportTicket_User" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "SupportTicket" ADD CONSTRAINT "FK_SupportTicket_Admin" FOREIGN KEY ("assignedAdminId") REFERENCES "User"("userId") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AuditLog -> User(Admin)
+ALTER TABLE "AuditLog" ADD CONSTRAINT "FK_AuditLog_Admin" FOREIGN KEY ("adminId") REFERENCES "User"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- FinancialTransaction -> Order, Payout
+ALTER TABLE "FinancialTransaction" ADD CONSTRAINT "FK_FinancialTransaction_Order" FOREIGN KEY ("orderId") REFERENCES "Order"("orderId") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "FinancialTransaction" ADD CONSTRAINT "FK_FinancialTransaction_Payout" FOREIGN KEY ("payoutId") REFERENCES "Payout"("payoutId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- Payout -> User
+ALTER TABLE "Payout" ADD CONSTRAINT "FK_Payout_User" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- UserConsent -> User
+ALTER TABLE "UserConsent" ADD CONSTRAINT "FK_UserConsent_User" FOREIGN KEY ("userId") REFERENCES "User"("userId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- SystemConfiguration -> User(Admin)
+ALTER TABLE "SystemConfiguration" ADD CONSTRAINT "FK_SystemConfiguration_Admin" FOREIGN KEY ("updatedBy") REFERENCES "User"("userId") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- ========= MATERIALIZED VIEWS =========
+
+-- Daily aggregated sales for vendors
+CREATE MATERIALIZED VIEW daily_vendor_sales AS
+SELECT
+    "vendorId",
+    DATE_TRUNC('day', "placedAt") AS sale_date,
+    COUNT("orderId") AS number_of_orders,
+    SUM("totalAmount") AS total_sales
+FROM "Order"
+WHERE status = 'DELIVERED'
+GROUP BY "vendorId", sale_date
+WITH DATA;
+
+CREATE UNIQUE INDEX ON daily_vendor_sales ("vendorId", sale_date);
+
+-- Daily aggregated earnings for riders
+CREATE MATERIALIZED VIEW daily_rider_earnings AS
+SELECT
+    "riderId",
+    DATE_TRUNC('day', "deliveredAt") AS delivery_date,
+    COUNT("deliveryTaskId") AS tasks_completed,
+    SUM(earnings) AS total_earnings,
+    SUM(tip) AS total_tips
+FROM "DeliveryTask"
+WHERE status = 'DELIVERED' AND "riderId" IS NOT NULL AND "deliveredAt" IS NOT NULL
+GROUP BY "riderId", delivery_date
+WITH DATA;
+
+CREATE UNIQUE INDEX ON daily_rider_earnings ("riderId", delivery_date);

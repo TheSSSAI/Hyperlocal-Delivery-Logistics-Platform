@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTP Input Component</title>
+  <style>
+    /* ---------------------------------- */
+    /* --- 1. SETUP & TOKENS ------------ */
+    /* ---------------------------------- */
+    :root {
+      /* Colors */
+      --color-primary-500: #2563eb;
+      --color-primary-700: #1e40af;
+      --color-danger-500: #dc2626;
+      --color-danger-700: #991b1b;
+      --color-neutral-100: #f1f3f5;
+      --color-neutral-400: #ced4da;
+      --color-neutral-600: #6c757d;
+      --color-neutral-900: #212529;
+      --color-white: #ffffff;
+      
+      /* Typography */
+      --font-family-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-size-base: 1rem;
+      --font-size-lg: 1.25rem;
+      --font-weight-semibold: 600;
+      
+      /* Spacing */
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-xl: 2rem;
+      
+      /* Borders & Shadows */
+      --border-radius-md: 0.5rem;
+      --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.4);
+      --shadow-focus-error: 0 0 0 3px rgba(220, 38, 38, 0.4);
+      
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+
+    body {
+      font-family: var(--font-family-sans);
+      background-color: var(--color-neutral-100);
+      color: var(--color-neutral-900);
+      margin: 0;
+      padding: var(--space-xl);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .showcase {
+      background-color: var(--color-white);
+      padding: var(--space-xl);
+      border-radius: var(--border-radius-md);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 700px;
+    }
+
+    .showcase-section {
+      margin-bottom: var(--space-xl);
+    }
+    
+    .showcase-section:last-child {
+      margin-bottom: 0;
+    }
+
+    h2 {
+      margin-bottom: var(--space-md);
+      font-size: 1.5rem;
+    }
+    
+    h3 {
+        margin-top: var(--space-md);
+        margin-bottom: var(--space-md);
+        color: var(--color-neutral-600);
+        font-weight: 400;
+        font-size: 1rem;
+        border-bottom: 1px solid var(--color-neutral-100);
+        padding-bottom: var(--space-sm);
+    }
+
+    fieldset {
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    legend {
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-md);
+      font-size: var(--font-size-base);
+    }
+
+    .error-text {
+      color: var(--color-danger-500);
+      font-size: 0.875rem;
+      text-align: center;
+      margin-top: var(--space-md);
+      display: none;
+    }
+    
+    .otp-input--error + .error-text {
+        display: block;
+    }
+
+    /* ---------------------------------- */
+    /* --- 2. OTP INPUT COMPONENT ------- */
+    /* ---------------------------------- */
+    .otp-input {
+      display: flex;
+      gap: var(--space-sm);
+      justify-content: center;
+    }
+
+    .otp-input__segment {
+      width: 48px;
+      height: 56px;
+      text-align: center;
+      font-size: var(--font-size-lg);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutral-900);
+      border: 1px solid var(--color-neutral-400);
+      border-radius: var(--border-radius-md);
+      background-color: var(--color-white);
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+      caret-color: var(--color-primary-500);
+      -moz-appearance: textfield; /* For Firefox */
+    }
+
+    .otp-input__segment::-webkit-outer-spin-button,
+    .otp-input__segment::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* States */
+    .otp-input__segment:focus,
+    .otp-input__segment.is-focus /* for static showcase */ {
+      outline: none;
+      border-color: var(--color-primary-500);
+      box-shadow: var(--shadow-focus);
+    }
+
+    .otp-input__segment.is-filled {
+        border-color: var(--color-primary-700);
+        background-color: var(--color-neutral-100);
+    }
+
+    .otp-input--error .otp-input__segment {
+      border-color: var(--color-danger-500);
+      color: var(--color-danger-700);
+    }
+
+    .otp-input--error .otp-input__segment:focus,
+    .otp-input--error .otp-input__segment.is-focus {
+      border-color: var(--color-danger-500);
+      box-shadow: var(--shadow-focus-error);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase">
+    <div class="showcase-section">
+      <h2>4-Digit OTP Input</h2>
+      
+      <h3>Default</h3>
+      <fieldset>
+        <legend class="sr-only">Enter 4-digit code</legend>
+        <div class="otp-input">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 1">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 2">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 3">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 4">
+        </div>
+      </fieldset>
+      
+      <h3>Focus</h3>
+      <fieldset>
+        <legend class="sr-only">Enter 4-digit code</legend>
+        <div class="otp-input">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment is-filled" value="1" aria-label="Digit 1">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment is-filled" value="2" aria-label="Digit 2">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment is-focus" aria-label="Digit 3">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 4">
+        </div>
+      </fieldset>
+
+      <h3>Filled</h3>
+       <fieldset>
+        <legend class="sr-only">Enter 4-digit code</legend>
+        <div class="otp-input">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment is-filled" value="1" aria-label="Digit 1">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment is-filled" value="2" aria-label="Digit 2">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment is-filled" value="3" aria-label="Digit 3">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment is-filled" value="4" aria-label="Digit 4">
+        </div>
+      </fieldset>
+      
+      <h3>Error</h3>
+      <fieldset>
+        <legend class="sr-only">Enter 4-digit code</legend>
+        <div class="otp-input otp-input--error">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment is-filled" value="1" aria-label="Digit 1">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment is-filled" value="2" aria-label="Digit 2">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment is-filled" value="3" aria-label="Digit 3">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment is-filled" value="4" aria-label="Digit 4">
+        </div>
+        <p class="error-text" id="otp-error-message">Invalid OTP. Please try again.</p>
+      </fieldset>
+    </div>
+    
+    <div class="showcase-section">
+      <h2>6-Digit OTP Input</h2>
+      
+      <h3>Default</h3>
+      <fieldset>
+        <legend>Enter your 6-digit verification code</legend>
+        <div class="otp-input" id="otp-6">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 1">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 2">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 3">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 4">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 5">
+          <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 6">
+        </div>
+      </fieldset>
+    </div>
+
+  </div>
+
+  <script>
+    // This script provides enhanced usability but is not essential for the component's appearance.
+    document.querySelectorAll('.otp-input').forEach(otpWrapper => {
+      const inputs = [...otpWrapper.children];
+      
+      inputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+          // If a digit is entered, move to the next input
+          if (input.value && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          }
+        });
+        
+        input.addEventListener('keydown', (e) => {
+          // If backspace is pressed on an empty input, move to the previous one
+          if (e.key === 'Backspace' && !input.value && index > 0) {
+            inputs[index - 1].focus();
+          }
+        });
+
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasteData = e.clipboardData.getData('text').trim();
+            if (!/^\d+$/.test(pasteData)) return; // Only paste digits
+
+            let currentDigit = 0;
+            for(let i = index; i < inputs.length && currentDigit < pasteData.length; i++) {
+                inputs[i].value = pasteData[currentDigit];
+                currentDigit++;
+            }
+            if(index + pasteData.length <= inputs.length) {
+                const nextFocusIndex = Math.min(index + pasteData.length, inputs.length - 1);
+                inputs[nextFocusIndex].focus();
+            }
+        });
+      });
+    });
+  </script>
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "4-digit"</h3>
+		<!--description--><normal> A four-segment input for shorter OTP codes, common in less critical verification flows. </normal>
+		<!-- vrient 1 html -->
+        <fieldset>
+          <legend class="sr-only">Enter 4-digit code</legend>
+          <div class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 1">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 2">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 3">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 4">
+          </div>
+        </fieldset>      
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : "6-digit"</h3>
+		<!--description--><normal> A six-segment input for more secure OTP codes, typically used for login and registration. </normal>
+		<!-- vrient 1 html -->
+        <fieldset>
+          <legend class="sr-only">Enter 6-digit code</legend>
+          <div class="otp-input">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 1">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 2">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 3">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 4">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 5">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__segment" aria-label="Digit 6">
+          </div>
+        </fieldset>      
+      </div>
+	 </div>    
+	
+	</body>
+</html>

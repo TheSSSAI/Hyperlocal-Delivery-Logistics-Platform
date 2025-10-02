@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: ChatInterface</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================== */
+    /* 1. Design System Tokens & Base Styles           */
+    /* =============================================== */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', sans-serif;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-200: #D3D9E1;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-500: #8E9BAA;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      --color-semantic-success-light: #E5F9F1;
+      --color-semantic-success-dark: #003D24;
+      --color-semantic-error-light: #FFEBEB;
+      --color-semantic-error-dark: #8B0000;
+      /* Spacing */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      /* Borders & Shadows */
+      --border-radius-sm: 4px;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --border-radius-full: 9999px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutrals-gray-200);
+      padding: var(--space-24);
+    }
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: var(--space-24);
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    .showcase-card {
+      background: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-16);
+      box-shadow: var(--shadow-sm);
+    }
+    .showcase-card h2 {
+      font-size: 20px;
+      margin: 0 0 var(--space-16) 0;
+    }
+    .component-container {
+      height: 600px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    /* =============================================== */
+    /* 2. Atomic Dependency Styles                     */
+    /* =============================================== */
+    .avatar { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background-color: var(--color-primary-100); color: var(--color-primary-700); font-weight: 600; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; font-weight: 600; border-radius: var(--border-radius-full); border: 1px solid transparent; cursor: pointer; transition: all var(--transition-fast); }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-300); outline-offset: 2px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutrals-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .btn[disabled] { background-color: var(--color-neutrals-gray-200); color: var(--color-neutrals-gray-500); cursor: not-allowed; }
+    .btn--icon-only { padding: 10px; width: 44px; height: 44px; }
+    .icon { width: 24px; height: 24px; fill: currentColor; }
+    .text-input { width: 100%; border: 1px solid var(--color-neutrals-gray-300); background: var(--color-neutrals-white); padding: 12px 16px; border-radius: var(--border-radius-md); font-size: var(--font-size-body); }
+    .text-input:focus { border-color: var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-50); outline: none; }
+    .spinner { animation: spin 0.8s linear infinite; border-radius: 50%; border: 4px solid var(--color-primary-500); border-right-color: transparent; width: 48px; height: 48px; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .alert { display: flex; align-items: flex-start; gap: var(--space-12); padding: var(--space-16); border: 1px solid; border-radius: var(--border-radius-md); }
+    .alert__icon { flex-shrink: 0; font-size: 20px; margin-top: 2px; }
+    .alert--error { background-color: var(--color-semantic-error-light); border-color: var(--color-semantic-error); color: var(--color-semantic-error-dark); }
+    .alert__title { font-weight: 600; margin-bottom: var(--space-4); display: block;}
+
+    /* =============================================== */
+    /* 3. Organism: ChatInterface                      */
+    /* =============================================== */
+    .chat-interface {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      background-color: var(--color-neutrals-white);
+      border: 1px solid var(--color-neutrals-gray-200);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      position: relative;
+    }
+    
+    /* Header */
+    .chat-interface__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      padding: var(--space-12) var(--space-16);
+      border-bottom: 1px solid var(--color-neutrals-gray-100);
+      flex-shrink: 0;
+    }
+    .chat-interface__header-info { flex-grow: 1; }
+    .chat-interface__header-title { font-weight: 600; color: var(--color-neutrals-gray-900); }
+    .chat-interface__header-subtitle { font-size: var(--font-size-caption); color: var(--color-neutrals-gray-500); }
+    
+    /* Messages Area */
+    .chat-interface__messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: var(--space-16);
+      display: flex;
+      flex-direction: column-reverse; /* Puts new messages at the bottom */
+    }
+    .chat-interface__messages-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-16);
+    }
+    
+    /* MessageBubble Molecular Component */
+    .message-bubble {
+      display: flex;
+      flex-direction: column;
+      max-width: 80%;
+      padding: var(--space-12);
+      border-radius: var(--border-radius-lg);
+    }
+    .message-bubble__text { line-height: 1.5; word-wrap: break-word; }
+    .message-bubble__timestamp { font-size: 12px; margin-top: var(--space-4); opacity: 0.8; text-align: right; }
+    .message-bubble--sent {
+      align-self: flex-end;
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+      border-bottom-right-radius: var(--border-radius-sm);
+    }
+    .message-bubble--received {
+      align-self: flex-start;
+      background-color: var(--color-neutrals-gray-100);
+      color: var(--color-neutrals-gray-900);
+      border-bottom-left-radius: var(--border-radius-sm);
+    }
+    .message-bubble--system {
+        align-self: center;
+        background-color: transparent;
+        color: var(--color-neutrals-gray-500);
+        font-size: var(--font-size-caption);
+        font-style: italic;
+        padding: var(--space-4) 0;
+    }
+    
+    /* Quick Replies */
+    .chat-interface__quick-replies {
+      flex-shrink: 0;
+      padding: var(--space-8) var(--space-16);
+      display: flex;
+      gap: var(--space-8);
+      overflow-x: auto;
+      scrollbar-width: none; /* Firefox */
+    }
+    .chat-interface__quick-replies::-webkit-scrollbar { display: none; } /* Chrome, Safari */
+    
+    .quick-reply {
+      flex-shrink: 0;
+      padding: var(--space-8) var(--space-12);
+      font-size: var(--font-size-caption);
+      font-weight: 600;
+      border: 1px solid var(--color-neutrals-gray-300);
+      border-radius: var(--border-radius-full);
+      background-color: var(--color-neutrals-white);
+      color: var(--color-neutrals-gray-700);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .quick-reply:hover {
+      background-color: var(--color-neutrals-gray-50);
+      border-color: var(--color-neutrals-gray-500);
+    }
+    
+    /* Footer Input Area */
+    .chat-interface__footer {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      padding: var(--space-12);
+      border-top: 1px solid var(--color-neutrals-gray-100);
+      background-color: var(--color-neutrals-white);
+      flex-shrink: 0;
+    }
+    .chat-interface__footer .text-input {
+      flex-grow: 1;
+      border-radius: var(--border-radius-full);
+      padding: 10px 16px;
+      max-width: none;
+    }
+    .chat-interface__footer .btn--icon-only { flex-shrink: 0; }
+    
+    /* States */
+    .chat-interface[data-state="read-only"] .chat-interface__footer,
+    .chat-interface[data-state="read-only"] .chat-interface__quick-replies { 
+      display: none; 
+    }
+    
+    .chat-interface__overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      display: none; /* Hidden by default */
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 10;
+      text-align: center;
+      padding: var(--space-24);
+    }
+    .chat-interface[data-state="loading"] .chat-interface__overlay,
+    .chat-interface[data-state="error"] .chat-interface__overlay {
+        display: flex;
+    }
+    .chat-interface__overlay .spinner { margin-bottom: var(--space-16); }
+    .chat-interface__overlay .alert { width: 100%; max-width: 320px; }
+  </style>
+</head>
+<body>
+  <div class="showcase-grid">
+    
+    <div class="showcase-card">
+      <h2>Active State</h2>
+      <div class="component-container">
+        <div class="chat-interface" data-state="active" role="log" aria-live="polite" aria-labelledby="chat-title-1">
+          <header class="chat-interface__header">
+            <div class="avatar">
+              <img src="https://i.pravatar.cc/80?u=rider1" alt="Rider Avatar">
+            </div>
+            <div class="chat-interface__header-info">
+              <div id="chat-title-1" class="chat-interface__header-title">Rohan (Rider)</div>
+              <div class="chat-interface__header-subtitle">Order #ORD-12345</div>
+            </div>
+            <button class="btn btn--icon-only" style="background:transparent; color: var(--color-neutrals-gray-700);" aria-label="Close chat">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+            </button>
+          </header>
+          <main class="chat-interface__messages">
+            <div class="chat-interface__messages-list">
+                <div class="message-bubble message-bubble--sent">
+                    <p class="message-bubble__text">Hi, I am on my way to your location. I should be there in about 5 minutes.</p>
+                    <span class="message-bubble__timestamp">10:32 AM</span>
+                </div>
+                <div class="message-bubble message-bubble--received">
+                    <p class="message-bubble__text">Great, thank you! Could you please leave the package at the front door?</p>
+                    <span class="message-bubble__timestamp">10:31 AM</span>
+                </div>
+                 <div class="message-bubble message-bubble--sent">
+                    <p class="message-bubble__text">Hello! I have picked up your order.</p>
+                    <span class="message-bubble__timestamp">10:25 AM</span>
+                </div>
+            </div>
+          </main>
+          <div class="chat-interface__quick-replies">
+            <button class="quick-reply">I'm arriving now</button>
+            <button class="quick-reply">Okay, thanks!</button>
+            <button class="quick-reply">I'm at the location</button>
+            <button class="quick-reply">I'm having trouble finding the address</button>
+          </div>
+          <footer class="chat-interface__footer">
+            <input type="text" class="text-input" placeholder="Type a message...">
+            <button class="btn btn--primary btn--icon-only" aria-label="Send message">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+          </footer>
+        </div>
+      </div>
+    </div>
+    
+    <div class="showcase-card">
+      <h2>Read-Only State</h2>
+      <div class="component-container">
+        <div class="chat-interface" data-state="read-only">
+          <header class="chat-interface__header">
+            <div class="avatar">RS</div>
+            <div class="chat-interface__header-info">
+              <div class="chat-interface__header-title">Rahul Sharma (Vendor)</div>
+              <div class="chat-interface__header-subtitle">Order #ORD-67890 (Delivered)</div>
+            </div>
+          </header>
+          <main class="chat-interface__messages">
+            <div class="chat-interface__messages-list">
+                <div class="message-bubble message-bubble--system">
+                    <p class="message-bubble__text">This chat is now closed.</p>
+                </div>
+                <div class="message-bubble message-bubble--received">
+                    <p class="message-bubble__text">Thank you so much!</p>
+                    <span class="message-bubble__timestamp">11:05 AM</span>
+                </div>
+                <div class="message-bubble message-bubble--sent">
+                    <p class="message-bubble__text">No problem, we've replaced it with the multigrain bread.</p>
+                    <span class="message-bubble__timestamp">11:04 AM</span>
+                </div>
+                <div class="message-bubble message-bubble--received">
+                    <p class="message-bubble__text">Hi, is it possible to substitute the white bread for whole wheat?</p>
+                    <span class="message-bubble__timestamp">11:02 AM</span>
+                </div>
+            </div>
+          </main>
+          <!-- Footer and Quick Replies are hidden by CSS in this state -->
+        </div>
+      </div>
+    </div>
+    <div class="showcase-card">
+      <h2>Loading State</h2>
+      <div class="component-container">
+        <div class="chat-interface" data-state="loading">
+            <header class="chat-interface__header">
+                <div class="avatar"></div>
+                <div class="chat-interface__header-info">
+                  <div class="chat-interface__header-title">Loading Chat...</div>
+                  <div class="chat-interface__header-subtitle">Please wait</div>
+                </div>
+            </header>
+            <main class="chat-interface__messages"></main>
+            <footer class="chat-interface__footer">
+                 <input type="text" class="text-input" placeholder="Type a message..." disabled>
+                 <button class="btn btn--primary btn--icon-only" aria-label="Send message" disabled>
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </footer>
+            <div class="chat-interface__overlay">
+                <div class="spinner"></div>
+            </div>
+        </div>
+      </div>
+    </div>
+    <div class="showcase-card">
+      <h2>Error State</h2>
+      <div class="component-container">
+        <div class="chat-interface" data-state="error">
+          <header class="chat-interface__header">
+            <div class="avatar">?</div>
+            <div class="chat-interface__header-info">
+              <div class="chat-interface__header-title">Chat Unavailable</div>
+              <div class="chat-interface__header-subtitle">Order #ORD-ERROR</div>
+            </div>
+          </header>
+          <main class="chat-interface__messages"></main>
+          <div class="chat-interface__overlay">
+             <div class="alert alert--error" role="alert">
+                <svg class="icon alert__icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg>
+                <div class="alert__content">
+                    <strong class="alert__title">Could not load chat</strong>
+                    Please check your connection and try again.
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

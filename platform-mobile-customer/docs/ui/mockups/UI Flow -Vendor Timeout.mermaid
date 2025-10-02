@@ -1,0 +1,38 @@
+sequenceDiagram
+    participant OrderService as "Order Management Service"
+    participant Scheduler as "Scheduler (e.g., SQS Delay Queue)"
+    participant MessageBus as "Message Bus (SNS/SQS)"
+    participant NotificationService as "Notification Service"
+    participant PaymentService as "Payment Service"
+    participant VendorService as "Vendor Service (Real-time)"
+
+    Note over OrderService: Pre-condition: New order is created with status 'Pending Vendor Acceptance'.
+
+    OrderService->>Scheduler: 1. Schedule timeout check for OrderID (e.g., publish with 5-min delay)
+
+    ... 5 minutes pass ...
+
+    Scheduler->>OrderService: 2. Trigger timeout check for OrderID
+
+    OrderService->>OrderService: 3. Fetch order and check if status is still 'Pending Vendor Acceptance'
+
+    alt Status is 'Pending Vendor Acceptance'
+        OrderService->>OrderService: 4. [DB Transaction] Update order status to 'Cancelled' (Reason: Vendor Timeout) & log event
+        OrderService->>MessageBus: 5. Publish 'OrderAutoRejected' event with order details
+        
+        par Customer Notification
+            MessageBus-->>NotificationService: 6a. (Async) Consume event
+            NotificationService->>NotificationService: 7a. Send 'Order Cancelled' notification to Customer
+        and Vendor Dashboard Update
+            MessageBus-->>VendorService: 6b. (Async) Consume event
+            VendorService->>VendorService: 7b. Push update to remove order from Vendor's 'New Orders' queue
+        and Conditional Refund
+            opt Order was Prepaid
+                MessageBus-->>PaymentService: 6c. (Async) Consume event
+                PaymentService->>PaymentService: 7c. Initiate full refund to original payment method
+            end
+        end
+
+    else Status has changed (Accepted/Rejected)
+        OrderService->>OrderService: 8. No action needed. Log that timeout was ignored.
+    end

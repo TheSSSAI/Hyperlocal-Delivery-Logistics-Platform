@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: OTPInput</title>
+  <style>
+    /* 1. CSS Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* 2. Design System Tokens (CSS Custom Properties) */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --line-height-body: 1.6;
+
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-neutral-white: #FFFFFF;
+      --color-neutral-50: #F7F9FC;
+      --color-neutral-300: #BCC4CF;
+      --color-neutral-700: #555D66;
+      --color-neutral-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      --color-danger-50: #FFEBEB;
+
+      /* Spacing */
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-32: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* 3. Base & Showcase Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-body);
+      background-color: var(--color-neutral-50);
+      color: var(--color-neutral-900);
+      padding: var(--space-32);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .showcase {
+      width: 100%;
+      max-width: 600px;
+      background-color: var(--color-neutral-white);
+      border-radius: var(--border-radius-lg);
+      padding: var(--space-32);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .showcase-header {
+      text-align: center;
+      margin-bottom: var(--space-32);
+    }
+
+    h1 { font-size: 28px; font-weight: var(--font-weight-bold); }
+    h2 { font-size: 20px; font-weight: var(--font-weight-semibold); margin-top: var(--space-32); margin-bottom: var(--space-16); border-top: 1px solid #eee; padding-top: var(--space-32); }
+    
+    .form-error-message {
+      font-size: 14px;
+      color: var(--color-semantic-error);
+      text-align: center;
+      margin-top: var(--space-16);
+      display: none; /* Hidden by default */
+    }
+
+    .otp-input--error ~ .form-error-message {
+      display: block; /* Show when error class is present */
+    }
+
+    /* 4. Component Styles */
+    /* OTPInput Component CSS */
+
+    /* Component Base */
+    .otp-input {
+      display: flex;
+      gap: var(--space-12);
+      justify-content: center;
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .otp-input__legend {
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-16);
+      text-align: center;
+      width: 100%;
+    }
+
+    .otp-input__field {
+      width: 48px;
+      height: 56px;
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--border-radius-md);
+      font-family: var(--font-family-primary);
+      font-size: 24px;
+      font-weight: var(--font-weight-semibold);
+      text-align: center;
+      caret-color: var(--color-primary-500);
+      transition: all 0.2s ease-in-out;
+    }
+
+    /* Remove number input spinners */
+    .otp-input__field::-webkit-outer-spin-button,
+    .otp-input__field::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .otp-input__field[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    /* Component States */
+    .otp-input__field:focus {
+      outline: none;
+      border: 2px solid var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+    }
+    
+    .otp-input__field:not(:placeholder-shown) {
+      border-color: var(--color-primary-300);
+    }
+
+    /* Component Variants */
+    .otp-input--error .otp-input__field {
+      border-color: var(--color-semantic-error);
+      color: var(--color-semantic-error);
+    }
+
+    .otp-input--error .otp-input__field:focus {
+      border-color: var(--color-semantic-error);
+      box-shadow: 0 0 0 3px var(--color-danger-50);
+    }
+
+    /* Responsive Adaptations */
+    @media (max-width: 480px) {
+      .otp-input {
+        gap: var(--space-8);
+      }
+      .otp-input__field {
+        width: 40px;
+        height: 48px;
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="showcase">
+    <header class="showcase-header">
+      <h1>OTP Input</h1>
+      <p>A molecular component for entering verification codes.</p>
+    </header>
+
+    <div>
+        <!-- All variations are listed below as states -->
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const otpContainers = document.querySelectorAll('[data-otp-container]');
+
+      otpContainers.forEach(container => {
+        const inputs = [...container.querySelectorAll('.otp-input__field')];
+        const length = inputs.length;
+
+        const handleInput = (e) => {
+          const input = e.target;
+          const value = input.value;
+
+          if (value && input.nextElementSibling) {
+            input.nextElementSibling.focus();
+          }
+        };
+
+        const handleKeyDown = (e) => {
+          const input = e.target;
+          if (e.key === 'Backspace' && !input.value && input.previousElementSibling) {
+            input.previousElementSibling.focus();
+          }
+        };
+
+        const handlePaste = (e) => {
+          e.preventDefault();
+          const pasteData = e.clipboardData.getData('text').trim();
+          if (pasteData.length === length && /^\d+$/.test(pasteData)) {
+            inputs.forEach((input, index) => {
+              input.value = pasteData[index];
+            });
+            inputs[length - 1].focus();
+          }
+        };
+
+        inputs.forEach(input => {
+          input.addEventListener('input', handleInput);
+          input.addEventListener('keydown', handleKeyDown);
+          input.addEventListener('paste', handlePaste);
+          // Allow only numbers
+          input.addEventListener('keypress', (e) => {
+              if (!/\d/.test(e.key)) {
+                  e.preventDefault();
+              }
+          });
+        });
+      });
+    });
+  </script>
+
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "Default State"<h3>
+		<!--description--><normal> The default appearance of the OTP input fields. </normal>
+		<!-- vrient 1 html -->
+        <fieldset class="otp-input" data-otp-container>
+          <legend class="otp-input__legend">Enter your 6-digit verification code</legend>
+          <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 1" required>
+          <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 2" required>
+          <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 3" required>
+          <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 4" required>
+          <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 5" required>
+          <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 6" required>
+        </fieldset>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "Focus State"<h3>
+		<!--description--><normal> The appearance when a user selects an input field. The border highlights in the primary color. </normal>
+		<!-- vrient 1 html -->
+        <fieldset class="otp-input" data-otp-container>
+            <legend class="otp-input__legend">Focus State (Click a field)</legend>
+            <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 1" required>
+            <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 2" required>
+            <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 3" required>
+            <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 4" required>
+            <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 5" required>
+            <input type="number" class="otp-input__field" placeholder="-" maxlength="1" aria-label="Digit 6" required>
+        </fieldset>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "Filled State"<h3>
+		<!--description--><normal> The appearance when all fields are filled with digits. </normal>
+		<!-- vrient 1 html -->
+        <fieldset class="otp-input" data-otp-container>
+          <legend class="otp-input__legend">Filled State</legend>
+          <input type="number" class="otp-input__field" value="1" maxlength="1" aria-label="Digit 1" required>
+          <input type="number" class="otp-input__field" value="2" maxlength="1" aria-label="Digit 2" required>
+          <input type="number" class="otp-input__field" value="3" maxlength="1" aria-label="Digit 3" required>
+          <input type="number" class="otp-input__field" value="4" maxlength="1" aria-label="Digit 4" required>
+          <input type="number" class="otp-input__field" value="5" maxlength="1" aria-label="Digit 5" required>
+          <input type="number" class="otp-input__field" value="6" maxlength="1" aria-label="Digit 6" required>
+        </fieldset>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "Error State"<h3>
+		<!--description--><normal> The appearance when the submitted OTP is incorrect. Borders and text turn to the error color. </normal>
+		<!-- vrient 1 html -->
+        <fieldset class="otp-input otp-input--error" data-otp-container aria-describedby="otp-error-msg">
+          <legend class="otp-input__legend">Error State</legend>
+          <input type="number" class="otp-input__field" value="1" maxlength="1" aria-label="Digit 1" required>
+          <input type="number" class="otp-input__field" value="2" maxlength="1" aria-label="Digit 2" required>
+          <input type="number" class="otp-input__field" value="3" maxlength="1" aria-label="Digit 3" required>
+          <input type="number" class="otp-input__field" value="8" maxlength="1" aria-label="Digit 4" required>
+          <input type="number" class="otp-input__field" value="9" maxlength="1" aria-label="Digit 5" required>
+          <input type="number" class="otp-input__field" value="0" maxlength="1" aria-label="Digit 6" required>
+        </fieldset>
+        <div id="otp-error-msg" class="form-error-message">Invalid OTP. Please try again.</div>     
+		
+      <div>
+	 </div>    
+	
+	</body>
+</html>

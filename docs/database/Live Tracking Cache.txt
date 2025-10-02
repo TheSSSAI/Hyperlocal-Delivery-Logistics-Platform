@@ -1,0 +1,12 @@
+# Add or update the location for specific riders.
+# Syntax: GEOADD key longitude latitude member
+
+GEOADD rider_live_locations -122.4194 37.7749 "rider-uuid-001"
+GEOADD rider_live_locations -74.0060 40.7128 "rider-uuid-002"
+GEOADD rider_live_locations 2.3522 48.8566 "rider-uuid-003"
+
+# To verify the data, you can retrieve the position of a specific rider
+# GETPOS rider_live_locations "rider-uuid-001"
+
+# Example of a proximity query: Find riders within a 5-kilometer radius of a point in New York.
+# GEORADIUS rider_live_locations -73.99 40.73 5 km WITHDIST WITHCOORD COUNT 10

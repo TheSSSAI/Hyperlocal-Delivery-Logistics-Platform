@@ -1,0 +1,85 @@
+sequenceDiagram
+    actor Administrator
+    participant AdminDashboard as "Admin Web Dashboard (React)"
+    participant APIGateway as "API Gateway"
+    participant IdentityService as "Identity & Access Service"
+    participant PostgreSQLDB as "PostgreSQL Database"
+
+    Administrator->>AdminDashboard: 1. Navigates to '/admin/users'
+    activate AdminDashboard
+
+    AdminDashboard->>AdminDashboard: 2. Renders page shell, shows Skeleton Loader
+    activate APIGateway
+    AdminDashboard->>APIGateway: 3. GET /api/v1/admin/users?page=1&limit=25&sortBy=createdAt&order=desc
+    
+    activate IdentityService
+    APIGateway->>IdentityService: 4. Forwards validated request
+    
+    activate PostgreSQLDB
+    IdentityService->>PostgreSQLDB: 5. SELECT * FROM users ... LIMIT 25 OFFSET 0 ORDER BY createdAt DESC
+    PostgreSQLDB-->>IdentityService: 6. Returns user records
+    deactivate PostgreSQLDB
+    
+    IdentityService-->>APIGateway: 7. Returns PaginatedUserResponseDTO
+    deactivate IdentityService
+    
+    APIGateway-->>AdminDashboard: 8. 200 OK with user data
+    deactivate APIGateway
+
+    AdminDashboard->>AdminDashboard: 9. Hides loader, renders DataTable with users and Pagination component
+    deactivate AdminDashboard
+    
+    %% User interacts with filters
+    Administrator->>AdminDashboard: 10. Types 'Suresh' in SearchBar
+    activate AdminDashboard
+    AdminDashboard->>AdminDashboard: 11. (Debounce 300ms) Shows loading state in table
+    
+    activate APIGateway
+    AdminDashboard->>APIGateway: 12. GET /api/v1/admin/users?search=Suresh
+    
+    activate IdentityService
+    APIGateway->>IdentityService: 13. Forwards request with search term
+    
+    activate PostgreSQLDB
+    IdentityService->>PostgreSQLDB: 14. SELECT * FROM users WHERE name ILIKE '%Suresh%'...
+    PostgreSQLDB-->>IdentityService: 15. Returns filtered user records
+    deactivate PostgreSQLDB
+
+    IdentityService-->>APIGateway: 16. Returns new paginated data
+    deactivate IdentityService
+    
+    APIGateway-->>AdminDashboard: 17. 200 OK with filtered data
+    deactivate APIGateway
+    
+    AdminDashboard->>AdminDashboard: 18. Hides loader, re-renders DataTable
+    deactivate AdminDashboard
+
+    %% User combines filters
+    Administrator->>AdminDashboard: 19. Selects Filter 'Role: Vendor'
+    activate AdminDashboard
+    AdminDashboard->>AdminDashboard: 20. Shows loading state
+    
+    activate APIGateway
+    AdminDashboard->>APIGateway: 21. GET /api/v1/admin/users?search=Suresh&role=Vendor
+    
+    activate IdentityService
+    APIGateway->>IdentityService: 22. Forwards request with all query params
+    
+    activate PostgreSQLDB
+    IdentityService->>PostgreSQLDB: 23. SELECT * FROM users WHERE name ILIKE '%Suresh%' AND role='Vendor'...
+    PostgreSQLDB-->>IdentityService: 24. Returns filtered user records (or empty set)
+    deactivate PostgreSQLDB
+
+    alt No Results Found
+        IdentityService-->>APIGateway: 25a. Returns empty data array
+        APIGateway-->>AdminDashboard: 26a. 200 OK with empty array
+        AdminDashboard->>AdminDashboard: 27a. Hides DataTable, shows 'No users found' message
+    else Results Found
+        IdentityService-->>APIGateway: 25b. Returns filtered data
+        APIGateway-->>AdminDashboard: 26b. 200 OK with data
+        AdminDashboard->>AdminDashboard: 27b. Re-renders DataTable with new data
+    end
+    
+    deactivate IdentityService
+    deactivate APIGateway
+    deactivate AdminDashboard

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sidebar Navigation Component</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    ul { list-style: none; }
+    a { text-decoration: none; color: inherit; }
+    img, svg { display: block; max-width: 100%; }
+    button { font: inherit; border: none; background: none; cursor: pointer; }
+
+    /* Design System Tokens */
+    :root {
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-600: #717C88;
+      --color-neutrals-gray-800: #383E44;
+      --color-neutrals-gray-900: #1C1F22;
+      
+      /* Spacing */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+      
+      /* Typography */
+      --font-size-body: 16px;
+      --font-weight-regular: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      
+      /* Borders */
+      --border-radius-md: 8px;
+      
+      /* Transitions */
+      --transition-fast: 200ms ease-in-out;
+    }
+
+    /* Base Styles */
+    body {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-800);
+      line-height: 1.6;
+    }
+
+    /* Page Layout */
+    .page-container {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      grid-template-rows: 60px 1fr;
+      height: 100vh;
+      grid-template-areas:
+        "header header"
+        "sidebar main";
+    }
+
+    .page-header {
+      grid-area: header;
+      display: none; /* Hidden by default, shown on mobile */
+      align-items: center;
+      padding: 0 var(--spacing-md);
+      background-color: var(--color-neutrals-white);
+      border-bottom: 1px solid var(--color-neutrals-gray-100);
+    }
+    
+    .main-content {
+      grid-area: main;
+      padding: var(--spacing-xl);
+      overflow-y: auto;
+    }
+
+    .main-content h1 {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: var(--spacing-md);
+        color: var(--color-neutrals-gray-900);
+    }
+    .main-content p {
+        max-width: 65ch;
+    }
+
+    /* Hamburger Menu Button (for mobile) */
+    .hamburger-btn {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      width: 24px;
+      height: 24px;
+      justify-content: center;
+    }
+    .hamburger-btn span {
+      width: 100%;
+      height: 2px;
+      background-color: var(--color-neutrals-gray-900);
+      border-radius: 2px;
+    }
+
+    /* --- SidebarNav Component --- */
+    .sidebar-nav {
+      grid-area: sidebar;
+      background-color: var(--color-neutrals-white);
+      border-right: 1px solid var(--color-neutrals-gray-100);
+      width: 240px;
+      padding: var(--spacing-lg) var(--spacing-md);
+      display: flex;
+      flex-direction: column;
+      transition: width var(--transition-fast), transform var(--transition-fast);
+      z-index: 1000;
+    }
+
+    .sidebar-nav__header {
+      display: flex;
+      align-items: center;
+      padding: 0 var(--spacing-sm) var(--spacing-lg);
+      gap: var(--spacing-sm);
+    }
+
+    .sidebar-nav__logo {
+      width: 32px;
+      height: 32px;
+      background-color: var(--color-primary-500);
+      border-radius: var(--border-radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+
+    .sidebar-nav__title {
+      font-size: 20px;
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutrals-gray-900);
+      white-space: nowrap;
+      opacity: 1;
+      transition: opacity 150ms ease-in-out;
+    }
+
+    .sidebar-nav__list {
+      flex-grow: 1;
+    }
+    
+    .sidebar-nav__item {
+        margin-bottom: var(--spacing-xs);
+    }
+
+    .sidebar-nav__link {
+      display: flex;
+      align-items: center;
+      padding: 10px var(--spacing-sm);
+      border-radius: var(--border-radius-md);
+      color: var(--color-neutrals-gray-600);
+      font-weight: var(--font-weight-medium);
+      transition: background-color var(--transition-fast), color var(--transition-fast);
+    }
+
+    .sidebar-nav__link:hover {
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-900);
+    }
+    
+    .sidebar-nav__link.is-active,
+    .sidebar-nav__link:focus-visible {
+      background-color: var(--color-primary-50);
+      color: var(--color-primary-600);
+      outline: none;
+    }
+
+    .sidebar-nav__icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 12px;
+      flex-shrink: 0;
+      transition: margin-right var(--transition-fast);
+    }
+    
+    .sidebar-nav__text {
+      white-space: nowrap;
+      opacity: 1;
+      transition: opacity 150ms ease-in-out;
+    }
+
+    .sidebar-nav__footer {
+        border-top: 1px solid var(--color-neutrals-gray-100);
+        padding-top: var(--spacing-md);
+        margin-top: var(--spacing-md);
+    }
+
+
+    /* --- Collapsed State (Tablet) --- */
+    .sidebar-nav--collapsed {
+      width: 80px;
+    }
+    .sidebar-nav--collapsed .sidebar-nav__title,
+    .sidebar-nav--collapsed .sidebar-nav__text {
+      opacity: 0;
+      width: 0;
+      overflow: hidden;
+    }
+    .sidebar-nav--collapsed .sidebar-nav__link {
+        justify-content: center;
+    }
+    .sidebar-nav--collapsed .sidebar-nav__icon {
+      margin-right: 0;
+    }
+
+    /* --- Responsive Behavior --- */
+    
+    /* Tablet */
+    @media (max-width: 1024px) {
+      .page-container {
+        grid-template-columns: 80px 1fr;
+      }
+      .sidebar-nav {
+        width: 80px;
+      }
+      .sidebar-nav .sidebar-nav__title,
+      .sidebar-nav .sidebar-nav__text {
+        opacity: 0;
+        width: 0;
+        overflow: hidden;
+      }
+       .sidebar-nav .sidebar-nav__link {
+        justify-content: center;
+      }
+      .sidebar-nav .sidebar-nav__icon {
+        margin-right: 0;
+      }
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .page-container {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "header"
+          "main";
+      }
+      .page-header, .hamburger-btn {
+        display: flex;
+      }
+      .sidebar-nav {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      }
+      .sidebar-nav--mobile-open {
+        transform: translateX(0);
+      }
+      .sidebar-nav .sidebar-nav__title,
+      .sidebar-nav .sidebar-nav__text {
+        opacity: 1;
+        width: auto;
+      }
+      .sidebar-nav .sidebar-nav__link {
+        justify-content: flex-start;
+      }
+       .sidebar-nav .sidebar-nav__icon {
+        margin-right: 12px;
+      }
+      .overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0,0,0,0.4);
+        z-index: 999;
+        display: none;
+      }
+      .overlay.is-visible {
+        display: block;
+      }
+    }
+
+    /* --- Demonstration Styles --- */
+    .screen-variations {
+      padding: var(--spacing-xl);
+      background-color: #f0f4f8;
+    }
+    .screen-variations h2 {
+      font-size: 24px;
+      margin-bottom: var(--spacing-lg);
+      border-bottom: 1px solid var(--color-neutrals-gray-200);
+      padding-bottom: var(--spacing-sm);
+    }
+    .variation-group {
+      margin-bottom: var(--spacing-xl);
+    }
+    .variation-group h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: var(--spacing-sm);
+    }
+    .variation-group p {
+      margin-bottom: var(--spacing-md);
+      color: var(--color-neutrals-gray-600);
+    }
+    .demo-container {
+        position: relative;
+        height: 500px;
+        border: 1px solid var(--color-neutrals-gray-100);
+        background-color: var(--color-neutrals-gray-50);
+        border-radius: var(--border-radius-md);
+        overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-container">
+    <header class="page-header">
+      <button class="hamburger-btn" id="hamburger-toggle" aria-label="Open navigation menu">
+        <span></span><span></span><span></span>
+      </button>
+    </header>
+
+    <nav class="sidebar-nav" id="sidebar">
+        <div class="sidebar-nav__header">
+            <div class="sidebar-nav__logo">P</div>
+            <span class="sidebar-nav__title">Platform</span>
+        </div>
+        <ul class="sidebar-nav__list">
+            <li class="sidebar-nav__item">
+                <a href="#" class="sidebar-nav__link is-active" aria-current="page">
+                    <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 11.25a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.25a.75.75 0 0 1-.75-.75ZM4.5 6.75a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.25a.75.75 0 0 1-.75-.75ZM4.5 15.75a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.25a.75.75 0 0 1-.75-.75Z"/></svg>
+                    <span class="sidebar-nav__text">Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-nav__item">
+                <a href="#" class="sidebar-nav__link">
+                    <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.25 6.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM15.75 9.75a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM17.25 12a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM18.75 14.25a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM18.75 17.25a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM12.75 16.5a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM10.5 18.75a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM8.25 16.5a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM6 18.75a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM5.25 14.25a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM6.75 12a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM8.25 9.75a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75Z" clip-rule="evenodd" /></svg>
+                    <span class="sidebar-nav__text">User Management</span>
+                </a>
+            </li>
+            <li class="sidebar-nav__item">
+                <a href="#" class="sidebar-nav__link">
+                    <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.983 2.502a2.25 2.25 0 0 1 2.228 1.912l1.01 6.388a.75.75 0 0 0 .565.565l6.388 1.01a2.25 2.25 0 0 1 1.912 2.228v.018a2.25 2.25 0 0 1-1.912 2.228l-6.388 1.01a.75.75 0 0 0-.565.565l-1.01 6.388a2.25 2.25 0 0 1-2.228 1.912h-.018a2.25 2.25 0 0 1-2.228-1.912l-1.01-6.388a.75.75 0 0 0-.565-.565l-6.388-1.01a2.25 2.25 0 0 1-1.912-2.228v-.018a2.25 2.25 0 0 1 1.912-2.228l6.388-1.01a.75.75 0 0 0 .565-.565l1.01-6.388A2.25 2.25 0 0 1 11.965 2.5h.018Z" /></svg>
+                    <span class="sidebar-nav__text">Orders</span>
+                </a>
+            </li>
+            <li class="sidebar-nav__item">
+                <a href="#" class="sidebar-nav__link">
+                    <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="m11.54 22.351.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 5.169-4.4c1.58-2.212 2.682-4.68 2.682-7.25A8.25 8.25 0 0 0 12 2.5a8.25 8.25 0 0 0-8.25 8.25c0 2.57 1.102 4.037 2.682 7.25a16.975 16.975 0 0 0 5.17 4.4l.069.04.028.015ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" /></svg>
+                    <span class="sidebar-nav__text">Zones</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-nav__footer">
+            <a href="#" class="sidebar-nav__link">
+                 <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M11.078 2.25c-.917 0-1.699.663-1.943 1.522l-.497 1.74a.75.75 0 0 0 .342.822l1.258.839a.75.75 0 0 0 .937-.282l.4-1.29a.75.75 0 0 1 1.44-.241l.242 1.815a.75.75 0 0 0 .644.644l1.815.242a.75.75 0 0 1 .241 1.44l-1.29.4a.75.75 0 0 0-.282.937l.839 1.258a.75.75 0 0 0 .822.342l1.74-.497a1.942 1.942 0 0 1 1.522-.497c.917 0 1.699.663 1.943 1.522l.497 1.74a.75.75 0 0 0-.342.822l-1.258.839a.75.75 0 0 0-.937.282l-.4 1.29a.75.75 0 0 1-1.44.241l-.242-1.815a.75.75 0 0 0-.644-.644l-1.815-.242a.75.75 0 0 1-.241-1.44l1.29-.4a.75.75 0 0 0 .282-.937l-.839-1.258a.75.75 0 0 0-.822-.342l-1.74.497a1.942 1.942 0 0 1-1.522.497c-.917 0-1.699-.663-1.943-1.522l-.497-1.74a.75.75 0 0 0 .342-.822l1.258-.839a.75.75 0 0 0 .937-.282l.4-1.29a.75.75 0 0 1 1.44-.241l.242 1.815a.75.75 0 0 0 .644.644l1.815.242a.75.75 0 0 1 .241 1.44l-1.29.4a.75.75 0 0 0-.282.937l.839 1.258a.75.75 0 0 0 .822.342l1.74-.497a1.942 1.942 0 0 1 1.522-.497c.917 0 1.699-.663 1.943-1.522l.497-1.74a.75.75 0 0 0-.342-.822l-1.258-.839a.75.75 0 0 0-.937.282l-.4-1.29a.75.75 0 0 1-1.44-.241l-.242-1.815a.75.75 0 0 0-.644-.644l-1.815-.242a.75.75 0 0 1-.241-1.44l1.29-.4a.75.75 0 0 0 .282-.937l-.839-1.258a.75.75 0 0 0-.822-.342l-1.74.497A1.942 1.942 0 0 1 11.078 2.25Z" clip-rule="evenodd" /></svg>
+                 <span class="sidebar-nav__text">Settings</span>
+            </a>
+        </div>
+    </nav>
+    <main class="main-content">
+      <h1>Dashboard</h1>
+      <p>This is the main content area. The sidebar on the left provides navigation to other sections of the application. On tablet screens, it will collapse to show only icons. On mobile screens, it will be hidden behind a hamburger menu button.</p>
+    </main>
+  </div>
+  <div class="overlay" id="overlay"></div>
+
+  <div class="screen-variations">
+    <h2>Screen Variations</h2>
+    
+    <div class="variation-group">
+      <h3>Variant: "Vendor" (Expanded State)</h3>
+      <p>The sidebar as it would appear for a Vendor user on a desktop screen, showing relevant menu items.</p>
+      <div class="demo-container">
+          <nav class="sidebar-nav">
+              <div class="sidebar-nav__header">
+                  <div class="sidebar-nav__logo">V</div>
+                  <span class="sidebar-nav__title">My Store</span>
+              </div>
+              <ul class="sidebar-nav__list">
+                  <li class="sidebar-nav__item">
+                      <a href="#" class="sidebar-nav__link is-active" aria-current="page">
+                          <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 11.25a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.25a.75.75 0 0 1-.75-.75ZM4.5 6.75a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.25a.75.75 0 0 1-.75-.75ZM4.5 15.75a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.25a.75.75 0 0 1-.75-.75Z"/></svg>
+                          <span class="sidebar-nav__text">Dashboard</span>
+                      </a>
+                  </li>
+                  <li class="sidebar-nav__item">
+                      <a href="#" class="sidebar-nav__link">
+                          <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.983 2.502a2.25 2.25 0 0 1 2.228 1.912l1.01 6.388a.75.75 0 0 0 .565.565l6.388 1.01a2.25 2.25 0 0 1 1.912 2.228v.018a2.25 2.25 0 0 1-1.912 2.228l-6.388 1.01a.75.75 0 0 0-.565.565l-1.01 6.388a2.25 2.25 0 0 1-2.228 1.912h-.018a2.25 2.25 0 0 1-2.228-1.912l-1.01-6.388a.75.75 0 0 0-.565-.565l-6.388-1.01a2.25 2.25 0 0 1-1.912-2.228v-.018a2.25 2.25 0 0 1 1.912-2.228l6.388-1.01a.75.75 0 0 0 .565-.565l1.01-6.388A2.25 2.25 0 0 1 11.965 2.5h.018Z" /></svg>
+                          <span class="sidebar-nav__text">Orders</span>
+                      </a>
+                  </li>
+                  <li class="sidebar-nav__item">
+                      <a href="#" class="sidebar-nav__link">
+                          <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clip-rule="evenodd" /></svg>
+                          <span class="sidebar-nav__text">Products</span>
+                      </a>
+                  </li>
+                  <li class="sidebar-nav__item">
+                      <a href="#" class="sidebar-nav__link">
+                          <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M1.5 7.125c0-1.036.84-1.875 1.875-1.875h.375a3 3 0 0 1 3 3v1.5H1.5V7.125ZM10.5 8.625V7.125a3 3 0 0 1 3-3h.375C14.91 4.125 15.75 5 15.75 6v1.5H10.5Z" clip-rule="evenodd" /><path d="M17.625 4.125c1.035 0 1.875.84 1.875 1.875V8.625h-4.5V6.125a3 3 0 0 1 3-3h.375Zm-10.5 6.75h15V18.75a.75.75 0 0 1-.75.75H8.25a.75.75 0 0 1-.75-.75v-7.125Z" /><path fill-rule="evenodd" d="M2.25 10.875v7.125a.75.75 0 0 0 .75.75H6v-8.625H2.25Z" clip-rule="evenodd" /></svg>
+                          <span class="sidebar-nav__text">Reports</span>
+                      </a>
+                  </li>
+              </ul>
+              <div class="sidebar-nav__footer">
+                  <a href="#" class="sidebar-nav__link">
+                       <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M11.078 2.25c-.917 0-1.699.663-1.943 1.522l-.497 1.74a.75.75 0 0 0 .342.822l1.258.839a.75.75 0 0 0 .937-.282l.4-1.29a.75.75 0 0 1 1.44-.241l.242 1.815a.75.75 0 0 0 .644.644l1.815.242a.75.75 0 0 1 .241 1.44l-1.29.4a.75.75 0 0 0-.282.937l.839 1.258a.75.75 0 0 0 .822.342l1.74-.497a1.942 1.942 0 0 1 1.522-.497c.917 0 1.699.663 1.943 1.522l.497 1.74a.75.75 0 0 0-.342.822l-1.258.839a.75.75 0 0 0-.937.282l-.4 1.29a.75.75 0 0 1-1.44.241l-.242-1.815a.75.75 0 0 0-.644-.644l-1.815-.242a.75.75 0 0 1-.241-1.44l1.29-.4a.75.75 0 0 0 .282-.937l-.839-1.258a.75.75 0 0 0-.822-.342l-1.74.497a1.942 1.942 0 0 1-1.522.497c-.917 0-1.699-.663-1.943-1.522l-.497-1.74a.75.75 0 0 0 .342-.822l1.258-.839a.75.75 0 0 0 .937-.282l.4-1.29a.75.75 0 0 1 1.44-.241l.242 1.815a.75.75 0 0 0 .644.644l1.815.242a.75.75 0 0 1 .241 1.44l-1.29.4a.75.75 0 0 0-.282.937l.839 1.258a.75.75 0 0 0 .822.342l1.74-.497a1.942 1.942 0 0 1 1.522-.497c.917 0 1.699.663 1.943-1.522l.497-1.74a.75.75 0 0 0-.342-.822l-1.258-.839a.75.75 0 0 0-.937.282l-.4-1.29a.75.75 0 0 1-1.44-.241l-.242-1.815a.75.75 0 0 0-.644-.644l-1.815-.242a.75.75 0 0 1-.241-1.44l1.29-.4a.75.75 0 0 0 .282-.937l-.839-1.258a.75.75 0 0 0-.822-.342l-1.74.497A1.942 1.942 0 0 1 11.078 2.25Z" clip-rule="evenodd" /></svg>
+                       <span class="sidebar-nav__text">Settings</span>
+                  </a>
+              </div>
+          </nav>
+      </div>
+    </div>
+    
+    <div class="variation-group">
+      <h3>State: "Collapsed" (Tablet View)</h3>
+      <p>The sidebar automatically collapses to an icon-only view on screens narrower than 1024px to save space.</p>
+      <div class="demo-container">
+          <nav class="sidebar-nav sidebar-nav--collapsed">
+              <div class="sidebar-nav__header">
+                  <div class="sidebar-nav__logo">P</div>
+                  <span class="sidebar-nav__title">Platform</span>
+              </div>
+              <ul class="sidebar-nav__list">
+                  <li class="sidebar-nav__item">
+                      <a href="#" class="sidebar-nav__link is-active" aria-current="page" title="Dashboard">
+                          <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 11.25a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.25a.75.75 0 0 1-.75-.75ZM4.5 6.75a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.25a.75.75 0 0 1-.75-.75ZM4.5 15.75a.75.75 0 0 1 .75-.75h13.5a.75.75 0 0 1 0 1.5H5.25a.75.75 0 0 1-.75-.75Z"/></svg>
+                          <span class="sidebar-nav__text">Dashboard</span>
+                      </a>
+                  </li>
+                  <li class="sidebar-nav__item">
+                      <a href="#" class="sidebar-nav__link" title="User Management">
+                          <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M8.25 6.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM15.75 9.75a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM17.25 12a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM18.75 14.25a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM18.75 17.25a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM12.75 16.5a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM10.5 18.75a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM8.25 16.5a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM6 18.75a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM5.25 14.25a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM6.75 12a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75ZM8.25 9.75a.75.75 0 0 0-1.5 0v.75a.75.75 0 0 0 1.5 0v-.75Z" clip-rule="evenodd" /></svg>
+                          <span class="sidebar-nav__text">User Management</span>
+                      </a>
+                  </li>
+                  <li class="sidebar-nav__item">
+                      <a href="#" class="sidebar-nav__link" title="Orders">
+                          <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.983 2.502a2.25 2.25 0 0 1 2.228 1.912l1.01 6.388a.75.75 0 0 0 .565.565l6.388 1.01a2.25 2.25 0 0 1 1.912 2.228v.018a2.25 2.25 0 0 1-1.912 2.228l-6.388 1.01a.75.75 0 0 0-.565.565l-1.01 6.388a2.25 2.25 0 0 1-2.228 1.912h-.018a2.25 2.25 0 0 1-2.228-1.912l-1.01-6.388a.75.75 0 0 0-.565-.565l-6.388-1.01a2.25 2.25 0 0 1-1.912-2.228v-.018a2.25 2.25 0 0 1 1.912-2.228l6.388-1.01a.75.75 0 0 0 .565-.565l1.01-6.388A2.25 2.25 0 0 1 11.965 2.5h.018Z" /></svg>
+                          <span class="sidebar-nav__text">Orders</span>
+                      </a>
+                  </li>
+              </ul>
+              <div class="sidebar-nav__footer">
+                   <a href="#" class="sidebar-nav__link" title="Settings">
+                       <svg class="sidebar-nav__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M11.078 2.25c-.917 0-1.699.663-1.943 1.522l-.497 1.74a.75.75 0 0 0 .342.822l1.258.839a.75.75 0 0 0 .937-.282l.4-1.29a.75.75 0 0 1 1.44-.241l.242 1.815a.75.75 0 0 0 .644.644l1.815.242a.75.75 0 0 1 .241 1.44l-1.29.4a.75.75 0 0 0-.282.937l.839 1.258a.75.75 0 0 0 .822.342l1.74-.497a1.942 1.942 0 0 1 1.522-.497c.917 0 1.699.663 1.943 1.522l.497 1.74a.75.75 0 0 0-.342.822l-1.258.839a.75.75 0 0 0-.937.282l-.4 1.29a.75.75 0 0 1-1.44.241l-.242-1.815a.75.75 0 0 0-.644-.644l-1.815-.242a.75.75 0 0 1-.241-1.44l1.29-.4a.75.75 0 0 0 .282-.937l-.839-1.258a.75.75 0 0 0-.822-.342l-1.74.497a1.942 1.942 0 0 1-1.522.497c-.917 0-1.699-.663-1.943-1.522l-.497-1.74a.75.75 0 0 0 .342-.822l1.258-.839a.75.75 0 0 0 .937-.282l.4-1.29a.75.75 0 0 1 1.44-.241l.242 1.815a.75.75 0 0 0 .644.644l1.815.242a.75.75 0 0 1 .241 1.44l-1.29.4a.75.75 0 0 0-.282.937l.839 1.258a.75.75 0 0 0 .822.342l1.74-.497a1.942 1.942 0 0 1 1.522-.497c.917 0 1.699.663 1.943-1.522l.497-1.74a.75.75 0 0 0-.342-.822l-1.258-.839a.75.75 0 0 0-.937.282l-.4-1.29a.75.75 0 0 1-1.44-.241l-.242-1.815a.75.75 0 0 0-.644-.644l-1.815-.242a.75.75 0 0 1-.241-1.44l1.29-.4a.75.75 0 0 0 .282-.937l-.839-1.258a.75.75 0 0 0-.822-.342l-1.74.497A1.942 1.942 0 0 1 11.078 2.25Z" clip-rule="evenodd" /></svg>
+                       <span class="sidebar-nav__text">Settings</span>
+                  </a>
+              </div>
+          </nav>
+      </div>
+    </div>
+    <div class="variation-group">
+      <h3>Note: Mobile View (Off-Canvas)</h3>
+      <p>On screens narrower than 768px, the sidebar is hidden. It can be toggled by clicking the hamburger icon in the header. This behavior is interactive and best tested by resizing the browser window.</p>
+    </div>
+  </div>
+
+  <script>
+    const hamburgerBtn = document.getElementById('hamburger-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+
+    function toggleMenu() {
+      const isOpen = sidebar.classList.contains('sidebar-nav--mobile-open');
+      sidebar.classList.toggle('sidebar-nav--mobile-open');
+      overlay.classList.toggle('is-visible');
+      hamburgerBtn.setAttribute('aria-expanded', !isOpen);
+    }
+
+    hamburgerBtn.addEventListener('click', toggleMenu);
+    overlay.addEventListener('click', toggleMenu);
+  </script>
+</body>
+</html>

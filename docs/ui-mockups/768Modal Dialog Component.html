@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modal Dialog Component</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F7F9FC; color: #1C1F22; }
+
+    /* 1. Design System Tokens */
+    :root {
+      /* Colors */
+      --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-300: #5C9EFF; --color-primary-500: #0068FF; --color-primary-600: #0053CC; --color-primary-700: #003E99;
+      --color-secondary-50: #E5F9F1; --color-secondary-500: #00C875; --color-secondary-900: #003D24;
+      --color-neutrals-white: #FFFFFF; --color-neutrals-gray_100: #E9EDF2; --color-neutrals-gray_200: #D3D9E1; --color-neutrals-gray_300: #BCC4CF; --color-neutrals-gray_500: #8E9BAA; --color-neutrals-gray_700: #555D66; --color-neutrals-gray_900: #1C1F22;
+      --color-semantic-error: #FF4D4D; --color-semantic-error-dark: #cc0000;
+
+      /* Typography */
+      --font-family-primary: 'Inter', sans-serif;
+      --font-size-h3: 24px; --font-weight-h3: 600;
+      --font-size-body: 16px; --font-weight-body: 400;
+      --font-size-caption: 14px; --line-height-body: 1.6;
+
+      /* Spacing */
+      --spacing-xs: 8px; --spacing-sm: 12px; --spacing-md: 16px; --spacing-lg: 24px; --spacing-xl: 32px;
+
+      /* Borders */
+      --border-radius-md: 8px; --border-radius-lg: 12px;
+    }
+
+    /* 2. Base Styles & Demo Page Layout */
+    .page-container {
+        padding: var(--spacing-xl);
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+    .page-container h1 { font-size: 36px; margin-bottom: var(--spacing-md); color: var(--color-neutrals-gray_900); }
+    .page-container p { font-size: var(--font-size-body); line-height: var(--line-height-body); margin-bottom: var(--spacing-lg); color: var(--color-neutrals-gray_700); }
+    .trigger-buttons { display: flex; flex-wrap: wrap; gap: var(--spacing-md); }
+    .variants-container { margin-top: 64px; }
+    .variant { background-color: var(--color-neutrals-white); border: 1px solid var(--color-neutrals-gray_100); border-radius: var(--border-radius-lg); padding: var(--spacing-lg); margin-top: var(--spacing-lg); }
+    .variant h3 { font-size: 20px; font-weight: 600; margin-bottom: var(--spacing-sm); }
+    .variant p { font-size: var(--font-size-caption); color: var(--color-neutrals-gray_600); margin-bottom: 0; }
+    .variant pre { background-color: var(--color-neutrals-gray_100); padding: var(--spacing-md); border-radius: var(--border-radius-md); margin-top: var(--spacing-md); font-size: 13px; white-space: pre-wrap; word-wrap: break-word; }
+
+    /* 3. Dependency Components Styles */
+    /* Button */
+    .btn {
+        font-family: var(--font-family-primary);
+        font-size: var(--font-size-body);
+        font-weight: 600;
+        padding: var(--spacing-sm) var(--spacing-lg);
+        border: none;
+        border-radius: var(--border-radius-md);
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-xs);
+        text-decoration: none;
+    }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-300); outline-offset: 2px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutrals-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .btn--primary:active { transform: scale(0.98); background-color: var(--color-primary-700); }
+    .btn--secondary { background-color: var(--color-neutrals-white); color: var(--color-neutrals-gray_700); border: 1px solid var(--color-neutrals-gray_300); }
+    .btn--secondary:hover { background-color: var(--color-neutrals-gray_100); }
+    .btn--secondary:active { transform: scale(0.98); background-color: var(--color-neutrals-gray_200); }
+    .btn--danger { background-color: var(--color-semantic-error); color: var(--color-neutrals-white); }
+    .btn--danger:hover { background-color: var(--color-semantic-error-dark); }
+    .btn--danger:active { transform: scale(0.98); }
+    .btn:disabled { background-color: var(--color-neutrals-gray_200); color: var(--color-neutrals-gray_500); cursor: not-allowed; }
+    
+    /* Icon */
+    .icon { width: 20px; height: 20px; stroke-width: 2; }
+    .btn .icon { width: 18px; height: 18px; }
+
+    /* Form Input */
+    .form-group { margin-bottom: var(--spacing-md); }
+    .form-group label { display: block; font-weight: 500; margin-bottom: var(--spacing-xs); font-size: var(--font-size-caption); color: var(--color-neutrals-gray_700); }
+    .text-input {
+        width: 100%;
+        padding: var(--spacing-sm) var(--spacing-md);
+        border: 1px solid var(--color-neutrals-gray_300);
+        border-radius: var(--border-radius-md);
+        font-size: var(--font-size-body);
+        font-family: var(--font-family-primary);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .text-input:focus { border-color: var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-100); outline: none; }
+    .text-input.is-invalid { border-color: var(--color-semantic-error); }
+    .error-message { color: var(--color-semantic-error); font-size: var(--font-size-caption); margin-top: var(--spacing-xs); }
+
+    /* 4. ModalDialog Component Styles */
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(28, 31, 34, 0.5);
+        display: none; /* Hidden by default */
+        align-items: center;
+        justify-content: center;
+        padding: var(--spacing-md);
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+        z-index: 1000;
+    }
+    .modal-backdrop.is-open {
+        display: flex;
+        opacity: 1;
+    }
+
+    .modal {
+        background-color: var(--color-neutrals-white);
+        border-radius: var(--border-radius-lg);
+        box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 500px;
+        display: flex;
+        flex-direction: column;
+        max-height: 90vh;
+        transform: scale(0.95);
+        transition: transform 0.2s ease-in-out;
+    }
+    .modal-backdrop.is-open .modal {
+        transform: scale(1);
+    }
+    .modal:focus {
+        outline: none;
+    }
+
+    .modal__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-lg);
+        border-bottom: 1px solid var(--color-neutrals-gray_100);
+    }
+    .modal__title {
+        font-size: var(--font-size-h3);
+        font-weight: var(--font-weight-h3);
+        color: var(--color-neutrals-gray_900);
+        line-height: 1.3;
+    }
+    .modal__close-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 50%;
+        color: var(--color-neutrals-gray_500);
+        transition: background-color 0.2s, color 0.2s;
+    }
+    .modal__close-btn:hover {
+        background-color: var(--color-neutrals-gray_100);
+        color: var(--color-neutrals-gray_900);
+    }
+
+    .modal__body {
+        padding: var(--spacing-lg);
+        overflow-y: auto;
+        font-size: var(--font-size-body);
+        line-height: var(--line-height-body);
+        color: var(--color-neutrals-gray_700);
+    }
+    .modal__body p { margin-bottom: var(--spacing-md); }
+    .modal__body p:last-child { margin-bottom: 0; }
+
+    .modal__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-lg);
+        border-top: 1px solid var(--color-neutrals-gray_100);
+        background-color: var(--color-neutrals-gray_100);
+    }
+
+    /* 5. Responsive Styles for Modal */
+    @media (max-width: 768px) {
+        .modal-backdrop {
+            align-items: flex-end;
+            padding: 0;
+        }
+        .modal {
+            max-width: 100%;
+            border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+            max-height: 80vh;
+            transform: translateY(100%);
+        }
+        .modal-backdrop.is-open .modal {
+            transform: translateY(0);
+        }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-container">
+    <h1>Modal Dialog Component</h1>
+    <p>This component is used to present critical information or request user input. It overlays the main content, requiring user interaction. Below are triggers for different variants of the modal.</p>
+    <div class="trigger-buttons">
+      <button class="btn btn--primary" type="button" data-modal-trigger="confirmation-modal">Open Confirmation Modal</button>
+      <button class="btn btn--secondary" type="button" data-modal-trigger="form-modal">Open Form Modal</button>
+      <button class="btn btn--danger" type="button" data-modal-trigger="delete-modal">Open Critical Delete Modal</button>
+    </div>
+
+    <div class="variants-container">
+        <h1>Variants Showcase</h1>
+        <div class="variant">
+            <h3>Confirmation Modal</h3>
+            <p>Used for confirming a standard, non-destructive user action. It presents a clear question and two opposing actions.</p>
+            <pre><code>&lt;!-- Triggered by data-modal-trigger="confirmation-modal" --&gt;</code></pre>
+        </div>
+        <div class="variant">
+            <h3>Form Modal</h3>
+            <p>Used for capturing user input in a focused context, such as creating or editing an item, without navigating to a new page.</p>
+            <pre><code>&lt;!-- Triggered by data-modal-trigger="form-modal" --&gt;</code></pre>
+        </div>
+        <div class="variant">
+            <h3>Critical Delete Modal</h3>
+            <p>A specific type of confirmation modal for destructive actions. It uses stronger visual cues (e.g., a danger button) and may require a confirmation input to enable the final action, preventing accidental data loss.</p>
+            <pre><code>&lt;!-- Triggered by data-modal-trigger="delete-modal" --&gt;</code></pre>
+        </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL IMPLEMENTATIONS (HIDDEN BY DEFAULT) -->
+
+  <!-- 1. Confirmation Modal -->
+  <div class="modal-backdrop" id="confirmation-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-desc">
+      <header class="modal__header">
+        <h2 class="modal__title" id="confirm-title">Confirm Action</h2>
+        <button class="modal__close-btn" data-modal-close>
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </header>
+      <main class="modal__body">
+        <p id="confirm-desc">Are you sure you want to proceed with this action? This can be a standard confirmation for a non-destructive task.</p>
+      </main>
+      <footer class="modal__footer">
+        <button class="btn btn--secondary" data-modal-close>Cancel</button>
+        <button class="btn btn--primary">Confirm</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- 2. Form Modal -->
+  <div class="modal-backdrop" id="form-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="form-title">
+      <header class="modal__header">
+        <h2 class="modal__title" id="form-title">Create New Item</h2>
+        <button class="modal__close-btn" data-modal-close>
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </header>
+      <main class="modal__body">
+        <form>
+          <div class="form-group">
+            <label for="item-name">Item Name</label>
+            <input type="text" id="item-name" class="text-input" placeholder="e.g., My New Product">
+          </div>
+          <div class="form-group">
+            <label for="item-desc">Description (Optional)</label>
+            <textarea id="item-desc" class="text-input" rows="3" placeholder="Add a short description..."></textarea>
+          </div>
+        </form>
+      </main>
+      <footer class="modal__footer">
+        <button class="btn btn--secondary" data-modal-close>Cancel</button>
+        <button class="btn btn--primary">Save Item</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- 3. Critical Delete Modal -->
+  <div class="modal-backdrop" id="delete-modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-title" aria-describedby="delete-desc">
+      <header class="modal__header">
+        <h2 class="modal__title" id="delete-title">Delete Vendor: "Global Foods"</h2>
+        <button class="modal__close-btn" data-modal-close>
+          <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </header>
+      <main class="modal__body">
+        <p id="delete-desc">This action is permanent and cannot be undone. This will permanently delete the vendor, their product catalog, and all associated data.</p>
+        <p>To confirm, please type <strong>Global Foods</strong> in the box below.</p>
+        <div class="form-group" style="margin-top: var(--spacing-lg);">
+          <input type="text" id="delete-confirm-input" class="text-input" aria-label="Confirmation input for deletion">
+        </div>
+      </main>
+      <footer class="modal__footer">
+        <button class="btn btn--secondary" data-modal-close>Cancel</button>
+        <button class="btn btn--danger" id="delete-confirm-btn" disabled>Delete Vendor</button>
+      </footer>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const triggers = document.querySelectorAll('[data-modal-trigger]');
+        const closeButtons = document.querySelectorAll('[data-modal-close]');
+        const backdrops = document.querySelectorAll('.modal-backdrop');
+
+        // Function to open a modal
+        const openModal = (modalId) => {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('is-open');
+                document.body.style.overflow = 'hidden';
+                // Focus management
+                const focusableElements = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+                const firstElement = focusableElements[0];
+                if (firstElement) {
+                    firstElement.focus();
+                }
+            }
+        };
+
+        // Function to close a modal
+        const closeModal = (modal) => {
+            modal.classList.remove('is-open');
+            document.body.style.overflow = '';
+        };
+
+        // Event listeners for triggers
+        triggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const modalId = trigger.getAttribute('data-modal-trigger');
+                openModal(modalId);
+            });
+        });
+
+        // Event listeners for close buttons
+        closeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const modal = button.closest('.modal-backdrop');
+                closeModal(modal);
+            });
+        });
+
+        // Event listeners for backdrop clicks
+        backdrops.forEach(backdrop => {
+            backdrop.addEventListener('click', (event) => {
+                if (event.target === backdrop) {
+                    closeModal(backdrop);
+                }
+            });
+        });
+
+        // Escape key to close
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                const openModal = document.querySelector('.modal-backdrop.is-open');
+                if (openModal) {
+                    closeModal(openModal);
+                }
+            }
+        });
+
+        // Specific logic for the critical delete modal
+        const deleteModal = document.getElementById('delete-modal');
+        if (deleteModal) {
+            const confirmInput = deleteModal.querySelector('#delete-confirm-input');
+            const confirmBtn = deleteModal.querySelector('#delete-confirm-btn');
+            const requiredText = 'Global Foods';
+
+            confirmInput.addEventListener('input', () => {
+                if (confirmInput.value === requiredText) {
+                    confirmBtn.disabled = false;
+                } else {
+                    confirmBtn.disabled = true;
+                }
+            });
+        }
+    });
+  </script>
+
+</body>
+</html>

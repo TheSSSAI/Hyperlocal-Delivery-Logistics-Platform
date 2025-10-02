@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Group Component</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ------------------------------------ */
+    /* --- 1. Design System Foundations --- */
+    /* ------------------------------------ */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Poppins', sans-serif;
+      --font-family-secondary: 'Inter', sans-serif;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --line-height-body: 1.6;
+      --line-height-caption: 1.4;
+
+      /* Colors */
+      --color-primary-500: #0068FF;
+      --color-gray-100: #F1F3F5;
+      --color-gray-500: #868E96;
+      --color-gray-900: #212529;
+      --color-white: #FFFFFF;
+      --color-error: #DC3545;
+      --alert-bg-error: #FBEBEB;
+      --alert-text-error: #a12833;
+
+      /* Spacing */
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+
+      /* Borders */
+      --border-radius-sm: 4px;
+      --border-radius-md: 8px;
+
+      /* Forms */
+      --input-padding: 12px 16px;
+      --color-focus-border: var(--color-primary-500);
+      --color-focus-shadow: rgba(0, 104, 255, 0.2);
+    }
+
+    /* ------------------------------------ */
+    /* --- 2. Showcase & Base Styles ---- */
+    /* ------------------------------------ */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family-secondary);
+      background-color: var(--color-gray-100);
+      color: var(--color-gray-900);
+      margin: 0;
+      padding: var(--spacing-lg);
+    }
+
+    .showcase {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--color-white);
+      padding: var(--spacing-lg);
+      border-radius: var(--border-radius-md);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .showcase__title {
+      font-family: var(--font-family-primary);
+      font-size: 28px;
+      margin: 0 0 var(--spacing-lg) 0;
+    }
+
+    .component-variant {
+      margin-bottom: var(--spacing-lg);
+      padding: var(--spacing-lg);
+      border: 1px solid #e2e8f0;
+      border-radius: var(--border-radius-md);
+    }
+
+    .component-variant__title {
+      font-family: var(--font-family-secondary);
+      font-weight: var(--font-weight-semibold);
+      font-size: 18px;
+      margin: 0 0 var(--spacing-md) 0;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: var(--spacing-md);
+    }
+
+    /* ------------------------------------ */
+    /* --- 3. Form Group Component CSS ---- */
+    /* ------------------------------------ */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .form-group__label {
+      font-size: var(--font-size-caption);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-900);
+      margin-bottom: var(--spacing-sm);
+      cursor: pointer;
+    }
+
+    .form-group__label--required::after {
+      content: ' *';
+      color: var(--color-error);
+    }
+    
+    .form-group__control {
+      font-family: var(--font-family-secondary);
+      font-size: var(--font-size-body);
+      padding: var(--input-padding);
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-gray-500);
+      background-color: var(--color-white);
+      color: var(--color-gray-900);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      width: 100%;
+    }
+
+    .form-group__control:focus-visible {
+      outline: none;
+      border-color: var(--color-focus-border);
+      box-shadow: 0 0 0 3px var(--color-focus-shadow);
+    }
+
+    .form-group__help-text {
+      font-size: var(--font-size-caption);
+      color: var(--color-gray-500);
+      margin-top: var(--spacing-sm);
+    }
+
+    .form-group__error-message {
+      display: none; /* Hidden by default */
+      align-items: center;
+      gap: var(--spacing-sm);
+      margin-top: var(--spacing-sm);
+      padding: var(--spacing-sm) var(--spacing-md);
+      background-color: var(--alert-bg-error);
+      color: var(--alert-text-error);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-caption);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .form-group__error-message svg {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Modifier for Error State */
+    .form-group--error .form-group__label {
+      color: var(--color-error);
+    }
+
+    .form-group--error .form-group__control {
+      border: 2px solid var(--color-error);
+      padding: calc(var(--input-padding) - 1px); /* Adjust padding to maintain size */
+    }
+
+    .form-group--error .form-group__control:focus-visible {
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.25);
+    }
+
+    .form-group--error .form-group__error-message {
+      display: flex;
+    }
+  </style>
+</head>
+<body>
+  <main class="showcase">
+    <h1 class="showcase__title">Component: Form Group</h1>
+
+    <section class="component-variant">
+      <h2 class="component-variant__title">Default State</h2>
+      
+      <!-- Standard Form Group -->
+      <div class="form-group">
+        <label class="form-group__label form-group__label--required" for="fullName1">Full Name</label>
+        <input type="text" class="form-group__control" id="fullName1" name="fullName1" placeholder="e.g., Anjali Sharma">
+      </div>
+      
+      <!-- Form Group with Help Text -->
+      <div class="form-group">
+        <label class="form-group__label" for="email1">Email Address</label>
+        <input type="email" class="form-group__control" id="email1" name="email1" placeholder="you@example.com" aria-describedby="emailHelp1">
+        <p class="form-group__help-text" id="emailHelp1">We'll never share your email with anyone else.</p>
+      </div>
+    </section>
+
+    <section class="component-variant">
+      <h2 class="component-variant__title">Error State</h2>
+      
+      <!-- Standard Form Group with Error -->
+      <div class="form-group form-group--error">
+        <label class="form-group__label form-group__label--required" for="password">Password</label>
+        <input type="password" class="form-group__control" id="password" name="password" value="123" aria-invalid="true" aria-describedby="passwordError">
+        <div class="form-group__error-message" id="passwordError" role="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+          </svg>
+          <span>Password must be at least 8 characters long.</span>
+        </div>
+      </div>
+      
+      <!-- Form Group with Help Text and Error -->
+      <div class="form-group form-group--error">
+        <label class="form-group__label form-group__label--required" for="storeName">Store Name</label>
+        <input type="text" class="form-group__control" id="storeName" name="storeName" aria-invalid="true" aria-describedby="storeNameHelp storeNameError">
+        <p class="form-group__help-text" id="storeNameHelp">This will be your public-facing store name.</p>
+        <div class="form-group__error-message" id="storeNameError" role="alert">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+          </svg>
+          <span>Store name is a required field.</span>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <div class="showcase" style="margin-top: 24px;">
+      <h2 class="showcase__title">Component Variations</h2>
+      <div class="component-variant">
+        <h3 class="component-variant__title">Variant Name: Standard</h3>
+        <p style="font-size: 14px; color: #555; margin-top: -10px; margin-bottom: 20px;">The default form group with a label and an input field. Used for most simple data entry.</p>
+        <div class="form-group">
+          <label class="form-group__label" for="std-input">Standard Label</label>
+          <input type="text" class="form-group__control" id="std-input" name="std-input" placeholder="Enter value...">
+        </div>
+      </div>
+      <div class="component-variant">
+        <h3 class="component-variant__title">Variant Name: With Help Text</h3>
+        <p style="font-size: 14px; color: #555; margin-top: -10px; margin-bottom: 20px;">Includes supplementary text below the input to provide guidance or context to the user.</p>
+        <div class="form-group">
+          <label class="form-group__label" for="help-input">Label with Help</label>
+          <input type="text" class="form-group__control" id="help-input" name="help-input" placeholder="Enter value..." aria-describedby="help-text-example">
+          <p class="form-group__help-text" id="help-text-example">This is some helpful text to guide the user.</p>
+        </div>
+      </div>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,587 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DashboardWidget - Component Specifications</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        
+        .component-type-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .section h2 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4f46e5;
+            display: inline-block;
+        }
+        
+        .section h3 {
+            color: #4f46e5;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 20px 0 12px 0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .info-card h4 {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        
+        .info-card p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .variations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        
+        .variation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .variation-name {
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 8px;
+        }
+        
+        .variation-code {
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            color: #1e293b;
+            overflow-x: auto;
+            margin: 8px 0;
+            border-left: 4px solid #4f46e5;
+        }
+        
+        .variation-description {
+            font-size: 13px;
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .feature-category {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .feature-category h4 {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .feature-category ul {
+            list-style: none;
+        }
+        
+        .feature-category li {
+            padding: 6px 0;
+            color: #4b5563;
+            font-size: 14px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .feature-category li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .tokens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        
+        .token {
+            background: #f0f9ff;
+            color: #0369a1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            border: 1px solid #bae6fd;
+            text-align: center;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 16px 0;
+            line-height: 1.4;
+        }
+        
+        .stats-bar {
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .stat {
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>DashboardWidget</h1>
+            <div class="component-type-badge">organism Component</div>
+        </div>
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-number">0</span>
+                <span class="stat-label">Variations</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">17</span>
+                <span class="stat-label">Design Tokens</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Breakpoints</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">5</span>
+                <span class="stat-label">A11y Features</span>
+            </div>
+        </div><div class="content">
+        <div class="section">
+            <h2>Component Information</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Component Id</h4>
+                    <p>ORGA-DASH-001</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Name</h4>
+                    <p>DashboardWidget</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Type</h4>
+                    <p>organism</p>
+                </div>
+                <div class="info-card">
+                    <h4>Description</h4>
+                    <p>A self-contained widget for admin dashboards, designed to display key information. It has variants for showing single Key Performance Indicators (KPIs), line charts for trends, and simple lists. It also includes states for loading, error, and displaying data.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Design System Alignment</h4>
+                    <p>This organism component is a composition of molecular (Card) and atomic (Spinner, Alert, Button, Icon) components. It strictly adheres to the design system's tokens for color, typography, spacing, and shadows to maintain visual consistency across the dashboard.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Design Tokens Used</h2>
+            <div class="tokens-grid"><div class="token">--color-primary-500</div><div class="token">--color-neutrals-white</div><div class="token">--color-neutrals-gray-50</div><div class="token">--color-neutrals-gray-100</div><div class="token">--color-neutrals-gray-500</div><div class="token">--color-neutrals-gray-900</div><div class="token">--color-semantic-error</div><div class="token">--spacing-sm</div><div class="token">--spacing-md</div><div class="token">--spacing-lg</div><div class="token">--border-radius-lg</div><div class="token">--shadow-sm</div><div class="token">--font-family-primary</div><div class="token">--font-size-h4</div><div class="token">--font-size-body</div><div class="token">--font-size-caption</div><div class="token">--font-weight-semibold</div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Responsive Specifications</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Mobile Adaptations</h4>
+                    <ul><li>Widgets are designed to stack vertically in a single column on mobile screens.</li><li>Font sizes for KPI values are slightly reduced to better fit smaller viewports.</li>
+                    </ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Tablet Adaptations</h4>
+                    <ul><li>Widgets maintain their desktop appearance but can be arranged in a 2-column grid.</li>
+                    </ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Desktop Enhancements</h4>
+                    <ul><li>Widgets are typically arranged in a multi-column grid (3 or 4 columns) to provide a comprehensive overview.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Accessibility Features</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Keyboard Support</h4><p>Interactive elements within the widget, such as dropdowns or links, are focusable via Tab key.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Screen Reader Support</h4><p>Each widget is wrapped in a semantic `<section>` with an `aria-labelledby` attribute pointing to the widget's title (`<h3>`) for clear context.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Focus Management</h4><p>Focusable elements have a clear, visible focus state inherited from the atomic button/link components.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Aria Attributes</h4><ul><li>aria-labelledby</li><li>role='alert' for the error state content</li></ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Color Contrast</h4><p>All text and data visualizations (e.g., chart colors) must meet WCAG 2.1 AA contrast requirements.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>CSS Implementation</h2>
+            <div class="code-block">/* Dashboard Widget CSS */
+
+/* Design System Tokens */
+:root {
+  --color-primary-500: #0068FF;
+  --color-neutrals-white: #FFFFFF;
+  --color-neutrals-gray-50: #F7F9FC;
+  --color-neutrals-gray-100: #E9EDF2;
+  --color-neutrals-gray-500: #8E9BAA;
+  --color-neutrals-gray-900: #1C1F22;
+  --color-semantic-error: #FF4D4D;
+  --alert-bg-error: #FFEBEB;
+  --alert-text-error: #8B0000;
+  --font-family-primary: &#039;Poppins&#039;, sans-serif;
+  --font-family-secondary: &#039;Inter&#039;, sans-serif;
+  --font-size-h4: 20px;
+  --font-weight-h4: 600;
+  --font-size-body: 16px;
+  --font-size-caption: 14px;
+  --font-weight-semibold: 600;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --border-radius-lg: 16px;
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Organism Base: Dashboard Widget */
+.dashboard-widget {
+  background-color: var(--color-neutrals-white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensures widgets in a grid have same height */
+}
+
+/* Widget Header */
+.dashboard-widget__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-neutrals-gray-100);
+}
+
+.dashboard-widget__title {
+  font-family: var(--font-family-primary);
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-h4);
+  margin: 0;
+}
+
+/* Widget Content Area */
+.dashboard-widget__content {
+  padding: var(--spacing-lg);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Center content for KPI cards */
+}
+
+/* State Management */
+.dashboard-widget .widget-content--loading,
+.dashboard-widget .widget-content--error,
+.dashboard-widget .widget-content--data {
+  display: none;
+}
+
+.dashboard-widget.is-loading .widget-content--loading { display: flex; align-items: center; justify-content: center; flex-grow: 1; }
+.dashboard-widget.has-error .widget-content--error { display: flex; }
+.dashboard-widget:not(.is-loading):not(.has-error) .widget-content--data { display: flex; flex-direction: column; flex-grow: 1; }
+
+/* Variant: KPI Card */
+.dashboard-widget--kpi .kpi__value {
+  font-family: var(--font-family-primary);
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--color-neutrals-gray-900);
+  text-align: center;
+  line-height: 1.1;
+}
+
+.dashboard-widget--kpi .kpi__change {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--spacing-sm);
+  color: var(--color-semantic-success);
+}
+
+.dashboard-widget--kpi .kpi__change--negative {
+  color: var(--color-semantic-error);
+}
+
+/* Variant: Line Chart */
+.dashboard-widget--chart .dashboard-widget__content {
+  padding: var(--spacing-md);
+}
+.dashboard-widget--chart .chart-placeholder {
+  width: 100%;
+  height: 100%;
+  flex-grow: 1;
+}
+
+/* Variant: List Widget */
+.dashboard-widget--list .dashboard-widget__content {
+  padding: 0;
+  justify-content: flex-start;
+}
+
+.list-widget__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list-widget__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-lg);
+}
+
+.list-widget__item:not(:last-child) {
+  border-bottom: 1px solid var(--color-neutrals-gray-100);
+}
+
+.list-widget__item-main {
+  font-weight: 600;
+}
+
+.list-widget__item-subtext {
+  font-size: var(--font-size-caption);
+  color: var(--color-neutrals-gray-500);
+}
+
+.list-widget__item-value {
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-body);
+}
+
+/* Responsive Adaptations */
+@media (max-width: 768px) {
+  .dashboard-widget--kpi .kpi__value {
+    font-size: 36px;
+  }
+}
+</div>
+        </div>
+        <div class="section">
+            <h2>Implementation Notes</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Embedded Css Architecture</h4>
+                    <p>All styles are embedded in a single `<style>` tag, using design system tokens as CSS custom properties. A BEM methodology is used for class names.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Organization</h4>
+                    <p>The HTML file is structured as a component showcase, demonstrating each variant (KPI, Chart, List) and each state (With Data, Loading, Error).</p>
+                </div>
+                <div class="info-card">
+                    <h4>Responsive Design</h4>
+                    <p>The component itself is intrinsically responsive (100% width). The responsive behavior comes from the grid container it is placed in, which stacks to a single column on mobile.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Accessibility Compliance</h4>
+                    <p>WCAG 2.1 AA compliant through the use of semantic HTML (`<section>`, `<h3>`), ARIA attributes, and high-contrast colors.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Browser Support</h4>
+                    <p>Designed for modern evergreen browsers using standard CSS features like Flexbox and Grid.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Usage Guidelines</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>When To Use</h4><p>As the primary building blocks for creating admin and vendor dashboards to display key metrics and summaries.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Content Guidelines</h4><p>Keep widget titles concise and clear. Data visualizations should be simple and easy to understand at a glance. List widgets should be limited to 5-7 items.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Placement Rules</h4><p>Typically placed in a CSS Grid layout at the top of a dashboard page.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Customization Options</h4><ul><li style="list-style: disc; margin-left: 16px; padding-left: 0;">Combine the base `.dashboard-widget` class with a variant class like `.dashboard-widget--kpi`.</li><li style="list-style: disc; margin-left: 16px; padding-left: 0;">Control the state by applying `.is-loading` or `.has-error` to the main wrapper.</li></ul>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Testing Recommendations</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Browser Testing</h4><p>Test in Chrome, Firefox, Safari, Edge.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Device Testing</h4><p>Verify the responsive layout on mobile, tablet, and desktop viewports, ensuring content is readable and not truncated.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Accessibility Testing</h4><ul><li>Test with a screen reader to ensure titles and content are announced correctly.</li><li>Verify keyboard navigation through any interactive elements.</li><li>Check color contrast ratios.</li></ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Performance Testing</h4><p>The performance of the widget is dependent on the data-fetching logic. Ensure skeleton loaders are used to prevent layout shifts during data loading.</p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

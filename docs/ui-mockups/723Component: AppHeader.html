@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Component: AppHeader</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+   
+    /* 1. VISUAL FOUNDATION (Design System Tokens) */
+    :root {
+      /* Typography */
+      --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      /* Color Palette */
+      --color-primary-50: #E6F0FF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-400: #A5B0BD;
+      --color-neutrals-gray-600: #717C88;
+      --color-neutrals-gray-800: #383E44;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+
+      /* Spacing */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --box-shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --box-shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.1);
+
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+
+    /* 2. BASE & LAYOUT STYLES */
+    body {
+      font-family: var(--font-primary);
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-900);
+      line-height: 1.6;
+      font-size: var(--font-size-body);
+    }
+    .screen-container {
+        padding: var(--space-24);
+    }
+    .screen-container h1 {
+        font-size: 36px;
+        margin-bottom: var(--space-24);
+        color: var(--color-neutrals-gray-800);
+    }
+    .variant-group {
+        margin-bottom: 48px;
+        background-color: var(--color-neutrals-white);
+        border: 1px solid var(--color-neutrals-gray-100);
+        border-radius: var(--border-radius-md);
+        box-shadow: var(--box-shadow-sm);
+        overflow: hidden;
+    }
+    .variant-header {
+        padding: var(--space-12) var(--space-16);
+        background-color: var(--color-neutrals-gray-50);
+        border-bottom: 1px solid var(--color-neutrals-gray-100);
+    }
+    .variant-header h3 {
+        font-size: 20px;
+        font-weight: var(--font-weight-semibold);
+    }
+    .variant-header p {
+        font-size: var(--font-size-caption);
+        color: var(--color-neutrals-gray-600);
+    }
+    .variant-body {
+        padding: var(--space-24);
+        position: relative; /* For mobile menu positioning */
+    }
+
+    /* 3. COMPONENT STYLES: AppHeader and its Dependencies */
+
+    /* AppHeader Base */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding: 0 var(--space-24);
+      background-color: var(--color-neutrals-white);
+      border-bottom: 1px solid var(--color-neutrals-gray-100);
+      box-shadow: var(--box-shadow-sm);
+    }
+    
+    /* Logo */
+    .app-header__logo {
+      font-size: 20px;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-neutrals-gray-900);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+    }
+    .app-header__logo svg {
+      color: var(--color-primary-500);
+    }
+
+    /* Main Navigation (for Web) */
+    .app-header__nav {
+      display: none; /* Mobile first */
+    }
+    .app-header__nav-list {
+      display: flex;
+      gap: var(--space-24);
+      list-style-type: none;
+    }
+    .app-header__nav-link {
+      text-decoration: none;
+      color: var(--color-neutrals-gray-600);
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-size-caption);
+      padding: var(--space-8) 0;
+      position: relative;
+      transition: color var(--transition-fast);
+    }
+    .app-header__nav-link:hover {
+      color: var(--color-neutrals-gray-900);
+    }
+    .app-header__nav-link--active {
+      color: var(--color-primary-500);
+    }
+    .app-header__nav-link--active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--color-primary-500);
+    }
+    
+    /* Utility Navigation (Right side) */
+    .app-header__utility-nav {
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+    }
+    
+    /* SearchBar */
+    .search-bar {
+      display: none; /* Hidden on smaller screens for this demo */
+      align-items: center;
+      position: relative;
+    }
+    .search-bar__icon {
+      position: absolute;
+      left: 12px;
+      color: var(--color-neutrals-gray-400);
+    }
+    .search-bar__input {
+      border: 1px solid var(--color-neutrals-gray-100);
+      background-color: var(--color-neutrals-gray-50);
+      border-radius: var(--border-radius-md);
+      padding: 8px 12px 8px 36px;
+      font-family: var(--font-primary);
+      width: 240px;
+      transition: all var(--transition-fast);
+    }
+    .search-bar__input:focus {
+      outline: none;
+      border-color: var(--color-primary-500);
+      background-color: var(--color-neutrals-white);
+      box-shadow: 0 0 0 3px var(--color-primary-50);
+    }
+
+    /* Icon Button */
+    .icon-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-neutrals-gray-600);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      transition: background-color var(--transition-fast), color var(--transition-fast);
+    }
+    .icon-button:hover {
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-900);
+    }
+    .icon-button:focus-visible {
+        outline: 3px solid var(--color-primary-500);
+        outline-offset: 2px;
+    }
+
+    /* Badge */
+    .badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background-color: var(--color-semantic-error);
+      color: var(--color-neutrals-white);
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      font-size: 10px;
+      font-weight: var(--font-weight-bold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--color-neutrals-white);
+    }
+
+    /* Avatar */
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: var(--font-weight-bold);
+      font-size: var(--font-size-caption);
+      cursor: pointer;
+    }
+
+    /* Hamburger Menu Button */
+    .hamburger-menu {
+      display: flex; /* Displayed by default on mobile */
+    }
+    
+    /* Mobile Menu (Off-canvas) */
+    .mobile-menu {
+      position: absolute;
+      top: 65px; /* Below header */
+      left: 0;
+      right: 0;
+      background-color: var(--color-neutrals-white);
+      border: 1px solid var(--color-neutrals-gray-100);
+      box-shadow: var(--box-shadow-md);
+      z-index: 1000;
+      padding: var(--space-16);
+      border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+      transform: translateY(-100%);
+      opacity: 0;
+      visibility: hidden;
+      transition: transform 200ms ease-in-out, opacity 200ms ease-in-out, visibility 200ms;
+    }
+    .mobile-menu__list {
+      list-style: none;
+    }
+    .mobile-menu__item a {
+      display: block;
+      padding: var(--space-12) var(--space-16);
+      text-decoration: none;
+      color: var(--color-neutrals-gray-800);
+      font-weight: var(--font-weight-semibold);
+      border-radius: var(--border-radius-md);
+    }
+     .mobile-menu__item a:hover {
+      background-color: var(--color-neutrals-gray-50);
+     }
+    .mobile-menu__item a.app-header__nav-link--active {
+      background-color: var(--color-primary-50);
+      color: var(--color-primary-600);
+    }
+    
+    /* State: Mobile menu open */
+    .app-header--menu-open .mobile-menu {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+    .app-header--menu-open .hamburger-menu__open-icon {
+      display: none;
+    }
+    .app-header--menu-open .hamburger-menu__close-icon {
+      display: block;
+    }
+    .hamburger-menu__close-icon {
+        display: none;
+    }
+
+
+    /* Mobile-specific Header Variants */
+    .app-header--mobile {
+        justify-content: flex-start;
+        gap: var(--space-16);
+    }
+    .app-header--mobile .app-header__title {
+        font-size: 20px;
+        font-weight: var(--font-weight-semibold);
+        flex-grow: 1;
+    }
+    .app-header--mobile .app-header__utility-nav {
+        margin-left: auto;
+    }
+
+    /* 4. RESPONSIVE STYLES */
+    @media (min-width: 768px) {
+      .search-bar {
+        display: flex;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .app-header__nav {
+        display: block;
+      }
+      .hamburger-menu {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-container">
+    <h1>Component: AppHeader</h1>
+
+    <!-- Variant: Admin/Vendor Web Header -->
+    <div class="variant-group">
+      <div class="variant-header">
+        <h3>Admin & Vendor Web Header</h3>
+        <p>Responsive header for web dashboards. Navigation collapses into a hamburger menu on screens below 1024px.</p>
+      </div>
+      <div class="variant-body">
+        <header class="app-header" id="web-header">
+          <!-- Logo & Main Nav -->
+          <div style="display: flex; align-items: center; gap: 48px;">
+            <a href="#" class="app-header__logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>Platform</span>
+            </a>
+            <nav class="app-header__nav">
+              <ul class="app-header__nav-list">
+                <li><a href="#" class="app-header__nav-link app-header__nav-link--active">Dashboard</a></li>
+                <li><a href="#" class="app-header__nav-link">Orders</a></li>
+                <li><a href="#" class="app-header__nav-link">Products</a></li>
+                <li><a href="#" class="app-header__nav-link">Analytics</a></li>
+                <li><a href="#" class="app-header__nav-link">Settings</a></li>
+              </ul>
+            </nav>
+          </div>
+
+          <!-- Utility Nav -->
+          <div class="app-header__utility-nav">
+            <div class="search-bar">
+              <svg class="search-bar__icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" class="search-bar__input" placeholder="Search...">
+            </div>
+            <button class="icon-button" aria-label="Notifications">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <span class="badge">3</span>
+            </button>
+            <div class="avatar" tabindex="0" aria-label="User Profile">JD</div>
+            <button class="icon-button hamburger-menu" id="hamburger-button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+                <svg class="hamburger-menu__open-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                <svg class="hamburger-menu__close-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+          </div>
+        </header>
+
+        <!-- Mobile Menu (Initially hidden) -->
+        <div class="mobile-menu" id="mobile-menu">
+            <ul class="mobile-menu__list">
+                <li class="mobile-menu__item"><a href="#" class="app-header__nav-link app-header__nav-link--active">Dashboard</a></li>
+                <li class="mobile-menu__item"><a href="#" class="app-header__nav-link">Orders</a></li>
+                <li class="mobile-menu__item"><a href="#" class="app-header__nav-link">Products</a></li>
+                <li class="mobile-menu__item"><a href="#" class="app-header__nav-link">Analytics</a></li>
+                <li class="mobile-menu__item"><a href="#" class="app-header__nav-link">Settings</a></li>
+            </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Variant: Customer Mobile Header -->
+    <div class="variant-group">
+      <div class="variant-header">
+        <h3>Customer Mobile Header</h3>
+        <p>Optimized for the customer mobile app, focusing on location/address and search.</p>
+      </div>
+      <div class="variant-body" style="max-width: 400px; margin: auto;">
+        <header class="app-header app-header--mobile">
+            <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 12px; color: var(--color-neutrals-gray-600); text-transform: uppercase;">DELIVER TO</span>
+                <a href="#" style="font-weight: var(--font-weight-semibold); color: var(--color-neutrals-gray-900); text-decoration: none; display: flex; align-items: center; gap: 4px;">
+                    123 Main St, Mumbai
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </a>
+            </div>
+            <div class="app-header__utility-nav">
+                <button class="icon-button" aria-label="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </button>
+            </div>
+        </header>
+      </div>
+    </div>
+    
+    <!-- Variant: Rider Mobile Header -->
+    <div class="variant-group">
+      <div class="variant-header">
+        <h3>Rider Mobile Header</h3>
+        <p>Minimal header for the rider app, showing the screen title and providing access to the profile/menu.</p>
+      </div>
+      <div class="variant-body" style="max-width: 400px; margin: auto;">
+        <header class="app-header app-header--mobile">
+            <button class="icon-button" aria-label="Open menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <h2 class="app-header__title">Home</h2>
+            <div class="app-header__utility-nav">
+                <div class="avatar" tabindex="0" aria-label="User Profile">RK</div>
+            </div>
+        </header>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const hamburgerButton = document.getElementById('hamburger-button');
+      const webHeader = document.getElementById('web-header');
+      const mobileMenu = document.getElementById('mobile-menu');
+
+      if (hamburgerButton && webHeader && mobileMenu) {
+        hamburgerButton.addEventListener('click', function() {
+          const isMenuOpen = webHeader.classList.toggle('app-header--menu-open');
+          hamburgerButton.setAttribute('aria-expanded', isMenuOpen);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,2 @@
+"total_stories","total_story_points","must_have_stories","should_have_stories","could_have_stories","epics_identified","estimated_sprints","key_dependencies"
+"7","47","7","0","0","[""Order Lifecycle Management""]","4","[""PostgreSQL Database"",""AWS SQS/SNS"",""Payments & Settlements Service Events"",""Rider Logistics Service Events"",""Vendor & Catalog Service API""]"

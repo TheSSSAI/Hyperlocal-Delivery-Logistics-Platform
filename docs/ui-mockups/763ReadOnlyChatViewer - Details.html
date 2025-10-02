@@ -1,0 +1,560 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReadOnlyChatViewer - Component Specifications</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        
+        .component-type-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .section h2 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4f46e5;
+            display: inline-block;
+        }
+        
+        .section h3 {
+            color: #4f46e5;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 20px 0 12px 0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .info-card h4 {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        
+        .info-card p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .variations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        
+        .variation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .variation-name {
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 8px;
+        }
+        
+        .variation-code {
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            color: #1e293b;
+            overflow-x: auto;
+            margin: 8px 0;
+            border-left: 4px solid #4f46e5;
+        }
+        
+        .variation-description {
+            font-size: 13px;
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .feature-category {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .feature-category h4 {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .feature-category ul {
+            list-style: none;
+        }
+        
+        .feature-category li {
+            padding: 6px 0;
+            color: #4b5563;
+            font-size: 14px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .feature-category li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .tokens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        
+        .token {
+            background: #f0f9ff;
+            color: #0369a1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            border: 1px solid #bae6fd;
+            text-align: center;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 16px 0;
+            line-height: 1.4;
+        }
+        
+        .stats-bar {
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .stat {
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ReadOnlyChatViewer</h1>
+            <div class="component-type-badge">organism Component</div>
+        </div>
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-number">0</span>
+                <span class="stat-label">Variations</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">15</span>
+                <span class="stat-label">Design Tokens</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Breakpoints</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">5</span>
+                <span class="stat-label">A11y Features</span>
+            </div>
+        </div><div class="content">
+        <div class="section">
+            <h2>Component Information</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Component Id</h4>
+                    <p>MU-COMM-001</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Name</h4>
+                    <p>ReadOnlyChatViewer</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Type</h4>
+                    <p>organism</p>
+                </div>
+                <div class="info-card">
+                    <h4>Description</h4>
+                    <p>A read-only component for displaying a historical log of chat messages between users for a specific order. It supports loading, empty, and populated states and is typically used in administrative or support interfaces.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Design System Alignment</h4>
+                    <p>This component uses the design system's color palette for message bubbles and backgrounds, spacing tokens for padding and layout, and typography for message text and timestamps. It is composed of the Spinner and MessageBubble components.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Design Tokens Used</h2>
+            <div class="tokens-grid"><div class="token">--color-neutrals-gray_50</div><div class="token">--color-neutrals-gray_200</div><div class="token">--color-neutrals-gray_500</div><div class="token">--color-neutrals-gray_600</div><div class="token">--color-neutrals-gray_700</div><div class="token">--color-neutrals-gray_900</div><div class="token">--color-neutrals-white</div><div class="token">--color-primary-500</div><div class="token">--radius-sm</div><div class="token">--radius-lg</div><div class="token">--space-1</div><div class="token">--space-2</div><div class="token">--space-3</div><div class="token">--space-4</div><div class="token">--space-5</div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Responsive Specifications</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Mobile Adaptations</h4>
+                    <ul><li>The component is fluid and will adapt to the width of its container, making it suitable for full-screen or modal views on mobile.</li><li>Message bubbles have a max-width to ensure they don't span the entire screen, improving readability.</li>
+                    </ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Tablet Adaptations</h4>
+                    <ul><li>Maintains its fluid width, fitting well into multi-panel layouts common on tablets.</li>
+                    </ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Desktop Enhancements</h4>
+                    <ul><li>No specific desktop enhancements are needed; the component's design is platform-agnostic.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Accessibility Features</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Keyboard Support</h4><p>The main message area is scrollable via keyboard.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Screen Reader Support</h4><p>The component should be contained within a landmark region with an `aria-label` (e.g., 'Chat log for order 123'). Each message bubble should have its content, sender, and timestamp read out in a logical order.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Focus Management</h4><p>Since it's a read-only component, focus management is minimal. Focus is contained within the modal if it's used inside one.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Aria Attributes</h4><ul><li>aria-label for the main container.</li><li>aria-live="polite" can be used on the message container if messages are loaded dynamically after the initial view.</li></ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Color Contrast</h4><p>All text colors are selected from the design system to meet WCAG 2.1 AA contrast requirements against their respective backgrounds.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>CSS Implementation</h2>
+            <div class="code-block">/* --- ReadOnlyChatViewer Component CSS --- */
+.chat-viewer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: var(--color-neutrals-gray_50);
+  border: 1px solid var(--color-neutrals-gray_200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  position: relative;
+}
+
+.chat-viewer__header {
+  padding: var(--space-3) var(--space-4);
+  background-color: var(--color-neutrals-white);
+  border-bottom: 1px solid var(--color-neutrals-gray_200);
+  font-weight: 600;
+  color: var(--color-neutrals-gray_700);
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.chat-viewer__messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* --- MessageBubble Dependency --- */
+.message-bubble {
+  display: flex;
+  flex-direction: column;
+  max-width: 80%;
+}
+
+.message-bubble__content {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+}
+
+.message-bubble__sender {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-neutrals-gray_600);
+  margin-bottom: var(--space-1);
+}
+
+.message-bubble__text {
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.message-bubble__timestamp {
+  font-size: 12px;
+  color: var(--color-neutrals-gray_500);
+  margin-top: var(--space-2);
+}
+
+/* Received Variant */
+.message-bubble--received {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+.message-bubble--received .message-bubble__content {
+  background-color: var(--color-neutrals-white);
+  border: 1px solid var(--color-neutrals-gray_200);
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+/* Sent Variant */
+.message-bubble--sent {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+.message-bubble--sent .message-bubble__content {
+  background-color: var(--color-primary-500);
+  color: var(--color-neutrals-white);
+  border-bottom-right-radius: var(--radius-sm);
+}
+.message-bubble--sent .message-bubble__sender {
+  color: var(--color-neutrals-white);
+  opacity: 0.8;
+}
+
+/* --- State Handling --- */
+.chat-viewer__state-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-neutrals-gray_50);
+  text-align: center;
+  padding: var(--space-5);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease;
+  z-index: 10;
+}
+
+.chat-viewer--loading .chat-viewer__state-overlay,
+.chat-viewer--empty .chat-viewer__state-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+.chat-viewer__state-content h3 {
+  font-size: 18px;
+  color: var(--color-neutrals-gray_900);
+  margin: var(--space-4) 0 0 0;
+}
+
+.chat-viewer__state-content p {
+  color: var(--color-neutrals-gray_600);
+  margin-top: var(--space-2);
+  max-width: 250px;
+}</div>
+        </div>
+        <div class="section">
+            <h2>Implementation Notes</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Embedded Css Architecture</h4>
+                    <p>All styles, including dependencies for the spinner and message bubbles, are embedded in the HTML file's `<style>` tag. Design tokens are defined as CSS custom properties in `:root`.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Organization</h4>
+                    <p>The HTML is structured to demonstrate the three key states: loading, empty, and populated. A state overlay is used to show the loading and empty states, controlled by a modifier class on the main `.chat-viewer` wrapper.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Responsive Design</h4>
+                    <p>The component is built with a fluid-width approach using Flexbox, making it inherently responsive and suitable for use within panels, modals, or full-screen views.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Accessibility Compliance</h4>
+                    <p>The semantic structure is designed for screen reader clarity. The scrollable message area is a standard pattern that is well-supported by assistive technologies.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Browser Support</h4>
+                    <p>The CSS uses modern, widely-supported properties like Flexbox and custom properties, ensuring compatibility with all target browsers.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Usage Guidelines</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>When To Use</h4><p>Use this component in administrative or support dashboards (e.g., Admin - Support Ticket Management) where a historical, read-only view of a conversation is required for context or dispute resolution.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Content Guidelines</h4><p>The header should provide clear context, such as the Order ID or the participants in the chat. Timestamps should be formatted consistently.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Placement Rules</h4><p>Can be placed within a modal, a tabbed interface, or a dedicated panel in a multi-column layout.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Customization Options</h4><ul><li style="list-style: disc; margin-left: 16px; padding-left: 0;">Toggle between states by adding/removing `.chat-viewer--loading` or `.chat-viewer--empty` classes to the main wrapper.</li></ul>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Testing Recommendations</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Browser Testing</h4><p>Test in Chrome, Firefox, Safari, and Edge.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Device Testing</h4><p>Verify layout and scrolling behavior on various mobile and desktop viewport sizes.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Accessibility Testing</h4><ul><li>Use a screen reader (VoiceOver, NVDA) to verify that the chat history is read logically.</li><li>Check color contrast for both sent and received message bubbles.</li></ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Performance Testing</h4><p>For very long chat histories (>1000 messages), consider implementing virtualization or pagination to avoid performance degradation. The base component is suitable for typical chat lengths.</p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

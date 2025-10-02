@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Management Grid Component</title>
+  <style>
+    /* 1. CSS Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* 2. Design System Tokens (CSS Custom Properties) */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --line-height-body: 1.6;
+      
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-secondary-500: #00C875;
+      --color-danger-50: #FFEBEB;
+      --color-danger-500: #FF4D4D;
+      --color-danger-700: #CC3D3D;
+      --color-neutral-white: #FFFFFF;
+      --color-neutral-50: #F7F9FC;
+      --color-neutral-100: #E9EDF2;
+      --color-neutral-200: #D3D9E1;
+      --color-neutral-300: #BCC4CF;
+      --color-neutral-500: #8E9BAA;
+      --color-neutral-700: #555D66;
+      --color-neutral-900: #1C1F22;
+      --color-semantic-success: #00C875;
+      --color-semantic-warning: #FFB800;
+      
+      /* Spacing */
+      --space-4: 4px; 
+      --space-8: 8px; 
+      --space-12: 12px; 
+      --space-16: 16px; 
+      --space-24: 24px; 
+      --space-32: 32px; 
+      --space-48: 48px;
+      
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.1);
+    }
+    
+    /* 3. Base & Showcase Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-body);
+      background-color: var(--color-neutral-50);
+      color: var(--color-neutral-900);
+      padding: var(--space-32);
+    }
+    .showcase-header {
+      max-width: 1400px;
+      margin: 0 auto var(--space-32) auto;
+      text-align: center;
+    }
+    h1 {
+      font-size: 36px;
+      font-weight: var(--font-weight-bold);
+      margin-bottom: var(--space-8);
+    }
+     h2 {
+      font-size: 24px;
+      font-weight: var(--font-weight-bold);
+      margin-top: var(--space-48);
+      margin-bottom: var(--space-24);
+      padding-bottom: var(--space-16);
+      border-bottom: 1px solid var(--color-neutral-200);
+      color: var(--color-primary-700);
+    }
+    
+    /* 4. Icon Definitions */
+    .icon {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      stroke-width: 0;
+      stroke: currentColor;
+      fill: currentColor;
+      vertical-align: middle;
+    }
+
+    /* 5. Component Styles */
+    /* OrderManagementGrid Organism */
+    .order-management-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-24);
+      position: relative;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .order-management-grid__column {
+      background-color: var(--color-neutral-100);
+      border-radius: var(--border-radius-lg);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .order-management-grid__header {
+      padding: var(--space-16) var(--space-24);
+      border-bottom: 1px solid var(--color-neutral-200);
+      font-size: 18px;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-neutral-900);
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      position: sticky;
+      top: 0;
+      background-color: var(--color-neutral-100);
+      z-index: 1;
+    }
+
+    .order-management-grid__count-badge {
+      background-color: var(--color-primary-500);
+      color: var(--color-neutral-white);
+      font-size: 12px;
+      font-weight: var(--font-weight-bold);
+      padding: 2px 8px;
+      border-radius: 12px;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .order-management-grid__card-list {
+      padding: var(--space-24);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-16);
+      flex-grow: 1;
+      overflow-y: auto;
+      height: 100vh; /* For demo purposes */
+      max-height: calc(100vh - 200px);
+    }
+
+    /* Loading State */
+    .order-management-grid--loading .order-management-grid__overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(247, 249, 252, 0.8);
+      border-radius: var(--border-radius-lg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    /* Empty State */
+    .order-management-grid__column--empty .order-management-grid__card-list {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: var(--color-neutral-500);
+      padding: var(--space-48);
+    }
+
+    .order-management-grid__empty-icon {
+      font-size: 48px;
+      margin-bottom: var(--space-16);
+      opacity: 0.5;
+    }
+
+    .order-management-grid__empty-text {
+      font-weight: var(--font-weight-semibold);
+    }
+
+    /* Responsive Adaptations */
+    @media (max-width: 1024px) {
+      .order-management-grid {
+        grid-template-columns: 1fr;
+      }
+      .order-management-grid__card-list {
+         height: auto; /* Allow columns to grow on mobile */
+         max-height: 500px;
+      }
+    }
+
+    /* OrderCard Component Styles (Dependency) */
+    .order-card {
+      background-color: var(--color-neutral-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-neutral-200);
+      padding: var(--space-16);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-12);
+      transition: box-shadow 0.2s ease;
+      cursor: pointer;
+    }
+
+    .order-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .order-card__header, .order-card__footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .order-card__id {
+      font-weight: var(--font-weight-bold);
+      color: var(--color-primary-700);
+      font-size: 14px;
+    }
+
+    .order-card__timer {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      font-weight: var(--font-weight-semibold);
+      font-size: 14px;
+      color: var(--color-semantic-warning);
+    }
+
+    .order-card__body {
+      font-size: 14px;
+      color: var(--color-neutral-700);
+      border-top: 1px solid var(--color-neutral-100);
+      border-bottom: 1px solid var(--color-neutral-100);
+      padding: var(--space-12) 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-8);
+    }
+
+    .order-card__items, .order-card__total {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .order-card__total-value {
+      font-weight: var(--font-weight-bold);
+      color: var(--color-neutral-900);
+    }
+
+    .order-card__footer {
+      gap: var(--space-8);
+    }
+
+    /* Spinner Atomic Component */
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .spinner { display: inline-block; border-radius: 50%; border: 4px solid var(--color-primary-500); border-top-color: transparent; animation: spin 0.8s linear infinite; width: 48px; height: 48px; }
+
+    /* Button Atomic Components */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8); padding: var(--space-8) var(--space-16); font-size: 14px; font-weight: var(--font-weight-semibold); border: 1px solid transparent; border-radius: var(--border-radius-md); text-decoration: none; cursor: pointer; transition: all 0.2s ease-in-out; flex-grow: 1; }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-300); outline-offset: 2px; }
+    .btn--primary { background-color: var(--color-secondary-500); color: var(--color-neutral-white); }
+    .btn--primary:hover { background-color: #00A360; }
+    .btn--danger { background-color: var(--color-neutral-100); color: var(--color-danger-700); }
+    .btn--danger:hover { background-color: var(--color-danger-50); }
+  </style>
+</head>
+<body>
+
+  <svg style="display: none;">
+    <symbol id="icon-clock" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></symbol>
+    <symbol id="icon-inbox" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5v-3h3.56c.69 1.19 1.97 2 3.44 2s2.75-.81 3.44-2H19v3zm0-5h-4.99c0 1.1-.9 2-2 2s-2-.9-2-2H5V5h14v9z"/></symbol>
+  </svg>
+
+  <header class="showcase-header">
+    <h1>Organism Component: OrderManagementGrid</h1>
+  </header>
+
+  <!-- ============================================= -->
+  <!--               With Orders State               -->
+  <!-- ============================================= -->
+  <h2>State: With New Orders</h2>
+  <div class="order-management-grid">
+    <!-- Column 1: New Orders -->
+    <div class="order-management-grid__column">
+      <h3 class="order-management-grid__header">
+        New Orders <span class="order-management-grid__count-badge">2</span>
+      </h3>
+      <div class="order-management-grid__card-list">
+        <article class="order-card" tabindex="0">
+          <div class="order-card__header">
+            <span class="order-card__id">#ORD-78901</span>
+            <span class="order-card__timer">
+              <svg class="icon" style="font-size: 16px;"><use href="#icon-clock"></use></svg>
+              <span>4:32</span>
+            </span>
+          </div>
+          <div class="order-card__body">
+            <div class="order-card__items">
+              <span>Total Items</span>
+              <span>3</span>
+            </div>
+            <div class="order-card__total">
+              <span>Total Amount</span>
+              <span class="order-card__total-value">₹ 850.00</span>
+            </div>
+          </div>
+          <div class="order-card__footer">
+            <button class="btn btn--danger">Reject</button>
+            <button class="btn btn--primary">Accept</button>
+          </div>
+        </article>
+        <article class="order-card" tabindex="0">
+          <div class="order-card__header">
+            <span class="order-card__id">#ORD-78900</span>
+            <span class="order-card__timer">
+              <svg class="icon" style="font-size: 16px;"><use href="#icon-clock"></use></svg>
+              <span>2:15</span>
+            </span>
+          </div>
+          <div class="order-card__body">
+            <div class="order-card__items">
+              <span>Total Items</span>
+              <span>1</span>
+            </div>
+            <div class="order-card__total">
+              <span>Total Amount</span>
+              <span class="order-card__total-value">₹ 250.00</span>
+            </div>
+          </div>
+          <div class="order-card__footer">
+            <button class="btn btn--danger">Reject</button>
+            <button class="btn btn--primary">Accept</button>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- Column 2: Preparing -->
+    <div class="order-management-grid__column">
+      <h3 class="order-management-grid__header">
+        Preparing <span class="order-management-grid__count-badge">1</span>
+      </h3>
+      <div class="order-management-grid__card-list">
+        <article class="order-card" tabindex="0">
+          <div class="order-card__header">
+            <span class="order-card__id">#ORD-78899</span>
+          </div>
+          <div class="order-card__body">
+            <div class="order-card__items">
+              <span>Total Items</span>
+              <span>5</span>
+            </div>
+            <div class="order-card__total">
+              <span>Total Amount</span>
+              <span class="order-card__total-value">₹ 1,200.00</span>
+            </div>
+          </div>
+          <div class="order-card__footer">
+            <button class="btn btn--primary">Ready for Pickup</button>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <!-- Column 3: Ready for Pickup (Empty) -->
+    <div class="order-management-grid__column order-management-grid__column--empty">
+      <h3 class="order-management-grid__header">
+        Ready for Pickup <span class="order-management-grid__count-badge">0</span>
+      </h3>
+      <div class="order-management-grid__card-list">
+        <div class="order-management-grid__empty-icon">
+          <svg class="icon"><use href="#icon-inbox"></use></svg>
+        </div>
+        <p class="order-management-grid__empty-text">No orders are ready for pickup.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================= -->
+  <!--                 Loading State                 -->
+  <!-- ============================================= -->
+  <h2>State: Loading</h2>
+  <div class="order-management-grid order-management-grid--loading" aria-busy="true">
+    <div class="order-management-grid__overlay">
+        <div class="spinner"></div>
+    </div>
+    <!-- The grid structure is present but obscured by the overlay -->
+    <div class="order-management-grid__column">
+      <h3 class="order-management-grid__header">New Orders</h3>
+      <div class="order-management-grid__card-list"></div>
+    </div>
+    <div class="order-management-grid__column">
+      <h3 class="order-management-grid__header">Preparing</h3>
+      <div class="order-management-grid__card-list"></div>
+    </div>
+    <div class="order-management-grid__column">
+      <h3 class="order-management-grid__header">Ready for Pickup</h3>
+      <div class="order-management-grid__card-list"></div>
+    </div>
+  </div>
+
+</body>
+</html>

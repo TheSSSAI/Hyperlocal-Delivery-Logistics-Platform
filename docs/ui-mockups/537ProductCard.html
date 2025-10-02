@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProductCard Component</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    body, h1, h2, h3, p, figure { margin: 0; }
+    button, input { font: inherit; }
+
+    /* Design System Tokens */
+    :root {
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --fs-h4: 20px; --lh-h4: 1.4;
+      --fs-body: 16px; --lh-body: 1.6;
+      --fs-caption: 14px; --lh-caption: 1.5;
+      --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-200: #8AB9FF; --color-primary-500: #0068FF; --color-primary-600: #0053CC; --color-primary-700: #003E99;
+      --color-white: #FFFFFF; --color-gray-50: #F7F9FC; --color-gray-100: #E9EDF2; --color-gray-200: #D3D9E1; --color-gray-500: #8E9BAA; --color-gray-600: #717C88; --color-gray-700: #555D66; --color-gray-800: #383E44; --color-gray-900: #1C1F22;
+      --color-success: #00C875; --color-warning: #FFB800; --color-error: #FF4D4D;
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+      --border-radius-md: 8px; --border-radius-lg: 12px; --border-radius-full: 9999px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.1);
+      --shadow-lg: 0px 8px 16px rgba(28, 31, 34, 0.12);
+    }
+
+    /* Showcase Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-gray-50);
+      padding: var(--space-6);
+    }
+    .showcase-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .showcase-header {
+      margin-bottom: var(--space-6);
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+    .showcase-header h1 {
+      font-size: 36px;
+      color: var(--color-gray-900);
+      margin-bottom: var(--space-2);
+    }
+    .showcase-header p {
+      font-size: var(--fs-body);
+      color: var(--color-gray-600);
+    }
+    .showcase-section {
+      margin-bottom: var(--space-6);
+    }
+    .showcase-section h2 {
+      font-size: 28px;
+      margin-bottom: var(--space-5);
+      color: var(--color-gray-800);
+    }
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--space-5);
+    }
+    .showcase-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      max-width: 500px;
+    }
+
+    /* --- Atomic Dependencies --- */
+    .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; vertical-align: middle; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); font-weight: var(--font-weight-semibold); text-decoration: none; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; min-height: 44px; }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-200); outline-offset: 2px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-white); }
+    .btn--primary:hover:not(:disabled) { background-color: var(--color-primary-600); }
+    .btn--primary:disabled { background-color: var(--color-gray-200); color: var(--color-gray-500); cursor: not-allowed; }
+    .btn--icon-only { padding: var(--space-2); min-height: 36px; min-width: 36px; border-radius: var(--border-radius-full); background-color: var(--color-primary-50); color: var(--color-primary-500); border: 1px solid var(--color-primary-100);}
+    .btn--icon-only:hover:not(:disabled) { background-color: var(--color-primary-100); }
+    .btn--icon-only .icon { width: 20px; height: 20px; }
+    .btn--icon-only:disabled { background-color: var(--color-gray-100); color: var(--color-gray-400); border-color: var(--color-gray-200); cursor: not-allowed; }
+
+    .badge { display: inline-block; padding: var(--space-1) var(--space-2); border-radius: var(--border-radius-full); font-size: 12px; font-weight: var(--font-weight-bold); text-transform: uppercase; line-height: 1.2; }
+    .badge--success { background-color: #E5F9F1; color: #003D24; }
+    .badge--warning { background-color: #FFF8E6; color: #996F00; }
+    .badge--error { background-color: #FFEBEB; color: #8B0000; }
+
+    /* --- Molecular Components --- */
+
+    /* QuantityStepper */
+    .quantity-stepper { display: flex; align-items: center; gap: var(--space-3); }
+    .quantity-stepper__quantity { font-size: var(--fs-body); font-weight: var(--font-weight-bold); min-width: 24px; text-align: center; color: var(--color-gray-900); }
+
+    /* ProductCard */
+    .product-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      text-decoration: none;
+      color: inherit;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    .product-card__image-wrapper {
+      position: relative;
+      display: block;
+    }
+    .product-card__image {
+      width: 100%;
+      display: block;
+      object-fit: cover;
+    }
+    .product-card__badge-container {
+      position: absolute;
+      top: var(--space-3);
+      left: var(--space-3);
+    }
+    .product-card__content {
+      padding: var(--space-4);
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .product-card__header { flex-grow: 1; }
+    .product-card__title { font-size: 18px; font-weight: var(--font-weight-semibold); color: var(--color-gray-900); margin-bottom: var(--space-1); }
+    .product-card__vendor { font-size: var(--fs-caption); color: var(--color-gray-600); margin-bottom: var(--space-3); }
+    .product-card__description { font-size: var(--fs-caption); color: var(--color-gray-600); margin-bottom: var(--space-3); display: none; }
+    .product-card__footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: var(--space-3); }
+    .product-card__price { font-size: var(--fs-body); font-weight: var(--font-weight-bold); color: var(--color-gray-800); }
+
+    /* Grid Variant Specifics */
+    .product-card--grid .product-card__image { aspect-ratio: 4 / 3; }
+
+    /* List Variant Specifics */
+    .product-card--list { flex-direction: row; }
+    .product-card--list .product-card__image-wrapper { flex-basis: 100px; flex-shrink: 0; }
+    .product-card--list .product-card__image { aspect-ratio: 1 / 1; height: 100%; }
+    .product-card--list .product-card__content { padding: var(--space-3); }
+    .product-card--list .product-card__title { font-size: 16px; }
+    .product-card--list .product-card__description {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: var(--space-2);
+    }
+    .product-card--list .product-card__footer { flex-direction: column; align-items: flex-end; gap: var(--space-2); padding-top: 0; }
+    .product-card--list .product-card__header { flex-grow: 1; margin-bottom: 0; }
+    .product-card--list .product-card__vendor { margin-bottom: var(--space-2); }
+
+
+    /* Disabled State */
+    .product-card--disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+    .product-card--disabled:hover {
+      transform: none;
+      box-shadow: var(--shadow-sm);
+    }
+    .product-card--disabled .product-card__image-wrapper::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Responsive Grid Section - applies grid styles only inside this wrapper on desktop */
+    @media (min-width: 768px) {
+      .responsive-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--space-5);
+      }
+      .responsive-grid .product-card { flex-direction: column; } 
+      .responsive-grid .product-card .product-card__image-wrapper { flex-basis: auto; }
+      .responsive-grid .product-card .product-card__image { aspect-ratio: 4 / 3; }
+      .responsive-grid .product-card .product-card__content { padding: var(--space-4); }
+      .responsive-grid .product-card .product-card__title { font-size: 18px; }
+      .responsive-grid .product-card .product-card__description { display: none; }
+      .responsive-grid .product-card .product-card__footer { flex-direction: row; align-items: center; padding-top: var(--space-3);}
+    }
+
+  </style>
+</head>
+<body>
+  
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></symbol>
+      <symbol id="icon-minus" viewBox="0 0 24 24"><path d="M19 13H5v-2h14v2z"/></symbol>
+    </defs>
+  </svg>
+
+  <main class="showcase-container">
+    <header class="showcase-header">
+      <h1>ProductCard Component</h1>
+      <p>This component displays product information in two primary layouts: grid and list. It adapts responsively and includes states for in-cart and out-of-stock items.</p>
+    </header>
+
+    <section class="showcase-section">
+      <h2>Grid View (Desktop)</h2>
+      <p>Best for discovery on larger screens, emphasizing product imagery.</p>
+      <div class="showcase-grid">
+        <!-- Grid: Default State -->
+        <article class="product-card product-card--grid">
+          <a href="#" class="product-card__image-wrapper">
+            <img class="product-card__image" src="https://images.unsplash.com/photo-1593560704563-f176a2eb61db?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=600" alt="Spicy Ramen">
+            <div class="product-card__badge-container">
+              <span class="badge badge--success">Available</span>
+            </div>
+          </a>
+          <div class="product-card__content">
+            <div class="product-card__header">
+              <h3 class="product-card__title">Spicy Ramen</h3>
+              <p class="product-card__vendor">Global Bites Kitchen</p>
+            </div>
+            <div class="product-card__footer">
+              <span class="product-card__price">₹350.00</span>
+              <div class="product-card__actions">
+                <button class="btn btn--primary" aria-label="Add Spicy Ramen to cart">Add to Cart</button>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Grid: In Cart State -->
+        <article class="product-card product-card--grid">
+          <a href="#" class="product-card__image-wrapper">
+            <img class="product-card__image" src="https://images.unsplash.com/photo-1563379926898-05f4575a457f?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=600" alt="Seafood Pasta">
+            <div class="product-card__badge-container">
+              <span class="badge badge--warning">Limited Stock</span>
+            </div>
+          </a>
+          <div class="product-card__content">
+            <div class="product-card__header">
+              <h3 class="product-card__title">Seafood Pasta</h3>
+              <p class="product-card__vendor">Italiano Corner</p>
+            </div>
+            <div class="product-card__footer">
+              <span class="product-card__price">₹550.00</span>
+              <div class="product-card__actions">
+                <div class="quantity-stepper">
+                  <button class="btn btn--icon-only" aria-label="Decrease quantity of Seafood Pasta">
+                    <svg class="icon"><use href="#icon-minus"></use></svg>
+                  </button>
+                  <span class="quantity-stepper__quantity" aria-live="polite">1</span>
+                  <button class="btn btn--icon-only" aria-label="Increase quantity of Seafood Pasta">
+                    <svg class="icon"><use href="#icon-plus"></use></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Grid: Disabled State -->
+        <article class="product-card product-card--grid product-card--disabled">
+          <a href="#" class="product-card__image-wrapper" aria-disabled="true" tabindex="-1">
+            <img class="product-card__image" src="https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=600" alt="Cheesecake Slice">
+            <div class="product-card__badge-container">
+              <span class="badge badge--error">Out of Stock</span>
+            </div>
+          </a>
+          <div class="product-card__content">
+            <div class="product-card__header">
+              <h3 class="product-card__title">Cheesecake Slice</h3>
+              <p class="product-card__vendor">The Sweet Spot</p>
+            </div>
+            <div class="product-card__footer">
+              <span class="product-card__price">₹250.00</span>
+              <div class="product-card__actions">
+                <button class="btn btn--primary" disabled>Add to Cart</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="showcase-section">
+      <h2>List View (Mobile)</h2>
+      <p>Optimized for single-column scrolling on mobile devices, showing more text detail.</p>
+      <div class="showcase-list">
+        <!-- List: Default State -->
+        <article class="product-card product-card--list">
+          <a href="#" class="product-card__image-wrapper">
+            <img class="product-card__image" src="https://images.unsplash.com/photo-1593560704563-f176a2eb61db?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=200" alt="Spicy Ramen">
+            <div class="product-card__badge-container">
+              <span class="badge badge--success">Available</span>
+            </div>
+          </a>
+          <div class="product-card__content">
+            <div class="product-card__header">
+              <h3 class="product-card__title">Spicy Ramen</h3>
+              <p class="product-card__vendor">Global Bites Kitchen</p>
+              <p class="product-card__description">A rich and spicy broth with perfectly cooked noodles, tender pork, and a soft-boiled egg.</p>
+            </div>
+            <div class="product-card__footer">
+              <span class="product-card__price">₹350.00</span>
+              <div class="product-card__actions">
+                <button class="btn btn--primary" style="min-height: 40px; padding: 8px 16px;">Add</button>
+              </div>
+            </div>
+          </div>
+        </article>
+        
+        <!-- List: In Cart State -->
+         <article class="product-card product-card--list">
+          <a href="#" class="product-card__image-wrapper">
+            <img class="product-card__image" src="https://images.unsplash.com/photo-1563379926898-05f4575a457f?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=200" alt="Seafood Pasta">
+            <div class="product-card__badge-container">
+              <span class="badge badge--warning">Limited Stock</span>
+            </div>
+          </a>
+          <div class="product-card__content">
+            <div class="product-card__header">
+              <h3 class="product-card__title">Seafood Pasta</h3>
+              <p class="product-card__vendor">Italiano Corner</p>
+              <p class="product-card__description">Fresh pasta with a mix of shrimp, mussels, and calamari in a light tomato sauce.</p>
+            </div>
+            <div class="product-card__footer">
+              <span class="product-card__price">₹550.00</span>
+              <div class="product-card__actions">
+                <div class="quantity-stepper">
+                  <button class="btn btn--icon-only" aria-label="Decrease quantity of Seafood Pasta">
+                    <svg class="icon"><use href="#icon-minus"></use></svg>
+                  </button>
+                  <span class="quantity-stepper__quantity" aria-live="polite">2</span>
+                  <button class="btn btn--icon-only" aria-label="Increase quantity of Seafood Pasta">
+                    <svg class="icon"><use href="#icon-plus"></use></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- List: Disabled State -->
+        <article class="product-card product-card--list product-card--disabled">
+          <a href="#" class="product-card__image-wrapper" aria-disabled="true" tabindex="-1">
+            <img class="product-card__image" src="https://images.unsplash.com/photo-1528735602780-2552fd46c7af?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=200" alt="Cheesecake Slice">
+            <div class="product-card__badge-container">
+              <span class="badge badge--error">Out of Stock</span>
+            </div>
+          </a>
+          <div class="product-card__content">
+            <div class="product-card__header">
+              <h3 class="product-card__title">Cheesecake Slice</h3>
+              <p class="product-card__vendor">The Sweet Spot</p>
+              <p class="product-card__description">A creamy, classic New York style cheesecake with a graham cracker crust.</p>
+            </div>
+            <div class="product-card__footer">
+              <span class="product-card__price">₹250.00</span>
+              <div class="product-card__actions">
+                <button class="btn btn--primary" disabled style="min-height: 40px; padding: 8px 16px;">Add</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+    
+    <section class="showcase-section">
+      <h2>Responsive Showcase</h2>
+      <p>This section demonstrates the responsive behavior. On a mobile device (or narrow browser), it will appear as a list. On a tablet or desktop (wider than 768px), it will automatically switch to a grid layout.</p>
+      <div class="responsive-grid">
+         <article class="product-card">
+          <a href="#" class="product-card__image-wrapper">
+            <img class="product-card__image" src="https://images.unsplash.com/photo-1593560704563-f176a2eb61db?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=600" alt="Spicy Ramen">
+            <div class="product-card__badge-container">
+              <span class="badge badge--success">Available</span>
+            </div>
+          </a>
+          <div class="product-card__content">
+            <div class="product-card__header">
+              <h3 class="product-card__title">Spicy Ramen</h3>
+              <p class="product-card__vendor">Global Bites Kitchen</p>
+              <p class="product-card__description">A rich and spicy broth with perfectly cooked noodles, tender pork, and a soft-boiled egg.</p>
+            </div>
+            <div class="product-card__footer">
+              <span class="product-card__price">₹350.00</span>
+              <div class="product-card__actions">
+                <button class="btn btn--primary" aria-label="Add Spicy Ramen to cart">Add to Cart</button>
+              </div>
+            </div>
+          </div>
+        </article>
+        <article class="product-card">
+          <a href="#" class="product-card__image-wrapper">
+            <img class="product-card__image" src="https://images.unsplash.com/photo-1563379926898-05f4575a457f?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=600" alt="Seafood Pasta">
+            <div class="product-card__badge-container">
+              <span class="badge badge--warning">Limited Stock</span>
+            </div>
+          </a>
+          <div class="product-card__content">
+            <div class="product-card__header">
+              <h3 class="product-card__title">Seafood Pasta</h3>
+              <p class="product-card__vendor">Italiano Corner</p>
+              <p class="product-card__description">Fresh pasta with a mix of shrimp, mussels, and calamari in a light tomato sauce.</p>
+            </div>
+            <div class="product-card__footer">
+              <span class="product-card__price">₹550.00</span>
+              <div class="product-card__actions">
+                 <div class="quantity-stepper">
+                  <button class="btn btn--icon-only" aria-label="Decrease quantity of Seafood Pasta"><svg class="icon"><use href="#icon-minus"></use></svg></button>
+                  <span class="quantity-stepper__quantity">1</span>
+                  <button class="btn btn--icon-only" aria-label="Increase quantity of Seafood Pasta"><svg class="icon"><use href="#icon-plus"></use></svg></button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+	
+	<div class="showcase-container"> <h2> Component Variations</h2>
+      <div class="showcase-section">
+        <h3>Variant Name : "grid-view"</h3>
+		<normal> A vertical layout optimized for multi-column grids on larger screens, emphasizing the product image. </normal>
+		
+        <article class="product-card product-card--grid" style="max-width: 300px; margin-top: 16px;">
+          <a href="#" class="product-card__image-wrapper">
+            <img class="product-card__image" src="https://images.unsplash.com/photo-1593560704563-f176a2eb61db?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=600" alt="Spicy Ramen">
+          </a>
+          <div class="product-card__content">
+            <div class="product-card__header">
+              <h3 class="product-card__title">Grid View Product</h3>
+              <p class="product-card__vendor">Vendor Name</p>
+            </div>
+            <div class="product-card__footer">
+              <span class="product-card__price">₹350.00</span>
+              <div class="product-card__actions">
+                <button class="btn btn--primary">Add</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+      
+      <div class="showcase-section">
+        <h3>Variant Name : "list-view"</h3>
+		<normal> A horizontal layout optimized for single-column lists on mobile screens, providing more space for descriptive text. </normal>
+		
+        <article class="product-card product-card--list" style="max-width: 500px; margin-top: 16px;">
+          <a href="#" class="product-card__image-wrapper">
+            <img class="product-card__image" src="https://images.unsplash.com/photo-1593560704563-f176a2eb61db?ixlib=rb-4.0.3&q=85&fm=jpg&crop=entropy&cs=srgb&w=200" alt="Spicy Ramen">
+          </a>
+          <div class="product-card__content">
+            <div class="product-card__header">
+              <h3 class="product-card__title">List View Product</h3>
+              <p class="product-card__vendor">Vendor Name</p>
+              <p class="product-card__description">This view includes a short description to give customers more context in a list format.</p>
+            </div>
+            <div class="product-card__footer">
+              <span class="product-card__price">₹350.00</span>
+              <div class="product-card__actions">
+                <button class="btn btn--primary" style="padding: 8px 16px;">Add</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+	 </div>
+	
+	</body>
+</html>

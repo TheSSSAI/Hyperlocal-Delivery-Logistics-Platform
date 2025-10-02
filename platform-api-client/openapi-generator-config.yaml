@@ -1,0 +1,40 @@
+# Configuration for OpenAPI Generator to generate the TypeScript Axios client.
+# This file is critical for maintaining consistency between the backend API and the client library.
+# It enforces the API-contract-first approach as mandated by REQ-1-101.
+# The `typeMappings` section is crucial for integrating with the shared `@platform/contracts` library,
+# ensuring a single source of truth for all data transfer objects (DTOs).
+
+"generator-cli":
+  version: "7.5.0" # Specify a stable version of the generator CLI
+  generators:
+    platform-api:
+      generatorName: typescript-axios
+      # The input specification can be a URL to the live API Gateway spec or a local file.
+      # This should be updated in CI/CD pipelines to point to the correct environment's spec.
+      inputSpec: http://localhost:3000/api-json # Placeholder, should point to actual API Gateway spec URL
+      output: "#{cwd}/src/api/generated"
+      # Additional properties to configure the generator for a modern TypeScript project.
+      additionalProperties:
+        supportsES6: true
+        withInterfaces: true
+        typescriptThreePlus: true
+        usePromise: true
+        nullSafeAdditionalProps: true
+      # This section is CRITICAL. It prevents the generator from creating its own DTOs
+      # and instead imports them from the shared contracts library. This ensures end-to-end
+      # type safety and a single source of truth for data models.
+      # The list below is representative; a full implementation would list all DTOs.
+      typeMappings:
+        OrderDTO: "@platform/contracts#OrderDTO"
+        ProductDTO: "@platform/contracts#ProductDTO"
+        UserDTO: "@platform/contracts#UserDTO"
+        VendorDTO: "@platform/contracts#VendorDTO"
+        RiderDTO: "@platform/contracts#RiderDTO"
+        CreateOrderDTO: "@platform/contracts#CreateOrderDTO"
+        UpdateOrderStatusDTO: "@platform/contracts#UpdateOrderStatusDTO"
+        AuthTokensDTO: "@platform/contracts#AuthTokensDTO"
+        RequestOtpDTO: "@platform/contracts#RequestOtpDTO"
+        VerifyOtpDTO: "@platform/contracts#VerifyOtpDTO"
+      # Global properties for all generated files
+      globalProperties:
+        skipFormModel: false

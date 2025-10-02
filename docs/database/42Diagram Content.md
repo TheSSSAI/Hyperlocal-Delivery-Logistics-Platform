@@ -1,0 +1,22 @@
+erDiagram
+    RatingReview {
+        Guid ratingReviewId PK
+        Guid orderId
+        Guid reviewerId
+        Guid revieweeId
+        VARCHAR revieweeType
+        INT rating
+        TEXT reviewText
+        DateTimeOffset createdAt
+    }
+
+    SupportTicket {
+        Guid supportTicketId PK
+        Guid userId
+        VARCHAR subject
+        TEXT description
+        VARCHAR status
+        Guid assignedAdminId
+        DateTimeOffset createdAt
+        DateTimeOffset updatedAt
+    }

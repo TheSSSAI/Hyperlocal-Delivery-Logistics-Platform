@@ -1,0 +1,39 @@
+erDiagram
+    VendorProfile {
+        Guid vendorProfileId PK
+        Guid userId UK
+        VARCHAR storeName
+        DECIMAL averageRating
+        BOOLEAN isOnline
+    }
+    VendorBusinessHour {
+        Guid businessHourId PK
+        Guid vendorProfileId FK
+        INT dayOfWeek
+        BOOLEAN isClosed
+    }
+    VendorLicense {
+        Guid licenseId PK
+        Guid vendorProfileId FK
+        VARCHAR licenseNumber
+        DATE expiryDate
+    }
+    ProductCategory {
+        Guid productCategoryId PK
+        Guid vendorProfileId FK
+        VARCHAR name
+    }
+    Product {
+        Guid productId PK
+        Guid vendorProfileId FK
+        Guid productCategoryId FK
+        VARCHAR name
+        DECIMAL price
+        BOOLEAN isAvailable
+    }
+
+    VendorProfile ||--|{ VendorBusinessHour : "has"
+    VendorProfile ||--|{ VendorLicense : "has"
+    VendorProfile ||--|{ ProductCategory : "has"
+    VendorProfile ||--|{ Product : "sells"
+    ProductCategory ||--|{ Product : "contains"

@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AppHeader Component Showcase</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { -webkit-font-smoothing: antialiased; }
+    img, picture, video, canvas, svg { display: block; max-width: 100%; }
+    input, button, textarea, select { font: inherit; }
+    p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+
+    /* Design System Tokens */
+    :root {
+      /* Typography */
+      --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-500: #8E9BAA;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      --color-semantic-success: #00C875;
+
+      /* Spacing */
+      --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px; --space-24: 24px; --space-32: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 1px 2px rgba(28, 31, 34, 0.05);
+      --shadow-md: 0px 4px 8px -2px rgba(28, 31, 34, 0.1), 0px 2px 4px -2px rgba(28, 31, 34, 0.06);
+    }
+    
+    /* Base Styles */
+    body {
+      font-family: var(--font-primary);
+      font-size: var(--font-size-body);
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-900);
+      line-height: 1.6;
+    }
+    .showcase-container {
+      padding: var(--space-32);
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .showcase-container h1 {
+        font-size: 28px;
+        margin-bottom: var(--space-24);
+        border-bottom: 1px solid var(--color-neutrals-gray-100);
+        padding-bottom: var(--space-16);
+    }
+    .header-wrapper {
+        margin-bottom: var(--space-32);
+        border: 1px solid var(--color-neutrals-gray-100);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-sm);
+        background-color: var(--color-neutrals-white);
+        overflow: hidden;
+    }
+    .header-wrapper h3 {
+        background-color: var(--color-neutrals-gray-50);
+        padding: var(--space-12) var(--space-16);
+        font-size: var(--font-size-caption);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-neutrals-gray-700);
+        border-bottom: 1px solid var(--color-neutrals-gray-100);
+    }
+    
+    /* Icon Styles */
+    .icon {
+        display: inline-block;
+        width: 1.25em;
+        height: 1.25em;
+        stroke-width: 0;
+        stroke: currentColor;
+        fill: currentColor;
+        vertical-align: middle;
+    }
+
+    /* AppHeader Component Styles */
+    .app-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-12) var(--space-16);
+        background-color: var(--color-neutrals-white);
+        height: 64px;
+        border-bottom: 1px solid var(--color-neutrals-gray-100);
+        position: relative;
+        z-index: 10;
+    }
+
+    .header-section {
+        display: flex;
+        align-items: center;
+        gap: var(--space-16);
+    }
+
+    .header-logo {
+        font-weight: var(--font-weight-bold);
+        font-size: 20px;
+        color: var(--color-neutrals-gray-900);
+        text-decoration: none;
+    }
+
+    /* Web Header Navigation */
+    .header-nav { display: none; }
+    .header-nav a {
+        text-decoration: none;
+        color: var(--color-neutrals-gray-700);
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-caption);
+        padding: var(--space-8) var(--space-12);
+        border-radius: var(--border-radius-md);
+        transition: background-color 0.2s ease;
+    }
+    .header-nav a:hover {
+        background-color: var(--color-neutrals-gray-50);
+        color: var(--color-neutrals-gray-900);
+    }
+    .header-nav a.active {
+        color: var(--color-primary-500);
+    }
+    
+    /* Search Bar (simple version) */
+    .search-bar { display: none; position: relative; }
+    .search-bar .icon {
+        position: absolute;
+        left: var(--space-12);
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--color-neutrals-gray-500);
+        font-size: 18px;
+    }
+    .search-bar input {
+        padding: var(--space-8) var(--space-12) var(--space-8) 36px;
+        border-radius: var(--border-radius-md);
+        border: 1px solid var(--color-neutrals-gray-300);
+        background-color: var(--color-neutrals-gray-50);
+        width: 280px;
+        font-size: var(--font-size-caption);
+    }
+    .search-bar input:focus {
+        outline: none;
+        border-color: var(--color-primary-500);
+        box-shadow: 0 0 0 3px var(--color-primary-100);
+    }
+    
+    /* Header Actions (Avatar, Notifications) */
+    .header-actions {
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+    }
+
+    .icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: transparent;
+        color: var(--color-neutrals-gray-700);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        position: relative;
+    }
+    .icon-button:hover {
+        background-color: var(--color-neutrals-gray-50);
+        color: var(--color-neutrals-gray-900);
+    }
+    .icon-button .icon { font-size: 22px; }
+    
+    .badge {
+        position: absolute;
+        top: 6px;
+        right: 6px;
+        width: 8px;
+        height: 8px;
+        background-color: var(--color-semantic-error);
+        border-radius: 50%;
+        border: 2px solid var(--color-neutrals-white);
+    }
+
+    .avatar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: var(--color-primary-50);
+        color: var(--color-primary-600);
+        font-weight: var(--font-weight-bold);
+        font-size: 14px;
+        cursor: pointer;
+    }
+    .avatar img {
+        width: 100%; height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    /* Hamburger Button */
+    .hamburger-btn { display: inline-flex; }
+
+    /* Mobile Off-Canvas Menu */
+    .mobile-menu-overlay {
+        position: fixed;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 998;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    .mobile-menu {
+        position: fixed;
+        top: 0; left: 0; bottom: 0;
+        width: 280px;
+        background-color: var(--color-neutrals-white);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        padding: var(--space-16);
+    }
+    .mobile-menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--space-24);
+        padding-bottom: var(--space-16);
+        border-bottom: 1px solid var(--color-neutrals-gray-100);
+    }
+    .mobile-menu-nav a {
+        display: block;
+        padding: var(--space-12) var(--space-16);
+        text-decoration: none;
+        color: var(--color-neutrals-gray-900);
+        font-weight: var(--font-weight-semibold);
+        border-radius: var(--border-radius-md);
+    }
+    .mobile-menu-nav a:hover {
+        background-color: var(--color-neutrals-gray-50);
+    }
+    
+    /* Mobile Menu Open State */
+    .mobile-menu-open .mobile-menu { transform: translateX(0); }
+    .mobile-menu-open .mobile-menu-overlay { opacity: 1; visibility: visible; }
+    
+    /* --- Platform Specific Header Variants --- */
+
+    /* Vendor & Admin Web Header (Responsive) */
+    @media (min-width: 768px) {
+        .app-header {
+            padding: var(--space-12) var(--space-24);
+        }
+        .hamburger-btn { display: none; }
+        .header-nav { display: flex; gap: var(--space-8); }
+        .search-bar { display: block; }
+    }
+
+    /* Customer Mobile Header */
+    .customer-header .header-section--left {
+        display: flex;
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 0;
+    }
+    .customer-header .location-text {
+        font-size: 12px;
+        color: var(--color-neutrals-gray-500);
+        margin-bottom: -4px;
+    }
+    .customer-header .address-selector {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+        font-weight: var(--font-weight-semibold);
+        cursor: pointer;
+        color: var(--color-neutrals-gray-900);
+    }
+    .customer-header .address-selector .icon {
+        font-size: 18px;
+    }
+
+    /* Rider Mobile Header */
+    .rider-header {
+        background-color: var(--color-neutrals-gray-900);
+        color: var(--color-neutrals-white);
+        border-bottom-color: var(--color-neutrals-gray-800);
+    }
+    .rider-header .header-title {
+        font-size: 18px;
+        font-weight: var(--font-weight-semibold);
+    }
+    .rider-header .avatar {
+        background-color: var(--color-primary-600);
+        color: var(--color-neutrals-white);
+    }
+
+
+  </style>
+</head>
+<body>
+  
+  <div class="showcase-container">
+    <h1>AppHeader Component Showcase</h1>
+    
+    <!-- Vendor Web Header -->
+    <div class="header-wrapper">
+        <h3>Variant: `vendor-web` (resize to see responsive behavior)</h3>
+        <header class="app-header vendor-header" id="vendor-header">
+            <div class="header-section">
+                <button class="icon-button hamburger-btn" aria-label="Toggle navigation" aria-controls="vendor-mobile-menu" aria-expanded="false">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>
+                </button>
+                <a href="#" class="header-logo">VendorDash</a>
+                <nav class="header-nav">
+                    <a href="#" class="active">Dashboard</a>
+                    <a href="#">Orders</a>
+                    <a href="#">Products</a>
+                    <a href="#">Reports</a>
+                </nav>
+            </div>
+            <div class="header-section">
+                <div class="search-bar">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" /></svg>
+                    <input type="text" placeholder="Search orders...">
+                </div>
+                <button class="icon-button" aria-label="View notifications">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M10 21H14C14 22.1 13.1 23 12 23S10 22.1 10 21M21 19V20H3V19L5 17V11C5 7.9 7 5.2 10 4.3V4C10 2.9 10.9 2 12 2S14 2.9 14 4V4.3C17 5.2 19 7.9 19 11V17L21 19Z" /></svg>
+                    <span class="badge"></span>
+                </button>
+                <div class="avatar">VP</div>
+            </div>
+        </header>
+    </div>
+
+    <!-- Admin Web Header -->
+    <div class="header-wrapper">
+        <h3>Variant: `admin-web` (resize to see responsive behavior)</h3>
+        <header class="app-header admin-header" id="admin-header">
+            <div class="header-section">
+                <button class="icon-button hamburger-btn" aria-label="Toggle navigation" aria-controls="admin-mobile-menu" aria-expanded="false">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>
+                </button>
+                <a href="#" class="header-logo">AdminPanel</a>
+                <nav class="header-nav">
+                    <a href="#">Dashboard</a>
+                    <a href="#" class="active">Users</a>
+                    <a href="#">Zones</a>
+                    <a href="#">Settings</a>
+                </nav>
+            </div>
+            <div class="header-section">
+                 <div class="search-bar">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M9.5,3A6.5,6.5 0 0,1 16,9.5C16,11.11 15.41,12.59 14.44,13.73L14.71,14H15.5L20.5,19L19,20.5L14,15.5V14.71L13.73,14.44C12.59,15.41 11.11,16 9.5,16A6.5,6.5 0 0,1 3,9.5A6.5,6.5 0 0,1 9.5,3M9.5,5C7,5 5,7 5,9.5C5,12 7,14 9.5,14C12,14 14,12 14,9.5C14,7 12,5 9.5,5Z" /></svg>
+                    <input type="text" placeholder="Search users, orders...">
+                </div>
+                <button class="icon-button" aria-label="View notifications">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M10 21H14C14 22.1 13.1 23 12 23S10 22.1 10 21M21 19V20H3V19L5 17V11C5 7.9 7 5.2 10 4.3V4C10 2.9 10.9 2 12 2S14 2.9 14 4V4.3C17 5.2 19 7.9 19 11V17L21 19Z" /></svg>
+                </button>
+                <div class="avatar">AD</div>
+            </div>
+        </header>
+    </div>
+
+    <!-- Customer Mobile Header -->
+    <div class="header-wrapper" style="max-width: 400px; margin-left: auto; margin-right: auto;">
+        <h3>Variant: `customer-mobile`</h3>
+        <header class="app-header customer-header">
+            <div class="header-section header-section--left">
+                <span class="location-text">DELIVER TO</span>
+                <div class="address-selector">
+                    <span>123, Marine Drive, Mumbai</span>
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" /></svg>
+                </div>
+            </div>
+            <div class="header-section">
+                <button class="icon-button" aria-label="View your cart">
+                    <svg class="icon" viewBox="0 0 24 24"><path d="M17,18C15.89,18 15,18.89 15,20A2,2 0 0,0 17,22A2,2 0 0,0 19,20C19,18.89 18.1,18 17,18M1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15A2,2 0 0,0 7,17H19V15H7.42C7.29,15 7.17,14.89 7.17,14.75L7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5.5C20.95,5.37 21,5.22 21,5A1,1 0 0,0 20,4H5.21L4.27,2H1V2M7,18C5.89,18 5,18.89 5,20A2,2 0 0,0 7,22A2,2 0 0,0 9,20C9,18.89 8.1,18 7,18Z" /></svg>
+                    <span class="badge" style="background-color: var(--color-primary-500)"></span>
+                </button>
+            </div>
+        </header>
+    </div>
+
+    <!-- Rider Mobile Header -->
+    <div class="header-wrapper" style="max-width: 400px; margin-left: auto; margin-right: auto;">
+        <h3>Variant: `rider-mobile`</h3>
+        <header class="app-header rider-header">
+            <div class="header-section">
+                <span class="header-title">My Tasks</span>
+            </div>
+            <div class="header-section">
+                <div class="avatar">JD</div>
+            </div>
+        </header>
+    </div>
+  </div>
+
+  <!-- Off-canvas Menus for Web Headers -->
+  <div class="mobile-menu-overlay"></div>
+  <nav class="mobile-menu" id="vendor-mobile-menu" aria-hidden="true">
+      <div class="mobile-menu-header">
+          <a href="#" class="header-logo">VendorDash</a>
+          <button class="icon-button close-menu-btn" aria-label="Close navigation">
+              <svg class="icon" viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
+          </button>
+      </div>
+      <div class="mobile-menu-nav">
+          <a href="#">Dashboard</a>
+          <a href="#">Orders</a>
+          <a href="#">Products</a>
+          <a href="#">Reports</a>
+      </div>
+  </nav>
+
+  <nav class="mobile-menu" id="admin-mobile-menu" aria-hidden="true">
+      <div class="mobile-menu-header">
+          <a href="#" class="header-logo">AdminPanel</a>
+          <button class="icon-button close-menu-btn" aria-label="Close navigation">
+             <svg class="icon" viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
+          </button>
+      </div>
+      <div class="mobile-menu-nav">
+          <a href="#">Dashboard</a>
+          <a href="#">Users</a>
+          <a href="#">Zones</a>
+          <a href="#">Settings</a>
+      </div>
+  </nav>
+
+  
+  <!-- Screen Variations Section -->
+  <div class="screen-variations showcase-container">
+    <h2>Screen Variations</h2>
+    
+    <div class="variation-group header-wrapper">
+      <h3>Variant Name: "Web Header - Mobile Menu Open"</h3>
+      <normal>Demonstrates the off-canvas navigation menu for web dashboards on smaller screens. This static example has the `.mobile-menu-open` class applied to the body to make it visible by default.</normal>
+      <div style="position: relative; height: 300px; overflow: hidden;">
+        <header class="app-header vendor-header">
+          <div class="header-section">
+            <button class="icon-button hamburger-btn" aria-label="Toggle navigation">
+                <svg class="icon" viewBox="0 0 24 24"><path d="M3,6H21V8H3V6M3,11H21V13H3V11M3,16H21V18H3V16Z" /></svg>
+            </button>
+            <a href="#" class="header-logo">VendorDash</a>
+          </div>
+        </header>
+        <main style="padding: 16px; background: #eee; height: 100%;">
+            Page content obscured by overlay.
+        </main>
+        <div class="mobile-menu-overlay" style="opacity: 1; visibility: visible; position: absolute;"></div>
+        <nav class="mobile-menu" style="transform: translateX(0); position: absolute;">
+           <div class="mobile-menu-header">
+              <a href="#" class="header-logo">VendorDash</a>
+              <button class="icon-button" aria-label="Close navigation">
+                  <svg class="icon" viewBox="0 0 24 24"><path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z" /></svg>
+              </button>
+            </div>
+            <div class="mobile-menu-nav">
+                <a href="#">Dashboard</a>
+                <a href="#">Orders</a>
+                <a href="#">Products</a>
+                <a href="#">Reports</a>
+            </div>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButtons = document.querySelectorAll('.hamburger-btn');
+        const closeButtons = document.querySelectorAll('.close-menu-btn');
+        const overlay = document.querySelector('.mobile-menu-overlay');
+
+        const closeAllMenus = () => {
+            document.body.classList.remove('mobile-menu-open');
+            document.querySelectorAll('.mobile-menu').forEach(menu => {
+                menu.setAttribute('aria-hidden', 'true');
+            });
+            document.querySelectorAll('.hamburger-btn').forEach(btn => {
+                btn.setAttribute('aria-expanded', 'false');
+            });
+        };
+
+        toggleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetMenuId = button.getAttribute('aria-controls');
+                const targetMenu = document.getElementById(targetMenuId);
+
+                if (targetMenu) {
+                    document.body.classList.add('mobile-menu-open');
+                    targetMenu.setAttribute('aria-hidden', 'false');
+                    button.setAttribute('aria-expanded', 'true');
+                }
+            });
+        });
+
+        closeButtons.forEach(button => {
+            button.addEventListener('click', closeAllMenus);
+        });
+
+        if (overlay) {
+            overlay.addEventListener('click', closeAllMenus);
+        }
+        
+        // Example for demonstration purposes only. In a real app, this would be handled by a router.
+        const headerWrappers = document.querySelectorAll('.header-wrapper');
+        headerWrappers.forEach(wrapper => {
+            const btn = wrapper.querySelector('.hamburger-btn');
+            if(btn) {
+                const menuId = btn.getAttribute('aria-controls');
+                const menu = document.getElementById(menuId);
+                const closeBtn = menu.querySelector('.close-menu-btn');
+
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.body.classList.add('mobile-menu-open');
+                    menu.setAttribute('aria-hidden', 'false');
+                    btn.setAttribute('aria-expanded', 'true');
+                });
+
+                closeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    closeAllMenus();
+                });
+            }
+        });
+    });
+  </script>
+
+</body>
+</html>

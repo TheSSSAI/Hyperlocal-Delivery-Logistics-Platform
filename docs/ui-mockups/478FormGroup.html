@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molecular Component: Form Group</title>
+    <style>
+        /* ---------------------------------- */
+        /* --- PHASE 1: SETUP & TOKENS ------ */
+        /* ---------------------------------- */
+        /* CSS Reset */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-family: sans-serif; line-height: 1.5; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; line-height: 1.6; background-color: #f8f9fa; color: #212529; padding: 2rem; }
+        h1, h2 { margin-bottom: 1.5rem; font-weight: 600; }
+        button, input, select, textarea { font-family: inherit; font-size: inherit; line-height: inherit; }
+
+        /* Design System Tokens */
+        :root {
+            /* Colors */
+            --color-primary-500: #2563eb; --color-primary-600: #1d4ed8; --color-primary-700: #1e40af;
+            --color-danger-500: #dc2626; --color-danger-600: #b91c1c; --color-danger-700: #991b1b;
+            --color-neutral-100: #f1f3f5; --color-neutral-200: #e9ecef; --color-neutral-400: #ced4da; --color-neutral-600: #6c757d; --color-neutral-800: #343a40; --color-neutral-900: #212529;
+            --color-white: #ffffff;
+            /* Typography */
+            --font-size-sm: 0.875rem; --font-size-base: 1rem;
+            --font-weight-medium: 500;
+            /* Spacing */
+            --space-xs: 0.25rem; --space-sm: 0.5rem; --space-md: 1rem; --space-lg: 1.5rem;
+            /* Borders */
+            --border-radius-md: 0.5rem;
+            --border-width: 1px;
+            /* Shadows */
+            --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.4);
+            /* Transitions */
+            --transition-fast: 150ms ease-in-out;
+        }
+
+        /* Showcase Layout */
+        .showcase { max-width: 600px; margin: 0 auto; }
+        .component-section { margin-bottom: 2rem; padding: 1.5rem; background-color: var(--color-white); border-radius: var(--border-radius-md); }
+        .component-section h2 { font-size: 1.25rem; border-bottom: 1px solid var(--color-neutral-200); padding-bottom: 0.75rem; }
+
+        /* ---------------------------------- */
+        /* --- Form Group Component CSS ----- */
+        /* ---------------------------------- */
+
+        .form-group {
+          display: flex;
+          flex-direction: column;
+          margin-bottom: var(--space-lg);
+        }
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group__label {
+          display: block;
+          font-size: var(--font-size-sm);
+          font-weight: var(--font-weight-medium);
+          margin-bottom: var(--space-xs);
+          color: var(--color-neutral-800);
+          cursor: pointer;
+        }
+
+        .form-group__label.is-required::after {
+          content: ' *';
+          color: var(--color-danger-500);
+        }
+
+        .form-group__control {
+          display: block;
+          width: 100%;
+          padding: 0.625rem 0.75rem;
+          font-size: var(--font-size-base);
+          line-height: 1.5;
+          color: var(--color-neutral-900);
+          background-color: var(--color-white);
+          border: var(--border-width) solid var(--color-neutral-400);
+          border-radius: var(--border-radius-md);
+          transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+        }
+
+        .form-group__control::placeholder {
+            color: var(--color-neutral-600);
+        }
+        
+        .form-group__control:focus-visible {
+          outline: none;
+          border-color: var(--color-primary-500);
+          box-shadow: var(--shadow-focus);
+        }
+
+        .form-group__help-text {
+          font-size: var(--font-size-sm);
+          color: var(--color-neutral-600);
+          margin-top: var(--space-xs);
+        }
+
+        .form-group__error-message {
+          font-size: var(--font-size-sm);
+          color: var(--color-danger-500);
+          margin-top: var(--space-xs);
+          display: none; /* Hidden by default */
+        }
+
+        /* Modifier for Error State */
+        .form-group--error .form-group__label {
+          color: var(--color-danger-500);
+        }
+
+        .form-group--error .form-group__control {
+          border-color: var(--color-danger-500);
+        }
+
+        .form-group--error .form-group__control:focus-visible {
+          box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.4);
+        }
+
+        .form-group--error .form-group__error-message {
+          display: block;
+        }
+
+    </style>
+</head>
+<body>
+
+<main class="showcase">
+    <h1>FormGroup Component</h1>
+
+    <section class="component-section">
+        <h2>Default State</h2>
+
+        <div class="form-group">
+            <label class="form-group__label is-required" for="full-name">Full Name</label>
+            <input type="text" class="form-group__control" id="full-name" placeholder="Enter your full name">
+        </div>
+
+        <div class="form-group">
+            <label class="form-group__label" for="email">Email Address</label>
+            <input type="email" class="form-group__control" id="email" placeholder="you@example.com" aria-describedby="email-help">
+            <p class="form-group__help-text" id="email-help">We'll use this for order confirmations.</p>
+        </div>
+    </section>
+
+    <section class="component-section">
+        <h2>Error State</h2>
+        
+        <div class="form-group form-group--error">
+            <label class="form-group__label is-required" for="store-name">Store Name</label>
+            <input type="text" class="form-group__control" id="store-name" aria-invalid="true" aria-describedby="store-name-error">
+            <div class="form-group__error-message" id="store-name-error" role="alert">
+                Store name is a required field.
+            </div>
+        </div>
+
+        <div class="form-group form-group--error">
+            <label class="form-group__label is-required" for="phone-number">Mobile Number</label>
+            <input type="tel" class="form-group__control" id="phone-number" value="12345" aria-invalid="true" aria-describedby="phone-number-error phone-number-help">
+            <p class="form-group__help-text" id="phone-number-help">Must be a valid 10-digit Indian number.</p>
+            <div class="form-group__error-message" id="phone-number-error" role="alert">
+                Please enter a valid mobile number.
+            </div>
+        </div>
+    </section>
+</main>
+    <div> 
+      <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : Default</h3>
+        <normal> The standard form group with a label and input, used for required fields. </normal>
+        <div class="form-group">
+            <label class="form-group__label is-required" for="demo-default">Full Name</label>
+            <input type="text" class="form-group__control" id="demo-default" placeholder="e.g., Anjali Sharma">
+        </div>
+      </div>
+      <div>
+        <h3>Variant Name : With Help Text</h3>
+        <normal> A form group that includes additional descriptive text below the input to guide the user. </normal>
+        <div class="form-group">
+            <label class="form-group__label" for="demo-help">Email Address</label>
+            <input type="email" class="form-group__control" id="demo-help" placeholder="you@example.com" aria-describedby="demo-email-help">
+            <p class="form-group__help-text" id="demo-email-help">We'll never share your email with anyone else.</p>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

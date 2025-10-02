@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism: RegistrationForm</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@600&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================== */
+    /* 1. Design System Tokens & Base Styles           */
+    /* =============================================== */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', sans-serif;
+      --font-family-monospace: 'Roboto Mono', monospace;
+      --font-size-h3: 28px; --font-weight-h3: 600;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      /* Colors */
+      --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-300: #5C9EFF; --color-primary-500: #0068FF; --color-primary-600: #0053CC; --color-primary-700: #003E99;
+      --color-neutrals-white: #FFFFFF; --color-neutrals-gray-50: #F7F9FC; --color-neutrals-gray-100: #E9EDF2; --color-neutrals-gray-200: #D3D9E1; --color-neutrals-gray-300: #BCC4CF; --color-neutrals-gray-500: #8E9BAA; --color-neutrals-gray-700: #555D66; --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-error: #FF4D4D; --color-danger-light: #ffdddd;
+      /* Spacing */
+      --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px; --space-24: 24px; --space-32: 32px;
+      /* Borders & Shadows */
+      --border-radius-md: 8px; --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: var(--font-family-primary); background-color: var(--color-neutrals-gray-50); color: var(--color-neutrals-gray-900); margin: 0; padding: var(--space-32); }
+    .showcase-wrapper { max-width: 1000px; margin: auto; }
+    .showcase-header { text-align: center; margin-bottom: var(--space-32); }
+    .showcase-header h1 { font-size: 36px; }
+    .component-display { background-color: var(--color-neutrals-white); padding: var(--space-32); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); margin-bottom: var(--space-32); }
+    .component-display h2 { font-size: 28px; margin-bottom: var(--space-24); border-bottom: 1px solid var(--color-neutrals-gray-100); padding-bottom: var(--space-16); }
+
+    /* =============================================== */
+    /* 2. Dependency Component Styles                  */
+    /* =============================================== */
+    /* -- Button -- */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8); font-weight: 600; padding: 12px 24px; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition: all var(--transition-fast); }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-300); outline-offset: 2px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutrals-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .btn--primary:disabled { background-color: var(--color-neutrals-gray-200); color: var(--color-neutrals-gray-500); cursor: not-allowed; }
+    .btn--secondary { background-color: transparent; color: var(--color-primary-500); border-color: var(--color-neutrals-gray-300); }
+    .btn--secondary:hover { background-color: var(--color-neutrals-gray-50); }
+    .btn.is-loading .btn__text { visibility: hidden; }
+    .btn.is-loading .spinner { position: absolute; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.8s linear infinite; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; width: 1.2em; height: 1.2em; }
+    
+    /* -- FormGroup, Label, TextInput -- */
+    .form-group { margin-bottom: var(--space-24); }
+    .label { display: block; font-size: var(--font-size-caption); font-weight: 600; color: var(--color-neutrals-gray-700); margin-bottom: var(--space-8); }
+    .label--required::after { content: ' *'; color: var(--color-semantic-error); }
+    .input { width: 100%; padding: 12px 16px; font-size: var(--font-size-body); border: 1px solid var(--color-neutrals-gray-300); border-radius: var(--border-radius-md); background-color: var(--color-neutrals-white); transition: all var(--transition-fast); }
+    .input:focus { border-color: var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-100); outline: none; }
+    .form-group--error .label { color: var(--color-semantic-error); }
+    .form-group--error .input { border-color: var(--color-semantic-error); }
+    .form-group--error .input:focus { box-shadow: 0 0 0 3px var(--color-danger-light); }
+    .form-group__error-message { color: var(--color-semantic-error); font-size: var(--font-size-caption); margin-top: var(--space-8); display: none; }
+    .form-group--error .form-group__error-message { display: block; }
+    textarea.input { min-height: 100px; resize: vertical; }
+
+    /* -- OTPInput -- */
+    .otp-input__group { display: flex; gap: var(--space-8); }
+    .otp-input__digit { width: 48px; height: 56px; border: 1px solid var(--color-neutrals-gray-300); border-radius: var(--border-radius-md); font-family: var(--font-family-monospace); font-size: var(--font-size-h3); font-weight: var(--font-weight-h3); text-align: center; color: var(--color-neutrals-gray-900); }
+    .otp-input__digit:focus { border: 2px solid var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-100); outline: none; padding: 0; margin: -1px;}
+    .form-group--error .otp-input__digit { border-color: var(--color-semantic-error); }
+
+    /* -- FileUpload -- */
+    .file-upload { position: relative; border: 2px dashed var(--color-neutrals-gray-300); border-radius: var(--border-radius-md); background-color: var(--color-neutrals-gray-50); padding: var(--space-32); text-align: center; transition: all var(--transition-fast); }
+    .file-upload:hover { border-color: var(--color-primary-500); background-color: var(--color-primary-50); }
+    .file-upload__input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+    .file-upload__content { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-12); pointer-events: none; }
+    .file-upload__icon { font-size: 48px; color: var(--color-primary-500); }
+    .file-upload__text { font-weight: 600; }
+    .file-upload__text span { color: var(--color-primary-500); text-decoration: underline; }
+    .file-upload__hint { font-size: var(--font-size-caption); color: var(--color-neutrals-gray-500); }
+    .file-upload__filename { font-weight: 600; word-break: break-all; }
+    .file-upload [data-state-content] { display: none; }
+    .file-upload[data-state="idle"] [data-state-content="idle"],
+    .file-upload[data-state="success"] [data-state-content="success"] { display: flex; }
+
+    /* =============================================== */
+    /* 3. Organism Component: RegistrationForm         */
+    /* =============================================== */
+    .registration-form {
+      --form-max-width: 600px;
+      max-width: var(--form-max-width);
+      margin: 0 auto;
+    }
+    .registration-form__steps { display: grid; grid-template-columns: 1fr; }
+    .registration-form__step { display: none; animation: fadeIn 0.5s ease-in-out; }
+    .registration-form__step.is-active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .registration-form__header { margin-bottom: var(--space-32); text-align: left; }
+    .registration-form__title { font-size: var(--font-size-h3); font-weight: var(--font-weight-h3); color: var(--color-neutrals-gray-900); margin-bottom: var(--space-8); }
+    .registration-form__progress { font-size: var(--font-size-caption); color: var(--color-neutrals-gray-500); font-weight: 600; }
+    .registration-form__footer { display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-32); border-top: 1px solid var(--color-neutrals-gray-100); padding-top: var(--space-24); }
+
+    /* Hide back button on first step */
+    [data-step="1"].is-active ~ .registration-form__footer .btn--back { visibility: hidden; }
+
+    /* --- Form states --- */
+    .registration-form[data-state=\"submitting\"] .btn--submit {
+        color: transparent;
+    }
+    .registration-form[data-state=\"submitting\"] .btn--submit .spinner {
+        position: absolute;
+        color: white;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .registration-form { max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase-wrapper">
+    <header class="showcase-header">
+      <h1>Registration Form</h1>
+    </header>
+
+    <!-- =============================================== -->
+    <!-- Variant: Vendor Registration                  -->
+    <!-- =============================================== -->
+    <div class="component-display">
+      <h2>Vendor Registration Form</h2>
+      <form class="registration-form registration-form--vendor">
+        <div class="registration-form__steps">
+          
+          <!-- Step 1: Business Details -->
+          <div class="registration-form__step is-active" data-step="1">
+            <div class="registration-form__header">
+              <h3 class="registration-form__title">Business Details</h3>
+              <p class="registration-form__progress">Step 1 of 3</p>
+            </div>
+            <fieldset>
+              <legend class="sr-only">Enter your business information</legend>
+              <div class="form-group">
+                <label for="vendor-business-name" class="label label--required">Business Name</label>
+                <input type="text" id="vendor-business-name" class="input" placeholder="e.g., Global Bites Kitchen" required>
+              </div>
+              <div class="form-group">
+                <label for="vendor-address" class="label label--required">Store Address</label>
+                <textarea id="vendor-address" class="input" placeholder="Enter full store address" required></textarea>
+              </div>
+            </fieldset>
+          </div>
+
+          <!-- Step 2: Contact Verification -->
+          <div class="registration-form__step" data-step="2">
+            <div class="registration-form__header">
+              <h3 class="registration-form__title">Contact Information</h3>
+              <p class="registration-form__progress">Step 2 of 3</p>
+            </div>
+            <fieldset>
+              <legend class="sr-only">Enter your contact information</legend>
+              <div class="form-group">
+                <label for="vendor-mobile" class="label label--required">Mobile Number</label>
+                <input type="tel" id="vendor-mobile" class="input" placeholder="9876543210" required>
+              </div>
+              <div class="form-group form-group--error">
+                <label for="vendor-email" class="label label--required">Email Address</label>
+                <input type="email" id="vendor-email" class="input is-error" value="contact@globalbites" required aria-describedby="email-error-vendor">
+                <div class="form-group__error-message" id="email-error-vendor">Please enter a valid email.</div>
+              </div>
+            </fieldset>
+          </div>
+          
+          <!-- Step 3: Document Upload -->
+          <div class="registration-form__step" data-step="3">
+            <div class="registration-form__header">
+              <h3 class="registration-form__title">Upload Documents</h3>
+              <p class="registration-form__progress">Step 3 of 3</p>
+            </div>
+            <fieldset>
+              <legend class="sr-only">Upload your business documents</legend>
+              <div class="form-group">
+                <label for="gst-cert" class="label label--required">GST Certificate</label>
+                <label class="file-upload" data-state="idle" id="gst-cert-label">
+                  <input class="file-upload__input" type="file" id="gst-cert" aria-labelledby="gst-cert-label">
+                  <div class="file-upload__content" data-state-content="idle">
+                    <svg class="icon file-upload__icon" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"></path></svg>
+                    <p class="file-upload__text"><span>Click to upload</span> or drag and drop</p>
+                    <p class="file-upload__hint">PDF, JPG, or PNG (max. 5MB)</p>
+                  </div>
+                </label>
+              </div>
+              <div class="form-group">
+                <label for="fssai-license" class="label">FSSAI License (if applicable)</label>
+                <label class="file-upload" data-state="success" id="fssai-license-label">
+                  <input class="file-upload__input" type="file" id="fssai-license" aria-labelledby="fssai-license-label" disabled>
+                  <div class="file-upload__content" data-state-content="success">
+                    <svg class="icon file-upload__icon" style="color: var(--color-semantic-success);" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path></svg>
+                    <p class="file-upload__filename">fssai_license_2025.pdf</p>
+                  </div>
+                </label>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+
+        <div class="registration-form__footer">
+          <button type="button" class="btn btn--secondary btn--back">Back</button>
+          <button type="button" class="btn btn--primary btn--next">Next Step</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- =============================================== -->
+    <!-- Variant: Rider Registration                     -->
+    <!-- =============================================== -->
+    <div class="component-display">
+      <h2>Rider Registration Form</h2>
+      <form class="registration-form registration-form--rider" data-state="submitting">
+        <div class="registration-form__header">
+          <h3 class="registration-form__title">Become a Delivery Partner</h3>
+          <p class="registration-form__progress">Submitting your application...</p>
+        </div>
+        <fieldset>
+          <legend class="sr-only">Rider Registration</legend>
+          <div class="form-group">
+            <label for="rider-name" class="label label--required">Full Name</label>
+            <input type="text" id="rider-name" class="input" value="Rohan Patel" required>
+          </div>
+          <div class="form-group">
+            <label for="rider-mobile" class="label label--required">Mobile Number & OTP</label>
+            <input type="tel" id="rider-mobile" class="input" value="9876543210" required>
+          </div>
+           <div class="form-group">
+            <label for="rider-otp" class="label label--required">Enter OTP</label>
+            <div class="otp-input__group">
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-input__digit" value="1" aria-label="Digit 1 of 6">
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-input__digit" value="2" aria-label="Digit 2 of 6">
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-input__digit" value="3" aria-label="Digit 3 of 6">
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-input__digit" value="4" aria-label="Digit 4 of 6">
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-input__digit" value="5" aria-label="Digit 5 of 6">
+              <input type="text" inputmode="numeric" maxlength="1" class="otp-input__digit" value="6" aria-label="Digit 6 of 6">
+            </div>
+          </div>
+        </fieldset>
+        <div class="registration-form__footer">
+            <span style="flex-grow:1;"></span> <!-- Spacer -->
+            <button type="submit" class="btn btn--primary btn--submit is-loading" disabled>
+                <span class="btn__text">Submit Application</span>
+                <span class="spinner"></span>
+            </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- =============================================== -->
+    <!-- State: Success                                  -->
+    <!-- =============================================== -->
+     <div class="component-display">
+        <h2>Success State</h2>
+        <div class="registration-form" data-state="success">
+            <div style="text-align: center; padding: var(--space-48) 0;">
+                <svg class="icon" style="font-size: 64px; color: var(--color-semantic-success); margin-bottom: var(--space-16);" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg>
+                <h3 class="registration-form__title" style="text-align: center;">Application Submitted!</h3>
+                <p style="color: var(--color-neutrals-gray-700);">Your registration is now under review. This typically takes 2-3 business days. We will notify you once your profile has been approved.</p>
+            </div>
+        </div>
+    </div>
+
+  </div>
+  <!-- NOTE: This is a static mockup. In a real application, JavaScript would be used to handle step navigation, form submission, and state changes. -->
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "customer"</h3>
+		<!--description--><normal> The simplest variant for customer onboarding. It typically involves mobile number verification and then basic profile information like name and email. </normal>
+		<!-- vrient 1 html -->
+        <form class="registration-form registration-form--customer">
+            <div class="registration-form__header">
+              <h3 class="registration-form__title">Create your Account</h3>
+              <p class="registration-form__progress">Step 1 of 2</p>
+            </div>
+            <fieldset>
+              <legend class="sr-only">Enter your mobile number</legend>
+              <div class="form-group">
+                <label for="customer-mobile" class="label label--required">Mobile Number</label>
+                <input type="tel" id="customer-mobile" class="input" placeholder="9876543210" required>
+              </div>
+            </fieldset>
+        </form>     
+		
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : "vendor"</h3>
+		<!--description--><normal> A multi-step form for businesses. It collects detailed information including business name, address, contact details, and requires uploading legal documents like a GST certificate. </normal>
+		<!-- vrient 1 html -->
+        <form class="registration-form registration-form--vendor">
+             <div class="registration-form__header">
+              <h3 class="registration-form__title">Register your Business</h3>
+              <p class="registration-form__progress">Step 1 of 3</p>
+            </div>
+            <fieldset>
+              <legend class="sr-only">Enter your business information</legend>
+              <div class="form-group">
+                <label for="vendor-business-name-2" class="label label--required">Business Name</label>
+                <input type="text" id="vendor-business-name-2" class="input" placeholder="e.g., Global Bites Kitchen" required>
+              </div>
+              <div class="form-group">
+                <label for="vendor-address-2" class="label label--required">Store Address</label>
+                <textarea id="vendor-address-2" class="input" placeholder="Enter full store address" required></textarea>
+              </div>
+            </fieldset>
+        </form>     
+		
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : "rider"</h3>
+		<!--description--><normal> A comprehensive, multi-step form for delivery partners. It gathers personal information, driver's license details, vehicle registration, bank account details for payouts, and requires uploading multiple identity documents. </normal>
+		<!-- vrient 1 html -->
+        <form class="registration-form registration-form--rider">
+            <div class="registration-form__header">
+              <h3 class="registration-form__title">Become a Delivery Partner</h3>
+               <p class="registration-form__progress">Step 1 of 4</p>
+            </div>
+            <fieldset>
+              <legend class="sr-only">Enter your personal details</legend>
+              <div class="form-group">
+                <label for="rider-name-2" class="label label--required">Full Name</label>
+                <input type="text" id="rider-name-2" class="input" placeholder="e.g., Rohan Patel" required>
+              </div>
+              <div class="form-group">
+                <label for="rider-mobile-2" class="label label--required">Mobile Number</label>
+                <input type="tel" id="rider-mobile-2" class="input" placeholder="9876543210" required>
+              </div>
+            </fieldset>
+        </form>     
+		
+      </div>
+	 </div>    
+	
+	</body>
+</html>

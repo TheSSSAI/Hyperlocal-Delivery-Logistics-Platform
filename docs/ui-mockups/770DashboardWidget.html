@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Widget Component</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+   
+    /* 1. DESIGN SYSTEM TOKENS (CSS Custom Properties) */
+    :root {
+      /* Color Palette */
+      --color-primary-500: #0068FF;
+      --color-secondary-500: #00C875;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-200: #D3D9E1;
+      --color-neutrals-gray-400: #A5B0BD;
+      --color-neutrals-gray-600: #717C88;
+      --color-neutrals-gray-800: #383E44;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-success: #00C875;
+      --color-semantic-warning: #FFB800;
+      --color-semantic-error: #FF4D4D;
+      --color-semantic-error-bg: #FFEBEB;
+
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-h3: 28px;
+      --font-weight-h3: 600;
+      --font-size-h4: 20px;
+      --font-weight-h4: 600;
+      --font-size-body: 16px;
+      --font-weight-body: 400;
+      --font-size-caption: 14px;
+      --font-weight-caption: 400;
+
+      /* Spacing */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-lg: 12px;
+      --box-shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --box-shadow-md: 0px 6px 12px rgba(28, 31, 34, 0.1);
+    }
+    
+    /* 2. BASE & LAYOUT STYLES */
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-800);
+      padding: var(--spacing-xl);
+    }
+
+    .main-title {
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-h3);
+      color: var(--color-neutrals-gray-900);
+      margin-bottom: var(--spacing-xl);
+      text-align: center;
+    }
+    
+    .screen-variations {
+      margin-top: var(--spacing-xl);
+      border-top: 1px solid var(--color-neutrals-gray-200);
+      padding-top: var(--spacing-xl);
+    }
+
+    .variation-group {
+      margin-bottom: var(--spacing-xl);
+    }
+
+    .variation-group h3 {
+      font-size: 24px;
+      margin-bottom: var(--spacing-md);
+      color: var(--color-neutrals-gray-900);
+    }
+
+    .variation-group p {
+      margin-bottom: var(--spacing-md);
+      color: var(--color-neutrals-gray-600);
+    }
+
+    .widget-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    /* 3. WIDGET COMPONENT STYLES */
+    .widget {
+      display: flex;
+      flex-direction: column;
+      height: 250px;
+      background: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--box-shadow-sm);
+      padding: var(--spacing-lg);
+      transition: all 0.2s ease-in-out;
+    }
+
+    .widget:hover {
+        box-shadow: var(--box-shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .widget__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    .widget__title {
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-h4);
+      color: var(--color-neutrals-gray-900);
+    }
+    
+    .widget__icon {
+        color: var(--color-neutrals-gray-400);
+        width: 20px;
+        height: 20px;
+    }
+
+    .widget__content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* KPI Card Variant */
+    .kpi-card .widget__content {
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .kpi-card__value {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--color-neutrals-gray-900);
+      line-height: 1.1;
+    }
+    
+    .kpi-card__subtext {
+      font-size: var(--font-size-caption);
+      color: var(--color-neutrals-gray-600);
+      margin-top: var(--spacing-xs);
+    }
+
+    .kpi-card__trend {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        font-weight: 600;
+    }
+    .kpi-card__trend--positive {
+        color: var(--color-semantic-success);
+    }
+    .kpi-card__trend--negative {
+        color: var(--color-semantic-error);
+    }
+    
+    /* Chart Widget Variant */
+    .chart-widget .widget__content {
+        padding-top: var(--spacing-md);
+    }
+
+    .chart-widget__placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        gap: var(--spacing-sm);
+    }
+
+    .chart-bar {
+        width: 20%;
+        background-color: var(--color-primary-500);
+        opacity: 0.8;
+        border-radius: 4px 4px 0 0;
+    }
+    
+    /* List Widget Variant */
+    .list-widget .widget__content {
+        align-items: stretch;
+        justify-content: flex-start;
+    }
+    .list-widget__list {
+        list-style: none;
+        width: 100%;
+        overflow-y: auto;
+    }
+    .list-widget__item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-sm) 0;
+        border-bottom: 1px solid var(--color-neutrals-gray-100);
+    }
+    .list-widget__item:last-child {
+        border-bottom: none;
+    }
+    .list-widget__label {
+        font-size: var(--font-size-caption);
+        color: var(--color-neutrals-gray-800);
+    }
+    .list-widget__value {
+        font-size: var(--font-size-caption);
+        font-weight: 600;
+        color: var(--color-neutrals-gray-900);
+    }
+    
+    /* 4. WIDGET STATE STYLES */
+
+    /* Loading State (Skeleton) */
+    .widget--loading .widget__content {
+        gap: var(--spacing-md);
+        align-items: flex-start;
+    }
+    .skeleton {
+        background-color: var(--color-neutrals-gray-100);
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+    }
+    .skeleton::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -150%;
+        height: 100%;
+        width: 150%;
+        background: linear-gradient(to right, transparent 0%, var(--color-neutrals-gray-200) 50%, transparent 100%);
+        animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer {
+        100% {
+            left: 150%;
+        }
+    }
+    .skeleton-line { height: 16px; }
+    .skeleton-line--lg { height: 48px; width: 70%;}
+    .skeleton-line--md { width: 50%; }
+    .skeleton-line--sm { width: 85%; }
+
+    /* Error State (Alert) */
+    .widget--error .widget__content {
+        background: var(--color-semantic-error-bg);
+        border-radius: 8px;
+        padding: var(--spacing-md);
+        color: var(--color-semantic-error);
+        text-align: center;
+        gap: var(--spacing-sm);
+    }
+    .widget--error .error-icon {
+        width: 32px;
+        height: 32px;
+        stroke-width: 1.5;
+    }
+    .widget--error .error-text {
+        font-size: var(--font-size-caption);
+        font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h1 class="main-title">Dashboard Widget Component</h1>
+  
+  <div class="screen-container">
+    <div class="variation-group">
+      <h3>Main Examples</h3>
+      <p>Demonstration of each widget variant in its default 'with-data' state.</p>
+      <div class="widget-grid">
+        
+        <!-- KPI Card Example -->
+        <section class="widget kpi-card" aria-labelledby="kpi-title-1">
+          <header class="widget__header">
+            <h4 id="kpi-title-1" class="widget__title">Total Sales (Today)</h4>
+            <svg class="widget__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+          </header>
+          <div class="widget__content">
+            <div class="kpi-card__value">₹8,450</div>
+            <div class="kpi-card__subtext">
+                <span class="kpi-card__trend kpi-card__trend--positive">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5l0 14"/><path d="m18 11l-6-6l-6 6"/></svg>
+                    <span>12.5%</span>
+                </span>
+                 vs yesterday
+            </div>
+          </div>
+        </section>
+
+        <!-- Chart Widget Example -->
+        <section class="widget chart-widget" aria-labelledby="chart-title-1">
+          <header class="widget__header">
+            <h4 id="chart-title-1" class="widget__title">Orders per Hour</h4>
+            <svg class="widget__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
+          </header>
+          <div class="widget__content">
+            <div class="chart-widget__placeholder">
+                <div class="chart-bar" style="height: 40%;"></div>
+                <div class="chart-bar" style="height: 60%;"></div>
+                <div class="chart-bar" style="height: 80%;"></div>
+                <div class="chart-bar" style="height: 50%;"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- List Widget Example -->
+        <section class="widget list-widget" aria-labelledby="list-title-1">
+          <header class="widget__header">
+            <h4 id="list-title-1" class="widget__title">Top Selling Items</h4>
+            <svg class="widget__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+          </header>
+          <div class="widget__content">
+            <ul class="list-widget__list">
+              <li class="list-widget__item"><span class="list-widget__label">Margherita Pizza</span> <span class="list-widget__value">42 sold</span></li>
+              <li class="list-widget__item"><span class="list-widget__label">Chicken Burger</span> <span class="list-widget__value">31 sold</span></li>
+              <li class="list-widget__item"><span class="list-widget__label">Paneer Tikka</span> <span class="list-widget__value">28 sold</span></li>
+              <li class="list-widget__item"><span class="list-widget__label">Cold Coffee</span> <span class="list-widget__value">25 sold</span></li>
+            </ul>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="screen-variations">
+    <h2>Screen Variations</h2>
+    
+    <!-- KPI Card Variants -->
+    <div class="variation-group">
+      <h3>Variant Name: "KPI Card"</h3>
+      <p>Displays a single, important metric. Supports loading, data, and error states.</p>
+      <div class="widget-grid">
+        <section class="widget kpi-card" aria-labelledby="kpi-title-2">
+            <header class="widget__header"><h4 id="kpi-title-2" class="widget__title">With Data</h4></header>
+            <div class="widget__content">
+                <div class="kpi-card__value">124</div>
+                <div class="kpi-card__subtext">Active Riders</div>
+            </div>
+        </section>
+        <section class="widget kpi-card widget--loading" aria-labelledby="kpi-title-3" aria-busy="true">
+            <header class="widget__header"><h4 id="kpi-title-3" class="widget__title">Loading State</h4></header>
+            <div class="widget__content">
+                <div class="skeleton skeleton-line skeleton-line--lg"></div>
+                <div class="skeleton skeleton-line skeleton-line--md"></div>
+            </div>
+        </section>
+        <section class="widget kpi-card widget--error" aria-labelledby="kpi-title-4" role="alert">
+            <header class="widget__header"><h4 id="kpi-title-4" class="widget__title">Error State</h4></header>
+            <div class="widget__content">
+                <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <span class="error-text">Failed to load data</span>
+            </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- Chart Widget Variants -->
+    <div class="variation-group">
+      <h3>Variant Name: "Chart Widget"</h3>
+      <p>Displays a data visualization. This example uses a placeholder.</p>
+      <div class="widget-grid">
+        <section class="widget chart-widget" aria-labelledby="chart-title-2">
+            <header class="widget__header"><h4 id="chart-title-2" class="widget__title">With Data</h4></header>
+            <div class="widget__content">
+                <div class="chart-widget__placeholder">
+                    <div class="chart-bar" style="height: 20%;"></div>
+                    <div class="chart-bar" style="height: 50%;"></div>
+                    <div class="chart-bar" style="height: 90%;"></div>
+                    <div class="chart-bar" style="height: 40%;"></div>
+                </div>
+            </div>
+        </section>
+        <section class="widget chart-widget widget--loading" aria-labelledby="chart-title-3" aria-busy="true">
+            <header class="widget__header"><h4 id="chart-title-3" class="widget__title">Loading State</h4></header>
+            <div class="widget__content">
+                <div class="skeleton" style="width: 100%; height: 100%;"></div>
+            </div>
+        </section>
+        <section class="widget chart-widget widget--error" aria-labelledby="chart-title-4" role="alert">
+            <header class="widget__header"><h4 id="chart-title-4" class="widget__title">Error State</h4></header>
+            <div class="widget__content">
+                <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <span class="error-text">Chart data unavailable</span>
+            </div>
+        </section>
+      </div>
+    </div>
+
+    <!-- List Widget Variants -->
+    <div class="variation-group">
+      <h3>Variant Name: "List Widget"</h3>
+      <p>Displays a scrollable list of items.</p>
+      <div class="widget-grid">
+        <section class="widget list-widget" aria-labelledby="list-title-2">
+            <header class="widget__header"><h4 id="list-title-2" class="widget__title">With Data</h4></header>
+            <div class="widget__content">
+                <ul class="list-widget__list">
+                    <li class="list-widget__item"><span class="list-widget__label">Rider #1023</span> <span class="list-widget__value">Online</span></li>
+                    <li class="list-widget__item"><span class="list-widget__label">Rider #1024</span> <span class="list-widget__value">Offline</span></li>
+                    <li class="list-widget__item"><span class="list-widget__label">Rider #1025</span> <span class="list-widget__value">Online</span></li>
+                </ul>
+            </div>
+        </section>
+        <section class="widget list-widget widget--loading" aria-labelledby="list-title-3" aria-busy="true">
+            <header class="widget__header"><h4 id="list-title-3" class="widget__title">Loading State</h4></header>
+            <div class="widget__content" style="gap: 12px; justify-content: flex-start;">
+                <div class="skeleton skeleton-line skeleton-line--sm"></div>
+                <div class="skeleton skeleton-line skeleton-line--sm"></div>
+                <div class="skeleton skeleton-line skeleton-line--sm"></div>
+                <div class="skeleton skeleton-line skeleton-line--sm"></div>
+            </div>
+        </section>
+        <section class="widget list-widget widget--error" aria-labelledby="list-title-4" role="alert">
+            <header class="widget__header"><h4 id="list-title-4" class="widget__title">Error State</h4></header>
+            <div class="widget__content">
+                <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <span class="error-text">Could not fetch list</span>
+            </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

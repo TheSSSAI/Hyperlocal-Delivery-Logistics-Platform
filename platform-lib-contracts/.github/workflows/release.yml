@@ -1,0 +1,45 @@
+name: Release and Publish
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Trigger on version tags like v1.0.0
+
+jobs:
+  publish:
+    name: Publish to Private NPM Registry
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write # Required for AWS OIDC authentication
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          registry-url: 'https://registry.npmjs.org' # Placeholder, will be overridden by .npmrc config
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_CODEARTIFACT_ROLE_ARN }} # OIDC Role for CodeArtifact
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Configure NPM for AWS CodeArtifact
+        run: |
+          aws codeartifact login --tool npm --repository ${{ secrets.CODEARTIFACT_REPOSITORY }} --domain ${{ secrets.CODEARTIFACT_DOMAIN }} --domain-owner ${{ secrets.AWS_ACCOUNT_ID }} --scope @hyperlocal
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Publish package
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }} # This is a fallback, aws codeartifact login is primary

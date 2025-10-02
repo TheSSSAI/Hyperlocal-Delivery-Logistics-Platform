@@ -1,0 +1,49 @@
+flowchart TD
+    subgraph "1. Find User"
+        A[Admin navigates to 'User Management'] --> B[User Management List (ADM-005)]
+        B --> C{Search or Filter for User}
+        C --> D[Filtered User List]
+        D --> E[Admin selects a user]
+    end
+
+    E --> F[View User Profile Page]
+
+    subgraph "2a. Suspend Workflow (ADM-006)"
+        F --> G[Clicks 'Suspend Account']
+        G --> H{Suspension Modal<br/>'Enter mandatory reason'}
+        H -->|'Cancel'| F
+        H -->|'Confirm Suspension'| I[System performs Suspension Actions]
+    end
+
+    subgraph "2b. Deactivate Workflow (ADM-007)"
+        F --> J[Clicks 'Deactivate Account']
+        J --> K{Deactivation Modal<br/>Two-Step Confirmation (REQ-USR-001)}
+        K -->|'Cancel'| F
+        K -->|'Confirm Deactivation'| L[System performs Deactivation Actions]
+    end
+
+    subgraph "System Actions (Suspend)"
+        I --> I1[Update user status to 'Suspended']
+        I1 --> I2[Invalidate all active sessions]
+        I2 --> I3[Log 'USER_SUSPEND' in Audit Trail (REQ-NFR-008)]
+        I3 --> I4[Notify user of suspension]
+        I4 --> I_End(End)
+    end
+
+    subgraph "System Actions (Deactivate)"
+        L --> L1[Update user status to 'Deactivated']
+        L1 --> L2[Invalidate all active sessions]
+        L2 --> L3[Log 'USER_DEACTIVATE' in Audit Trail]
+        L3 --> L_End(End)
+    end
+
+    %% Styling
+    classDef action fill:#e3f2fd,stroke:#2196f3,color:#000
+    classDef decision fill:#fff9c4,stroke:#fbc02d,color:#000
+    classDef criticalAction fill:#ffebee,stroke:#d32f2f,color:#000
+    classDef systemProcess fill:#e8f5e9,stroke:#4caf50,color:#000
+
+    class A,B,C,D,E,F,G,J action
+    class H,K decision
+    class I,L criticalAction
+    class I1,I2,I3,I4,L1,L2,L3 systemProcess

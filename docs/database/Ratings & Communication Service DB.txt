@@ -1,0 +1,36 @@
+-- Enable the pgcrypto extension to use gen_random_uuid() for UUID generation
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- Stores customer feedback for vendors and riders
+CREATE TABLE RatingReview (
+    ratingReviewId UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    orderId UUID NOT NULL,
+    reviewerId UUID NOT NULL,
+    revieweeId UUID NOT NULL,
+    revieweeType VARCHAR(10) NOT NULL CHECK (revieweeType IN ('VENDOR', 'RIDER')),
+    rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
+    reviewText TEXT,
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT UC_RatingReview_Order_Reviewee UNIQUE (orderId, revieweeId)
+);
+
+-- Index to efficiently query reviews for a specific vendor or rider
+CREATE INDEX IX_RatingReview_Reviewee ON RatingReview (revieweeId, revieweeType);
+
+-- Represents a support request created by any user
+CREATE TABLE SupportTicket (
+    supportTicketId UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    userId UUID NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'OPEN' CHECK (status IN ('OPEN', 'IN_PROGRESS', 'CLOSED')),
+    assignedAdminId UUID,
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Index to help admins find tickets based on status and assignment
+CREATE INDEX IX_SupportTicket_Status_AssignedAdmin ON SupportTicket (status, assignedAdminId);
+
+-- Index for users to quickly look up their own tickets by status
+CREATE INDEX IX_SupportTicket_UserId_Status ON SupportTicket (userId, status);

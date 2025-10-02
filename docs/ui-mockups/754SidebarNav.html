@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: SidebarNav</title>
+  <style>
+    /* ---------------------------------- */
+    /* --- DESIGN SYSTEM FOUNDATION --- */
+    /* ---------------------------------- */
+    :root {
+      /* Font Families */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      /* Colors: Primary */
+      --color-primary-300: #5C9EFF;
+      --color-primary-600: #0053CC;
+      /* Colors: Neutrals */
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-400: #A5B0BD;
+      --color-gray-800: #383E44;
+      --color-gray-900: #1C1F22;
+      /* Spacing */
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px;
+      /* Border Radius */
+      --radius-md: 8px;
+    }
+
+    /* ---------------------------------- */
+    /* --- BASE & LAYOUT STYLES --- */
+    /* ---------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-family-primary);
+      color: var(--color-gray-900);
+      background-color: var(--color-gray-50);
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Showcase Layout */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+    .main-content {
+      flex-grow: 1;
+      padding: 32px;
+      position: relative;
+    }
+    .main-content h1 {
+      margin-top: 0;
+    }
+    .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 1001;
+        background: var(--color-gray-900);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px;
+        cursor: pointer;
+    }
+    .backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease-in-out;
+    }
+    #mobile-menu-checkbox:checked ~ .backdrop {
+        opacity: 1;
+        pointer-events: auto;
+    }
+    #mobile-menu-checkbox {
+        display: none;
+    }
+    
+    @media (max-width: 767.98px) {
+        .mobile-menu-toggle {
+            display: block;
+        }
+        .main-content {
+            padding-left: 64px;
+        }
+    }
+
+
+    /* ---------------------------------- */
+    /* --- SidebarNav Component CSS --- */
+    /* ---------------------------------- */
+    .sidebar-nav {
+      --sidebar-width-expanded: 250px;
+      --sidebar-width-collapsed: 80px;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background-color: var(--color-gray-900);
+      color: var(--color-gray-400);
+      width: var(--sidebar-width-expanded);
+      transform: translateX(-100%);
+      transition: transform 0.3s ease-in-out;
+      z-index: 1000;
+    }
+
+    /* JavaScript (or checkbox hack) toggles this class */
+    .sidebar-nav--mobile-visible {
+      transform: translateX(0);
+    }
+
+    .sidebar-nav__header {
+      padding: var(--space-5);
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      height: 64px;
+      border-bottom: 1px solid var(--color-gray-800);
+    }
+
+    .sidebar-nav__logo {
+      color: var(--color-white);
+      font-size: 20px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-decoration: none;
+    }
+
+    .sidebar-nav__main-nav {
+      flex-grow: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar-nav__list {
+      list-style: none;
+      margin: 0;
+      padding: var(--space-4) var(--space-3);
+    }
+
+    .sidebar-nav__item {
+      margin-bottom: var(--space-1);
+    }
+
+    .sidebar-nav__link {
+      display: flex;
+      align-items: center;
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: inherit;
+      font-weight: 500;
+      font-size: 15px;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .sidebar-nav__link:hover {
+      background-color: var(--color-gray-800);
+      color: var(--color-white);
+    }
+
+    .sidebar-nav__link:focus-visible {
+      outline: 2px solid var(--color-primary-300);
+      outline-offset: -2px;
+      background-color: var(--color-gray-800);
+    }
+
+    .sidebar-nav__icon {
+      flex-shrink: 0;
+      margin-right: var(--space-4);
+      width: 20px;
+      height: 20px;
+      stroke-width: 2;
+    }
+
+    .sidebar-nav__label {
+      opacity: 1; /* Visible by default on mobile overlay */
+      transition: opacity 0.2s ease;
+    }
+
+    .sidebar-nav__footer {
+      padding: var(--space-4) var(--space-3);
+      border-top: 1px solid var(--color-gray-800);
+      flex-shrink: 0;
+    }
+
+    /* Active State */
+    .sidebar-nav__link--active {
+      background-color: var(--color-primary-600);
+      color: var(--color-white);
+    }
+    .sidebar-nav__link--active:hover {
+        background-color: var(--color-primary-600);
+    }
+
+    /* Responsive Adaptations */
+    @media (min-width: 768px) {
+      .sidebar-nav {
+        position: sticky;
+        transform: translateX(0);
+        width: var(--sidebar-width-collapsed);
+      }
+      .sidebar-nav .sidebar-nav__logo {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .sidebar-nav .sidebar-nav__icon {
+        margin-right: 0;
+      }
+      .sidebar-nav .sidebar-nav__label {
+        opacity: 0;
+        pointer-events: none;
+      }
+      .sidebar-nav .sidebar-nav__link {
+        justify-content: center;
+      }
+      /* Tooltip for collapsed state */
+      .sidebar-nav .sidebar-nav__link::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: calc(100% + 12px);
+        top: 50%;
+        transform: translateY(-50%) scale(0.9);
+        background-color: var(--color-gray-800);
+        color: var(--color-white);
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-md);
+        font-size: 13px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 100;
+      }
+      .sidebar-nav .sidebar-nav__link:hover::after,
+      .sidebar-nav .sidebar-nav__link:focus-visible::after {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+        transition-delay: 0.3s;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .sidebar-nav {
+        width: var(--sidebar-width-expanded);
+      }
+      .sidebar-nav .sidebar-nav__logo {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .sidebar-nav .sidebar-nav__icon {
+        margin-right: var(--space-4);
+      }
+      .sidebar-nav .sidebar-nav__label {
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .sidebar-nav .sidebar-nav__link {
+        justify-content: flex-start;
+      }
+      .sidebar-nav .sidebar-nav__link::after {
+        display: none; /* Hide tooltips in expanded mode */
+      }
+    }
+
+    /* Checkbox hack for mobile toggle */
+    #mobile-menu-checkbox:checked + .sidebar-nav {
+        transform: translateX(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-layout">
+    <input type="checkbox" id="mobile-menu-checkbox" />
+    <label for="mobile-menu-checkbox" class="mobile-menu-toggle" aria-label="Toggle Navigation">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </label>
+
+    <aside class="sidebar-nav">
+      <header class="sidebar-nav__header">
+        <a href="#" class="sidebar-nav__logo">Admin Panel</a>
+      </header>
+      <nav class="sidebar-nav__main-nav" aria-label="Main Navigation">
+        <ul class="sidebar-nav__list">
+          <li class="sidebar-nav__item">
+            <a href="#" class="sidebar-nav__link sidebar-nav__link--active" aria-current="page" data-tooltip="Dashboard">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+              <span class="sidebar-nav__label">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav__item">
+            <a href="#" class="sidebar-nav__link" data-tooltip="Users">
+                <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <span class="sidebar-nav__label">Users</span>
+            </a>
+          </li>
+          <li class="sidebar-nav__item">
+            <a href="#" class="sidebar-nav__link" data-tooltip="Orders">
+                <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+              <span class="sidebar-nav__label">Orders</span>
+            </a>
+          </li>
+          <li class="sidebar-nav__item">
+            <a href="#" class="sidebar-nav__link" data-tooltip="Zones">
+                <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span class="sidebar-nav__label">Zones</span>
+            </a>
+          </li>
+          <li class="sidebar-nav__item">
+            <a href="#" class="sidebar-nav__link" data-tooltip="Reports">
+                <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38"/></svg>
+              <span class="sidebar-nav__label">Reports</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <footer class="sidebar-nav__footer">
+        <a href="#" class="sidebar-nav__link" data-tooltip="Settings">
+          <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1H15a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <span class="sidebar-nav__label">Settings</span>
+        </a>
+      </footer>
+    </aside>
+
+    <label for="mobile-menu-checkbox" class="backdrop"></label>
+
+    <main class="main-content">
+      <h1>Dashboard</h1>
+      <p>This is the main content area. The sidebar is responsive and will change based on the viewport width.</p>
+      <ul>
+        <li><strong>Desktop (&gt;1024px):</strong> The sidebar is expanded with icons and text.</li>
+        <li><strong>Tablet (768px - 1024px):</strong> The sidebar collapses to show icons only, with tooltips on hover/focus.</li>
+        <li><strong>Mobile (&lt;768px):</strong> The sidebar is hidden. Click the hamburger icon (top-left) to toggle the off-canvas menu.</li>
+      </ul>
+    </main>
+  </div>
+    <div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "admin"<h3>
+		<!--description--><normal> The primary variant used for the Admin and Vendor dashboards. It features a dark background with light text and icons, and a primary color accent for the active navigation item. </normal>
+		<!-- vrient 1 html -->
+        <aside class="sidebar-nav" style="position: static; height: auto; width: 250px; transform: none;">
+          <header class="sidebar-nav__header">
+            <a href="#" class="sidebar-nav__logo">Admin Panel</a>
+          </header>
+          <nav class="sidebar-nav__main-nav" aria-label="Main Navigation">
+            <ul class="sidebar-nav__list">
+              <li class="sidebar-nav__item">
+                <a href="#" class="sidebar-nav__link sidebar-nav__link--active" aria-current="page">
+                  <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                  <span class="sidebar-nav__label">Dashboard</span>
+                </a>
+              </li>
+              <li class="sidebar-nav__item">
+                <a href="#" class="sidebar-nav__link">
+                  <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                  <span class="sidebar-nav__label">Users</span>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </aside>     
+		
+      <div>
+	 </div>
+	 </div>
+	</body>
+</html>

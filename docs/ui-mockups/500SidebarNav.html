@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organism: Sidebar Navigation</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ---------------------------------- */
+        /* --- 1. DESIGN SYSTEM FOUNDATION -- */
+        /* ---------------------------------- */
+        :root {
+            /* Colors */
+            --color-primary-50: #E6F0FF;
+            --color-primary-300: #5C9EFF;
+            --color-primary-500: #0068FF;
+            --color-primary-600: #0053CC;
+            --color-neutrals-white: #FFFFFF;
+            --color-neutrals-gray-50: #F8F9FA;
+            --color-neutrals-gray-100: #F1F3F5;
+            --color-neutrals-gray-200: #E9EDF2;
+            --color-neutrals-gray-600: #717C88;
+            --color-neutrals-gray-900: #1C1F22;
+            /* Typography */
+            --font-family-primary: 'Poppins', sans-serif;
+            --font-family-secondary: 'Inter', sans-serif;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+            /* Spacing */
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            /* Borders & Radius */
+            --border-radius-md: 8px;
+            --border-radius-full: 9999px;
+            /* Transitions */
+            --transition-fast: all 0.2s ease-in-out;
+            /* Component-specific Tokens */
+            --sidebar-bg: var(--color-neutrals-white);
+            --sidebar-width-expanded: 260px;
+            --sidebar-width-collapsed: 80px;
+            --sidebar-text-color: var(--color-neutrals-gray-600);
+            --sidebar-icon-color: var(--color-neutrals-gray-600);
+            --sidebar-active-bg: var(--color-primary-50);
+            --sidebar-active-text: var(--color-primary-600);
+            --sidebar-active-indicator: var(--color-primary-500);
+            --sidebar-hover-bg: var(--color-neutrals-gray-100);
+            --sidebar-border-color: var(--color-neutrals-gray-100);
+            --sidebar-header-height: 80px;
+            --sidebar-footer-height: 70px;
+        }
+
+        /* ---------------------------------- */
+        /* --- 2. BASE & SHOWCASE STYLES ---- */
+        /* ---------------------------------- */
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: var(--font-family-secondary);
+            background-color: var(--color-neutrals-gray-50);
+            margin: 0;
+            transition: padding-left 0.2s ease-in-out;
+        }
+        .showcase {
+            padding: var(--spacing-lg);
+        }
+        .showcase-header {
+            text-align: center;
+            margin-bottom: var(--spacing-lg);
+        }
+        .showcase-header h1 {
+            font-family: var(--font-family-primary);
+        }
+        .component-container {
+            border: 1px dashed var(--color-neutrals-gray-200);
+            padding: var(--spacing-lg);
+            position: relative;
+            height: 800px; /* Simulate viewport height */
+            overflow: hidden;
+        }
+        .main-content {
+            padding: var(--spacing-lg);
+            background-color: var(--color-neutrals-white);
+            border-radius: var(--border-radius-md);
+            height: 100%;
+        }
+
+        /* ---------------------------------- */
+        /* --- 3. SIDEBAR NAVIGATION -------- */
+        /* ---------------------------------- */
+        .sidebar-nav {
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--sidebar-border-color);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+            transition: var(--transition-fast);
+            width: var(--sidebar-width-expanded);
+        }
+        /* --- Header --- */
+        .sidebar-nav__header {
+            height: var(--sidebar-header-height);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--spacing-lg);
+            flex-shrink: 0;
+            overflow: hidden;
+            border-bottom: 1px solid var(--sidebar-border-color);
+        }
+        .sidebar-nav__logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            text-decoration: none;
+            font-size: 20px;
+            font-weight: var(--font-weight-bold);
+            color: var(--color-neutrals-gray-900);
+            font-family: var(--font-family-primary);
+        }
+        .sidebar-nav__logo-icon {
+            color: var(--color-primary-500);
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+        /* --- Main Navigation List --- */
+        .sidebar-nav__main {
+            flex-grow: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .sidebar-nav__list {
+            list-style: none;
+            padding: var(--spacing-md) 0;
+            margin: 0;
+        }
+        .sidebar-nav__item a {
+            display: flex;
+            align-items: center;
+            padding: 12px var(--spacing-lg);
+            margin: 4px var(--spacing-md);
+            border-radius: var(--border-radius-md);
+            text-decoration: none;
+            color: var(--sidebar-text-color);
+            font-weight: var(--font-weight-semibold);
+            transition: var(--transition-fast);
+            white-space: nowrap;
+        }
+        .sidebar-nav__item a:hover, .sidebar-nav__item a:focus-visible {
+            background-color: var(--sidebar-hover-bg);
+            color: var(--color-neutrals-gray-900);
+            outline: none;
+        }
+        .sidebar-nav__item--active a {
+            background-color: var(--sidebar-active-bg);
+            color: var(--sidebar-active-text);
+            position: relative;
+        }
+        .sidebar-nav__item--active a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            bottom: 8px;
+            width: 4px;
+            background-color: var(--sidebar-active-indicator);
+            border-radius: 0 4px 4px 0;
+        }
+        .sidebar-nav__icon {
+            font-size: 24px;
+            margin-right: var(--spacing-md);
+            flex-shrink: 0;
+            transition: margin 0.2s ease-in-out;
+        }
+        .sidebar-nav__label {
+            transition: opacity 0.2s ease-in-out;
+        }
+        /* --- Footer --- */
+        .sidebar-nav__footer {
+            height: var(--sidebar-footer-height);
+            padding: 0 var(--spacing-md);
+            border-top: 1px solid var(--sidebar-border-color);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius-md);
+            width: 100%;
+            text-decoration: none;
+            color: inherit;
+        }
+        .user-profile:hover {
+            background-color: var(--sidebar-hover-bg);
+        }
+        .user-profile__avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius-full);
+            flex-shrink: 0;
+        }
+        .user-profile__info {
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        .user-profile__name {
+            font-weight: var(--font-weight-semibold);
+            font-size: 14px;
+            color: var(--color-neutrals-gray-900);
+        }
+        .user-profile__role {
+            font-size: 12px;
+            color: var(--color-neutrals-gray-600);
+        }
+        .user-profile__logout {
+            margin-left: auto;
+            color: var(--color-neutrals-gray-600);
+            font-size: 20px;
+        }
+
+        /* --- Collapsed State --- */
+        .sidebar-nav--collapsed {
+            width: var(--sidebar-width-collapsed);
+        }
+        .sidebar-nav--collapsed .sidebar-nav__label,
+        .sidebar-nav--collapsed .user-profile__info,
+        .sidebar-nav--collapsed .user-profile__logout {
+            opacity: 0;
+            visibility: hidden;
+            width: 0;
+            transition-delay: 0s;
+        }
+        .sidebar-nav--collapsed .sidebar-nav__icon {
+            margin-right: 0;
+        }
+        .sidebar-nav--collapsed .sidebar-nav__item a,
+        .sidebar-nav--collapsed .sidebar-nav__footer a {
+            justify-content: center;
+        }
+        .sidebar-nav--collapsed .sidebar-nav__logo .sidebar-nav__label {
+            display: none;
+        }
+
+        /* --- Mobile Off-Canvas --- */
+        @media (max-width: 767.98px) {
+            .sidebar-nav {
+                transform: translateX(-100%);
+            }
+            body.sidebar-open .sidebar-nav {
+                transform: translateX(0);
+                box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            }
+            .sidebar-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                z-index: 999;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+            }
+            body.sidebar-open .sidebar-backdrop {
+                opacity: 1;
+                visibility: visible;
+            }
+            .mobile-toggle {
+                display: block;
+                position: absolute;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1001;
+                background: var(--color-neutrals-white);
+                border: 1px solid var(--color-neutrals-gray-200);
+                border-radius: var(--border-radius-md);
+                padding: 8px;
+                cursor: pointer;
+            }
+        }
+
+        /* --- Tablet & Desktop --- */
+        @media (min-width: 768px) {
+            .mobile-toggle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SVG Icon Definitions -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="icon-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></symbol>
+        <symbol id="icon-products" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></symbol>
+        <symbol id="icon-orders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><polyline points="13 2 13 9 20 9"></polyline></symbol>
+        <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></symbol>
+        <symbol id="icon-reports" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></symbol>
+        <symbol id="icon-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></symbol>
+        <symbol id="icon-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></symbol>
+        <symbol id="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></symbol>
+    </svg>
+
+    <div class="showcase">
+        <div class="showcase-header">
+            <h1>Sidebar Navigation</h1>
+            <p>The primary navigation component for Vendor and Admin dashboards.</p>
+        </div>
+
+        <div class="component-container">
+            <!-- Mobile Toggle Button -->
+            <button class="mobile-toggle" aria-label="Open navigation menu" aria-controls="vendor-sidebar" aria-expanded="false" onclick="document.body.classList.toggle('sidebar-open')">
+                <svg class="icon--md"><use href="#icon-menu"></use></svg>
+            </button>
+            <div class="sidebar-backdrop" onclick="document.body.classList.remove('sidebar-open')"></div>
+
+            <!-- Sidebar Component -->
+            <aside id="vendor-sidebar" class="sidebar-nav sidebar-nav--vendor">
+                <header class="sidebar-nav__header">
+                    <a href="#" class="sidebar-nav__logo">
+                        <span class="sidebar-nav__logo-icon">🚀</span>
+                        <span class="sidebar-nav__label">Hyperlocal</span>
+                    </a>
+                </header>
+                <nav class="sidebar-nav__main" aria-label="Vendor main navigation">
+                    <ul class="sidebar-nav__list">
+                        <li class="sidebar-nav__item sidebar-nav__item--active">
+                            <a href="#" aria-current="page">
+                                <svg class="sidebar-nav__icon"><use href="#icon-dashboard"></use></svg>
+                                <span class="sidebar-nav__label">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav__item">
+                            <a href="#">
+                                <svg class="sidebar-nav__icon"><use href="#icon-orders"></use></svg>
+                                <span class="sidebar-nav__label">Orders</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav__item">
+                            <a href="#">
+                                <svg class="sidebar-nav__icon"><use href="#icon-products"></use></svg>
+                                <span class="sidebar-nav__label">Products</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav__item">
+                            <a href="#">
+                                <svg class="sidebar-nav__icon"><use href="#icon-reports"></use></svg>
+                                <span class="sidebar-nav__label">Reports</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-nav__item">
+                            <a href="#">
+                                <svg class="sidebar-nav__icon"><use href="#icon-settings"></use></svg>
+                                <span class="sidebar-nav__label">Settings</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                <footer class="sidebar-nav__footer">
+                    <a href="#" class="user-profile">
+                        <img src="https://i.pravatar.cc/40?u=vendor" alt="Vendor avatar" class="user-profile__avatar">
+                        <div class="user-profile__info">
+                            <div class="user-profile__name">Global Bites</div>
+                            <div class="user-profile__role">Vendor</div>
+                        </div>
+                        <svg class="user-profile__logout"><use href="#icon-logout"></use></svg>
+                    </a>
+                </footer>
+            </aside>
+            <div class="main-content">
+                <h2>Page Content</h2>
+                <p>This area represents the main content of the dashboard. The sidebar will overlay this on mobile, and push it to the side on larger screens.</p>
+                <p>Resize the browser window to see the responsive behavior:
+                    <ul>
+                        <li><b>&lt; 768px (Mobile):</b> Off-canvas menu activated by the toggle.</li>
+                        <li><b>768px - 1024px (Tablet):</b> Icon-only sidebar that expands on hover.</li>
+                        <li><b>&gt; 1024px (Desktop):</b> Fully expanded sidebar.</li>
+                    </ul>
+                </p>
+            </div>
+        </div>
+    </div>
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "vendor"<h3>
+		<!--description--><normal> The navigation links specific to the Vendor role, including Dashboard, Orders, Products, Reports, and Settings. </normal>
+		<!-- vrient 1 html -->
+        <ul class="sidebar-nav__list">
+            <li class="sidebar-nav__item sidebar-nav__item--active"><a href="#">Dashboard</a></li>
+            <li class="sidebar-nav__item"><a href="#">Orders</a></li>
+            <li class="sidebar-nav__item"><a href="#">Products</a></li>
+            <li class="sidebar-nav__item"><a href="#">Reports</a></li>
+            <li class="sidebar-nav__item"><a href="#">Settings</a></li>
+        </ul>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "admin"<h3>
+		<!--description--><normal> The navigation links for the Administrator role, including user management and platform-wide settings. </normal>
+		<!-- vrient 1 html -->
+        <ul class="sidebar-nav__list">
+            <li class="sidebar-nav__item sidebar-nav__item--active"><a href="#">Dashboard</a></li>
+            <li class="sidebar-nav__item"><a href="#">Orders</a></li>
+            <li class="sidebar-nav__item"><a href="#">Users</a></li>
+            <li class="sidebar-nav__item"><a href="#">Reports</a></li>
+            <li class="sidebar-nav__item"><a href="#">Settings</a></li>
+        </ul>     
+		
+      <div>
+	 </div>    
+	
+	</body>
+</html>

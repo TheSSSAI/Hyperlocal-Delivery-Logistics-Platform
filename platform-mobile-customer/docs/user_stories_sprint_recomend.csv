@@ -1,0 +1,8 @@
+"sprint_number","story_ids","total_points","sprint_goal","dependencies_resolved"
+"1","[""INFRA-001"",""INFRA-002""]","16","Establish the foundational, isolated network and Kubernetes infrastructure for all environments to enable future service deployments.","true"
+"2","[""INFRA-003"",""INFRA-004"",""INFRA-005""]","18","Provision all persistent data stores and establish the complete CI/CD pipeline to automate quality checks and deployments.","true"
+"3","[""CUS-001"",""CUS-003"",""CUS-005"",""VND-001"",""RDR-001""]","21","Implement the core registration and login flows for all three user roles (Customer, Vendor, Rider), establishing the foundation for user access.","true"
+"4","[""CUS-007"",""VND-006"",""VND-009"",""RDR-009"",""CUS-016""]","21","Build foundational management features: customers can add addresses, vendors can manage hours and products, riders can set availability, and customers can add items to a cart.","true"
+"5","[""CUS-025"",""SYS-002""]","26","Implement the critical end-to-end order flow: customer order placement/payment and the core rider allocation/re-assignment logic.","true"
+"6","[""CUS-028"",""RDR-022"",""FIN-001""]","26","Enhance the order flow with customer-facing live tracking, rider Proof of Delivery, and a resilient payment processing and reconciliation system.","true"
+"7","[""FIN-002"",""ADM-001"",""OBS-001""]","39","Establish critical operational capabilities: automated partner payouts, comprehensive admin management tools, and the full platform observability stack.","true"

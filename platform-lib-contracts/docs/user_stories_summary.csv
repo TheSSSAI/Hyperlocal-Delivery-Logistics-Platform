@@ -1,0 +1,2 @@
+"total_stories","total_story_points","must_have_stories","should_have_stories","could_have_stories","epics_identified","estimated_sprints","key_dependencies"
+"8","61","6","1","0","[""Core Order Lifecycle Management"",""Infrastructure and Deployment"",""Observability and Monitoring"",""API Endpoint Implementation"",""Database Schema and Migrations"",""Cross-Cutting Concerns""]","4","[""Catalog Service API"",""Payments Service Event Contracts"",""Provisioned EKS Cluster""]"

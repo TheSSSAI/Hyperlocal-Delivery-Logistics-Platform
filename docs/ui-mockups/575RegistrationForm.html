@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Registration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html {
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--color-neutrals-gray_50);
+      color: var(--color-neutrals-gray_900);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    /* Design System Tokens */
+    :root {
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray_50: #F7F9FC;
+      --color-neutrals-gray_100: #E9EDF2;
+      --color-neutrals-gray_200: #D3D9E1;
+      --color-neutrals-gray_300: #BCC4CF;
+      --color-neutrals-gray_500: #8E9BAA;
+      --color-neutrals-gray_700: #555D66;
+      --color-neutrals-gray_900: #1C1F22;
+      --color-semantic-success: #00C875;
+      --color-semantic-error: #FF4D4D;
+      --spacing-4: 4px;
+      --spacing-8: 8px;
+      --spacing-12: 12px;
+      --spacing-16: 16px;
+      --spacing-24: 24px;
+      --spacing-32: 32px;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+    }
+
+    /* Screen Layout */
+    .screen-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--spacing-32);
+      min-height: 100vh;
+    }
+    .registration-form-container {
+      width: 100%;
+      max-width: 768px;
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: 0px 4px 12px rgba(28, 31, 34, 0.08);
+      padding: var(--spacing-32);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen-header {
+      text-align: center;
+      margin-bottom: var(--spacing-32);
+    }
+    .screen-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-neutrals-gray_900);
+    }
+    .screen-header p {
+      color: var(--color-neutrals-gray_700);
+      margin-top: var(--spacing-8);
+    }
+
+    /* Progress Stepper */
+    .progress-stepper {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-32);
+      position: relative;
+    }
+    .progress-stepper::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--color-neutrals-gray_200);
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    .progress-line {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        height: 2px;
+        background-color: var(--color-primary-500);
+        transform: translateY(-50%);
+        z-index: 2;
+        transition: width 0.3s ease-in-out;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 3;
+      background-color: var(--color-neutrals-white);
+      padding: 0 var(--spacing-8);
+    }
+    .step-indicator {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--color-neutrals-gray_200);
+      border: 2px solid var(--color-neutrals-gray_200);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-neutrals-gray_500);
+      font-weight: 600;
+      transition: all 0.3s ease-in-out;
+    }
+    .step-label {
+      margin-top: var(--spacing-8);
+      font-size: 14px;
+      color: var(--color-neutrals-gray_500);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .step.active .step-indicator {
+      background-color: var(--color-neutrals-white);
+      border-color: var(--color-primary-500);
+      color: var(--color-primary-500);
+    }
+    .step.active .step-label {
+      color: var(--color-primary-500);
+    }
+    .step.completed .step-indicator {
+      background-color: var(--color-primary-500);
+      border-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+    }
+    .step.completed .step-label {
+      color: var(--color-neutrals-gray_900);
+    }
+
+    /* Form Step */
+    .form-step {
+      display: none;
+    }
+    .form-step.active {
+      display: block;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .form-step fieldset {
+      border: none;
+    }
+    .form-step legend {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: var(--spacing-24);
+      color: var(--color-neutrals-gray_900);
+    }
+    .form-grid {
+        display: grid;
+        gap: var(--spacing-24);
+    }
+    @media (min-width: 768px) {
+        .form-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .form-grid .form-group--full {
+            grid-column: 1 / -1;
+        }
+    }
+
+
+    /* Atomic Components */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-8);
+    }
+    .form-group label {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--color-neutrals-gray_700);
+    }
+    .form-group label.required::after {
+        content: ' *';
+        color: var(--color-semantic-error);
+    }
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="tel"] {
+      width: 100%;
+      padding: var(--spacing-12) var(--spacing-16);
+      border: 1px solid var(--color-neutrals-gray_300);
+      border-radius: var(--border-radius-md);
+      font-size: 16px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+    }
+    .form-group input.error {
+        border-color: var(--color-semantic-error);
+    }
+    .error-message {
+      font-size: 14px;
+      color: var(--color-semantic-error);
+      display: none;
+    }
+    .form-group input.error + .error-message {
+        display: block;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--spacing-12) var(--spacing-24);
+      border-radius: var(--border-radius-md);
+      font-weight: 600;
+      font-size: 16px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease-in-out;
+    }
+    .btn:focus-visible {
+        outline: 3px solid var(--color-primary-300);
+        outline-offset: 2px;
+    }
+    .btn--primary {
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+    }
+    .btn--primary:hover {
+      background-color: var(--color-primary-600);
+    }
+    .btn--secondary {
+      background-color: var(--color-neutrals-gray_100);
+      color: var(--color-neutrals-gray_700);
+      border-color: var(--color-neutrals-gray_200);
+    }
+    .btn--secondary:hover {
+      background-color: var(--color-neutrals-gray_200);
+    }
+    .btn:disabled {
+      background-color: var(--color-neutrals-gray_200);
+      color: var(--color-neutrals-gray_500);
+      cursor: not-allowed;
+    }
+    .btn.loading {
+        cursor: wait;
+    }
+    .btn .spinner {
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255, 255, 255, 0.5);
+        border-top-color: var(--color-neutrals-white);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-right: var(--spacing-8);
+    }
+    .btn--secondary .spinner {
+        border-color: rgba(0,0,0,0.2);
+        border-top-color: var(--color-neutrals-gray_700);
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .file-upload {
+        border: 2px dashed var(--color-neutrals-gray_200);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-24);
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, background-color 0.2s;
+    }
+    .file-upload:hover {
+        border-color: var(--color-primary-500);
+        background-color: var(--color-primary-50);
+    }
+    .file-upload input[type="file"] {
+        display: none;
+    }
+    .file-upload__icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto var(--spacing-16);
+        color: var(--color-primary-500);
+    }
+    .file-upload__text {
+        color: var(--color-neutrals-gray_700);
+        font-weight: 600;
+    }
+    .file-upload__text span {
+        color: var(--color-primary-500);
+        text-decoration: underline;
+    }
+    .file-upload__hint {
+        font-size: 14px;
+        color: var(--color-neutrals-gray_500);
+        margin-top: var(--spacing-8);
+    }
+    .file-preview {
+        display: none;
+        align-items: center;
+        gap: var(--spacing-12);
+        margin-top: var(--spacing-16);
+        padding: var(--spacing-12);
+        background-color: var(--color-neutrals-gray_50);
+        border-radius: var(--border-radius-md);
+    }
+    .file-preview.active {
+        display: flex;
+    }
+    .file-preview__icon {
+        width: 24px;
+        height: 24px;
+        color: var(--color-semantic-success);
+    }
+    .file-preview__name {
+        flex-grow: 1;
+        font-size: 14px;
+        color: var(--color-neutrals-gray_900);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .file-preview__remove {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--color-semantic-error);
+        width: 24px;
+        height: 24px;
+    }
+
+
+    .form-navigation {
+      display: flex;
+      justify-content: space-between;
+      margin-top: var(--spacing-32);
+      border-top: 1px solid var(--color-neutrals-gray_100);
+      padding-top: var(--spacing-24);
+    }
+    
+    .consent-text {
+        font-size: 14px;
+        color: var(--color-neutrals-gray_700);
+        margin-top: var(--spacing-16);
+    }
+    .consent-text a {
+        color: var(--color-primary-500);
+        text-decoration: none;
+        font-weight: 600;
+    }
+    .consent-text a:hover {
+        text-decoration: underline;
+    }
+
+    /* States */
+    .submitting-overlay {
+        position: absolute;
+        inset: 0;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+    }
+    .submitting-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    .submitting-overlay .spinner {
+        width: 48px;
+        height: 48px;
+        border: 4px solid var(--color-neutrals-gray_200);
+        border-top-color: var(--color-primary-500);
+        border-radius: 50%;
+        animation: spin 1.5s linear infinite;
+    }
+    .submitting-overlay p {
+        margin-top: var(--spacing-16);
+        font-weight: 600;
+        color: var(--color-neutrals-gray_900);
+    }
+
+    .success-message {
+        text-align: center;
+        padding: var(--spacing-32) 0;
+        display: none;
+    }
+    .success-message.active {
+        display: block;
+        animation: fadeIn 0.5s;
+    }
+    .success-message__icon {
+        width: 64px;
+        height: 64px;
+        color: var(--color-semantic-success);
+        margin: 0 auto var(--spacing-16);
+    }
+    .success-message h2 {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--color-neutrals-gray_900);
+    }
+    .success-message p {
+        margin-top: var(--spacing-8);
+        color: var(--color-neutrals-gray_700);
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .success-message .btn {
+        margin-top: var(--spacing-24);
+    }
+
+    /* Variations section styling */
+    .screen-variations {
+        margin-top: 64px;
+        width: 100%;
+        max-width: 1000px;
+        padding: 32px;
+        border-top: 1px solid #ddd;
+    }
+    .screen-variations h2 {
+        font-size: 24px;
+        margin-bottom: 24px;
+        text-align: center;
+    }
+    .variation-group {
+        margin-bottom: 48px;
+    }
+    .variation-group h3 {
+        font-size: 20px;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+    }
+    .variation-group .description {
+        font-style: italic;
+        color: #555;
+        margin-bottom: 16px;
+    }
+    .static-variant {
+      pointer-events: none;
+      filter: grayscale(30%);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="screen-container">
+    <div class="registration-form-container" id="registrationFormContainer">
+      <header class="screen-header">
+        <h1>Become a Vendor Partner</h1>
+        <p>Fill in your details below to get started. All applications are reviewed by our team.</p>
+      </header>
+      
+      <div class="progress-stepper">
+        <div class="progress-line" id="progressLine"></div>
+        <div class="step active" id="step-1">
+          <div class="step-indicator">1</div>
+          <div class="step-label">Business Info</div>
+        </div>
+        <div class="step" id="step-2">
+          <div class="step-indicator">2</div>
+          <div class="step-label">Legal Info</div>
+        </div>
+        <div class="step" id="step-3">
+          <div class="step-indicator">3</div>
+          <div class="step-label">Documents</div>
+        </div>
+      </div>
+
+      <form id="vendorRegistrationForm">
+        <!-- Step 1: Business Info -->
+        <div class="form-step active" data-step="1">
+          <fieldset>
+            <legend>Step 1: Business Information</legend>
+            <div class="form-grid">
+                <div class="form-group form-group--full">
+                    <label for="businessName" class="required">Business Name</label>
+                    <input type="text" id="businessName" name="businessName" placeholder="e.g., Global Bites Kitchen" required>
+                    <span class="error-message">Business name is required.</span>
+                </div>
+                <div class="form-group form-group--full">
+                    <label for="businessAddress" class="required">Business Address</label>
+                    <input type="text" id="businessAddress" name="businessAddress" placeholder="123 Market Street, Mumbai" required>
+                    <span class="error-message">Address is required.</span>
+                </div>
+                <div class="form-group">
+                    <label for="contactPhone" class="required">Contact Phone Number</label>
+                    <input type="tel" id="contactPhone" name="contactPhone" placeholder="9876543210" required pattern="[6-9][0-9]{9}">
+                    <span class="error-message">Please enter a valid 10-digit mobile number.</span>
+                </div>
+                <div class="form-group">
+                    <label for="contactEmail" class="required">Contact Email</label>
+                    <input type="email" id="contactEmail" name="contactEmail" placeholder="contact@globalbites.com" required>
+                    <span class="error-message">Please enter a valid email address.</span>
+                </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Step 2: Legal Info -->
+        <div class="form-step" data-step="2">
+          <fieldset>
+            <legend>Step 2: Legal Information</legend>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="gstNumber" class="required">GST Number</label>
+                    <input type="text" id="gstNumber" name="gstNumber" placeholder="e.g., 27ABCDE1234F1Z5" required>
+                    <span class="error-message">GST number is required.</span>
+                </div>
+                <div class="form-group">
+                    <label for="fssaiNumber">FSSAI License Number (if applicable)</label>
+                    <input type="text" id="fssaiNumber" name="fssaiNumber" placeholder="e.g., 10012345678901">
+                </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Step 3: Documents -->
+        <div class="form-step" data-step="3">
+          <fieldset>
+            <legend>Step 3: Document Upload</legend>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="gstCert" class="required">GST Certificate</label>
+                    <label for="gstCert" class="file-upload">
+                        <input type="file" id="gstCert" name="gstCert" accept=".pdf,.jpg,.jpeg,.png" required>
+                        <svg class="file-upload__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3.75 3.75M12 9.75l3.75 3.75M3 17.25V6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v10.5A2.25 2.25 0 0118.75 19.5H5.25A2.25 2.25 0 013 17.25z" /></svg>
+                        <p class="file-upload__text"><span>Click to upload</span> or drag and drop</p>
+                        <p class="file-upload__hint">PDF, PNG, JPG (max. 5MB)</p>
+                    </label>
+                    <div class="file-preview">
+                        <svg class="file-preview__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+                        <span class="file-preview__name"></span>
+                        <button type="button" class="file-preview__remove">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" /></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="fssaiCert">FSSAI License (if applicable)</label>
+                     <label for="fssaiCert" class="file-upload">
+                        <input type="file" id="fssaiCert" name="fssaiCert" accept=".pdf,.jpg,.jpeg,.png">
+                        <svg class="file-upload__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3.75 3.75M12 9.75l3.75 3.75M3 17.25V6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v10.5A2.25 2.25 0 0118.75 19.5H5.25A2.25 2.25 0 013 17.25z" /></svg>
+                        <p class="file-upload__text"><span>Click to upload</span> or drag and drop</p>
+                        <p class="file-upload__hint">PDF, PNG, JPG (max. 5MB)</p>
+                    </label>
+                    <div class="file-preview">
+                        <svg class="file-preview__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" /></svg>
+                        <span class="file-preview__name"></span>
+                        <button type="button" class="file-preview__remove">
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" /></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="consent-text form-group--full">
+                    By submitting, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="form-navigation">
+          <button type="button" class="btn btn--secondary" id="backBtn" style="visibility: hidden;">Back</button>
+          <button type="button" class="btn btn--primary" id="nextBtn">Next Step</button>
+          <button type="submit" class="btn btn--primary" id="submitBtn" style="display: none;">Submit Application</button>
+        </div>
+      </form>
+      
+      <div class="submitting-overlay">
+        <div class="spinner"></div>
+        <p>Submitting your application...</p>
+      </div>
+
+      <div class="success-message">
+        <svg class="success-message__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" />
+        </svg>
+        <h2>Application Submitted!</h2>
+        <p>Thank you for registering. Your application is now under review. This typically takes 2-3 business days. We will notify you once it has been processed.</p>
+        <button class="btn btn--primary" onclick="window.location.reload()">Back to Home</button>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="screen-variations">
+    <h2>Screen Variations & States</h2>
+    
+    <div class="variation-group">
+      <h3>Variant: Vendor Registration (Default)</h3>
+      <p class="description">This is the main interactive mockup above, demonstrating the multi-step form for vendors.</p>
+    </div>
+
+    <div class="variation-group">
+      <h3>State: Submitting</h3>
+      <p class="description">Shows the UI state after the user clicks 'Submit Application'. The form is disabled and an overlay indicates processing.</p>
+      <div class="registration-form-container static-variant" style="position: relative; max-width: 768px; margin: 0 auto;">
+         <header class="screen-header"><h1>Become a Vendor Partner</h1></header>
+         <!-- Simplified form content for display -->
+         <div class="form-step active"><fieldset><legend>Step 3: Document Upload</legend><div class="form-grid"><div class="form-group"><label class="required">GST Certificate</label><div class="file-upload"><p>Click to upload</p></div></div></div></fieldset></div>
+         <div class="form-navigation"><button type="button" class="btn btn--secondary">Back</button><button type="submit" class="btn btn--primary" disabled>Submit Application</button></div>
+         <div class="submitting-overlay active" style="position: absolute;">
+            <div class="spinner"></div>
+            <p>Submitting your application...</p>
+         </div>
+      </div>
+    </div>
+
+    <div class="variation-group">
+      <h3>State: Success</h3>
+      <p class="description">This screen is shown after the backend successfully processes the registration.</p>
+      <div class="registration-form-container static-variant" style="position: relative; max-width: 768px; margin: 0 auto;">
+        <div class="success-message active">
+          <svg class="success-message__icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd" /></svg>
+          <h2>Application Submitted!</h2>
+          <p>Thank you for registering. Your application is now under review. This typically takes 2-3 business days. We will notify you once it has been processed.</p>
+          <button class="btn btn--primary">Back to Home</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="variation-group">
+      <h3>Variant: Rider Registration</h3>
+      <p class="description">A simplified, single-step version of the form tailored for mobile screen context for riders.</p>
+      <div class="registration-form-container static-variant" style="max-width: 400px; margin: 0 auto;">
+         <header class="screen-header"><h1>Become a Rider</h1></header>
+         <form>
+            <div class="form-step active">
+              <fieldset>
+                <legend>Your Details</legend>
+                <div class="form-group" style="margin-bottom: 16px;"><label class="required">Full Name</label><input type="text" value="Suresh Kumar"></div>
+                <div class="form-group" style="margin-bottom: 16px;"><label class="required">Mobile Number</label><input type="tel" value="9876543210"></div>
+                <div class="form-group" style="margin-bottom: 16px;"><label class="required">Vehicle Registration</label><input type="text" value="MH 01 AB 1234"></div>
+                <div class="form-group"><label class="required">Driver's License</label><div class="file-upload" style="padding:16px"><p>Upload Document</p></div></div>
+                <div class="form-navigation"><button type="submit" class="btn btn--primary" style="width: 100%">Submit</button></div>
+              </fieldset>
+            </div>
+         </form>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let currentStep = 1;
+        const totalSteps = 3;
+        const form = document.getElementById('vendorRegistrationForm');
+        const nextBtn = document.getElementById('nextBtn');
+        const backBtn = document.getElementById('backBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const progressLine = document.getElementById('progressLine');
+        const formContainer = document.getElementById('registrationFormContainer');
+        const submittingOverlay = formContainer.querySelector('.submitting-overlay');
+        const successMessage = formContainer.querySelector('.success-message');
+
+        function updateUI() {
+            // Update steps
+            document.querySelectorAll('.form-step').forEach(step => {
+                step.classList.remove('active');
+            });
+            document.querySelector(`.form-step[data-step="${currentStep}"]`).classList.add('active');
+
+            // Update progress stepper
+            document.querySelectorAll('.progress-stepper .step').forEach((step, index) => {
+                const stepNum = index + 1;
+                step.classList.remove('active', 'completed');
+                if (stepNum < currentStep) {
+                    step.classList.add('completed');
+                } else if (stepNum === currentStep) {
+                    step.classList.add('active');
+                }
+            });
+            
+            // Update progress line
+            const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            progressLine.style.width = `${progressPercentage}%`;
+
+
+            // Update buttons
+            backBtn.style.visibility = currentStep > 1 ? 'visible' : 'hidden';
+            nextBtn.style.display = currentStep < totalSteps ? 'inline-flex' : 'none';
+            submitBtn.style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
+        }
+
+        function validateStep(step) {
+            const inputs = document.querySelectorAll(`.form-step[data-step="${step}"] input[required]`);
+            let isValid = true;
+            inputs.forEach(input => {
+                if (!input.value.trim() || (input.pattern && !new RegExp(input.pattern).test(input.value))) {
+                    input.classList.add('error');
+                    isValid = false;
+                } else {
+                    input.classList.remove('error');
+                }
+            });
+            return isValid;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            if (validateStep(currentStep) && currentStep < totalSteps) {
+                currentStep++;
+                updateUI();
+            }
+        });
+
+        backBtn.addEventListener('click', () => {
+            if (currentStep > 1) {
+                currentStep--;
+                updateUI();
+            }
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!validateStep(currentStep)) return;
+            
+            form.style.display = 'none';
+            document.querySelector('.progress-stepper').style.display = 'none';
+            submittingOverlay.classList.add('active');
+
+            // Simulate API call
+            setTimeout(() => {
+                submittingOverlay.classList.remove('active');
+                successMessage.classList.add('active');
+            }, 2000);
+        });
+        
+        // File upload UI logic
+        document.querySelectorAll('.file-upload input[type="file"]').forEach(input => {
+            const container = input.closest('.form-group');
+            const preview = container.querySelector('.file-preview');
+            const previewName = preview.querySelector('.file-preview__name');
+            const removeBtn = preview.querySelector('.file-preview__remove');
+
+            input.addEventListener('change', (e) => {
+                if (e.target.files && e.target.files.length > 0) {
+                    previewName.textContent = e.target.files[0].name;
+                    preview.classList.add('active');
+                }
+            });
+            
+            removeBtn.addEventListener('click', () => {
+                input.value = '';
+                preview.classList.remove('active');
+                previewName.textContent = '';
+            });
+        });
+        
+        // Input validation on blur
+        form.querySelectorAll('input[required]').forEach(input => {
+            input.addEventListener('blur', () => {
+                 if (!input.value.trim() || (input.pattern && !new RegExp(input.pattern).test(input.value))) {
+                    input.classList.add('error');
+                } else {
+                    input.classList.remove('error');
+                }
+            });
+        });
+    });
+  </script>
+</body>
+</html>

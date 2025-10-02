@@ -1,0 +1,6 @@
+"sprint_number","story_ids","total_points","sprint_goal","dependencies_resolved"
+"1","[""INFRA-001"",""INFRA-002"",""INFRA-003""]","21","Establish the complete service foundation, including database, CI/CD pipeline, and full observability stack, to enable parallel feature development in subsequent sprints.","true"
+"2","[""VND-005"",""VND-006"",""VND-007"",""VND-008"",""VND-009""]","19","Implement core vendor profile and catalog management, enabling vendors to set up their store details, business hours, and add initial products.","true"
+"3","[""VND-010"",""VND-011"",""VND-012"",""VND-027"",""SYS-005""]","19","Complete the product CRUD lifecycle and establish the foundation for vendor compliance by implementing license management and automated suspension for expired licenses.","true"
+"4","[""SYS-004"",""VND-013"",""VND-014""]","18","Launch the bulk product import feature, including asynchronous CSV processing, detailed error reporting, and automated license expiry reminders for vendors.","true"
+"5","[""TRN-001"",""TRN-002"",""VND-015""]","18","Deliver tools for the internal onboarding team to streamline data migration and validation, and provide vendors with a catalog export capability.","true"

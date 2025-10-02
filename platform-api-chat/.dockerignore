@@ -1,0 +1,32 @@
+# Docker build context exclusions
+
+# Git
+.git
+.gitignore
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Build artifacts
+dist
+.DS_Store
+*.zip
+*.tar.gz
+
+# IDE / Editor
+.vscode
+.idea
+
+# Environment
+.env
+.env.*
+!/.env.example
+
+# Test reports
+coverage

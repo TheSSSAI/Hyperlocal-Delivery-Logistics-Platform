@@ -1,0 +1,103 @@
+mermaid
+graph TD
+    subgraph Users
+        direction LR
+        CU[Customer]:::actor
+        VE[Vendor]:::actor
+        RI[Rider]:::actor
+        AD[Admin]:::actor
+    end
+
+    subgraph "Frontend Layer"
+        direction LR
+        FE_CUST["platform-mobile-customer<br>(React Native)"]:::fe
+        FE_RIDER["platform-mobile-rider<br>(React Native)"]:::fe
+        FE_VEND["platform-web-vendor<br>(React.js)"]:::fe
+        FE_ADMIN["platform-web-admin<br>(React.js)"]:::fe
+    end
+
+    subgraph "Shared Frontend Libraries"
+        direction LR
+        LIB_UI["platform-ui-components"]:::lib
+        LIB_API["platform-api-client"]:::lib
+    end
+
+    subgraph "API Gateway Layer"
+        APIGW["API Gateway<br>(Amazon API Gateway)"]:::gateway
+    end
+
+    subgraph "Backend Microservices Layer"
+        direction TB
+        subgraph "Shared Backend Libraries"
+            direction LR
+            LIB_CON["platform-lib-contracts"]:::lib
+            LIB_OBS["platform-lib-observability"]:::lib
+        end
+        
+        subgraph "Application Services"
+            direction LR
+            SV_IDENT["Identity Service"]:::be
+            SV_CATLG["Vendor & Catalog Service"]:::be
+            SV_ORDER["Order Service"]:::be
+            SV_LOGIS["Rider Logistics Service"]:::be
+            SV_PAYMT["Payments Service"]:::be
+            SV_CHAT["Chat Service"]:::be
+            SV_RATINGS["Ratings Service"]:::be
+            SV_NOTIF["Notifications Service"]:::be
+        end
+    end
+
+    subgraph "Infrastructure & Data Layer"
+        direction LR
+        MSG["Message Bus<br>(SNS/SQS)"]:::infra
+        DB["PostgreSQL DB<br>(Amazon RDS)"]:::db
+        CACHE["Cache<br>(Redis)"]:::db
+        SEARCH["Search Index<br>(OpenSearch)"]:::db
+        S3["Object Storage<br>(S3)"]:::db
+    end
+
+    subgraph "External Services"
+        direction LR
+        EXT_PAY["Razorpay"]:::ext
+        EXT_MAP["Mapbox"]:::ext
+        EXT_FCM["FCM"]:::ext
+    end
+
+    %% Frontend Connections
+    CU -->|Uses| FE_CUST
+    RI -->|Uses| FE_RIDER
+    VE -->|Uses| FE_VEND
+    AD -->|Uses| FE_ADMIN
+
+    FE_CUST -->|Consumes| LIB_UI & LIB_API
+    FE_RIDER -->|Consumes| LIB_UI & LIB_API
+    FE_VEND -->|Consumes| LIB_UI & LIB_API
+    FE_ADMIN -->|Consumes| LIB_UI & LIB_API
+    
+    LIB_API -->|Imports| LIB_CON
+
+    FE_CUST & FE_RIDER & FE_VEND & FE_ADMIN -->|API Calls (HTTPS/WSS)| APIGW
+
+    %% Backend Connections
+    APIGW -->|Routes to| SV_IDENT & SV_CATLG & SV_ORDER & SV_LOGIS & SV_PAYMT & SV_CHAT & SV_RATINGS
+
+    SV_IDENT & SV_CATLG & SV_ORDER & SV_LOGIS & SV_PAYMT & SV_CHAT & SV_RATINGS & SV_NOTIF -->|Consumes| LIB_CON & LIB_OBS
+
+    %% Data and Event Flow
+    Application Services -->|Reads/Writes| DB & CACHE & S3 & SEARCH
+    Application Services -->|Publishes Events| MSG
+    MSG -->|Delivers Events| Application Services
+
+    %% External Integrations
+    SV_PAYMT -->|API Calls| EXT_PAY
+    SV_LOGIS -->|API Calls| EXT_MAP
+    SV_NOTIF -->|API Calls| EXT_FCM
+
+    classDef actor fill:#C3B1E1,stroke:#333,stroke-width:2px;
+    classDef fe fill:#A7C7E7,stroke:#333,stroke-width:2px;
+    classDef lib fill:#FDFD96,stroke:#333,stroke-width:2px;
+    classDef gateway fill:#F5C2C2,stroke:#333,stroke-width:2px;
+    classDef be fill:#B2D8B2,stroke:#333,stroke-width:2px;
+    classDef infra fill:#FFB347,stroke:#333,stroke-width:2px;
+    classDef db fill:#D2B48C,stroke:#333,stroke-width:2px;
+    classDef ext fill:#B3B3B3,stroke:#333,stroke-width:2px;

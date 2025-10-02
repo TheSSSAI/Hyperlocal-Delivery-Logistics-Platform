@@ -1,0 +1,50 @@
+sequenceDiagram
+    actor Administrator
+    participant AdminDashboard as "Admin Web Dashboard"
+    participant APIGateway as "API Gateway"
+    participant IdentityService as "Identity & Access Service"
+    participant PrimaryDatabase as "PostgreSQL Database"
+    participant MessageBus as "Message Bus (SNS/SQS)"
+
+    Administrator->>AdminDashboard: 1. Initiates user suspension and provides reason
+    note over AdminDashboard: UI enforces two-step confirmation as per REQ-USR-001
+
+    activate AdminDashboard
+    AdminDashboard->>APIGateway: 2. PUT /api/v1/admin/users/{userId}/suspend
+    deactivate AdminDashboard
+    
+    activate APIGateway
+    APIGateway->>APIGateway: 3. Authenticate request (validates Admin JWT)
+    APIGateway->>IdentityService: 4. Forward authorized request
+    
+    activate IdentityService
+    IdentityService->>IdentityService: 5. Authorize action (checks for 'Administrator' role)
+    
+    activate PrimaryDatabase
+    IdentityService->>PrimaryDatabase: 6. BEGIN TRANSACTION
+    IdentityService->>PrimaryDatabase: 7. UPDATE users SET status = 'suspended' WHERE id = {userId}
+    PrimaryDatabase-->>IdentityService: 1 row updated
+    
+    IdentityService->>PrimaryDatabase: 8. INSERT INTO audit_log (actor_id, action, target_id, details, timestamp)
+    PrimaryDatabase-->>IdentityService: 1 row inserted
+    
+    IdentityService->>PrimaryDatabase: 9. COMMIT TRANSACTION
+    deactivate PrimaryDatabase
+
+    note over IdentityService, PrimaryDatabase: Atomicity Guarantee: Steps 6-9 are a single atomic transaction. If the audit log insertion (Step 8) fails, the entire transaction is rolled back, and the user's status is not changed.
+
+    IdentityService->>MessageBus: 10. [Async] Publish UserSuspended event
+    activate MessageBus
+    MessageBus-->>IdentityService: Ack
+    deactivate MessageBus
+    note over IdentityService: This event is used to invalidate active sessions/JWTs for the suspended user.
+
+    IdentityService-->>APIGateway: 11. 204 No Content
+    deactivate IdentityService
+    
+    APIGateway-->>AdminDashboard: 12. 204 No Content
+    deactivate APIGateway
+
+    activate AdminDashboard
+    AdminDashboard->>Administrator: 13. Display 'User suspended successfully' notification
+    deactivate AdminDashboard

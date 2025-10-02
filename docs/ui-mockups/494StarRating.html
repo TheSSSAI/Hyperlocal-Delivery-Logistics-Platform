@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: Star Rating</title>
+  <style>
+    /* ---------------------------------- */
+    /* ---      SETUP & TOKENS      --- */
+    /* ---------------------------------- */
+    :root {
+      /* Base Colors from Design System */
+      --color-primary-500: #2563eb;
+      --color-warning-500: #f59e0b;
+      --color-neutral-200: #e9ecef;
+      --color-neutral-600: #6c757d;
+      --color-neutral-900: #212529;
+      --color-white: #ffffff;
+      --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.4);
+
+      /* Component-specific Tokens */
+      --star-color-default: var(--color-neutral-200);
+      --star-color-filled: var(--color-warning-500);
+      --star-focus-shadow: var(--shadow-focus);
+      --star-size: 1.5rem; /* 24px */
+      --star-touch-padding: 0.5rem; /* 8px padding results in a ~40px touch target */
+    }
+
+    /* Showcase Layout */
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: #f8f9fa;
+      color: var(--color-neutral-900);
+      margin: 0;
+      padding: 2rem;
+    }
+    .showcase {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: var(--color-white);
+      padding: 2rem;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+    .showcase-header {
+      text-align: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #e9ecef;
+      padding-bottom: 1.5rem;
+    }
+    .component-group {
+      margin-bottom: 2.5rem;
+    }
+    .component-group h2 {
+      margin-bottom: 0.5rem;
+    }
+    .component-group p {
+      font-size: 0.875rem;
+      color: var(--color-neutral-600);
+      margin-bottom: 1rem;
+      max-width: 65ch;
+    }
+    .component-variants {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .variant-label {
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: 0.25rem;
+    }
+
+    /* ---------------------------------- */
+    /* --- STAR RATING COMPONENT CSS  --- */
+    /* ---------------------------------- */
+
+    /* Generic star SVG styles */
+    .star-rating__star-svg {
+      width: 1em;
+      height: 1em;
+      fill: currentColor;
+    }
+
+    /* Interactive Variant */
+    .star-rating--interactive {
+      display: inline-flex;
+      /* Reverse order to use the general sibling selector ~ */
+      flex-direction: row-reverse;
+      justify-content: flex-end;
+    }
+
+    .star-rating--interactive .star-rating__input {
+      /* Visually hide the native radio buttons */
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    .star-rating--interactive .star-rating__label {
+      font-size: var(--star-size);
+      color: var(--star-color-default);
+      padding: var(--star-touch-padding);
+      cursor: pointer;
+      transition: color 150ms ease-in-out;
+    }
+
+    /* Hover states for interactive */
+    .star-rating--interactive .star-rating__label:hover,
+    .star-rating--interactive .star-rating__label:hover ~ .star-rating__label {
+      color: var(--star-color-filled);
+    }
+
+    /* Checked/Selected state for interactive */
+    .star-rating--interactive .star-rating__input:checked ~ .star-rating__label {
+      color: var(--star-color-filled);
+    }
+
+    /* Focus state for keyboard accessibility */
+    .star-rating--interactive .star-rating__input:focus-visible ~ .star-rating__label:first-of-type {
+        /* Since the elements are reversed, the 'first-of-type' label corresponds to the focused input */
+        outline: 2px solid var(--color-primary-500);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+
+
+    /* Read-only Variant */
+    .star-rating--readonly {
+      font-size: var(--star-size);
+      position: relative;
+      display: inline-block;
+      line-height: 1;
+    }
+
+    .star-rating--readonly .star-rating__stars-wrapper {
+      display: inline-flex;
+      gap: 0.125em;
+    }
+
+    .star-rating--readonly .star-rating__stars--empty {
+      color: var(--star-color-default);
+    }
+
+    .star-rating--readonly .star-rating__stars--filled {
+      color: var(--star-color-filled);
+      position: absolute;
+      top: 0;
+      left: 0;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="showcase">
+    <header class="showcase-header">
+      <h1>Star Rating</h1>
+      <p>A molecular component for displaying and collecting ratings.</p>
+    </header>
+
+    <!-- Interactive Star Rating -->
+    <div class="component-group">
+      <h2>Interactive Rating</h2>
+      <p>Used in forms to collect user feedback. It is built with radio inputs for full keyboard and screen reader accessibility.</p>
+      <div class="component-variants">
+        <div>
+          <span class="variant-label">Default (Hover over me)</span>
+          <fieldset class="star-rating star-rating--interactive" role="radiogroup" aria-label="Rate this item">
+            <input type="radio" class="star-rating__input" id="star5" name="rating1" value="5"><label class="star-rating__label" for="star5" title="5 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+            <input type="radio" class="star-rating__input" id="star4" name="rating1" value="4"><label class="star-rating__label" for="star4" title="4 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+            <input type="radio" class="star-rating__input" id="star3" name="rating1" value="3"><label class="star-rating__label" for="star3" title="3 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+            <input type="radio" class="star-rating__input" id="star2" name="rating1" value="2"><label class="star-rating__label" for="star2" title="2 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+            <input type="radio" class="star-rating__input" id="star1" name="rating1" value="1"><label class="star-rating__label" for="star1" title="1 star"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+          </fieldset>
+        </div>
+        <div>
+          <span class="variant-label">Pre-selected (3 stars)</span>
+          <fieldset class="star-rating star-rating--interactive" role="radiogroup" aria-label="Rate this item">
+            <input type="radio" class="star-rating__input" id="p-star5" name="rating2" value="5"><label class="star-rating__label" for="p-star5" title="5 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+            <input type="radio" class="star-rating__input" id="p-star4" name="rating2" value="4"><label class="star-rating__label" for="p-star4" title="4 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+            <input type="radio" class="star-rating__input" id="p-star3" name="rating2" value="3" checked><label class="star-rating__label" for="p-star3" title="3 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+            <input type="radio" class="star-rating__input" id="p-star2" name="rating2" value="2"><label class="star-rating__label" for="p-star2" title="2 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+            <input type="radio" class="star-rating__input" id="p-star1" name="rating2" value="1"><label class="star-rating__label" for="p-star1" title="1 star"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+          </fieldset>
+        </div>
+      </div>
+    </div>
+
+    <!-- Read-only Star Rating -->
+    <div class="component-group">
+      <h2>Read-Only Rating</h2>
+      <p>Used to display an average rating. Supports partial stars by clipping a layer of filled stars over a layer of empty stars.</p>
+      <div class="component-variants">
+        <div>
+          <span class="variant-label">4.7 out of 5</span>
+          <div class="star-rating star-rating--readonly" aria-label="Rated 4.7 out of 5 stars">
+            <div class="star-rating__stars-wrapper star-rating__stars--empty">
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            </div>
+            <div class="star-rating__stars-wrapper star-rating__stars--filled" style="width: 94%;">
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            </div>
+          </div>
+        </div>
+        <div>
+          <span class="variant-label">3.5 out of 5</span>
+          <div class="star-rating star-rating--readonly" aria-label="Rated 3.5 out of 5 stars">
+            <div class="star-rating__stars-wrapper star-rating__stars--empty">
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            </div>
+            <div class="star-rating__stars-wrapper star-rating__stars--filled" style="width: 70%;">
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+              <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <h2> Component Variations</h2>
+    <div>
+      <h3>Variant Name : interactive</h3>
+      <!--description-->
+      <normal> Allows a user to select a rating from 1 to 5. It is built using visually hidden radio buttons and styled labels for maximum accessibility.</normal>
+      <!-- vrient 1 html -->
+      <fieldset class="star-rating star-rating--interactive" role="radiogroup" aria-label="Rate this item">
+        <input type="radio" class="star-rating__input" id="v-star5" name="rating_v" value="5"><label class="star-rating__label" for="v-star5" title="5 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+        <input type="radio" class="star-rating__input" id="v-star4" name="rating_v" value="4"><label class="star-rating__label" for="v-star4" title="4 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+        <input type="radio" class="star-rating__input" id="v-star3" name="rating_v" value="3" checked><label class="star-rating__label" for="v-star3" title="3 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+        <input type="radio" class="star-rating__input" id="v-star2" name="rating_v" value="2"><label class="star-rating__label" for="v-star2" title="2 stars"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+        <input type="radio" class="star-rating__input" id="v-star1" name="rating_v" value="1"><label class="star-rating__label" for="v-star1" title="1 star"><svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg></label>
+      </fieldset>
+    </div>
+    <div>
+      <h3>Variant Name : read-only</h3>
+      <!--description-->
+      <normal> Displays a static rating value, often an average. It supports partial stars to accurately represent decimal values (e.g., 4.7 stars).</normal>
+      <!-- vrient 1 html -->
+      <div class="star-rating star-rating--readonly" aria-label="Rated 4.7 out of 5 stars">
+        <div class="star-rating__stars-wrapper star-rating__stars--empty">
+            <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+        </div>
+        <div class="star-rating__stars-wrapper star-rating__stars--filled" style="width: 94%;">
+            <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+            <svg class="star-rating__star-svg" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

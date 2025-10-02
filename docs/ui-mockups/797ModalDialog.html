@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: ModalDialog</title>
+  <style>
+    /* 1. CSS Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    /* 2. Design System Tokens (CSS Custom Properties) */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --line-height-body: 1.6;
+
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-danger-500: #FF4D4D;
+      --color-danger-600: #E64545;
+      --color-danger-700: #CC3D3D;
+      --color-neutral-white: #FFFFFF;
+      --color-neutral-50: #F7F9FC;
+      --color-neutral-100: #E9EDF2;
+      --color-neutral-200: #D3D9E1;
+      --color-neutral-300: #BCC4CF;
+      --color-neutral-500: #8E9BAA;
+      --color-neutral-700: #555D66;
+      --color-neutral-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+
+      /* Spacing */
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-lg: 0px 8px 24px rgba(28, 31, 34, 0.12);
+    }
+    
+    /* 3. Base & Showcase Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-body);
+      background-color: var(--color-neutral-900);
+      color: var(--color-neutral-100);
+      padding: var(--space-32);
+      text-align: center;
+    }
+    body.modal-open {
+      overflow: hidden; /* Prevent background scroll when modal is open */
+    }
+    .showcase { max-width: 800px; margin: 48px auto; }
+    h1 { font-size: 36px; font-weight: var(--font-weight-bold); margin-bottom: var(--space-8); }
+    h2 { font-size: 24px; font-weight: var(--font-weight-semibold); margin-top: var(--space-32); margin-bottom: var(--space-16); }
+    .showcase-buttons { display: flex; justify-content: center; gap: var(--space-16); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+    
+    /* 4. Atomic Dependencies Styles */
+    /* == Button == */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8); padding: var(--space-12) var(--space-24); font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); border: 1px solid transparent; border-radius: var(--border-radius-md); text-decoration: none; cursor: pointer; transition: all 0.2s ease-in-out; min-height: 44px; }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-300); outline-offset: 2px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutral-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .btn--primary:active { background-color: var(--color-primary-700); }
+    .btn--secondary { background-color: var(--color-neutral-white); color: var(--color-neutral-700); border-color: var(--color-neutral-300); }
+    .btn--secondary:hover { background-color: var(--color-neutral-50); }
+    .btn--danger { background-color: var(--color-danger-500); color: var(--color-neutral-white); }
+    .btn--danger:hover { background-color: var(--color-danger-600); }
+    .btn--danger:active { background-color: var(--color-danger-700); }
+    .btn--icon-only { padding: var(--space-12); border: none; background: transparent; color: var(--color-neutral-500); }
+    .btn--icon-only:hover { background-color: var(--color-neutral-100); color: var(--color-neutral-900); }
+    .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; vertical-align: middle; font-size: 20px; }
+
+    /* == TextInput & FormGroup == */
+    .form-group { display: flex; flex-direction: column; gap: var(--space-8); margin-bottom: var(--space-16); text-align: left; }
+    .form-label { font-weight: var(--font-weight-semibold); font-size: 14px; }
+    .form-input { padding: var(--space-12) var(--space-16); border: 1px solid var(--color-neutral-300); border-radius: var(--border-radius-md); font-size: var(--font-size-body); width: 100%; }
+    .form-input:focus-visible { border-color: var(--color-primary-500); outline: 3px solid var(--color-primary-100); }
+    .form-input.is-error { border-color: var(--color-semantic-error); }
+    .form-error-message { font-size: 14px; color: var(--color-semantic-error); }
+
+    /* 5. ModalDialog Component CSS */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(28, 31, 34, 0.6);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end; /* Mobile-first: bottom sheet style */
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0s 0.3s linear;
+    }
+    .modal-overlay.is-open {
+      opacity: 1;
+      visibility: visible;
+      transition-delay: 0s;
+    }
+    .modal-dialog {
+      background-color: var(--color-neutral-white);
+      border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+    }
+    .modal-overlay.is-open .modal-dialog {
+      transform: translateY(0);
+    }
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-16) var(--space-24);
+      border-bottom: 1px solid var(--color-neutral-200);
+      flex-shrink: 0;
+    }
+    .modal__title {
+      font-size: 20px;
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutral-900);
+    }
+    .modal__body {
+      padding: var(--space-24);
+      overflow-y: auto;
+      flex-grow: 1;
+      color: var(--color-neutral-700);
+      text-align: left;
+    }
+    .modal__footer {
+      display: flex;
+      flex-direction: column-reverse;
+      gap: var(--space-12);
+      padding: var(--space-16) var(--space-24);
+      background-color: var(--color-neutral-50);
+      border-top: 1px solid var(--color-neutral-200);
+      flex-shrink: 0;
+    }
+    .modal__footer .btn {
+        width: 100%;
+    }
+
+    /* Responsive Adaptations for Tablet/Desktop */
+    @media (min-width: 768px) {
+      .modal-overlay {
+        align-items: center;
+      }
+      .modal-dialog {
+        width: auto;
+        height: auto;
+        min-width: 400px;
+        max-width: 500px;
+        border-radius: var(--border-radius-lg);
+        transform: scale(0.95);
+        max-height: 90vh;
+      }
+      .modal-overlay.is-open .modal-dialog {
+        transform: scale(1);
+      }
+      .modal-dialog--form { max-width: 600px; }
+      .modal__footer {
+        flex-direction: row;
+        justify-content: flex-end;
+      }
+      .modal__footer .btn {
+          width: auto;
+      }
+    }
+
+    /* Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      .modal-overlay, .modal-dialog {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg style="display: none;">
+    <symbol id="icon-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></symbol>
+    <symbol id="icon-warning" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol>
+  </svg>
+
+  <main class="showcase">
+    <h1>Modal Dialog Component</h1>
+    <p>A versatile overlay component for confirmations, forms, and critical actions.</p>
+    <div class="showcase-buttons">
+      <button class="btn btn--primary" data-modal-trigger="confirmation-modal">Show Confirmation</button>
+      <button class="btn btn--secondary" data-modal-trigger="form-modal">Show Form Modal</button>
+      <button class="btn btn--danger" data-modal-trigger="critical-modal">Show Critical Action</button>
+    </div>
+  </main>
+
+  <!-- ============================================= -->
+  <!--             MODAL DEFINITIONS                 -->
+  <!-- ============================================= -->
+
+  <!-- Confirmation Modal -->
+  <div class="modal-overlay" id="confirmation-modal">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-desc">
+      <header class="modal__header">
+        <h2 id="confirm-title" class="modal__title">Confirm Action</h2>
+        <button class="btn btn--icon-only" aria-label="Close dialog" data-modal-close>
+          <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+      </header>
+      <div id="confirm-desc" class="modal__body">
+        <p>Are you sure you want to proceed with this action? This cannot be undone.</p>
+      </div>
+      <footer class="modal__footer">
+        <button class="btn btn--secondary" data-modal-close>Cancel</button>
+        <button class="btn btn--primary">Confirm</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Form Modal -->
+  <div class="modal-overlay" id="form-modal">
+    <div class="modal-dialog modal-dialog--form" role="dialog" aria-modal="true" aria-labelledby="form-title">
+      <header class="modal__header">
+        <h2 id="form-title" class="modal__title">Create New Category</h2>
+        <button class="btn btn--icon-only" aria-label="Close dialog" data-modal-close>
+          <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+      </header>
+      <div class="modal__body">
+        <form>
+          <div class="form-group">
+            <label for="category-name" class="form-label">Category Name</label>
+            <input type="text" id="category-name" class="form-input" placeholder="e.g., Appetizers">
+          </div>
+          <div class="form-group">
+            <label for="category-desc" class="form-label">Description (Optional)</label>
+            <textarea id="category-desc" class="form-input" placeholder="A short description for this category..."></textarea>
+          </div>
+        </form>
+      </div>
+      <footer class="modal__footer">
+        <button class="btn btn--secondary" data-modal-close>Cancel</button>
+        <button class="btn btn--primary">Save Category</button>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Critical Action Modal -->
+  <div class="modal-overlay" id="critical-modal">
+    <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="critical-title" aria-describedby="critical-desc">
+      <header class="modal__header">
+        <h2 id="critical-title" class="modal__title" style="color: var(--color-danger-700); display: flex; align-items: center; gap: var(--space-8);">
+          <svg class="icon"><use href="#icon-warning"/></svg>
+          Delete User Account
+        </h2>
+        <button class="btn btn--icon-only" aria-label="Close dialog" data-modal-close>
+          <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+      </header>
+      <div id="critical-desc" class="modal__body">
+        <p>This action is irreversible. All data associated with this user will be permanently deleted.</p>
+        <div class="form-group" style="margin-top: var(--space-16);">
+            <label for="confirm-text" class="form-label">To confirm, type "DELETE" below:</label>
+            <input type="text" id="confirm-text" class="form-input" placeholder="DELETE">
+        </div>
+      </div>
+      <footer class="modal__footer">
+        <button class="btn btn--secondary" data-modal-close>Cancel</button>
+        <button class="btn btn--danger">Confirm Deletion</button>
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const triggers = document.querySelectorAll('[data-modal-trigger]');
+      let lastFocusedElement;
+
+      const openModal = (modalId) => {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+
+        lastFocusedElement = document.activeElement;
+        document.body.classList.add('modal-open');
+        modal.classList.add('is-open');
+
+        const focusableElements = modal.querySelectorAll(
+          'a[href], button, textarea, input[type="text"], input[type="radio"], input[type="checkbox"], select'
+        );
+        const firstFocusable = focusableElements[0];
+        const lastFocusable = focusableElements[focusableElements.length - 1];
+
+        if (firstFocusable) {
+          firstFocusable.focus();
+        }
+
+        modal.addEventListener('keydown', (e) => trapFocus(e, firstFocusable, lastFocusable));
+      };
+
+      const closeModal = (modal) => {
+        if (!modal) return;
+
+        document.body.classList.remove('modal-open');
+        modal.classList.remove('is-open');
+        
+        if (lastFocusedElement) {
+          lastFocusedElement.focus();
+        }
+      };
+
+      const trapFocus = (e, first, last) => {
+        if (e.key !== 'Tab') return;
+        if (e.shiftKey) { // Shift+Tab
+          if (document.activeElement === first) {
+            last.focus();
+            e.preventDefault();
+          }
+        } else { // Tab
+          if (document.activeElement === last) {
+            first.focus();
+            e.preventDefault();
+          }
+        }
+      };
+
+      triggers.forEach(trigger => {
+        trigger.addEventListener('click', () => {
+          openModal(trigger.dataset.modalTrigger);
+        });
+      });
+
+      document.querySelectorAll('[data-modal-close]').forEach(closeBtn => {
+        closeBtn.addEventListener('click', () => {
+          closeModal(closeBtn.closest('.modal-overlay'));
+        });
+      });
+
+      document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+          if (e.target === overlay) {
+            closeModal(overlay);
+          }
+        });
+      });
+      
+      document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+              const openModal = document.querySelector('.modal-overlay.is-open');
+              if (openModal) {
+                  closeModal(openModal);
+              }
+          }
+      });
+    });
+  </script>
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "confirmation"<h3>
+		<!--description--><normal> Used for simple yes/no confirmations where the user needs to acknowledge an action before proceeding. It contains a title, a short descriptive text, and two action buttons. </normal>
+		<!-- vrient 1 html -->
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-desc">
+      <header class="modal__header">
+        <h2 id="confirm-title" class="modal__title">Confirm Action</h2>
+        <button class="btn btn--icon-only" aria-label="Close dialog" data-modal-close>
+          <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+      </header>
+      <div id="confirm-desc" class="modal__body">
+        <p>Are you sure you want to proceed with this action? This cannot be undone.</p>
+      </div>
+      <footer class="modal__footer">
+        <button class="btn btn--secondary" data-modal-close>Cancel</button>
+        <button class="btn btn--primary">Confirm</button>
+      </footer>
+    </div>"     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "form-modal"<h3>
+		<!--description--><normal> Used to contain a short form for tasks like creating or editing an item. The body contains form elements, and the footer contains primary (save/submit) and secondary (cancel) actions. </normal>
+		<!-- vrient 1 html -->
+        <div class="modal-dialog modal-dialog--form" role="dialog" aria-modal="true" aria-labelledby="form-title">
+      <header class="modal__header">
+        <h2 id="form-title" class="modal__title">Create New Category</h2>
+        <button class="btn btn--icon-only" aria-label="Close dialog" data-modal-close>
+          <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+      </header>
+      <div class="modal__body">
+        <form>
+          <div class="form-group">
+            <label for="category-name" class="form-label">Category Name</label>
+            <input type="text" id="category-name" class="form-input" placeholder="e.g., Appetizers">
+          </div>
+          <div class="form-group">
+            <label for="category-desc" class="form-label">Description (Optional)</label>
+            <textarea id="category-desc" class="form-input" placeholder="A short description for this category..."></textarea>
+          </div>
+        </form>
+      </div>
+      <footer class="modal__footer">
+        <button class="btn btn--secondary" data-modal-close>Cancel</button>
+        <button class="btn btn--primary">Save Category</button>
+      </footer>
+    </div>"     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "critical-action"<h3>
+		<!--description--><normal> A specialized confirmation modal for destructive actions, such as deleting a user. It uses danger colors and may require the user to type a confirmation word to enable the primary action button, preventing accidental clicks. </normal>
+		<!-- vrient 1 html -->
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="critical-title" aria-describedby="critical-desc">
+      <header class="modal__header">
+        <h2 id="critical-title" class="modal__title" style="color: var(--color-danger-700); display: flex; align-items: center; gap: var(--space-8);">
+          <svg class="icon"><use href="#icon-warning"/></svg>
+          Delete User Account
+        </h2>
+        <button class="btn btn--icon-only" aria-label="Close dialog" data-modal-close>
+          <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+      </header>
+      <div id="critical-desc" class="modal__body">
+        <p>This action is irreversible. All data associated with this user will be permanently deleted.</p>
+        <div class="form-group" style="margin-top: var(--space-16);">
+            <label for="confirm-text" class="form-label">To confirm, type "DELETE" below:</label>
+            <input type="text" id="confirm-text" class="form-input" placeholder="DELETE">
+        </div>
+      </div>
+      <footer class="modal__footer">
+        <button class="btn btn--secondary" data-modal-close>Cancel</button>
+        <button class="btn btn--danger">Confirm Deletion</button>
+      </footer>
+    </div>"     
+		
+      <div>
+	 </div>    
+	
+	</body>
+</html>

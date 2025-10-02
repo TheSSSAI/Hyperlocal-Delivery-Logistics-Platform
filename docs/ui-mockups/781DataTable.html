@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataTable Component</title>
+  <style>
+    /* 1. CSS Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* 2. Design System Tokens (CSS Custom Properties) */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --line-height-body: 1.6;
+
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-secondary-50: #E5F9F1;
+      --color-secondary-900: #003D24;
+      --color-danger-50: #FFEBEB;
+      --color-danger-700: #CC3D3D;
+
+      --color-neutral-white: #FFFFFF;
+      --color-neutral-50: #F7F9FC;
+      --color-neutral-100: #E9EDF2;
+      --color-neutral-200: #D3D9E1;
+      --color-neutral-300: #BCC4CF;
+      --color-neutral-500: #8E9BAA;
+      --color-neutral-700: #555D66;
+      --color-neutral-900: #1C1F22;
+
+      --color-semantic-success: #00C875;
+      --color-semantic-warning: #FFB800;
+      --color-semantic-error: #FF4D4D;
+      --color-semantic-info: #0068FF;
+
+      /* Spacing */
+      --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px; --space-24: 24px; --space-32: 32px; --space-48: 48px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* 3. Base & Showcase Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      line-height: var(--line-height-body);
+      background-color: var(--color-neutral-100);
+      color: var(--color-neutral-900);
+      padding: var(--space-32);
+    }
+    .showcase { max-width: 1200px; margin: 0 auto; }
+    h2 { font-size: 28px; font-weight: var(--font-weight-bold); margin-bottom: var(--space-24); color: var(--color-primary-700); }
+    p.description { color: var(--color-neutral-700); margin-bottom: var(--space-16); font-size: 14px; max-width: 70ch; }
+    .component-section { margin-bottom: var(--space-48); }
+    
+    /* 4. Icon Definitions & Atomic Dependencies */
+    .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; vertical-align: middle; }
+    .spinner { display: inline-block; border-radius: 50%; border: 3px solid var(--color-primary-500); border-top-color: transparent; animation: spin 0.8s linear infinite; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .spinner--lg { width: 48px; height: 48px; }
+    .badge { display: inline-flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-12); font-size: 12px; font-weight: var(--font-weight-semibold); border-radius: 16px; }
+    .badge--success { background-color: var(--color-secondary-50); color: var(--color-secondary-900); }
+    .badge--pending { background-color: #F0F0F0; color: #595959; }
+    .badge--error { background-color: var(--color-danger-50); color: var(--color-danger-700); }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8); padding: var(--space-8) var(--space-16); font-size: 14px; font-weight: var(--font-weight-semibold); border: 1px solid var(--color-neutral-300); border-radius: var(--border-radius-md); text-decoration: none; cursor: pointer; transition: background-color 0.2s ease-in-out; background-color: var(--color-neutral-white); }
+    .btn:hover { background-color: var(--color-neutral-50); }
+    .btn:disabled { background-color: var(--color-neutral-100); color: var(--color-neutral-500); cursor: not-allowed; }
+    .checkbox-input { width: 16px; height: 16px; accent-color: var(--color-primary-500); }
+
+    /* 5. DataTable Component Styles */
+    .data-table-wrapper {
+        position: relative;
+        background-color: var(--color-neutral-white);
+        border: 1px solid var(--color-neutral-200);
+        border-radius: var(--border-radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .data-table-scroll-container {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px; /* Force horizontal scroll on smaller screens */
+    }
+
+    /* Table Header */
+    .data-table__header th {
+        padding: var(--space-16);
+        background-color: var(--color-neutral-50);
+        border-bottom: 1px solid var(--color-neutral-200);
+        text-align: left;
+        font-weight: var(--font-weight-semibold);
+        font-size: 14px;
+        color: var(--color-neutral-700);
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .data-table__header-cell-content {
+        display: flex;
+        align-items: center;
+        gap: var(--space-8);
+    }
+
+    .data-table__header--sortable {
+        cursor: pointer;
+        user-select: none;
+    }
+    .data-table__header--sortable:hover {
+        background-color: var(--color-neutral-100);
+    }
+
+    .data-table__sort-icon {
+        opacity: 0.4;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .data-table__header--sortable:hover .data-table__sort-icon {
+        opacity: 1;
+    }
+    .data-table__header--sorted-asc .data-table__sort-icon {
+        opacity: 1;
+        transform: rotate(0deg);
+    }
+    .data-table__header--sorted-desc .data-table__sort-icon {
+        opacity: 1;
+        transform: rotate(180deg);
+    }
+
+    /* Table Body & Rows */
+    .data-table__body tr {
+        border-bottom: 1px solid var(--color-neutral-100);
+        transition: background-color 0.2s ease;
+    }
+    .data-table__body tr:last-child { border-bottom: none; }
+    .data-table__body tr:hover { background-color: var(--color-primary-50); }
+
+    .data-table__cell {
+        padding: var(--space-16);
+        font-size: 14px;
+        color: var(--color-neutral-700);
+        vertical-align: middle;
+    }
+
+    .data-table__cell--checkbox {
+      width: 1%;
+      padding: 0 var(--space-16);
+    }
+    .data-table__cell--actions { text-align: right; white-space: nowrap; }
+    
+    .user-info { display: flex; align-items: center; gap: var(--space-12); }
+    .user-info__avatar { width: 32px; height: 32px; border-radius: 50%; background-color: var(--color-neutral-200); }
+    .user-info__name { font-weight: var(--font-weight-semibold); color: var(--color-neutral-900); }
+    .user-info__email { font-size: 12px; color: var(--color-neutral-500); }
+
+    /* Table Footer & Pagination */
+    .data-table__footer td {
+        padding: var(--space-16);
+        border-top: 1px solid var(--color-neutral-200);
+        background-color: var(--color-neutral-50);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 14px;
+        color: var(--color-neutral-700);
+    }
+    .pagination__controls { display: flex; gap: var(--space-8); }
+    .pagination__info { flex-grow: 1; text-align: center; }
+
+    /* States: Loading, Empty, Error */
+    .data-table-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(255, 255, 255, 0.85);
+        z-index: 10;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s 0.2s, opacity 0.2s linear;
+    }
+
+    .data-table-wrapper--is-loading .data-table-overlay {
+        visibility: visible;
+        opacity: 1;
+        transition-delay: 0s;
+    }
+
+    .data-table__state-message-row td {
+        text-align: center;
+        padding: var(--space-48) var(--space-24);
+        color: var(--color-neutral-500);
+    }
+
+    .data-table__state-message-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .data-table__state-message-content .icon {
+        font-size: 48px;
+        margin-bottom: var(--space-16);
+    }
+    .data-table__state-message-content h3 {
+        color: var(--color-neutral-900);
+        font-size: 18px;
+        margin-bottom: var(--space-4);
+    }
+  </style>
+</head>
+<body>
+  <main class="showcase">
+    <svg style="display: none;">
+      <symbol id="icon-sort" viewBox="0 0 24 24"><path d="M12 8l-6 6h12z"/></symbol>
+      <symbol id="icon-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+      <symbol id="icon-error-circle" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></symbol>
+    </svg>
+
+    <!-- ============================================= -->
+    <!--     Data Table with Data (Default State)      -->
+    <!-- ============================================= -->
+    <section class="component-section">
+      <h2>Data Table: With Data</h2>
+      <p class="description">Displays a set of records with support for sorting, selection, and actions. The table becomes horizontally scrollable on smaller screens.</p>
+      
+      <div class="data-table-wrapper">
+        <div class="data-table-scroll-container">
+          <table class="data-table">
+            <thead class="data-table__header">
+              <tr>
+                <th scope="col" class="data-table__cell--checkbox"><input type="checkbox" class="checkbox-input" aria-label="Select all users"></th>
+                <th scope="col" class="data-table__header--sortable data-table__header--sorted-asc">
+                  <div class="data-table__header-cell-content">
+                    <span>User</span>
+                    <svg class="icon data-table__sort-icon" style="font-size: 16px;"><use href="#icon-sort"/></svg>
+                  </div>
+                </th>
+                <th scope="col" class="data-table__header--sortable">
+                    <div class="data-table__header-cell-content">
+                        <span>Role</span>
+                        <svg class="icon data-table__sort-icon" style="font-size: 16px;"><use href="#icon-sort"/></svg>
+                    </div>
+                </th>
+                <th scope="col">Status</th>
+                <th scope="col">Join Date</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody class="data-table__body">
+              <tr class="data-table__row">
+                <td class="data-table__cell data-table__cell--checkbox"><input type="checkbox" class="checkbox-input" aria-label="Select Priya Sharma"></td>
+                <td class="data-table__cell">
+                  <div class="user-info">
+                    <div class="user-info__avatar"></div>
+                    <div>
+                      <div class="user-info__name">Priya Sharma</div>
+                      <div class="user-info__email">priya.s@example.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="data-table__cell">Vendor</td>
+                <td class="data-table__cell"><span class="badge badge--success">Active</span></td>
+                <td class="data-table__cell">Oct 27, 2024</td>
+                <td class="data-table__cell data-table__cell--actions">
+                  <button class="btn">View</button>
+                </td>
+              </tr>
+              <tr class="data-table__row">
+                <td class="data-table__cell data-table__cell--checkbox"><input type="checkbox" class="checkbox-input" aria-label="Select Rohan Kumar"></td>
+                <td class="data-table__cell">
+                    <div class="user-info">
+                      <div class="user-info__avatar"></div>
+                      <div>
+                        <div class="user-info__name">Rohan Kumar</div>
+                        <div class="user-info__email">rohan.k@example.com</div>
+                      </div>
+                    </div>
+                  </td>
+                <td class="data-table__cell">Rider</td>
+                <td class="data-table__cell"><span class="badge badge--success">Active</span></td>
+                <td class="data-table__cell">Oct 25, 2024</td>
+                <td class="data-table__cell data-table__cell--actions">
+                  <button class="btn">View</button>
+                </td>
+              </tr>
+              <tr class="data-table__row">
+                <td class="data-table__cell data-table__cell--checkbox"><input type="checkbox" class="checkbox-input" aria-label="Select Anjali Singh"></td>
+                <td class="data-table__cell">
+                    <div class="user-info">
+                      <div class="user-info__avatar"></div>
+                      <div>
+                        <div class="user-info__name">Anjali Singh</div>
+                        <div class="user-info__email">anjali.s@example.com</div>
+                      </div>
+                    </div>
+                  </td>
+                <td class="data-table__cell">Customer</td>
+                <td class="data-table__cell"><span class="badge badge--pending">Pending Verification</span></td>
+                <td class="data-table__cell">Oct 24, 2024</td>
+                <td class="data-table__cell data-table__cell--actions">
+                  <button class="btn">View</button>
+                </td>
+              </tr>
+              <tr class="data-table__row">
+                <td class="data-table__cell data-table__cell--checkbox"><input type="checkbox" class="checkbox-input" aria-label="Select Vikram Patel"></td>
+                <td class="data-table__cell">
+                    <div class="user-info">
+                      <div class="user-info__avatar"></div>
+                      <div>
+                        <div class="user-info__name">Vikram Patel</div>
+                        <div class="user-info__email">vikram.p@example.com</div>
+                      </div>
+                    </div>
+                  </td>
+                <td class="data-table__cell">Vendor</td>
+                <td class="data-table__cell"><span class="badge badge--error">Suspended</span></td>
+                <td class="data-table__cell">Oct 22, 2024</td>
+                <td class="data-table__cell data-table__cell--actions">
+                  <button class="btn">View</button>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot class="data-table__footer">
+              <tr>
+                <td colspan="6">
+                  <div class="pagination">
+                    <span class="pagination__info">Showing 1-4 of 138 users</span>
+                    <div class="pagination__controls">
+                      <button class="btn" disabled>Previous</button>
+                      <button class="btn">Next</button>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================= -->
+    <!--            Data Table: Loading State          -->
+    <!-- ============================================= -->
+    <section class="component-section">
+      <h2>Data Table: Loading State</h2>
+      <p class="description">Shown while the initial data is being fetched from the server. An overlay with a spinner provides clear feedback to the user.</p>
+      
+      <div class="data-table-wrapper data-table-wrapper--is-loading" aria-busy="true">
+        <div class="data-table-overlay">
+          <div class="spinner spinner--lg"></div>
+        </div>
+        <div class="data-table-scroll-container">
+          <table class="data-table">
+            <thead class="data-table__header">
+              <tr>
+                <th scope="col" class="data-table__cell--checkbox"><input type="checkbox" class="checkbox-input" disabled></th>
+                <th scope="col">User</th>
+                <th scope="col">Role</th>
+                <th scope="col">Status</th>
+                <th scope="col">Join Date</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody class="data-table__body">
+                <!-- Rows are present but obscured by the overlay -->
+                <tr class="data-table__row">
+                    <td class="data-table__cell" colspan="6" style="height: 256px; text-align: center; color: var(--color-neutral-300);">Data is loading...</td>
+                </tr>
+            </tbody>
+            <tfoot class="data-table__footer">
+                <tr><td colspan="6"><div class="pagination">...</div></td></tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================= -->
+    <!--             Data Table: Empty State           -->
+    <!-- ============================================= -->
+    <section class="component-section">
+        <h2>Data Table: Empty State</h2>
+        <p class="description">Shown when a query or filter returns no results. It should provide a clear message and guide the user.</p>
+        
+        <div class="data-table-wrapper">
+          <div class="data-table-scroll-container">
+            <table class="data-table">
+              <thead class="data-table__header">
+                <tr>
+                  <th scope="col" class="data-table__cell--checkbox"><input type="checkbox" class="checkbox-input" disabled></th>
+                  <th scope="col">User</th>
+                  <th scope="col">Role</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Join Date</th>
+                  <th scope="col"><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody class="data-table__body">
+                <tr role="status">
+                    <td colspan="6" class="data-table__state-message-row">
+                        <div class="data-table__state-message-content">
+                            <svg class="icon"><use href="#icon-search"/></svg>
+                            <h3>No Users Found</h3>
+                            <p>Try adjusting your search or filters.</p>
+                        </div>
+                    </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================= -->
+      <!--             Data Table: Error State           -->
+      <!-- ============================================= -->
+      <section class="component-section">
+        <h2>Data Table: Error State</h2>
+        <p class="description">Shown when the data fails to load due to a server or network error. It should provide an option to retry the action.</p>
+        
+        <div class="data-table-wrapper">
+          <div class="data-table-scroll-container">
+            <table class="data-table">
+              <thead class="data-table__header">
+                <tr>
+                    <th scope="col" class="data-table__cell--checkbox"><input type="checkbox" class="checkbox-input" disabled></th>
+                    <th scope="col">User</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Join Date</th>
+                    <th scope="col"><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody class="data-table__body">
+                <tr role="alert">
+                    <td colspan="6" class="data-table__state-message-row">
+                        <div class="data-table__state-message-content">
+                            <svg class="icon" style="color: var(--color-semantic-error);"><use href="#icon-error-circle"/></svg>
+                            <h3>Something Went Wrong</h3>
+                            <p>We couldn't load the data. Please try again.</p>
+                            <button class="btn" style="margin-top: var(--space-16);">Retry</button>
+                        </div>
+                    </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+  </main>
+    <div>
+        <h2> Component Variations</h2>
+        <div>
+            <h3>Variant Name : "Sortable Table"</h3>
+            <normal> Use the `.data-table__header--sortable` class on a `<th>` element to add a cursor pointer and hover state. Use `.data-table__header--sorted-asc` or `.data-table__header--sorted-desc` to indicate the current sort direction.</normal>
+            <div class="data-table-wrapper">
+                <table class="data-table">
+                    <thead class="data-table__header">
+                        <tr>
+                            <th class="data-table__header--sortable data-table__header--sorted-asc">
+                                <div class="data-table__header-cell-content"><span>Sorted Ascending</span><svg class="icon data-table__sort-icon"><use href="#icon-sort"/></svg></div>
+                            </th>
+                            <th class="data-table__header--sortable data-table__header--sorted-desc">
+                                <div class="data-table__header-cell-content"><span>Sorted Descending</span><svg class="icon data-table__sort-icon"><use href="#icon-sort"/></svg></div>
+                            </th>
+                            <th class="data-table__header--sortable">
+                                <div class="data-table__header-cell-content"><span>Not Sorted</span><svg class="icon data-table__sort-icon"><use href="#icon-sort"/></svg></div>
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <div>
+            <h3>Variant Name : "Filterable Table (Conceptual)"</h3>
+            <normal> While filtering logic is external, the DataTable can be integrated with filter controls. This is a conceptual variant showing how a complete organism might be structured, with filter controls placed outside and above the table wrapper.</normal>
+            <div>
+              <p class="description">Filter controls (like SearchBar, Dropdown) would be placed here, above the `.data-table-wrapper`.</p>
+              <div class="data-table-wrapper">
+                  <div class="data-table-scroll-container">
+                      <table class="data-table">
+                          <thead class="data-table__header">
+                              <tr>
+                                  <th scope="col">Filtered Data Column 1</th>
+                                  <th scope="col">Filtered Data Column 2</th>
+                              </tr>
+                          </thead>
+                          <tbody class="data-table__body">
+                              <tr>
+                                  <td class="data-table__cell">Result A</td>
+                                  <td class="data-table__cell">Result B</td>
+                              </tr>
+                          </tbody>
+                      </table>
+                  </div>
+              </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organism: ProductForm</title>
+    <style>
+        /* 1. CSS Reset & Base */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* 2. Design System Tokens (CSS Custom Properties) */
+        :root {
+            /* Typography */
+            --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-size-body: 16px;
+            --font-weight-regular: 400;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+            --line-height-body: 1.6;
+            /* Colors */
+            --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-300: #5C9EFF; --color-primary-500: #0068FF; --color-primary-600: #0053CC; --color-primary-700: #003E99;
+            --color-danger-50: #FFEBEB; --color-danger-500: #FF4D4D; --color-danger-700: #CC3D3D;
+            --color-neutral-white: #FFFFFF; --color-neutral-50: #F7F9FC; --color-neutral-100: #E9EDF2; --color-neutral-200: #D3D9E1; --color-neutral-300: #BCC4CF; --color-neutral-500: #8E9BAA; --color-neutral-700: #555D66; --color-neutral-900: #1C1F22;
+            --color-semantic-error: #FF4D4D;
+            /* Spacing */
+            --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px; --space-24: 24px; --space-32: 32px;
+            /* Borders & Shadows */
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+            --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+        }
+
+        /* 3. Base & Showcase Layout Styles */
+        body { font-family: var(--font-family-primary); font-size: var(--font-size-body); line-height: var(--line-height-body); background-color: var(--color-neutral-50); color: var(--color-neutral-900); padding: var(--space-32); }
+        .showcase { max-width: 900px; margin: 0 auto; }
+        h1 { font-size: 36px; font-weight: var(--font-weight-bold); margin-bottom: var(--space-32); text-align: center; }
+        h2 { font-size: 24px; font-weight: var(--font-weight-semibold); margin-bottom: var(--space-16); color: var(--color-primary-700); }
+        .component-container { background-color: var(--color-neutral-white); border-radius: var(--border-radius-lg); padding: var(--space-32); margin-bottom: var(--space-32); box-shadow: var(--shadow-sm); }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+
+        /* 4. ATOMIC & MOLECULAR COMPONENT STYLES (Dependencies) */
+        /* == Button == */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8); padding: var(--space-12) var(--space-24); font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); border: 1px solid transparent; border-radius: var(--border-radius-md); text-decoration: none; cursor: pointer; transition: all 0.2s ease-in-out; }
+        .btn:focus-visible { outline: 3px solid var(--color-primary-300); outline-offset: 2px; }
+        .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutral-white); }
+        .btn--primary:hover { background-color: var(--color-primary-600); }
+        .btn--secondary { background-color: var(--color-neutral-white); color: var(--color-neutral-700); border-color: var(--color-neutral-300); }
+        .btn--secondary:hover { background-color: var(--color-neutral-100); }
+        .btn:disabled { background-color: var(--color-neutral-200); color: var(--color-neutral-500); border-color: var(--color-neutral-200); cursor: not-allowed; }
+        .btn.is-loading { color: transparent !important; position: relative; pointer-events: none; }
+        .btn.is-loading .spinner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--color-neutral-white); }
+        .btn--secondary.is-loading .spinner { color: var(--color-primary-500); }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .spinner { display: inline-block; border-radius: 50%; border: 2px solid currentColor; border-top-color: transparent; animation: spin 0.6s linear infinite; width: 16px; height: 16px; }
+
+        /* == FormGroup == */
+        .form-group { display: flex; flex-direction: column; gap: var(--space-8); }
+        .form-label { font-weight: var(--font-weight-semibold); font-size: 14px; color: var(--color-neutral-900); }
+        .form-label--required::after { content: ' *'; color: var(--color-semantic-error); }
+        .form-input, .form-select, .form-textarea { padding: var(--space-12) var(--space-16); border: 1px solid var(--color-neutral-300); border-radius: var(--border-radius-md); font-size: var(--font-size-body); font-family: var(--font-family-primary); width: 100%; transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .form-input:focus-visible, .form-select:focus-visible, .form-textarea:focus-visible { border-color: var(--color-primary-500); outline: 3px solid var(--color-primary-100); }
+        .form-group.has-error .form-input, .form-group.has-error .form-select, .form-group.has-error .form-textarea { border-color: var(--color-semantic-error); }
+        .form-group.has-error .form-input:focus-visible, .form-group.has-error .form-select:focus-visible, .form-group.has-error .form-textarea:focus-visible { outline-color: var(--color-danger-50); }
+        .form-error-message { font-size: 14px; color: var(--color-semantic-error); display: none; }
+        .form-group.has-error .form-error-message { display: block; }
+        .form-textarea { min-height: 120px; resize: vertical; }
+
+        /* == FileUpload == */
+        .file-upload-group { display: flex; flex-direction: column; gap: var(--space-8); }
+        .file-upload { width: 100%; }
+        .file-upload__label { display: block; padding: var(--space-24); border: 2px dashed var(--color-neutral-300); border-radius: var(--border-radius-lg); background-color: var(--color-neutral-50); text-align: center; cursor: pointer; }
+        .file-upload__label:hover { background-color: var(--color-primary-50); border-color: var(--color-primary-300); }
+        .file-upload__input { width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; position: absolute; z-index: -1; }
+        .file-upload__input:focus-visible + .file-upload__label { outline: 3px solid var(--color-primary-300); outline-offset: 2px; border-color: var(--color-primary-500); }
+        .file-upload__icon { color: var(--color-primary-500); margin-bottom: var(--space-12); font-size: 32px; }
+        .file-upload__text { font-weight: var(--font-weight-semibold); color: var(--color-neutral-900); }
+        .file-upload__subtext { font-size: 14px; color: var(--color-neutral-500); margin-top: var(--space-4); }
+        .file-upload__preview { display: flex; align-items: center; gap: var(--space-16); padding: var(--space-12); border: 1px solid var(--color-neutral-200); border-radius: var(--border-radius-lg); }
+        .file-upload__preview-img { width: 64px; height: 64px; object-fit: cover; border-radius: var(--border-radius-md); background-color: var(--color-neutral-100); }
+        .file-upload__preview-info { flex-grow: 1; }
+        .file-upload__preview-name { font-weight: var(--font-weight-semibold); font-size: 14px; }
+
+        /* 5. ORGANISM COMPONENT STYLES: ProductForm */
+        .product-form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-24);
+        }
+        .product-form__grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: var(--space-24);
+        }
+        .product-form__actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--space-12);
+            padding-top: var(--space-24);
+            border-top: 1px solid var(--color-neutral-200);
+            margin-top: var(--space-16);
+        }
+        .product-form.is-saving fieldset {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        /* Responsive adaptations for desktop */
+        @media (min-width: 768px) {
+            .product-form__grid {
+                grid-template-columns: repeat(2, 1fr);
+                align-items: flex-start;
+            }
+            .product-form__grid .form-group--full-width {
+                grid-column: 1 / -1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <svg style="display: none;">
+        <symbol id="icon-upload-cloud" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 18a4.6 4.4 0 0 1 0-9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1m-1 1l-2-2m2 2l2-2m-2-4V9"/></symbol>
+    </svg>
+
+    <main class="showcase">
+        <h1>Product Form Organism</h1>
+
+        <!-- ============================= -->
+        <!--     Add Product Variant       -->
+        <!-- ============================= -->
+        <div class="component-container">
+            <h2>Add Product Form</h2>
+            <form class="product-form" action="#" method="post">
+                <fieldset>
+                    <legend class="sr-only">Add a new product</legend>
+                    <div class="product-form__grid">
+                        <div class="form-group form-group--full-width">
+                            <label for="add-product-name" class="form-label form-label--required">Product Name</label>
+                            <input type="text" id="add-product-name" class="form-input" placeholder="e.g., Spicy Chicken Ramen" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="add-product-price" class="form-label form-label--required">Price (₹)</label>
+                            <input type="number" id="add-product-price" class="form-input" placeholder="e.g., 250.00" step="0.01" min="0" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="add-product-stock" class="form-label form-label--required">Stock Quantity</label>
+                            <input type="number" id="add-product-stock" class="form-input" placeholder="e.g., 50" step="1" min="0" required>
+                        </div>
+
+                        <div class="form-group form-group--full-width">
+                            <label for="add-product-category" class="form-label form-label--required">Category</label>
+                            <select id="add-product-category" class="form-select" required>
+                                <option value="" disabled selected>Select a category</option>
+                                <option value="1">Appetizers</option>
+                                <option value="2">Main Course</option>
+                                <option value="3">Beverages</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group form-group--full-width">
+                            <label class="form-label">Product Image</label>
+                            <div class="file-upload">
+                                <input type="file" id="add-product-image" class="file-upload__input" accept="image/png, image/jpeg">
+                                <label for="add-product-image" class="file-upload__label">
+                                    <div class="file-upload__icon"><svg class="icon"><use href="#icon-upload-cloud" /></svg></div>
+                                    <span class="file-upload__text">Click to upload or drag and drop</span>
+                                    <span class="file-upload__subtext">PNG or JPG (max. 5MB)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-group--full-width">
+                            <label for="add-product-desc" class="form-label">Description</label>
+                            <textarea id="add-product-desc" class="form-textarea" placeholder="Describe the product for your customers..."></textarea>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="product-form__actions">
+                    <button type="button" class="btn btn--secondary">Cancel</button>
+                    <button type="submit" class="btn btn--primary">Save Product</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ============================= -->
+        <!--   Edit Product / Saving State -->
+        <!-- ============================= -->
+        <div class="component-container">
+            <h2>Edit Product Form (Saving State)</h2>
+            <form class="product-form is-saving" action="#" method="post">
+                <fieldset disabled>
+                    <legend class="sr-only">Edit product details</legend>
+                    <div class="product-form__grid">
+                        <div class="form-group form-group--full-width">
+                            <label for="edit-product-name" class="form-label form-label--required">Product Name</label>
+                            <input type="text" id="edit-product-name" class="form-input" value="Spicy Chicken Ramen" required>
+                        </div>
+
+                        <div class="form-group has-error">
+                            <label for="edit-product-price" class="form-label form-label--required">Price (₹)</label>
+                            <input type="number" id="edit-product-price" class="form-input" value="-10" step="0.01" min="0" required aria-describedby="price-error" aria-invalid="true">
+                            <span id="price-error" class="form-error-message">Price must be a positive number.</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="edit-product-stock" class="form-label form-label--required">Stock Quantity</label>
+                            <input type="number" id="edit-product-stock" class="form-input" value="25" step="1" min="0" required>
+                        </div>
+
+                        <div class="form-group form-group--full-width">
+                            <label for="edit-product-category" class="form-label form-label--required">Category</label>
+                            <select id="edit-product-category" class="form-select" required>
+                                <option value="1">Appetizers</option>
+                                <option value="2" selected>Main Course</option>
+                                <option value="3">Beverages</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group form-group--full-width">
+                            <label class="form-label">Product Image</label>
+                             <div class="file-upload">
+                                <div class="file-upload__preview">
+                                    <img src="https://via.placeholder.com/64x64/E9EDF2/BCC4CF?text=RAMEN" alt="Preview of Spicy Chicken Ramen" class="file-upload__preview-img">
+                                    <div class="file-upload__preview-info">
+                                        <div class="file-upload__preview-name">ramen.jpg</div>
+                                    </div>
+                                    <button type="button" class="btn btn--secondary">Change</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group form-group--full-width">
+                            <label for="edit-product-desc" class="form-label">Description</label>
+                            <textarea id="edit-product-desc" class="form-textarea">A rich and spicy chicken broth with tender noodles, a soft-boiled egg, and fresh toppings.</textarea>
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="product-form__actions">
+                    <button type="button" class="btn btn--secondary" disabled>Cancel</button>
+                    <button type="submit" class="btn btn--primary is-loading" disabled>
+                        <span class="spinner"></span>
+                        Saving...
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <div> <h2> Component Variations</h2>
+        <div>
+            <h3>Variant Name : add</h3>
+            <normal> The 'Add Product' variant of the form. All fields are empty by default, prompting the user for new input. </normal>
+            <div>
+                <!-- Add Product Form HTML is already shown above -->
+            </div>
+        </div>
+        <div>
+            <h3>Variant Name : edit</h3>
+            <normal> The 'Edit Product' variant of the form. All fields are pre-populated with the existing product's data, allowing the vendor to make modifications. </normal>
+            <div>
+                <!-- Edit Product Form HTML is already shown above -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>

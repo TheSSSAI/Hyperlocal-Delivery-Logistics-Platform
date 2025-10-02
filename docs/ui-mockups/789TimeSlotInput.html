@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Time Slot Input Component</title>
+  <style>
+    /* 1. CSS Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* 2. Design System Tokens (CSS Custom Properties) */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --line-height-body: 1.6;
+
+      /* Colors */
+      --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-300: #5C9EFF; --color-primary-500: #0068FF; --color-primary-600: #0053CC; --color-primary-700: #003E99;
+      --color-danger-50: #FFEBEB; --color-danger-500: #FF4D4D; --color-danger-700: #CC3D3D;
+      --color-neutral-white: #FFFFFF; --color-neutral-50: #F7F9FC; --color-neutral-100: #E9EDF2; --color-neutral-200: #D3D9E1; --color-neutral-300: #BCC4CF; --color-neutral-500: #8E9BAA; --color-neutral-700: #555D66; --color-neutral-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+
+      /* Spacing */
+      --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px; --space-24: 24px; --space-32: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* 3. Base & Showcase Layout Styles */
+    body { font-family: var(--font-family-primary); font-size: var(--font-size-body); line-height: var(--line-height-body); background-color: var(--color-neutral-50); color: var(--color-neutral-900); padding: var(--space-32); }
+    .showcase { max-width: 600px; margin: 0 auto; }
+    .showcase-header { margin-bottom: var(--space-32); border-bottom: 1px solid var(--color-neutral-200); padding-bottom: var(--space-16); }
+    h1 { font-size: 36px; font-weight: var(--font-weight-bold); margin-bottom: var(--space-8); }
+    h2 { font-size: 24px; font-weight: var(--font-weight-bold); margin-top: var(--space-32); margin-bottom: var(--space-16); color: var(--color-primary-700); }
+    .component-section { background-color: var(--color-neutral-white); border-radius: var(--border-radius-lg); padding: var(--space-24); margin-bottom: var(--space-32); box-shadow: var(--shadow-sm); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+
+    /* 4. Icon Definitions */
+    .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; vertical-align: middle; }
+
+    /* 5. TimeSlotInput Component CSS */
+    .time-slot-input {
+      border: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-12);
+    }
+
+    .time-slot-input__legend {
+      font-weight: var(--font-weight-semibold);
+      font-size: 14px;
+      margin-bottom: var(--space-8);
+      padding: 0;
+      color: var(--color-neutral-700);
+    }
+
+    .time-slot-input__rows-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-12);
+    }
+
+    .time-slot-input__row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+    }
+
+    .time-slot-input__time-picker {
+      position: relative;
+    }
+
+    .time-slot-input__time-picker input[type="time"] {
+      padding: var(--space-12) var(--space-16);
+      border: 1px solid var(--color-neutral-300);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-body);
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutral-white);
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      min-width: 140px;
+    }
+
+    .time-slot-input__time-picker input[type="time"]:focus-visible {
+      border-color: var(--color-primary-500);
+      outline: 3px solid var(--color-primary-100);
+    }
+
+    @media (min-width: 768px) {
+      .time-slot-input__time-picker input[type="time"]::-webkit-calendar-picker-indicator {
+        background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%238E9BAA" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>') no-repeat center;
+        background-size: 16px;
+        cursor: pointer;
+        opacity: 0.8;
+      }
+       .time-slot-input__time-picker input[type="time"]::-webkit-calendar-picker-indicator:hover {
+        opacity: 1;
+      }
+    }
+
+    .time-slot-input__separator {
+      color: var(--color-neutral-500);
+    }
+
+    .time-slot-input__remove-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-8);
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      color: var(--color-neutral-500);
+      transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    }
+
+    .time-slot-input__remove-btn:hover {
+      background-color: var(--color-danger-50);
+      color: var(--color-danger-700);
+    }
+
+    .time-slot-input__remove-btn:focus-visible {
+      outline: 3px solid var(--color-primary-300);
+    }
+
+    .time-slot-input__remove-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background-color: transparent;
+      color: var(--color-neutral-500);
+    }
+
+    .time-slot-input__add-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary-500);
+      font-weight: var(--font-weight-semibold);
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-4);
+      padding: var(--space-8) 0;
+      align-self: flex-start;
+    }
+
+    .time-slot-input__add-btn:hover {
+      color: var(--color-primary-700);
+      text-decoration: underline;
+    }
+
+    .time-slot-input__error-message {
+      display: none;
+      font-size: 14px;
+      color: var(--color-semantic-error);
+      margin-top: var(--space-4);
+    }
+
+    /* Error State */
+    .time-slot-input--error .time-slot-input__legend {
+      color: var(--color-semantic-error);
+    }
+
+    .time-slot-input--error .time-slot-input__time-picker input[type="time"] {
+      border-color: var(--color-semantic-error);
+    }
+
+    .time-slot-input--error .time-slot-input__time-picker input[type="time"]:focus-visible {
+      outline-color: var(--color-danger-50);
+    }
+
+    .time-slot-input--error .time-slot-input__error-message {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <svg style="display: none;">
+    <symbol id="icon-close" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+    </symbol>
+    <symbol id="icon-plus" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+    </symbol>
+  </svg>
+
+  <main class="showcase">
+    <header class="showcase-header">
+      <h1>Time Slot Input Component</h1>
+    </header>
+
+    <div class="component-section">
+      <h2>Default State</h2>
+      <fieldset class="time-slot-input" id="timeslot-default">
+        <legend class="time-slot-input__legend">Monday</legend>
+        <div class="time-slot-input__rows-wrapper">
+          <div class="time-slot-input__row">
+            <div class="time-slot-input__time-picker">
+              <label for="monday-open-1" class="sr-only">Opening time</label>
+              <input type="time" id="monday-open-1" value="09:00">
+            </div>
+            <span class="time-slot-input__separator">–</span>
+            <div class="time-slot-input__time-picker">
+              <label for="monday-close-1" class="sr-only">Closing time</label>
+              <input type="time" id="monday-close-1" value="17:00">
+            </div>
+            <button class="time-slot-input__remove-btn" aria-label="Remove time slot" disabled>
+              <svg class="icon"><use href="#icon-close"></use></svg>
+            </button>
+          </div>
+        </div>
+        <button type="button" class="time-slot-input__add-btn">
+          <svg class="icon" style="font-size: 16px;"><use href="#icon-plus"></use></svg>
+          Add time slot
+        </button>
+      </fieldset>
+    </div>
+
+    <div class="component-section">
+      <h2>Multi-Slot State</h2>
+      <fieldset class="time-slot-input" id="timeslot-multi">
+        <legend class="time-slot-input__legend">Tuesday</legend>
+        <div class="time-slot-input__rows-wrapper">
+          <div class="time-slot-input__row">
+            <div class="time-slot-input__time-picker">
+              <label for="tuesday-open-1" class="sr-only">Opening time</label>
+              <input type="time" id="tuesday-open-1" value="10:00">
+            </div>
+            <span class="time-slot-input__separator">–</span>
+            <div class="time-slot-input__time-picker">
+              <label for="tuesday-close-1" class="sr-only">Closing time</label>
+              <input type="time" id="tuesday-close-1" value="14:00">
+            </div>
+            <button class="time-slot-input__remove-btn" aria-label="Remove time slot" disabled>
+              <svg class="icon"><use href="#icon-close"></use></svg>
+            </button>
+          </div>
+          <div class="time-slot-input__row">
+            <div class="time-slot-input__time-picker">
+              <label for="tuesday-open-2" class="sr-only">Opening time</label>
+              <input type="time" id="tuesday-open-2" value="17:00">
+            </div>
+            <span class="time-slot-input__separator">–</span>
+            <div class="time-slot-input__time-picker">
+              <label for="tuesday-close-2" class="sr-only">Closing time</label>
+              <input type="time" id="tuesday-close-2" value="21:00">
+            </div>
+            <button class="time-slot-input__remove-btn" aria-label="Remove time slot">
+              <svg class="icon"><use href="#icon-close"></use></svg>
+            </button>
+          </div>
+        </div>
+        <button type="button" class="time-slot-input__add-btn">
+          <svg class="icon" style="font-size: 16px;"><use href="#icon-plus"></use></svg>
+          Add time slot
+        </button>
+      </fieldset>
+    </div>
+
+    <div class="component-section">
+      <h2>Error State</h2>
+      <fieldset class="time-slot-input time-slot-input--error" id="timeslot-error" aria-describedby="timeslot-error-msg">
+        <legend class="time-slot-input__legend">Wednesday</legend>
+        <div class="time-slot-input__rows-wrapper">
+          <div class="time-slot-input__row">
+            <div class="time-slot-input__time-picker">
+              <label for="wednesday-open-1" class="sr-only">Opening time</label>
+              <input type="time" id="wednesday-open-1" value="09:00">
+            </div>
+            <span class="time-slot-input__separator">–</span>
+            <div class="time-slot-input__time-picker">
+              <label for="wednesday-close-1" class="sr-only">Closing time</label>
+              <input type="time" id="wednesday-close-1" value="17:00">
+            </div>
+            <button class="time-slot-input__remove-btn" aria-label="Remove time slot" disabled>
+              <svg class="icon"><use href="#icon-close"></use></svg>
+            </button>
+          </div>
+          <div class="time-slot-input__row">
+            <div class="time-slot-input__time-picker">
+              <label for="wednesday-open-2" class="sr-only">Opening time</label>
+              <input type="time" id="wednesday-open-2" value="16:00">
+            </div>
+            <span class="time-slot-input__separator">–</span>
+            <div class="time-slot-input__time-picker">
+              <label for="wednesday-close-2" class="sr-only">Closing time</label>
+              <input type="time" id="wednesday-close-2" value="20:00">
+            </div>
+            <button class="time-slot-input__remove-btn" aria-label="Remove time slot">
+              <svg class="icon"><use href="#icon-close"></use></svg>
+            </button>
+          </div>
+        </div>
+        <button type="button" class="time-slot-input__add-btn">
+          <svg class="icon" style="font-size: 16px;"><use href="#icon-plus"></use></svg>
+          Add time slot
+        </button>
+        <div id="timeslot-error-msg" class="time-slot-input__error-message">
+          Time slots cannot overlap. Please correct the times.
+        </div>
+      </fieldset>
+    </div>
+  </main>
+  
+	
+	<div class="showcase"> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : Default State<h3>
+		<normal>This is the standard appearance of the component for a single time range. The first time slot cannot be removed to ensure at least one entry always exists.</normal>
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : Multi-Slot State<h3>
+		<normal>Demonstrates the component with multiple time slots for a single day, such as for a business with a lunch break. Subsequent time slots can be removed.</normal>
+		
+      <div>
+	 </div>    
+      <div>
+        <h3>Variant Name : Error State<h3>
+		<normal>This state is activated when there's a validation error, such as overlapping time slots or a closing time that is before the opening time. The legend and input borders turn red, and a descriptive error message is displayed.</normal>
+		
+      <div>
+	 </div>    
+	
+	</div>
+</body>
+</html>

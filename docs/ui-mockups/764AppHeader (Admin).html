@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin AppHeader Component</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    body, h1, h2, h3, p, ul, li { margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F7F9FC; color: #1C1F22; line-height: 1.6; }
+    img { max-width: 100%; display: block; }
+    button { font-family: inherit; font-size: 100%; line-height: 1.15; margin: 0; padding: 0; background: none; border: none; cursor: pointer; }
+    input { font-family: inherit; }
+    ul { list-style: none; }
+    a { text-decoration: none; color: inherit; }
+
+    /* Design System Tokens */
+    :root {
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray_50: #F7F9FC;
+      --color-neutrals-gray_100: #E9EDF2;
+      --color-neutrals-gray_200: #D3D9E1;
+      --color-neutrals-gray_300: #BCC4CF;
+      --color-neutrals-gray_500: #8E9BAA;
+      --color-neutrals-gray_600: #717C88;
+      --color-neutrals-gray_900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      
+      /* Spacing */
+      --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px; --space-24: 24px;
+
+      /* Typography */
+      --font-body: 16px;
+      --font-caption: 14px;
+      --font-weight-normal: 400;
+      --font-weight-semibold: 600;
+
+      /* Borders & Shadows */
+      --border-radius-sm: 4px;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --border-radius-full: 9999px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.1);
+    }
+    
+    /* Main Screen Body (for demonstration) */
+    .screen-body {
+        padding: var(--space-24);
+    }
+    .screen-body h1 {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: var(--space-16);
+    }
+
+    /* AppHeader Component Styles */
+    .admin-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding: 0 var(--space-16);
+      background-color: var(--color-neutrals-white);
+      border-bottom: 1px solid var(--color-neutrals-gray_100);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-section {
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+    }
+
+    .header-section--left {
+      flex: 1;
+      min-width: 0;
+    }
+    .header-section--right {
+      justify-content: flex-end;
+    }
+    
+    .hamburger-menu {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: var(--border-radius-md);
+    }
+    .hamburger-menu:hover {
+      background-color: var(--color-neutrals-gray_50);
+    }
+    .hamburger-menu:focus-visible {
+      outline: 2px solid var(--color-primary-300);
+      outline-offset: 2px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      font-weight: var(--font-weight-semibold);
+      font-size: 20px;
+      color: var(--color-neutrals-gray_900);
+    }
+    .logo svg {
+      color: var(--color-primary-500);
+    }
+    .logo-text {
+        display: none; /* Hide text on mobile by default */
+    }
+
+    .search-bar {
+      display: none; /* Hide on mobile by default */
+      align-items: center;
+      position: relative;
+      width: 100%;
+      max-width: 400px;
+    }
+    .search-bar__icon {
+      position: absolute;
+      left: var(--space-12);
+      color: var(--color-neutrals-gray_500);
+      pointer-events: none;
+    }
+    .search-bar__input {
+      width: 100%;
+      padding: var(--space-8) var(--space-12) var(--space-8) 40px;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-neutrals-gray_200);
+      background-color: var(--color-neutrals-gray_50);
+      transition: all 0.2s ease-in-out;
+    }
+    .search-bar__input:focus {
+      background-color: var(--color-neutrals-white);
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+      outline: none;
+    }
+
+    .utility-button {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      color: var(--color-neutrals-gray_600);
+      border-radius: var(--border-radius-md);
+      transition: background-color 0.2s ease;
+    }
+    .utility-button:hover {
+      background-color: var(--color-neutrals-gray_50);
+      color: var(--color-neutrals-gray_900);
+    }
+    .utility-button:focus-visible {
+      outline: 2px solid var(--color-primary-300);
+      outline-offset: 2px;
+    }
+
+    .notification-bell--active::after {
+      content: '';
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-semantic-error);
+      border: 1px solid var(--color-neutrals-white);
+      border-radius: var(--border-radius-full);
+    }
+
+    .user-profile {
+      position: relative;
+    }
+    .user-profile__avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--border-radius-full);
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+    
+    .user-profile__button:focus-visible .user-profile__avatar {
+        border-color: var(--color-primary-500);
+    }
+
+
+    .user-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 220px;
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--color-neutrals-gray_100);
+      padding: var(--space-8) 0;
+      z-index: 20;
+    }
+    
+    .user-profile:focus-within .user-dropdown {
+        display: block;
+    }
+
+    .user-dropdown__header {
+      padding: var(--space-8) var(--space-16);
+      border-bottom: 1px solid var(--color-neutrals-gray_100);
+      margin-bottom: var(--space-8);
+    }
+    .user-dropdown__name {
+      font-weight: var(--font-weight-semibold);
+      font-size: var(--font-body);
+      color: var(--color-neutrals-gray_900);
+    }
+    .user-dropdown__role {
+      font-size: var(--font-caption);
+      color: var(--color-neutrals-gray_600);
+    }
+
+    .user-dropdown__item a {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      padding: var(--space-8) var(--space-16);
+      font-size: var(--font-caption);
+      color: var(--color-neutrals-gray_900);
+    }
+    .user-dropdown__item a:hover {
+      background-color: var(--color-neutrals-gray_50);
+    }
+     .user-dropdown__item a:focus {
+        background-color: var(--color-neutrals-gray_50);
+        outline: none;
+     }
+
+    .user-dropdown__footer {
+      padding-top: var(--space-8);
+      margin-top: var(--space-8);
+      border-top: 1px solid var(--color-neutrals-gray_100);
+    }
+    .user-dropdown__item--danger a {
+      color: var(--color-semantic-error);
+    }
+
+    /* Responsive Styles */
+    @media (min-width: 768px) {
+      .admin-header {
+        padding: 0 var(--space-24);
+      }
+      .hamburger-menu {
+        display: none;
+      }
+      .logo-text {
+        display: block;
+      }
+      .search-bar {
+        display: flex;
+      }
+    }
+
+    /* Variations section for demo */
+    .screen-variations {
+        padding: var(--space-24);
+        background-color: #e9e9e9;
+    }
+    .variation-group {
+        margin-top: 40px;
+        padding: 20px;
+        background-color: #fff;
+        border: 1px dashed #ccc;
+        border-radius: 8px;
+    }
+    .variation-group h3 {
+        margin-bottom: 8px;
+        font-size: 18px;
+    }
+    .variation-group normal {
+        font-size: 14px;
+        color: #555;
+        display: block;
+        margin-bottom: 20px;
+    }
+
+  </style>
+</head>
+<body>
+  
+  <div class="screen-container">
+    <header class="admin-header">
+        <div class="header-section header-section--left">
+            <button class="hamburger-menu" aria-label="Open navigation menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <a href="#" class="logo" aria-label="Dashboard Home">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="logo-text">Platform</span>
+            </a>
+            <div class="search-bar">
+                <svg class="search-bar__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="search" class="search-bar__input" placeholder="Search users, orders, vendors...">
+            </div>
+        </div>
+        <div class="header-section header-section--right">
+            <button class="utility-button notification-bell--active" aria-label="View notifications">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </button>
+            <div class="user-profile">
+                <button class="user-profile__button" aria-haspopup="true" aria-expanded="false" aria-label="Open user menu">
+                    <img class="user-profile__avatar" src="https://i.pravatar.cc/36?u=admin" alt="User Avatar">
+                </button>
+                <div class="user-dropdown" role="menu">
+                    <div class="user-dropdown__header">
+                        <p class="user-dropdown__name">Priya Sharma</p>
+                        <p class="user-dropdown__role">Administrator</p>
+                    </div>
+                    <ul class="user-dropdown__list">
+                        <li class="user-dropdown__item" role="menuitem"><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> Profile</a></li>
+                        <li class="user-dropdown__item" role="menuitem"><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a></li>
+                    </ul>
+                    <div class="user-dropdown__footer">
+                        <ul>
+                            <li class="user-dropdown__item user-dropdown__item--danger" role="menuitem"><a href="#"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg> Log Out</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <main class="screen-body">
+        <h1>Dashboard</h1>
+        <p>This is a demonstration of the AppHeader component in context.</p>
+    </main>
+  </div>
+  
+  <div class="screen-variations">
+    <h2>Component Variations</h2>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Default State"</h3>
+      <normal>Standard header appearance with no active notifications.</normal>
+      <header class="admin-header">
+        <div class="header-section header-section--left">
+            <button class="hamburger-menu" aria-label="Open navigation menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <a href="#" class="logo" aria-label="Dashboard Home">
+                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="logo-text">Platform</span>
+            </a>
+            <div class="search-bar">
+                <svg class="search-bar__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="search" class="search-bar__input" placeholder="Search users, orders, vendors...">
+            </div>
+        </div>
+        <div class="header-section header-section--right">
+            <button class="utility-button" aria-label="View notifications">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </button>
+            <div class="user-profile">
+                 <button class="user-profile__button" aria-haspopup="true" aria-expanded="false" aria-label="Open user menu">
+                    <img class="user-profile__avatar" src="https://i.pravatar.cc/36?u=admin" alt="User Avatar">
+                </button>
+            </div>
+        </div>
+      </header>
+    </div>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Notifications Active State"</h3>
+      <normal>Header appearance when there are unread notifications. The bell icon shows a red indicator dot.</normal>
+      <header class="admin-header">
+        <div class="header-section header-section--left">
+            <button class="hamburger-menu" aria-label="Open navigation menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <a href="#" class="logo" aria-label="Dashboard Home">
+                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="logo-text">Platform</span>
+            </a>
+            <div class="search-bar">
+                <svg class="search-bar__icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="search" class="search-bar__input" placeholder="Search users, orders, vendors...">
+            </div>
+        </div>
+        <div class="header-section header-section--right">
+            <button class="utility-button notification-bell--active" aria-label="View notifications (3 unread)">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </button>
+            <div class="user-profile">
+                 <button class="user-profile__button" aria-haspopup="true" aria-expanded="false" aria-label="Open user menu">
+                    <img class="user-profile__avatar" src="https://i.pravatar.cc/36?u=admin" alt="User Avatar">
+                </button>
+            </div>
+        </div>
+      </header>
+    </div>
+  </div>
+<script>
+    // Minimal JS for demonstrating dropdown toggling on click for better accessibility and mobile experience.
+    // In a real app, this would be handled by a framework like React.
+    document.addEventListener('click', function(event) {
+        const userProfiles = document.querySelectorAll('.user-profile');
+        userProfiles.forEach(profile => {
+            const dropdown = profile.querySelector('.user-dropdown');
+            const button = profile.querySelector('.user-profile__button');
+            if (button.contains(event.target)) {
+                const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                button.setAttribute('aria-expanded', !isExpanded);
+                dropdown.style.display = isExpanded ? 'none' : 'block';
+            } else if (!profile.contains(event.target)) {
+                button.setAttribute('aria-expanded', 'false');
+                dropdown.style.display = 'none';
+            }
+        });
+    });
+</script>
+</body>
+</html>

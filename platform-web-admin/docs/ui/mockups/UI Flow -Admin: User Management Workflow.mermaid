@@ -1,0 +1,52 @@
+flowchart TD
+    subgraph "Admin Dashboard"
+        A[Admin Logs In] --> B[Navigates to User Management]
+        B --> C[Views User List]
+        C --> D{Search / Filter Users}
+        D --> C
+        C --> E[Selects a User]
+        E --> F[Views User Detail Page]
+        F --> G{User Status?}
+
+        subgraph "Moderation Actions"
+            G -->|'pending_verification'| H[Actions: Approve / Reject]
+            G -->|'active' / 'suspended'| I[Actions: Suspend / Deactivate]
+
+            H --> J[Clicks 'Approve']
+            J --> K[Confirms Approval]
+            K --> L["API Call: Update Status to 'Active'"]
+
+            H --> M[Clicks 'Reject']
+            M --> N[Enters Rejection Reason]
+            N --> O["API Call: Update Status to 'Rejected'"]
+
+            I --> P[Clicks 'Suspend']
+            P --> Q[Enters Suspension Reason]
+            Q --> R["API Call: Update Status to 'Suspended'"]
+
+            I --> S[Clicks 'Deactivate']
+            S --> T[Confirms Deactivation]
+            T --> U["API Call: Update Status to 'Deactivated'"]
+        end
+    end
+
+    subgraph "Backend System"
+        L --> V["API: Create Audit Log Entry"]
+        O --> V
+        R --> V
+        U --> V
+    end
+
+    V --> W[UI Refreshes with Updated Status]
+    W --> C
+
+    %% Styling
+    classDef action fill:#e3f2fd,stroke:#1e88e5,color:#000
+    classDef decision fill:#fff9c4,stroke:#fbc02d,color:#000
+    classDef api fill:#e8f5e9,stroke:#388e3c,color:#000
+    classDef finalState fill:#ffcdd2,stroke:#c62828,color:#000
+
+    class J,M,P,S action
+    class G decision
+    class L,O,R,U api
+    class V api

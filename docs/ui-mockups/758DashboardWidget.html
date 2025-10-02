@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism: DashboardWidget</title>
+  <style>
+    /* ---------------------------------- */
+    /* --- DESIGN SYSTEM FOUNDATION --- */
+    /* ---------------------------------- */
+    :root {
+      /* Font Families */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      /* Colors: Primary & Semantic */
+      --color-primary-500: #0068FF;
+      --color-semantic-success: #00C875;
+      --color-semantic-error: #FF4D4D;
+      /* Colors: Neutrals */
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray_50: #F7F9FC;
+      --color-neutrals-gray_100: #E9EDF2;
+      --color-neutrals-gray_200: #D3D9E1;
+      --color-neutrals-gray_500: #8E9BAA;
+      --color-neutrals-gray_600: #717C88;
+      --color-neutrals-gray_700: #555D66;
+      --color-neutrals-gray_900: #1C1F22;
+      /* Spacing */
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+      --space-5: 24px; --space-6: 32px; --space-7: 48px;
+      /* Border Radius */
+      --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+      /* Shadows */
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* ---------------------------------- */
+    /* --- BASE & LAYOUT STYLES --- */
+    /* ---------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-family-primary);
+      color: var(--color-neutrals-gray_900);
+      background-color: var(--color-neutrals-gray_50);
+      margin: 0;
+      padding: var(--space-6);
+      -webkit-font-smoothing: antialiased;
+    }
+    .showcase { max-width: 1200px; margin: 0 auto; }
+    .showcase-header { margin-bottom: var(--space-6); }
+    h1 { font-size: 36px; margin: 0 0 var(--space-2) 0; }
+    h2 { font-size: 28px; margin: var(--space-7) 0 var(--space-5) 0; padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-neutrals-gray_200); }
+    h3 { font-size: 20px; margin-bottom: var(--space-4); }
+
+    .widget-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-5);
+    }
+    
+    .icon {
+      display: inline-block;
+      vertical-align: middle;
+      stroke-width: 2.5;
+      fill: none;
+      stroke: currentColor;
+    }
+    
+    /* ---------------------------------- */
+    /* --- COMPONENT: DASHBOARDWIDGET --- */
+    /* ---------------------------------- */
+    .dashboard-widget {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-neutrals-gray_100);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-5);
+      min-height: 200px;
+      overflow: hidden;
+    }
+
+    .dashboard-widget__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .dashboard-widget__title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--color-neutrals-gray_700);
+      margin: 0;
+    }
+
+    .dashboard-widget__content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* --- Variants --- */
+    
+    /* 1. KPI Card Variant */
+    .dashboard-widget--kpi .dashboard-widget__content {
+      justify-content: space-between;
+    }
+    .kpi-value {
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--color-neutrals-gray_900);
+      line-height: 1.1;
+    }
+    .kpi-trend {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: var(--space-3);
+    }
+    .kpi-trend--positive {
+      color: var(--color-semantic-success);
+    }
+    .kpi-trend--negative {
+      color: var(--color-semantic-error);
+    }
+    .kpi-trend .icon {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* 2. Chart Widget Variant */
+    .dashboard-widget--chart .dashboard-widget__content {
+      justify-content: flex-end;
+    }
+    .chart-placeholder {
+      width: 100%;
+      height: 100%;
+      min-height: 120px;
+      background-color: var(--color-neutrals-gray_50);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: var(--color-neutrals-gray_500);
+      border: 1px dashed var(--color-neutrals-gray_200);
+    }
+
+    /* 3. List Widget Variant */
+    .dashboard-widget--list .dashboard-widget__content {
+      justify-content: flex-start;
+    }
+    .list-widget__list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+    .list-widget__item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+    .list-widget__item-label {
+      color: var(--color-neutrals-gray_700);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: var(--space-3);
+    }
+    .list-widget__item-value {
+      font-weight: 600;
+      color: var(--color-neutrals-gray_900);
+      flex-shrink: 0;
+    }
+
+    /* --- States --- */
+    
+    /* 1. Loading State (Skeleton) */
+    .dashboard-widget.is-loading .dashboard-widget__content {
+      justify-content: flex-end; /* Common alignment for skeletons */
+    }
+    .skeleton {
+      background-color: var(--color-neutrals-gray_100);
+      border-radius: var(--radius-sm);
+      animation: shimmer 1.5s infinite linear;
+      background-image: linear-gradient(90deg, var(--color-neutrals-gray_100) 0%, var(--color-neutrals-gray_50) 50%, var(--color-neutrals-gray_100) 100%);
+      background-size: 200% 100%;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton--h1 { width: 60%; height: 48px; margin-bottom: var(--space-4); }
+    .skeleton--text { width: 40%; height: 16px; }
+    .skeleton--chart { width: 100%; height: 120px; }
+    .skeleton--list-item { width: 100%; height: 20px; margin-bottom: var(--space-2); }
+    .is-loading .kpi-value,
+    .is-loading .kpi-trend,
+    .is-loading .chart-placeholder,
+    .is-loading .list-widget__list {
+      display: none;
+    }
+    .is-loading .skeleton-container {
+        display: block;
+    }
+    .skeleton-container {
+        display: none;
+    }
+
+    /* 2. Error State */
+    .dashboard-widget.has-error .dashboard-widget__content {
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .widget-error {
+      color: var(--color-neutrals-gray_600);
+      font-size: 14px;
+    }
+    .widget-error .icon {
+      color: var(--color-semantic-error);
+      width: 32px;
+      height: 32px;
+      margin-bottom: var(--space-3);
+    }
+    .widget-error__title {
+      font-weight: 600;
+      color: var(--color-neutrals-gray_900);
+      margin: 0 0 var(--space-1) 0;
+    }
+    .widget-error__message { margin: 0; }
+    .has-error .kpi-value,
+    .has-error .kpi-trend,
+    .has-error .chart-placeholder,
+    .has-error .list-widget__list,
+    .has-error .skeleton-container {
+        display: none;
+    }
+    .widget-error {
+        display: none;
+    }
+    .has-error .widget-error {
+        display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase">
+    <header class="showcase-header">
+      <h1>Organism: DashboardWidget</h1>
+      <p>A versatile card for displaying key metrics, charts, and lists on a dashboard.</p>
+    </header>
+
+    <h2>Variants with Data</h2>
+    <div class="widget-grid">
+      <!-- KPI Card -->
+      <section class="dashboard-widget dashboard-widget--kpi" aria-labelledby="kpi-title-1">
+        <header class="dashboard-widget__header">
+          <h3 id="kpi-title-1" class="dashboard-widget__title">Total Sales (Today)</h3>
+        </header>
+        <div class="dashboard-widget__content">
+          <div class="kpi-value">₹1,24,560</div>
+          <div class="kpi-trend kpi-trend--positive">
+            <svg class="icon" viewBox="0 0 24 24"><polyline points="17 7 7 17 7 7 17 7"/></svg>
+            <span>12.5% vs yesterday</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Chart Widget -->
+      <section class="dashboard-widget dashboard-widget--chart" aria-labelledby="chart-title-1">
+        <header class="dashboard-widget__header">
+          <h3 id="chart-title-1" class="dashboard-widget__title">Orders per Hour</h3>
+        </header>
+        <div class="dashboard-widget__content">
+          <div class="chart-placeholder">[Chart.js Canvas would render here]</div>
+        </div>
+      </section>
+
+      <!-- List Widget -->
+      <section class="dashboard-widget dashboard-widget--list" aria-labelledby="list-title-1">
+        <header class="dashboard-widget__header">
+          <h3 id="list-title-1" class="dashboard-widget__title">Top Selling Items</h3>
+        </header>
+        <div class="dashboard-widget__content">
+          <ul class="list-widget__list">
+            <li class="list-widget__item">
+              <span class="list-widget__item-label">Spicy Chicken Ramen</span>
+              <span class="list-widget__item-value">128 sold</span>
+            </li>
+            <li class="list-widget__item">
+              <span class="list-widget__item-label">Classic Margherita Pizza</span>
+              <span class="list-widget__item-value">97 sold</span>
+            </li>
+            <li class="list-widget__item">
+              <span class="list-widget__item-label">Iced Americano</span>
+              <span class="list-widget__item-value">85 sold</span>
+            </li>
+             <li class="list-widget__item">
+              <span class="list-widget__item-label">Veggie Burger</span>
+              <span class="list-widget__item-value">72 sold</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
+
+    <h2>Component States</h2>
+    <div class="widget-grid">
+      <!-- Loading State: KPI -->
+      <section class="dashboard-widget dashboard-widget--kpi is-loading" aria-labelledby="kpi-title-loading" aria-busy="true">
+        <header class="dashboard-widget__header">
+          <h3 id="kpi-title-loading" class="dashboard-widget__title">Total Sales (Today)</h3>
+        </header>
+        <div class="dashboard-widget__content">
+            <div class="skeleton-container">
+                <div class="skeleton skeleton--h1"></div>
+                <div class="skeleton skeleton--text"></div>
+            </div>
+        </div>
+      </section>
+
+      <!-- Loading State: Chart -->
+      <section class="dashboard-widget dashboard-widget--chart is-loading" aria-labelledby="chart-title-loading" aria-busy="true">
+        <header class="dashboard-widget__header">
+          <h3 id="chart-title-loading" class="dashboard-widget__title">Orders per Hour</h3>
+        </header>
+        <div class="dashboard-widget__content">
+            <div class="skeleton-container">
+                <div class="skeleton skeleton--chart"></div>
+            </div>
+        </div>
+      </section>
+      
+      <!-- Error State -->
+      <section class="dashboard-widget has-error" aria-labelledby="error-title-1">
+        <header class="dashboard-widget__header">
+          <h3 id="error-title-1" class="dashboard-widget__title">Top Selling Items</h3>
+        </header>
+        <div class="dashboard-widget__content">
+          <div class="widget-error" role="alert">
+            <svg class="icon" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <h4 class="widget-error__title">Data Unavailable</h4>
+            <p class="widget-error__message">Could not load widget data. Please try again later.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+  
+	<div>
+      <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "kpi-card"</h3>
+		<!--description--><normal> Displays a single, important Key Performance Indicator (KPI) with a large numerical value and an optional trend indicator. Ideal for at-a-glance metrics like total sales, active users, or order count. </normal>
+		<!-- vrient 1 html -->
+        <section class="dashboard-widget dashboard-widget--kpi" aria-labelledby="kpi-title-showcase">
+          <header class="dashboard-widget__header">
+            <h3 id="kpi-title-showcase" class="dashboard-widget__title">Active Riders</h3>
+          </header>
+          <div class="dashboard-widget__content">
+            <div class="kpi-value">342</div>
+            <div class="kpi-trend kpi-trend--negative">
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="7 17 17 7 17 17 7 17"/></svg>
+              <span>-3.4% vs last hour</span>
+            </div>
+          </div>
+        </section>     
+		
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : "chart-widget"</h3>
+		<!--description--><normal> Designed to contain a data visualization, such as a line chart, bar chart, or pie chart, typically rendered by a JavaScript library like Chart.js or D3.js. The component provides a header and a placeholder content area. </normal>
+		<!-- vrient 1 html -->
+        <section class="dashboard-widget dashboard-widget--chart" aria-labelledby="chart-title-showcase">
+          <header class="dashboard-widget__header">
+            <h3 id="chart-title-showcase" class="dashboard-widget__title">Weekly Sales Trend</h3>
+          </header>
+          <div class="dashboard-widget__content">
+            <div class="chart-placeholder">[Chart would be rendered here]</div>
+          </div>
+        </section>     
+		
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : "list-widget"</h3>
+		<!--description--><normal> Displays a simple, ranked list of items. Perfect for showing 'Top 5' or 'Recent Activity' style data, such as top-selling products, most active riders, or latest orders. </normal>
+		<!-- vrient 1 html -->
+        <section class="dashboard-widget dashboard-widget--list" aria-labelledby="list-title-showcase">
+          <header class="dashboard-widget__header">
+            <h3 id="list-title-showcase" class="dashboard-widget__title">Recent Activities</h3>
+          </header>
+          <div class="dashboard-widget__content">
+            <ul class="list-widget__list">
+              <li class="list-widget__item">
+                <span class="list-widget__item-label">Order #ABC-123 Completed</span>
+                <span class="list-widget__item-value">1 min ago</span>
+              </li>
+              <li class="list-widget__item">
+                <span class="list-widget__item-label">Rider John D. went online</span>
+                <span class="list-widget__item-value">2 min ago</span>
+              </li>
+              <li class="list-widget__item">
+                <span class="list-widget__item-label">Vendor 'Good Eats' approved</span>
+                <span class="list-widget__item-value">5 min ago</span>
+              </li>
+            </ul>
+          </div>
+        </section>     
+		
+      </div>
+	 </div>    
+	
+	</body>
+</html>

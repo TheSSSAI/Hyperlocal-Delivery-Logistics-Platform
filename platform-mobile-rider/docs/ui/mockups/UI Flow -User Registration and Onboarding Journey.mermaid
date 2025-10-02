@@ -1,0 +1,24 @@
+journey
+    title User Registration and Onboarding Journey
+
+    section "Customer Onboarding (Instant Access)"
+      Enter Mobile Number: 5: Customer
+      Verify with OTP: 5: Customer
+      Account Active: 5: Customer, System
+      Access Home Screen: 5: Customer
+
+    section "Vendor & Rider Onboarding (Manual Verification)"
+      Submit Detailed Form & Documents: 5: Vendor, Rider
+      Account Status: Pending Verification: 3: System
+      Receive 'Under Review' Notification: 4: Vendor, Rider
+
+    section "Admin Verification Process"
+      Review Pending Application: 5: Admin
+      Verify Submitted Documents: 5: Admin
+      Decision: Approve or Reject: 5: Admin
+
+    section "Final Activation / Rejection"
+      Account Status Updated: 5: System
+      Receive Approval Notification: 5: Vendor, Rider
+      Access Respective Dashboard: 5: Vendor, Rider
+      Receive Rejection Notification: 1: Vendor, Rider

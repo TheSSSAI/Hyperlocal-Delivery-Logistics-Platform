@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geofencing Tool Component</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* GeofencingTool Component CSS */
+
+    /* Design System Tokens */
+    :root {
+      /* Font Families */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      
+      /* Colors: Primary */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+
+      /* Colors: Neutrals */
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-100: #E9EDF2;
+      --color-gray-200: #D3D9E1;
+      --color-gray-300: #BCC4CF;
+      --color-gray-500: #8E9BAA;
+      --color-gray-600: #717C88;
+      --color-gray-700: #555D66;
+      --color-gray-900: #1C1F22;
+
+      /* Colors: Semantic */
+      --color-error: #FF4D4D;
+      --color-error-bg: #FFEBEB;
+      --color-success: #00C875;
+      --color-success-bg: #E5F9F1;
+
+      /* Spacing */
+      --space-2: 8px; --space-3: 12px; --space-4: 16px;
+      --space-5: 24px; --space-6: 32px;
+
+      /* Border Radius */
+      --radius-md: 8px; --radius-lg: 12px;
+
+      /* Shadows */
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.08);
+    }
+    
+    /* Showcase Styles */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-gray-100);
+      color: var(--color-gray-900);
+      margin: 0;
+      padding: var(--space-6);
+    }
+    .showcase { max-width: 1400px; margin: 0 auto; }
+    .showcase h1 { font-size: 28px; margin: 0 0 var(--space-5) 0; }
+    .showcase h3 { font-size: 20px; margin: var(--space-6) 0 var(--space-4) 0; }
+
+    /* Base Component Styles (Dependencies) */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+      padding: var(--space-3) var(--space-4); font-weight: 600; font-size: 14px;
+      border-radius: var(--radius-md); border: 1px solid transparent; cursor: pointer;
+      text-decoration: none; transition: all 0.2s ease; min-height: 40px;
+    }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-300); outline-offset: 2px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-white); }
+    .btn--primary:hover:not(:disabled) { background-color: var(--color-primary-600); }
+    .btn--primary:disabled { background-color: var(--color-gray-200); cursor: not-allowed; }
+    .btn--secondary { background-color: var(--color-white); color: var(--color-gray-700); border: 1px solid var(--color-gray-300); }
+    .btn--secondary:hover:not(:disabled) { background-color: var(--color-gray-50); }
+    .btn--danger { background-color: var(--color-error-bg); color: var(--color-error); }
+    .btn--danger:hover:not(:disabled) { background-color: var(--color-error); color: var(--color-white); }
+    .btn--full-width { width: 100%; }
+
+    .form-group {
+      display: flex; flex-direction: column; width: 100%; margin-bottom: var(--space-4);
+    }
+    .form-group__label { display: block; font-weight: 600; margin-bottom: var(--space-2); font-size: 14px; color: var(--color-gray-700); }
+    .form-group__input { width: 100%; padding: var(--space-3) var(--space-4); font-size: 16px; border: 1px solid var(--color-gray-300); border-radius: var(--radius-md); background-color: var(--color-white); transition: all 0.2s ease; }
+    .form-group__input:focus { border-color: var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-100); outline: none; }
+    .form-group__input:disabled { background-color: var(--color-gray-100); color: var(--color-gray-500); cursor: not-allowed; }
+
+    .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .data-table th, .data-table td { padding: var(--space-3) var(--space-4); text-align: left; border-bottom: 1px solid var(--color-gray-100); }
+    .data-table th { font-weight: 600; color: var(--color-gray-600); font-size: 12px; text-transform: uppercase; background-color: var(--color-gray-50); }
+    .data-table tbody tr { cursor: pointer; }
+    .data-table tbody tr:hover { background-color: var(--color-primary-50); }
+    .data-table tbody tr.is-selected { background-color: var(--color-primary-100); border-left: 3px solid var(--color-primary-500); }
+    .data-table .badge { display: inline-flex; align-items: center; padding: 2px 8px; font-size: 12px; font-weight: 600; border-radius: 9999px; }
+    .data-table .badge--active { background-color: var(--color-success-bg); color: var(--color-success); }
+    .data-table .badge--inactive { background-color: var(--color-gray-200); color: var(--color-gray-600); }
+
+    /* GeofencingTool Organism */
+    .geofencing-tool {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      height: calc(100vh - 128px);
+      min-height: 700px;
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .geofencing-tool__sidebar {
+      display: flex;
+      flex-direction: column;
+      background-color: var(--color-white);
+      border-right: 1px solid var(--color-gray-200);
+    }
+
+    .geofencing-tool__header {
+      padding: var(--space-5);
+      border-bottom: 1px solid var(--color-gray-200);
+      flex-shrink: 0;
+    }
+    .geofencing-tool__header h2 { margin: 0 0 var(--space-4) 0; font-size: 20px; }
+
+    .geofencing-tool__list-container {
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+    
+    .geofencing-tool__list-container::-webkit-scrollbar { width: 6px; }
+    .geofencing-tool__list-container::-webkit-scrollbar-thumb { background: var(--color-gray-300); border-radius: 3px; }
+
+
+    .geofencing-tool__details {
+      padding: var(--space-5);
+      border-top: 1px solid var(--color-gray-200);
+      background-color: var(--color-gray-50);
+      flex-shrink: 0;
+    }
+
+    .geofencing-tool__actions {
+      display: flex;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+
+    .geofencing-tool__map-container {
+      position: relative;
+      background-color: var(--color-gray-100);
+    }
+
+    .map-view {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: var(--color-gray-500);
+      background-image: url('https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/77.5946,12.9716,10/1280x720?access_token=pk.eyJ1IjoiZGVzaWduZ3VydSIsImEiOiJja3o0bHliZWwwMHF0MnZwZzI1bWc0ZndwIn0.wVjJ1o-fTJSY-2i_50V_yQ');
+      background-size: cover;
+      background-position: center;
+    }
+
+    .map-view__placeholder-text {
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: var(--space-4) var(--space-5);
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--color-gray-200);
+    }
+    
+    .map-view__placeholder-text .icon {
+        width: 32px; height: 32px;
+        color: var(--color-primary-500);
+        margin-bottom: var(--space-3);
+    }
+
+    /* State variations */
+    .geofencing-tool--editing .geofencing-tool__details--viewing-controls,
+    .geofencing-tool--drawing .geofencing-tool__details--viewing-controls {
+      display: none;
+    }
+
+    .geofencing-tool--viewing .geofencing-tool__details--editing-controls {
+      display: none;
+    }
+    
+    .geofencing-tool--viewing .form-group__input {
+        background-color: var(--color-gray-100);
+    }
+
+    .geofencing-tool--drawing .geofencing-tool__details--editing-controls .btn--danger {
+        display: none; /* Hide delete when drawing a new one */
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      body { padding: 0; }
+      .showcase { max-width: 100%; }
+      .showcase h1 { padding: var(--space-5); margin: 0; }
+      .geofencing-tool {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+        height: 100vh;
+        border-radius: 0;
+      }
+      .geofencing-tool__sidebar {
+        border-right: none;
+        border-bottom: 1px solid var(--color-gray-200);
+        height: 50vh;
+      }
+      .geofencing-tool__map-container {
+        height: 50vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase">
+    <h1>Geofencing Tool</h1>
+    
+    <h3>State: Viewing</h3>
+    <div class="geofencing-tool geofencing-tool--viewing">
+      <aside class="geofencing-tool__sidebar">
+        <header class="geofencing-tool__header">
+          <h2>Operational Zones</h2>
+          <button class="btn btn--primary btn--full-width">Create New Zone</button>
+        </header>
+        <div class="geofencing-tool__list-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th scope="col">Zone Name</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="is-selected" aria-selected="true">
+                <td>Mumbai South</td>
+                <td><span class="badge badge--active">Active</span></td>
+              </tr>
+              <tr>
+                <td>Mumbai North</td>
+                <td><span class="badge badge--active">Active</span></td>
+              </tr>
+              <tr>
+                <td>Pune Pilot</td>
+                <td><span class="badge badge--inactive">Inactive</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="geofencing-tool__details">
+          <div class="form-group">
+            <label class="form-group__label" for="zone-name-view">Zone Name</label>
+            <input class="form-group__input" type="text" id="zone-name-view" value="Mumbai South" disabled>
+          </div>
+          <div class="form-group">
+            <label class="form-group__label" for="zone-status-view">Status</label>
+            <input class="form-group__input" type="text" id="zone-status-view" value="Active" disabled>
+          </div>
+          <div class="geofencing-tool__actions geofencing-tool__details--viewing-controls">
+            <button class="btn btn--secondary btn--full-width">Edit Zone</button>
+            <button class="btn btn--danger">Delete</button>
+          </div>
+          <div class="geofencing-tool__actions geofencing-tool__details--editing-controls">
+            <!-- Hidden in this state -->
+          </div>
+        </div>
+      </aside>
+      <main class="geofencing-tool__map-container">
+        <div class="map-view">
+          <div class="map-view__placeholder-text">
+             <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+             Viewing Zone: Mumbai South
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <h3>State: Editing / Drawing</h3>
+    <div class="geofencing-tool geofencing-tool--editing">
+      <aside class="geofencing-tool__sidebar">
+        <header class="geofencing-tool__header">
+          <h2>Operational Zones</h2>
+          <button class="btn btn--primary btn--full-width" disabled>Create New Zone</button>
+        </header>
+        <div class="geofencing-tool__list-container">
+          <table class="data-table">
+             <thead>
+              <tr>
+                <th scope="col">Zone Name</th>
+                <th scope="col">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="is-selected" aria-selected="true">
+                <td>Mumbai South</td>
+                <td><span class="badge badge--active">Active</span></td>
+              </tr>
+              <tr>
+                <td>Mumbai North</td>
+                <td><span class="badge badge--active">Active</span></td>
+              </tr>
+              <tr>
+                <td>Pune Pilot</td>
+                <td><span class="badge badge--inactive">Inactive</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="geofencing-tool__details">
+          <div class="form-group">
+            <label class="form-group__label" for="zone-name-edit">Zone Name</label>
+            <input class="form-group__input" type="text" id="zone-name-edit" value="Mumbai South">
+          </div>
+          <div class="form-group">
+            <label class="form-group__label" for="zone-status-edit">Status</label>
+            <select class="form-group__input" id="zone-status-edit">
+                <option selected>Active</option>
+                <option>Inactive</option>
+            </select>
+          </div>
+          <div class="geofencing-tool__actions geofencing-tool__details--editing-controls">
+            <button class="btn btn--secondary">Cancel</button>
+            <button class="btn btn--primary btn--full-width">Save Changes</button>
+          </div>
+        </div>
+      </aside>
+      <main class="geofencing-tool__map-container">
+        <div class="map-view">
+          <div class="map-view__placeholder-text">
+            <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            Editing Zone: Mumbai South
+            <br><small style="font-weight: 400;">Click and drag points on the map to adjust boundaries.</small>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</body>
+</html>

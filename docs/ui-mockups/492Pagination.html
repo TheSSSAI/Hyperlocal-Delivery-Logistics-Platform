@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagination Component</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@600&display=swap" rel="stylesheet">
+  <style>
+    /* ---------------------------------- */
+    /* --- DESIGN SYSTEM FOUNDATION ----- */
+    /* ---------------------------------- */
+    :root {
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-white: #FFFFFF;
+      --color-neutral-50: #F8F9FA;
+      --color-neutral-200: #E9EDF2;
+      --color-neutral-400: #CED4DA;
+      --color-neutral-600: #6C757D;
+      --color-neutral-800: #343A40;
+      /* Typography */
+      --font-family-secondary: 'Inter', sans-serif;
+      --font-family-primary: 'Poppins', sans-serif;
+      --font-size-base: 1rem;
+      --font-weight-semibold: 600;
+      /* Spacing */
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-xl: 32px;
+      /* Borders */
+      --border-radius-md: 8px;
+      /* Transitions */
+      --transition-fast: all 0.15s ease-in-out;
+    }
+
+    /* ---------------------------------- */
+    /* -------- BASE & LAYOUT ----------- */
+    /* ---------------------------------- */
+    body {
+      font-family: var(--font-family-secondary);
+      background-color: var(--color-neutral-50);
+      margin: 0;
+      padding: var(--space-xl);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .showcase {
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .component-section {
+      background-color: var(--color-white);
+      padding: var(--space-xl);
+      border-radius: var(--border-radius-md);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: var(--space-xl);
+    }
+
+    .component-section h2 {
+      font-family: var(--font-family-primary);
+      margin-top: 0;
+      margin-bottom: var(--space-md);
+      color: var(--color-neutral-800);
+    }
+    
+    .component-section h3 {
+      font-family: var(--font-family-secondary);
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--color-neutral-600);
+      margin-top: 0;
+      margin-bottom: var(--space-md);
+    }
+
+    .pagination-container {
+      display: flex;
+      justify-content: center;
+      padding: var(--space-xl) 0;
+      border-top: 1px solid var(--color-neutral-200);
+      margin-top: var(--space-xl);
+    }
+    .pagination-container:first-of-type {
+      border-top: none;
+      margin-top: 0;
+      padding-top: 0;
+    }
+
+
+    /* ---------------------------------- */
+    /* -------- PAGINATION COMPONENT ---- */
+    /* ---------------------------------- */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      font-family: var(--font-family-secondary);
+    }
+
+    .pagination__item,
+    .pagination__arrow,
+    .pagination__ellipsis {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      height: 44px;
+      padding: 0 var(--space-sm);
+      border: 1px solid var(--color-neutral-200);
+      background-color: var(--color-white);
+      color: var(--color-primary-500);
+      border-radius: var(--border-radius-md);
+      font-weight: var(--font-weight-semibold);
+      text-decoration: none;
+      cursor: pointer;
+      transition: var(--transition-fast);
+      user-select: none;
+      font-size: var(--font-size-base);
+    }
+
+    .pagination__arrow {
+      padding: 0 12px;
+    }
+
+    .pagination__ellipsis {
+      border: none;
+      background: none;
+      cursor: default;
+      color: var(--color-neutral-600);
+    }
+
+    .pagination__item:hover,
+    .pagination__arrow:not(.pagination__arrow--disabled):hover {
+      background-color: var(--color-primary-50);
+      border-color: var(--color-primary-500);
+      transform: translateY(-1px);
+    }
+
+    .pagination__item:focus-visible,
+    .pagination__arrow:focus-visible {
+      outline: 2px solid var(--color-primary-300);
+      outline-offset: 2px;
+      z-index: 1;
+    }
+
+    .pagination__item--active {
+      background-color: var(--color-primary-500);
+      border-color: var(--color-primary-500);
+      color: var(--color-white);
+      cursor: default;
+      transform: none;
+    }
+
+    .pagination__item--active:hover {
+      background-color: var(--color-primary-500);
+    }
+
+    .pagination__arrow--disabled {
+      color: var(--color-neutral-400);
+      cursor: not-allowed;
+      background-color: var(--color-neutral-50);
+    }
+
+    .pagination__arrow--disabled:hover {
+      transform: none;
+      background-color: var(--color-neutral-50);
+      border-color: var(--color-neutral-200);
+    }
+    
+    .pagination__info {
+        display: none;
+    }
+
+    /* Responsive Adaptations for Mobile */
+    @media (max-width: 768px) {
+        .pagination__item,
+        .pagination__ellipsis {
+            display: none;
+        }
+        .pagination__item--active {
+            display: none; /* Hide active number, show info text instead */
+        }
+        .pagination__info {
+            display: block;
+            padding: 0 var(--space-md);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutral-800);
+        }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="showcase">
+    <section class="component-section">
+      <h2>Pagination</h2>
+      
+      <div class="pagination-container">
+        <div>
+          <h3>Default State (Middle Page)</h3>
+          <nav aria-label="pagination">
+            <ul class="pagination">
+              <li>
+                <a href="#" class="pagination__arrow" aria-label="Previous page">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </a>
+              </li>
+              <li><a href="#" class="pagination__item">1</a></li>
+              <li><span class="pagination__ellipsis">&hellip;</span></li>
+              <li><a href="#" class="pagination__item">4</a></li>
+              <li><a href="#" class="pagination__item pagination__item--active" aria-current="page">5</a></li>
+              <li><a href="#" class="pagination__item">6</a></li>
+              <li><span class="pagination__ellipsis">&hellip;</span></li>
+              <li><a href="#" class="pagination__item">10</a></li>
+               <li>
+                <a href="#" class="pagination__arrow" aria-label="Next page">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      
+      <div class="pagination-container">
+        <div>
+          <h3>First Page State (Previous Disabled)</h3>
+          <nav aria-label="pagination">
+            <ul class="pagination">
+              <li>
+                <span class="pagination__arrow pagination__arrow--disabled" aria-disabled="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </span>
+              </li>
+              <li><a href="#" class="pagination__item pagination__item--active" aria-current="page">1</a></li>
+              <li><a href="#" class="pagination__item">2</a></li>
+              <li><a href="#" class="pagination__item">3</a></li>
+              <li><span class="pagination__ellipsis">&hellip;</span></li>
+              <li><a href="#" class="pagination__item">10</a></li>
+              <li>
+                <a href="#" class="pagination__arrow" aria-label="Next page">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      
+      <div class="pagination-container">
+        <div>
+          <h3>Last Page State (Next Disabled)</h3>
+          <nav aria-label="pagination">
+            <ul class="pagination">
+              <li>
+                <a href="#" class="pagination__arrow" aria-label="Previous page">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </a>
+              </li>
+              <li><a href="#" class="pagination__item">1</a></li>
+              <li><span class="pagination__ellipsis">&hellip;</span></li>
+              <li><a href="#" class="pagination__item">8</a></li>
+              <li><a href="#" class="pagination__item">9</a></li>
+              <li><a href="#" class="pagination__item pagination__item--active" aria-current="page">10</a></li>
+              <li>
+                <span class="pagination__arrow pagination__arrow--disabled" aria-disabled="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </span>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+      
+      <div class="pagination-container">
+        <div>
+            <h3>Compact / Mobile View</h3>
+            <p style="font-size: 14px; text-align: center; color: #666; max-width: 400px; margin: 0 auto 16px;">(Note: This view is automatically applied on screens smaller than 768px)</p>
+            <nav aria-label="pagination">
+                <ul class="pagination">
+                    <li>
+                        <a href="#" class="pagination__arrow" aria-label="Previous page">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                        </a>
+                    </li>
+                    <li class="pagination__info">Page 5 of 10</li>
+                    <li>
+                        <a href="#" class="pagination__arrow" aria-label="Next page">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+      </div>
+    </section>
+  </div>
+<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : default<h3>
+		<!--description--><normal> The standard pagination component for desktop and tablet views, showing page numbers. </normal>
+		<!-- vrient 1 html -->
+        <nav aria-label="pagination">
+            <ul class="pagination">
+              <li>
+                <a href="#" class="pagination__arrow" aria-label="Previous page">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </a>
+              </li>
+              <li><a href="#" class="pagination__item">1</a></li>
+              <li><a href="#" class="pagination__item pagination__item--active" aria-current="page">2</a></li>
+              <li><a href="#" class="pagination__item">3</a></li>
+              <li><span class="pagination__ellipsis">&hellip;</span></li>
+              <li><a href="#" class="pagination__item">10</a></li>
+              <li>
+                <a href="#" class="pagination__arrow" aria-label="Next page">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </a>
+              </li>
+            </ul>
+          </nav>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : disabled-prev<h3>
+		<!--description--><normal> The state of the pagination when the user is on the first page, with the 'previous' arrow disabled. </normal>
+		<!-- vrient 1 html -->
+        <nav aria-label="pagination">
+            <ul class="pagination">
+              <li>
+                <span class="pagination__arrow pagination__arrow--disabled" aria-disabled="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </span>
+              </li>
+              <li><a href="#" class="pagination__item pagination__item--active" aria-current="page">1</a></li>
+              <li><a href="#" class="pagination__item">2</a></li>
+              <li><a href="#" class="pagination__item">3</a></li>
+              <li>
+                <a href="#" class="pagination__arrow" aria-label="Next page">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </a>
+              </li>
+            </ul>
+          </nav>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : disabled-next<h3>
+		<!--description--><normal> The state of the pagination when the user is on the last page, with the 'next' arrow disabled. </normal>
+		<!-- vrient 1 html -->
+        <nav aria-label="pagination">
+            <ul class="pagination">
+              <li>
+                <a href="#" class="pagination__arrow" aria-label="Previous page">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                </a>
+              </li>
+              <li><a href="#" class="pagination__item">9</a></li>
+              <li><a href="#" class="pagination__item pagination__item--active" aria-current="page">10</a></li>
+              <li>
+                <span class="pagination__arrow pagination__arrow--disabled" aria-disabled="true">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </span>
+              </li>
+            </ul>
+          </nav>     
+		
+      <div>
+	 </div>    
+	
+	</body>
+</html>

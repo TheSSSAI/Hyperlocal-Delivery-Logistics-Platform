@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataTable Component</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    body, h1, h2, p, table, caption, thead, tbody, tfoot, tr, th, td { margin: 0; padding: 0; font: inherit; }
+    
+    /* Design System Tokens */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --fs-h2: 36px; --lh-h2: 1.25;
+      --fs-h3: 28px; --lh-h3: 1.3;
+      --fs-h4: 20px; --lh-h4: 1.4;
+      --fs-body: 16px; --lh-body: 1.6;
+      --fs-caption: 14px; --lh-caption: 1.5;
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-200: #8AB9FF;
+      --color-primary-500: #0068FF;
+      --color-primary-700: #003E99;
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-100: #E9EDF2;
+      --color-gray-200: #D3D9E1;
+      --color-gray-400: #A5B0BD;
+      --color-gray-500: #8E9BAA;
+      --color-gray-600: #717C88;
+      --color-gray-700: #555D66;
+      --color-gray-900: #1C1F22;
+      --color-success: #00C875;
+      --color-secondary-50: #E5F9F1;
+      --color-secondary-900: #003D24;
+      /* Spacing */
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --border-radius-full: 9999px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* Base & Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+      background-color: var(--color-gray-50);
+      color: var(--color-gray-900);
+      padding: var(--space-6);
+    }
+    .showcase {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+    .showcase__header {
+      padding-bottom: var(--space-5);
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+    .showcase__header h1 { font-size: var(--fs-h2); }
+    .showcase__header p { font-size: var(--fs-body); color: var(--color-gray-600); margin-top: var(--space-2); }
+    .component-group > h2 { font-size: var(--fs-h3); margin-bottom: var(--space-4); }
+
+    /* Helper Atomic Components */
+    .spinner { animation: spin 1s linear infinite; border: 3px solid var(--color-primary-200); border-right-color: var(--color-primary-500); border-radius: 50%; display: inline-block; width: 48px; height: 48px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-weight: var(--font-weight-semibold); text-decoration: none; border-radius: var(--border-radius-md); border: 1px solid var(--color-gray-300); background-color: var(--color-white); color: var(--color-gray-700); cursor: pointer; transition: all 0.2s ease; }
+    .btn:hover { background-color: var(--color-gray-50); }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-200); outline-offset: 2px; }
+    .btn:disabled { background-color: var(--color-gray-100); color: var(--color-gray-400); cursor: not-allowed; }
+
+    .badge { display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1) var(--space-2); border-radius: var(--border-radius-full); font-size: 12px; font-weight: var(--font-weight-semibold); }
+    .badge--success { background-color: var(--color-secondary-50); color: var(--color-secondary-900); }
+
+    /* DataTable CSS */
+    .data-table-wrapper {
+      position: relative;
+      background-color: var(--color-white);
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden; /* Contains border-radius */
+    }
+
+    .data-table-scroll-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      color: var(--color-gray-700);
+      font-size: var(--fs-caption);
+      line-height: var(--lh-caption);
+    }
+
+    .data-table caption {
+      font-size: var(--fs-h4);
+      font-weight: var(--font-weight-semibold);
+      text-align: left;
+      padding: var(--space-4) var(--space-5);
+      color: var(--color-gray-900);
+    }
+
+    .data-table thead th {
+      padding: var(--space-3) var(--space-5);
+      text-align: left;
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-600);
+      background-color: var(--color-gray-50);
+      border-bottom: 1px solid var(--color-gray-200);
+      white-space: nowrap;
+    }
+
+    .data-table th[scope="col"][aria-sort] {
+      cursor: pointer;
+    }
+
+    .data-table th[scope="col"][aria-sort]::after {
+      content: ' '; 
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      margin-left: var(--space-2);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23A5B0BD'%3E%3Cpath d='M7 14l5-5 5 5H7z'/%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: center;
+      opacity: 0.5;
+      vertical-align: middle;
+      transition: opacity 0.2s ease;
+    }
+    
+    .data-table th[scope=\"col\"][aria-sort]:hover::after {
+        opacity: 1;
+    }
+
+    .data-table th[scope="col"][aria-sort="ascending"]::after {
+      opacity: 1;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230068FF'%3E%3Cpath d='M7 14l5-5 5 5H7z'/%3E%3C/svg%3E");
+    }
+
+    .data-table th[scope="col"][aria-sort="descending"]::after {
+      opacity: 1;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230068FF'%3E%3Cpath d='M7 10l5 5 5-5H7z'/%3E%3C/svg%3E");
+    }
+
+    .data-table tbody tr {
+      border-bottom: 1px solid var(--color-gray-100);
+      transition: background-color 0.2s ease;
+    }
+
+    .data-table tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    .data-table tbody tr:hover {
+      background-color: var(--color-primary-50);
+    }
+
+    .data-table td {
+      padding: var(--space-4) var(--space-5);
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    .data-table td .user-info {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+    .data-table td .user-info__avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .data-table td .user-info__name {
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-900);
+    }
+    .data-table td .user-info__email {
+        color: var(--color-gray-600);
+    }
+
+
+    /* Loading State */
+    .data-table-wrapper--loading::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.7);
+      z-index: 10;
+    }
+
+    .data-table-wrapper--loading .spinner-container {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 11;
+    }
+    
+    .data-table-wrapper--loading .spinner-container .spinner {
+        display: block;
+    }
+
+    /* Empty State */
+    .data-table__empty-row td {
+      text-align: center;
+      padding: var(--space-8) var(--space-5);
+      color: var(--color-gray-500);
+    }
+
+    /* Pagination (Molecular Component) */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-4) var(--space-5);
+      border-top: 1px solid var(--color-gray-200);
+      font-size: var(--fs-caption);
+      color: var(--color-gray-600);
+    }
+
+    .pagination__controls {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .pagination__nav-btn {
+      padding: var(--space-2) var(--space-3);
+    }
+    
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+
+    /* Responsive Adaptations */
+    @media (max-width: 768px) {
+      .pagination {
+        flex-direction: column;
+        gap: var(--space-4);
+      }
+      .data-table-scroll-container {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-gray-300) var(--color-gray-100);
+      }
+      .data-table-scroll-container::-webkit-scrollbar {
+        height: 8px;
+      }
+      .data-table-scroll-container::-webkit-scrollbar-track {
+        background: var(--color-gray-100);
+      }
+      .data-table-scroll-container::-webkit-scrollbar-thumb {
+        background-color: var(--color-gray-300);
+        border-radius: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase">
+    <header class="showcase__header">
+      <h1>DataTable Component</h1>
+      <p>A responsive table for displaying large sets of data, with states for loading, empty, and populated data. On mobile devices, the table becomes horizontally scrollable.</p>
+    </header>
+
+    <div class="component-group">
+      <h2>State: With Data</h2>
+      <p>This is the default state, showing a fully populated table with pagination and sortable headers.</p>
+      
+      <div class="data-table-wrapper">
+        <div class="data-table-scroll-container">
+          <table class="data-table">
+            <caption>User Management</caption>
+            <thead>
+              <tr>
+                <th scope="col" aria-sort="none">User</th>
+                <th scope="col" aria-sort="descending">Registration Date</th>
+                <th scope="col" aria-sort="none">Role</th>
+                <th scope="col" aria-sort="none">Status</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <img class="user-info__avatar" src="https://i.pravatar.cc/32?u=user1" alt="Avatar for Priya Sharma">
+                    <div>
+                      <div class="user-info__name">Priya Sharma</div>
+                      <div class="user-info__email">priya.sharma@example.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td>2024-10-26</td>
+                <td>Customer</td>
+                <td><span class="badge badge--success">Active</span></td>
+                <td><button class="btn">View</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <img class="user-info__avatar" src="https://i.pravatar.cc/32?u=user2" alt="Avatar for Rohan Mehta">
+                    <div>
+                      <div class="user-info__name">Rohan Mehta</div>
+                      <div class="user-info__email">rohan.mehta@example.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td>2024-10-25</td>
+                <td>Vendor</td>
+                <td><span class="badge badge--success">Active</span></td>
+                <td><button class="btn">View</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <img class="user-info__avatar" src="https://i.pravatar.cc/32?u=user3" alt="Avatar for Anjali Singh">
+                    <div>
+                      <div class="user-info__name">Anjali Singh</div>
+                      <div class="user-info__email">anjali.singh@example.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td>2024-10-24</td>
+                <td>Rider</td>
+                <td><span class="badge badge--success">Active</span></td>
+                <td><button class="btn">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="pagination__info">Showing 1-3 of 249 users</div>
+          <div class="pagination__controls">
+            <button class="btn pagination__nav-btn" disabled>Previous</button>
+            <button class="btn pagination__nav-btn">Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="component-group">
+      <h2>State: Loading</h2>
+      <p>This state is shown while data is being fetched. An overlay with a spinner covers the table content.</p>
+      
+      <div class="data-table-wrapper data-table-wrapper--loading">
+        <div class="spinner-container">
+          <div class="spinner"></div>
+        </div>
+        <div class="data-table-scroll-container">
+          <table class="data-table">
+            <caption>User Management</caption>
+            <thead>
+              <tr>
+                <th scope="col">User</th>
+                <th scope="col">Registration Date</th>
+                <th scope="col">Role</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Data is here but obscured by the loading overlay -->
+              <tr>
+                <td>Priya Sharma...</td>
+                <td>...</td><td>...</td><td>...</td><td>...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="pagination__info">Loading...</div>
+          <div class="pagination__controls">
+            <button class="btn pagination__nav-btn" disabled>Previous</button>
+            <button class="btn pagination__nav-btn" disabled>Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="component-group">
+      <h2>State: Empty</h2>
+      <p>This state is shown when there is no data to display for the current filters or query.</p>
+      
+      <div class="data-table-wrapper">
+        <div class="data-table-scroll-container">
+          <table class="data-table">
+            <caption>User Management</caption>
+            <thead>
+              <tr>
+                <th scope="col">User</th>
+                <th scope="col">Registration Date</th>
+                <th scope="col">Role</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="data-table__empty-row">
+                <td colspan="5">No users found matching your criteria.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="pagination__info">Showing 0-0 of 0 users</div>
+          <div class="pagination__controls">
+            <button class="btn pagination__nav-btn" disabled>Previous</button>
+            <button class="btn pagination__nav-btn" disabled>Next</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : With Data<h3>
+		<normal> The default state, showing a fully populated table with rows of data. </normal>
+		<!-- vrient 1 html -->
+        <div class="data-table-wrapper">
+        <div class="data-table-scroll-container">
+          <table class="data-table">
+            <caption>User Management</caption>
+            <thead>
+              <tr>
+                <th scope="col" aria-sort="none">User</th>
+                <th scope="col" aria-sort="descending">Registration Date</th>
+                <th scope="col" aria-sort="none">Role</th>
+                <th scope="col" aria-sort="none">Status</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <img class="user-info__avatar" src="https://i.pravatar.cc/32?u=user1" alt="Avatar for Priya Sharma">
+                    <div>
+                      <div class="user-info__name">Priya Sharma</div>
+                      <div class="user-info__email">priya.sharma@example.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td>2024-10-26</td>
+                <td>Customer</td>
+                <td><span class="badge badge--success">Active</span></td>
+                <td><button class="btn">View</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <img class="user-info__avatar" src="https://i.pravatar.cc/32?u=user2" alt="Avatar for Rohan Mehta">
+                    <div>
+                      <div class="user-info__name">Rohan Mehta</div>
+                      <div class="user-info__email">rohan.mehta@example.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td>2024-10-25</td>
+                <td>Vendor</td>
+                <td><span class="badge badge--success">Active</span></td>
+                <td><button class="btn">View</button></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="user-info">
+                    <img class="user-info__avatar" src="https://i.pravatar.cc/32?u=user3" alt="Avatar for Anjali Singh">
+                    <div>
+                      <div class="user-info__name">Anjali Singh</div>
+                      <div class="user-info__email">anjali.singh@example.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td>2024-10-24</td>
+                <td>Rider</td>
+                <td><span class="badge badge--success">Active</span></td>
+                <td><button class="btn">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="pagination__info">Showing 1-3 of 249 users</div>
+          <div class="pagination__controls">
+            <button class="btn pagination__nav-btn" disabled>Previous</button>
+            <button class="btn pagination__nav-btn">Next</button>
+          </div>
+        </div>
+      </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : Loading State<h3>
+		<normal> A state indicating that data is being fetched, typically showing an overlay and a spinner. </normal>
+		<!-- vrient 1 html -->
+        <div class="data-table-wrapper data-table-wrapper--loading">
+        <div class="spinner-container">
+          <div class="spinner"></div>
+        </div>
+        <div class="data-table-scroll-container">
+          <table class="data-table">
+            <caption>User Management</caption>
+            <thead>
+              <tr>
+                <th scope="col">User</th>
+                <th scope="col">Registration Date</th>
+                <th scope="col">Role</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Data is here but obscured by the loading overlay -->
+              <tr>
+                <td>Priya Sharma...</td>
+                <td>...</td><td>...</td><td>...</td><td>...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="pagination__info">Loading...</div>
+          <div class="pagination__controls">
+            <button class="btn pagination__nav-btn" disabled>Previous</button>
+            <button class="btn pagination__nav-btn" disabled>Next</button>
+          </div>
+        </div>
+      </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : Empty State<h3>
+		<normal> A state indicating that there is no data to display for the current context or filters. </normal>
+		<!-- vrient 1 html -->
+        <div class="data-table-wrapper">
+        <div class="data-table-scroll-container">
+          <table class="data-table">
+            <caption>User Management</caption>
+            <thead>
+              <tr>
+                <th scope="col">User</th>
+                <th scope="col">Registration Date</th>
+                <th scope="col">Role</th>
+                <th scope="col">Status</th>
+                <th scope="col"><span class="sr-only">Actions</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="data-table__empty-row">
+                <td colspan="5">No users found matching your criteria.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <div class="pagination__info">Showing 0-0 of 0 users</div>
+          <div class="pagination__controls">
+            <button class="btn pagination__nav-btn" disabled>Previous</button>
+            <button class="btn pagination__nav-btn" disabled>Next</button>
+          </div>
+        </div>
+      </div>     
+		
+      <div>
+	 </div>    
+	
+	</body>
+</html>

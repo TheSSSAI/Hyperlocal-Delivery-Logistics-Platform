@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organism Component: ChatInterface</title>
+    <style>
+        /* CSS Reset */
+        *, *::before, *::after { box-sizing: border-box; }
+        body, h1, h2, h3, p, figure { margin: 0; }
+        button, textarea { font: inherit; }
+
+        /* Design System Tokens */
+        :root {
+            /* Typography */
+            --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-weight-regular: 400;
+            --font-weight-semibold: 600;
+            --fs-body: 16px; --lh-body: 1.6;
+            --fs-caption: 14px; --lh-caption: 1.5;
+            /* Colors */
+            --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-500: #0068FF; --color-primary-600: #0053CC;
+            --color-white: #FFFFFF; --color-gray-50: #F7F9FC; --color-gray-100: #E9EDF2; --color-gray-200: #D3D9E1; --color-gray-300: #BCC4CF; --color-gray-500: #8E9BAA; --color-gray-600: #717C88; --color-gray-700: #555D66; --color-gray-900: #1C1F22;
+            --color-success: #00C875; --color-error: #FF4D4D;
+            /* Spacing */
+            --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px;
+            /* Borders & Shadows */
+            --border-radius-sm: 4px; --border-radius-md: 8px; --border-radius-lg: 12px; --border-radius-full: 9999px;
+            --shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.1);
+        }
+
+        /* Showcase Layout Styles */
+        body {
+            font-family: var(--font-family-primary);
+            background-color: var(--color-gray-100);
+            color: var(--color-gray-900);
+            padding: var(--space-5);
+        }
+        .showcase-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .showcase-header { text-align: center; margin-bottom: var(--space-5); }
+        .showcase-header h1 { font-size: 32px; }
+        .showcase-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--space-5);
+        }
+        .component-wrapper {
+            background-color: var(--color-white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            height: 700px;
+            display: flex;
+            flex-direction: column;
+        }
+        .component-wrapper h2 {
+            font-size: 18px;
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--color-gray-200);
+            text-align: center;
+        }
+
+        /* --- ATOMIC/MOLECULAR DEPENDENCIES --- */
+        .avatar {
+            width: 40px; height: 40px;
+            border-radius: var(--border-radius-full);
+            background-color: var(--color-gray-200);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: var(--font-weight-semibold);
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center;
+            border: none; cursor: pointer; transition: background-color 0.2s ease;
+        }
+        .btn--primary {
+            background-color: var(--color-primary-500); color: var(--color-white);
+            width: 44px; height: 44px; border-radius: var(--border-radius-full);
+        }
+        .btn--primary:hover { background-color: var(--color-primary-600); }
+        .btn--secondary {
+             background-color: var(--color-white);
+             color: var(--color-gray-700);
+             border: 1px solid var(--color-gray-300);
+             padding: var(--space-2) var(--space-4);
+             border-radius: var(--border-radius-md);
+        }
+        .btn--secondary:hover { background-color: var(--color-gray-100); }
+        .icon { width: 1.5em; height: 1.5em; fill: currentColor; }
+        .spinner {
+            animation: spin 1s linear infinite;
+            border: 3px solid var(--color-primary-100);
+            border-right-color: var(--color-primary-500);
+            border-radius: 50%;
+            width: 40px; height: 40px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* --- ORGANISM: ChatInterface --- */
+        .chat-interface {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            background-color: var(--color-gray-50);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Header */
+        .chat-interface__header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3) var(--space-4);
+            background-color: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            flex-shrink: 0;
+        }
+        .chat-interface__header-info { flex-grow: 1; }
+        .chat-interface__header-title { font-weight: var(--font-weight-semibold); color: var(--color-gray-900); }
+        .chat-interface__header-subtitle { font-size: var(--fs-caption); color: var(--color-gray-600); }
+
+        /* Body (Message History) */
+        .chat-interface__body {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: var(--space-4);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        /* Message Bubble */
+        .message-bubble {
+            display: flex;
+            gap: var(--space-3);
+            max-width: 80%;
+        }
+        .message-bubble__content { display: flex; flex-direction: column; }
+        .message-bubble__main {
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--border-radius-lg);
+        }
+        .message-bubble__text {
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .message-bubble__meta {
+            font-size: 12px;
+            color: var(--color-gray-500);
+            margin-top: var(--space-1);
+        }
+
+        /* Received Message */
+        .message-bubble--received { align-self: flex-start; }
+        .message-bubble--received .message-bubble__main {
+            background-color: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-bottom-left-radius: var(--border-radius-sm);
+        }
+        .message-bubble--received .message-bubble__meta { text-align: left; }
+
+        /* Sent Message */
+        .message-bubble--sent {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .message-bubble--sent .message-bubble__main {
+            background-color: var(--color-primary-500);
+            color: var(--color-white);
+            border-bottom-right-radius: var(--border-radius-sm);
+        }
+        .message-bubble--sent .message-bubble__meta {
+            text-align: right;
+            color: var(--color-gray-500);
+        }
+
+        /* System Message */
+        .system-message {
+            text-align: center;
+            font-size: var(--fs-caption);
+            color: var(--color-gray-600);
+            margin: var(--space-2) 0;
+        }
+
+        /* Footer */
+        .chat-interface__footer {
+            padding: var(--space-3);
+            background-color: var(--color-white);
+            border-top: 1px solid var(--color-gray-200);
+            flex-shrink: 0;
+        }
+
+        /* Quick Replies */
+        .quick-replies {
+            display: flex;
+            gap: var(--space-2);
+            overflow-x: auto;
+            padding-bottom: var(--space-3);
+            scrollbar-width: none; /* Firefox */
+        }
+        .quick-replies::-webkit-scrollbar { display: none; /* Webkit */ }
+        .quick-reply__btn {
+            flex-shrink: 0;
+            padding: var(--space-2) var(--space-4);
+            background-color: var(--color-primary-50);
+            color: var(--color-primary-600);
+            border-radius: var(--border-radius-full);
+            border: 1px solid var(--color-primary-100);
+            font-size: var(--fs-caption);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+        }
+        .quick-reply__btn:hover { background-color: var(--color-primary-100); }
+
+        /* Input Area */
+        .chat-input-area {
+            display: flex;
+            align-items: flex-end;
+            gap: var(--space-3);
+        }
+        .chat-input-area__textarea {
+            flex-grow: 1;
+            padding: var(--space-3);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--border-radius-md);
+            resize: none;
+            font-size: var(--fs-body);
+            line-height: 1.4;
+            max-height: 120px;
+        }
+        .chat-input-area__textarea:focus {
+            outline: none;
+            border-color: var(--color-primary-500);
+            box-shadow: 0 0 0 3px var(--color-primary-100);
+        }
+
+        /* States */
+        .chat-interface[data-state='read-only'] .chat-interface__footer { display: none; }
+        .chat-interface__overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(247, 249, 252, 0.8);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-direction: column;
+            gap: var(--space-4);
+            z-index: 10;
+        }
+        .chat-interface[data-state='loading'] .chat-interface__overlay,
+        .chat-interface[data-state='error'] .chat-interface__overlay { display: flex; }
+        .chat-interface__overlay-text {
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-gray-700);
+        }
+    </style>
+</head>
+<body>
+    <svg width="0" height="0" style="position:absolute">
+        <defs>
+            <symbol id="icon-send" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></symbol>
+            <symbol id="icon-error" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></symbol>
+        </defs>
+    </svg>
+    <div class="showcase-container">
+        <div class="showcase-header">
+            <h1>ChatInterface Component</h1>
+        </div>
+        <div class="showcase-grid">
+            <!-- Active State -->
+            <div class="component-wrapper">
+                <h2>Active State</h2>
+                <div class="chat-interface" data-state="active">
+                    <header class="chat-interface__header">
+                        <div class="avatar"><img src="https://i.pravatar.cc/40?u=rider1" alt="Rider Avatar"></div>
+                        <div class="chat-interface__header-info">
+                            <div class="chat-interface__header-title">Suresh Kumar (Rider)</div>
+                            <div class="chat-interface__header-subtitle">Order #ABC-123</div>
+                        </div>
+                    </header>
+                    <div role="log" aria-live="polite" class="chat-interface__body">
+                        <article class="message-bubble message-bubble--received">
+                            <div class="avatar" aria-hidden="true">SK</div>
+                            <div class="message-bubble__content">
+                                <div class="message-bubble__main">
+                                    <p class="message-bubble__text">Hi, I'm on my way and should be there in about 5 minutes.</p>
+                                </div>
+                                <div class="message-bubble__meta">10:45 AM</div>
+                            </div>
+                        </article>
+                        <article class="message-bubble message-bubble--sent">
+                             <div class="avatar" aria-hidden="true">C</div>
+                            <div class="message-bubble__content">
+                                <div class="message-bubble__main">
+                                    <p class="message-bubble__text">Great, thank you! Could you please leave it at the front door?</p>
+                                </div>
+                                <div class="message-bubble__meta">10:46 AM</div>
+                            </div>
+                        </article>
+                    </div>
+                    <footer class="chat-interface__footer">
+                        <div class="quick-replies">
+                            <button class="quick-reply__btn">OK</button>
+                            <button class="quick-reply__btn">Thank you!</button>
+                            <button class="quick-reply__btn">I am at the door</button>
+                        </div>
+                        <div class="chat-input-area">
+                            <label for="chat-input-1" class="sr-only">Type your message</label>
+                            <textarea id="chat-input-1" class="chat-input-area__textarea" placeholder="Type a message..." rows="1"></textarea>
+                            <button class="btn btn--primary" aria-label="Send message">
+                                <svg class="icon"><use href="#icon-send"></use></svg>
+                            </button>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+
+            <!-- Read-Only State -->
+            <div class="component-wrapper">
+                <h2>Read-Only State</h2>
+                <div class="chat-interface" data-state="read-only">
+                    <header class="chat-interface__header">
+                        <div class="avatar"><img src="https://i.pravatar.cc/40?u=vendor1" alt="Vendor Avatar"></div>
+                        <div class="chat-interface__header-info">
+                            <div class="chat-interface__header-title">Global Bites Kitchen</div>
+                            <div class="chat-interface__header-subtitle">Order #XYZ-789 (Delivered)</div>
+                        </div>
+                    </header>
+                    <div role="log" class="chat-interface__body">
+                        <article class="message-bubble message-bubble--sent">
+                            <div class="avatar" aria-hidden="true">C</div>
+                            <div class="message-bubble__content">
+                                <div class="message-bubble__main">
+                                    <p class="message-bubble__text">Hi, could you please make it extra spicy?</p>
+                                </div>
+                                <div class="message-bubble__meta">Yesterday, 8:15 PM</div>
+                            </div>
+                        </article>
+                        <article class="message-bubble message-bubble--received">
+                            <div class="avatar" aria-hidden="true">GB</div>
+                            <div class="message-bubble__content">
+                                <div class="message-bubble__main">
+                                    <p class="message-bubble__text">Sure, we will make a note of it!</p>
+                                </div>
+                                <div class="message-bubble__meta">Yesterday, 8:16 PM</div>
+                            </div>
+                        </article>
+                        <div class="system-message">This chat is now closed.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="component-wrapper">
+                <h2>Loading State</h2>
+                <div class="chat-interface" data-state="loading">
+                    <header class="chat-interface__header">
+                        <div class="avatar"></div>
+                        <div class="chat-interface__header-info">
+                            <div class="chat-interface__header-title">Loading Chat...</div>
+                        </div>
+                    </header>
+                    <div class="chat-interface__body"></div>
+                    <div class="chat-interface__overlay">
+                        <div class="spinner"></div>
+                        <p class="chat-interface__overlay-text">Loading messages...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div class="component-wrapper">
+                <h2>Error State</h2>
+                <div class="chat-interface" data-state="error">
+                     <header class="chat-interface__header">
+                        <div class="avatar"></div>
+                        <div class="chat-interface__header-info">
+                            <div class="chat-interface__header-title">Chat Unavailable</div>
+                        </div>
+                    </header>
+                    <div class="chat-interface__body"></div>
+                    <div class="chat-interface__overlay">
+                        <svg class="icon" style="font-size: 48px; color: var(--color-error);"><use href="#icon-error"></use></svg>
+                        <p class="chat-interface__overlay-text">Could not connect to chat service.</p>
+                        <button class="btn btn--secondary">Retry</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div id="component-variations">
+      <h2>Component States</h2>
+      <div>
+        <h3>State Name: active</h3>
+        <p>The default state for an ongoing conversation. The user can view messages, use quick replies, and send new messages.</p>
+      </div>
+      <div>
+        <h3>State Name: read-only</h3>
+        <p>Used for completed or cancelled orders. The entire message history is visible, but the input area (quick replies and text input) is hidden, preventing new messages.</p>
+      </div>
+      <div>
+        <h3>State Name: loading</h3>
+        <p>Shown when the component is first loading the chat history. A spinner and overlay are displayed to indicate that data is being fetched.</p>
+      </div>
+      <div>
+        <h3>State Name: error</h3>
+        <p>Displayed when the component fails to load or connect to the chat service. An error message and a retry action are shown.</p>
+      </div>
+    </div>
+</body>
+</html>

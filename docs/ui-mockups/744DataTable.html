@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DataTable Component</title>
+  <style>
+    /* Design System Tokens (Custom Properties) */
+    :root {
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-family-monospace: 'Roboto Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+      
+      --color-primary-100: #B8D4FF;
+      --color-primary-500: #0068FF;
+      
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-100: #E9EDF2;
+      --color-gray-200: #D3D9E1;
+      --color-gray-300: #BCC4CF;
+      --color-gray-400: #A5B0BD;
+      --color-gray-600: #717C88;
+      --color-gray-700: #555D66;
+      --color-gray-900: #1C1F22;
+
+      --color-success: #00C875;
+      --color-success-bg: #E5F9F1;
+      --color-error: #FF4D4D;
+      --color-error-bg: #FFEBEB;
+      --color-pending: #A5B0BD;
+      --color-pending-bg: #E9EDF2;
+      
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+      --space-5: 24px; --space-6: 32px; --space-8: 64px;
+      
+      --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px; --radius-full: 9999px;
+      
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* Base & Showcase Styles */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-gray-50);
+      color: var(--color-gray-900);
+      margin: 0;
+      padding: var(--space-6);
+    }
+    .showcase { max-width: 1200px; margin: 0 auto; }
+    .component-section { margin-bottom: var(--space-7); }
+    h2 { font-size: 28px; margin: 0 0 var(--space-5) 0; }
+    h3 { font-size: 20px; margin: var(--space-6) 0 var(--space-4) 0; }
+
+    /* Atomic Component Styles (Dependencies) */
+    .checkbox__input { position: absolute; opacity: 0; width: 0; height: 0; }
+    .checkbox__control { width: 20px; height: 20px; border: 2px solid var(--color-gray-300); border-radius: var(--radius-sm); display: inline-flex; align-items: center; justify-content: center; transition: all 0.2s ease; background-color: var(--color-white); }
+    .checkbox__control .icon { opacity: 0; transform: scale(0.5); transition: all 0.2s ease; color: var(--color-white); }
+    .checkbox__input:checked + .checkbox__control { background-color: var(--color-primary-500); border-color: var(--color-primary-500); }
+    .checkbox__input:checked + .checkbox__control .icon { opacity: 1; transform: scale(1); }
+    .checkbox__input:focus-visible + .checkbox__control { outline: 3px solid var(--color-primary-100); outline-offset: 2px; }
+
+    .badge { display: inline-flex; align-items: center; padding: var(--space-1) var(--space-3); font-size: 12px; font-weight: 600; border-radius: var(--radius-full); }
+    .badge--success { background-color: var(--color-success-bg); color: var(--color-success); }
+    .badge--pending { background-color: var(--color-pending-bg); color: var(--color-pending); }
+    
+    .spinner { border: 3px solid var(--color-primary-500); border-right-color: transparent; border-radius: 50%; animation: spin 0.75s linear infinite; width: 32px; height: 32px; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .icon { display: inline-block; vertical-align: middle; stroke-width: 2; fill: none; stroke: currentColor; }
+    .icon--md { width: 24px; height: 24px; }
+    .icon--lg { width: 48px; height: 48px; }
+    
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-3) var(--space-5); font-weight: 600; font-size: 16px; border-radius: var(--radius-md); border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: all 0.2s ease; min-height: 44px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+
+    /* --- DataTable Component CSS --- */
+    .data-table-wrapper {
+      position: relative;
+      border: 1px solid var(--color-gray-200);
+      border-radius: var(--radius-lg);
+      background-color: var(--color-white);
+      overflow: hidden; /* Clips the table border radius */
+      box-shadow: var(--shadow-sm);
+    }
+
+    .data-table-scroll-container {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      color: var(--color-gray-700);
+      font-size: 14px;
+    }
+
+    .data-table caption {
+      font-size: 18px;
+      font-weight: 600;
+      padding: var(--space-4);
+      text-align: left;
+      color: var(--color-gray-900);
+      border-bottom: 1px solid var(--color-gray-200);
+      background-color: var(--color-white);
+    }
+
+    /* Table Header */
+    .data-table__header-cell {
+      padding: var(--space-3) var(--space-4);
+      text-align: left;
+      font-weight: 600;
+      color: var(--color-gray-600);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+      background-color: var(--color-gray-50);
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    .data-table__sort-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      margin: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      font: inherit;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: inherit;
+      cursor: pointer;
+    }
+    
+    .data-table__sort-btn:focus-visible {
+      outline: 2px solid var(--color-primary-500);
+      outline-offset: 2px;
+      border-radius: var(--radius-sm);
+    }
+
+    .data-table__sort-icon {
+      opacity: 0.5;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      width: 16px;
+      height: 16px;
+    }
+
+    .data-table__header-cell[aria-sort] .data-table__sort-icon,
+    .data-table__sort-btn:hover .data-table__sort-icon {
+      opacity: 1;
+    }
+
+    .data-table__header-cell[aria-sort="ascending"] .data-table__sort-icon {
+      transform: rotate(0deg);
+    }
+    
+    .data-table__header-cell[aria-sort="descending"] .data-table__sort-icon {
+      transform: rotate(180deg);
+    }
+    
+    /* Table Body */
+    .data-table__row {
+      transition: background-color 0.2s ease;
+    }
+
+    .data-table__row:not(:last-child) {
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .data-table__row:hover {
+      background-color: var(--color-gray-50);
+    }
+
+    .data-table__cell {
+      padding: var(--space-4);
+      text-align: left;
+      vertical-align: middle;
+      white-space: nowrap;
+    }
+    
+    .data-table__cell--checkbox {
+        width: 1%;
+        padding-right: 0;
+    }
+
+    .data-table__cell--user {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+    .data-table__cell--user .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--color-white);
+      box-shadow: 0 0 0 1px var(--color-gray-200);
+    }
+    .data-table__cell--user .user-name {
+      font-weight: 500;
+      color: var(--color-gray-900);
+    }
+
+    .data-table__cell--numeric {
+      text-align: right;
+      font-family: var(--font-family-monospace);
+    }
+
+    /* States */
+    .data-table__state-overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .data-table-wrapper--loading .data-table__state-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .data-table__state-content {
+      text-align: center;
+      padding: var(--space-8);
+      color: var(--color-gray-600);
+    }
+
+    .data-table__state-content .icon {
+      color: var(--color-gray-400);
+      margin-bottom: var(--space-4);
+    }
+
+    .data-table__state-content h3 {
+      margin: 0 0 var(--space-2) 0;
+      color: var(--color-gray-900);
+    }
+
+    .data-table__state-content p {
+      margin: 0;
+      max-width: 300px;
+    }
+    
+    .data-table__state-row td {
+        text-align: center;
+        padding: var(--space-8);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .data-table-scroll-container {
+        scrollbar-width: thin;
+        scrollbar-color: var(--color-gray-300) transparent;
+      }
+      .data-table-scroll-container::-webkit-scrollbar {
+        height: 8px;
+      }
+      .data-table-scroll-container::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .data-table-scroll-container::-webkit-scrollbar-thumb {
+        background-color: var(--color-gray-300);
+        border-radius: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase">
+    <h2>DataTable Component</h2>
+
+    <h3>State: With Data</h3>
+    <p>Default table display with data, demonstrating sorting, checkboxes, and various cell types. The wrapper provides horizontal scrolling on smaller screens.</p>
+    <div class="data-table-wrapper">
+      <div class="data-table-scroll-container">
+        <table class="data-table">
+          <caption>User Management</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="data-table__header-cell data-table__cell--checkbox">
+                <label>
+                  <input type="checkbox" class="checkbox__input" aria-label="Select all users">
+                  <span class="checkbox__control"><svg class="icon" viewBox="0 0 16 16" style="width:12px; height:12px;"><polyline points="1 9 5 13 15 3"/></svg></span>
+                </label>
+              </th>
+              <th scope="col" class="data-table__header-cell" aria-sort="ascending">
+                <button class="data-table__sort-btn">
+                  User
+                  <svg class="icon data-table__sort-icon" viewBox="0 0 24 24"><path d="M12 5l-7 7h14z"/></svg>
+                </button>
+              </th>
+              <th scope="col" class="data-table__header-cell">
+                <button class="data-table__sort-btn">
+                  Status
+                  <svg class="icon data-table__sort-icon" viewBox="0 0 24 24"><path d="M12 5l-7 7h14z"/></svg>
+                </button>
+              </th>
+              <th scope="col" class="data-table__header-cell">
+                <button class="data-table__sort-btn">
+                  Role
+                  <svg class="icon data-table__sort-icon" viewBox="0 0 24 24"><path d="M12 5l-7 7h14z"/></svg>
+                </button>
+              </th>
+              <th scope="col" class="data-table__header-cell data-table__cell--numeric">
+                 <button class="data-table__sort-btn" style="width: 100%; justify-content: flex-end;">
+                  Total Orders
+                  <svg class="icon data-table__sort-icon" viewBox="0 0 24 24"><path d="M12 5l-7 7h14z"/></svg>
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="data-table__row">
+              <td class="data-table__cell data-table__cell--checkbox">
+                <label>
+                  <input type="checkbox" class="checkbox__input" aria-label="Select user Priya Sharma">
+                  <span class="checkbox__control"><svg class="icon" viewBox="0 0 16 16" style="width:12px; height:12px;"><polyline points="1 9 5 13 15 3"/></svg></span>
+                </label>
+              </td>
+              <td class="data-table__cell data-table__cell--user">
+                <img src="https://i.pravatar.cc/32?u=priya" alt="Avatar of Priya Sharma" class="avatar">
+                <span class="user-name">Priya Sharma</span>
+              </td>
+              <td class="data-table__cell">
+                <span class="badge badge--success">Active</span>
+              </td>
+              <td class="data-table__cell">Customer</td>
+              <td class="data-table__cell data-table__cell--numeric">12</td>
+            </tr>
+            <tr class="data-table__row">
+              <td class="data-table__cell data-table__cell--checkbox">
+                <label>
+                  <input type="checkbox" class="checkbox__input" aria-label="Select user Rohan Patel">
+                  <span class="checkbox__control"><svg class="icon" viewBox="0 0 16 16" style="width:12px; height:12px;"><polyline points="1 9 5 13 15 3"/></svg></span>
+                </label>
+              </td>
+              <td class="data-table__cell data-table__cell--user">
+                <img src="https://i.pravatar.cc/32?u=rohan" alt="Avatar of Rohan Patel" class="avatar">
+                <span class="user-name">Rohan Patel</span>
+              </td>
+              <td class="data-table__cell">
+                <span class="badge badge--pending">Pending Verification</span>
+              </td>
+              <td class="data-table__cell">Vendor</td>
+              <td class="data-table__cell data-table__cell--numeric">0</td>
+            </tr>
+             <tr class="data-table__row">
+              <td class="data-table__cell data-table__cell--checkbox">
+                <label>
+                  <input type="checkbox" class="checkbox__input" checked aria-label="Select user Sameer Khan">
+                  <span class="checkbox__control"><svg class="icon" viewBox="0 0 16 16" style="width:12px; height:12px;"><polyline points="1 9 5 13 15 3"/></svg></span>
+                </label>
+              </td>
+              <td class="data-table__cell data-table__cell--user">
+                <img src="https://i.pravatar.cc/32?u=sameer" alt="Avatar of Sameer Khan" class="avatar">
+                <span class="user-name">Sameer Khan</span>
+              </td>
+              <td class="data-table__cell">
+                <span class="badge badge--success">Active</span>
+              </td>
+              <td class="data-table__cell">Rider</td>
+              <td class="data-table__cell data-table__cell--numeric">158</td>
+            </tr>
+            <tr class="data-table__row">
+                <td class="data-table__cell data-table__cell--checkbox">
+                  <label>
+                    <input type="checkbox" class="checkbox__input" aria-label="Select user Anjali Verma">
+                    <span class="checkbox__control"><svg class="icon" viewBox="0 0 16 16" style="width:12px; height:12px;"><polyline points="1 9 5 13 15 3"/></svg></span>
+                  </label>
+                </td>
+                <td class="data-table__cell data-table__cell--user">
+                  <img src="https://i.pravatar.cc/32?u=anjali" alt="Avatar of Anjali Verma" class="avatar">
+                  <span class="user-name">Anjali Verma</span>
+                </td>
+                <td class="data-table__cell">
+                  <span class="badge badge--success">Active</span>
+                </td>
+                <td class="data-table__cell">Administrator</td>
+                <td class="data-table__cell data-table__cell--numeric">N/A</td>
+              </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3>State: Loading</h3>
+    <p>Use this state while the initial data is being fetched from the server. The wrapper has the class <code>.data-table-wrapper--loading</code>.</p>
+    <div class="data-table-wrapper data-table-wrapper--loading">
+      <div class="data-table-scroll-container">
+        <table class="data-table" aria-busy="true">
+          <caption>User Management</caption>
+           <thead>
+            <tr>
+              <th scope="col" class="data-table__header-cell data-table__cell--checkbox">
+                <label><input type="checkbox" class="checkbox__input" disabled></label>
+              </th>
+              <th scope="col" class="data-table__header-cell">User</th>
+              <th scope="col" class="data-table__header-cell">Status</th>
+              <th scope="col" class="data-table__header-cell">Role</th>
+              <th scope="col" class="data-table__header-cell data-table__cell--numeric">Total Orders</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="data-table__row"><td class="data-table__cell" colspan="5" style="height: 200px; text-align:center;">&nbsp;</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="data-table__state-overlay">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <h3>State: Empty</h3>
+    <p>Displayed when a query or filter returns no results.</p>
+    <div class="data-table-wrapper">
+      <div class="data-table-scroll-container">
+        <table class="data-table">
+          <caption>User Management</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="data-table__header-cell data-table__cell--checkbox">
+                <label><input type="checkbox" class="checkbox__input" disabled></label>
+              </th>
+              <th scope="col" class="data-table__header-cell">User</th>
+              <th scope="col" class="data-table__header-cell">Status</th>
+              <th scope="col" class="data-table__header-cell">Role</th>
+              <th scope="col" class="data-table__header-cell data-table__cell--numeric">Total Orders</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="data-table__state-row">
+              <td colspan="5">
+                <div class="data-table__state-content">
+                  <svg class="icon icon--lg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                  <h3>No Users Found</h3>
+                  <p>There are no users matching your current search or filter criteria. Try adjusting your search.</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3>State: Error</h3>
+    <p>Displayed when the API call to fetch data fails.</p>
+    <div class="data-table-wrapper">
+      <div class="data-table-scroll-container">
+        <table class="data-table">
+          <caption>User Management</caption>
+          <thead>
+            <tr>
+              <th scope="col" class="data-table__header-cell data-table__cell--checkbox">
+                <label><input type="checkbox" class="checkbox__input" disabled></label>
+              </th>
+              <th scope="col" class="data-table__header-cell">User</th>
+              <th scope="col" class="data-table__header-cell">Status</th>
+              <th scope="col" class="data-table__header-cell">Role</th>
+              <th scope="col" class="data-table__header-cell data-table__cell--numeric">Total Orders</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="data-table__state-row">
+              <td colspan="5">
+                <div class="data-table__state-content">
+                  <svg class="icon icon--lg" style="color: var(--color-error);" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  <h3>Could Not Load Data</h3>
+                  <p>An error occurred while fetching user data. Please check your connection and try again.</p>
+                  <button class="btn btn--primary" style="margin-top: var(--space-4);">Retry</button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+  </div>
+  
+  <div class="showcase component-section">
+      <h2>Component Variations</h2>
+      <div>
+        <h3>Variant: Sortable</h3>
+        <p>
+          Columns with sortable data should have their `<th>` element contain a `<button>` for interaction. The `data-table__header-cell` should also have an `aria-sort` attribute set to 'ascending', 'descending', or 'none' to indicate the current sort state to assistive technologies and for styling the sort icon.
+        </p>
+        <pre style="background: #f4f4f4; padding: 1em; border-radius: 8px; font-family:var(--font-family-monospace); white-space: pre-wrap;"><code>&lt;th scope="col" class="data-table__header-cell" aria-sort="ascending"&gt;\n  &lt;button class="data-table__sort-btn"&gt;\n    User\n    &lt;svg class="icon data-table__sort-icon" viewBox="0 0 24 24"&gt;...&lt;/svg&gt;\n  &lt;/button&gt;\n&lt;/th&gt;</code></pre>
+      </div>
+       <div>
+        <h3>Variant: Filterable (Conceptual)</h3>
+        <p>
+          Filtering is typically handled by external components, such as a `SearchBar` or `Dropdown` filters, placed above the `DataTable` component. When a filter is applied, the parent component re-fetches the data and passes the new, filtered dataset to the `DataTable`. The `DataTable` itself is only responsible for displaying the data it receives.
+        </p>
+      </div>
+    </div>
+</body>
+</html>

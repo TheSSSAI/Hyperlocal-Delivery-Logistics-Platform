@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: Product Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Poppins:wght@600&display=swap" rel="stylesheet">
+  <style>
+    /* ---------------------------------- */
+    /* --- 1. DESIGN SYSTEM FOUNDATION -- */
+    /* ---------------------------------- */
+    :root {
+      /* Colors */
+      --color-primary-500: #2563eb; 
+      --color-primary-600: #1d4ed8;
+      --color-neutral-white: #ffffff;
+      --color-neutral-50: #f8f9fa;
+      --color-neutral-100: #f1f3f5;
+      --color-neutral-200: #e9ecef;
+      --color-neutral-400: #ced4da;
+      --color-neutral-600: #6c757d;
+      --color-neutral-800: #343a40;
+      --color-neutral-900: #212529;
+      --color-success-500: #16a34a;
+      --color-success-100: #dcfce7;
+      --color-success-700: #15803d;
+      --color-warning-500: #f59e0b;
+      --color-warning-100: #fef3c7;
+      --color-warning-700: #b45309;
+      --color-danger-500: #dc2626;
+      --color-danger-100: #fee2e2;
+      --color-danger-700: #991b1b;
+      
+      /* Typography */
+      --font-family-primary: 'Poppins', sans-serif;
+      --font-family-secondary: 'Inter', sans-serif;
+      --font-size-sm: 0.875rem; /* 14px */
+      --font-size-base: 1rem; /* 16px */
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+
+      /* Spacing */
+      --space-xs: 0.25rem; /* 4px */
+      --space-sm: 0.5rem; /* 8px */
+      --space-md: 1rem; /* 16px */
+      --space-lg: 1.5rem; /* 24px */
+
+      /* Borders & Shadows */
+      --border-radius-sm: 0.25rem;
+      --border-radius-md: 0.5rem;
+      --border-radius-lg: 0.75rem;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-focus: 0 0 0 3px rgba(37, 99, 235, 0.4);
+
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+
+    /* ---------------------------------- */
+    /* -------- 2. BASE & LAYOUT -------- */
+    /* ---------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-family-secondary);
+      background-color: var(--color-neutral-50);
+      margin: 0;
+      padding: var(--space-lg);
+    }
+    .showcase {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .showcase h1 {
+      font-family: var(--font-family-primary);
+      text-align: center;
+      margin-bottom: var(--space-lg);
+    }
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: var(--space-lg);
+    }
+    .state-title {
+        margin-top: var(--space-lg);
+        margin-bottom: var(--space-md);
+        font-family: var(--font-family-primary);
+    }
+
+    /* ---------------------------------- */
+    /* --- 3. ATOMIC COMPONENTS STUBS --- */
+    /* ---------------------------------- */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      padding: var(--space-xs) var(--space-sm);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      border-radius: 9999px;
+    }
+    .badge--success { color: var(--color-success-700); background-color: var(--color-success-100); }
+    .badge--warning { color: var(--color-warning-700); background-color: var(--color-warning-100); }
+    .badge--error { color: var(--color-danger-700); background-color: var(--color-danger-100); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      font-weight: var(--font-weight-medium);
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      border-radius: var(--border-radius-md);
+      transition: all var(--transition-fast);
+      font-size: var(--font-size-sm);
+      padding: 0.5rem 1rem;
+      min-height: 36px;
+    }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutral-white); }
+    .btn--primary:hover:not(:disabled) { background-color: var(--color-primary-600); }
+    .btn:disabled { opacity: 0.65; cursor: not-allowed; }
+    .btn:focus-visible { outline: none; box-shadow: var(--shadow-focus); }
+    
+    /* ---------------------------------- */
+    /* ----- 4. PRODUCT CARD COMPONENT -- */
+    /* ---------------------------------- */
+    .product-card {
+      background-color: var(--color-neutral-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-neutral-200);
+      display: flex;
+      flex-direction: column; /* Mobile-first: stacked layout */
+      overflow: hidden;
+      transition: all var(--transition-fast);
+    }
+
+    .product-card__media {
+      position: relative;
+      width: 100%;
+      padding-top: 56.25%; /* 16:9 aspect ratio */
+      background-color: var(--color-neutral-100);
+    }
+
+    .product-card__image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .product-card__badge {
+      position: absolute;
+      top: var(--space-sm);
+      left: var(--space-sm);
+    }
+
+    .product-card__content {
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .product-card__title {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutral-900);
+      margin: 0 0 var(--space-sm) 0;
+    }
+    
+    .product-card__description {
+      font-size: var(--font-size-sm);
+      color: var(--color-neutral-600);
+      margin: 0;
+      /* Truncate long descriptions */
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;  
+      overflow: hidden;
+    }
+
+    .product-card__footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto; /* Pushes footer to the bottom */
+      padding-top: var(--space-md);
+    }
+
+    .product-card__price {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutral-800);
+    }
+
+    /* States */
+    .product-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .product-card:focus-visible {
+      outline: none;
+      box-shadow: var(--shadow-focus);
+    }
+
+    .product-card--disabled {
+      background-color: var(--color-neutral-50);
+    }
+
+    .product-card--disabled:hover {
+      transform: none;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .product-card--disabled .product-card__image {
+      filter: grayscale(100%);
+    }
+
+    .product-card--disabled .product-card__title,
+    .product-card--disabled .product-card__price,
+    .product-card--disabled .product-card__description {
+        color: var(--color-neutral-400);
+    }
+
+    /* Responsive Adaptations */
+    @media (min-width: 768px) {
+      .product-card {
+        flex-direction: row; /* Desktop: horizontal layout */
+      }
+
+      .product-card__media {
+        width: 140px;
+        height: 140px; 
+        padding-top: 0;
+        flex-shrink: 0;
+      }
+      
+      .product-card__image {
+        position: static;
+      }
+
+      .product-card__content {
+        justify-content: flex-start;
+      }
+      
+      .product-card__description {
+        -webkit-line-clamp: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<main class="showcase">
+  <h1>Product Card Component</h1>
+
+  <section>
+    <h2 class="state-title">Default State: Available</h2>
+    <div class="showcase-grid">
+      <article class="product-card" tabindex="0">
+        <div class="product-card__media">
+          <img class="product-card__image" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070" alt="Fresh vegetable salad">
+          <span class="badge badge--success product-card__badge">Available</span>
+        </div>
+        <div class="product-card__content">
+          <h3 class="product-card__title">Fresh Garden Salad</h3>
+          <p class="product-card__description">A crisp mix of fresh vegetables, tossed in our signature vinaigrette dressing.</p>
+          <div class="product-card__footer">
+            <span class="product-card__price">₹250.00</span>
+            <button class="btn btn--primary" aria-label="Add Fresh Garden Salad to cart">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="state-title">Limited Stock State</h2>
+    <div class="showcase-grid">
+      <article class="product-card" tabindex="0">
+        <div class="product-card__media">
+          <img class="product-card__image" src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1981" alt="Margherita Pizza">
+          <span class="badge badge--warning product-card__badge">Limited Stock</span>
+        </div>
+        <div class="product-card__content">
+          <h3 class="product-card__title">Margherita Pizza</h3>
+          <p class="product-card__description">Classic Neapolitan pizza with San Marzano tomatoes, fresh mozzarella, and basil.</p>
+          <div class="product-card__footer">
+            <span class="product-card__price">₹450.00</span>
+            <button class="btn btn--primary" aria-label="Add Margherita Pizza to cart">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="state-title">Disabled State: Out of Stock</h2>
+    <div class="showcase-grid">
+      <article class="product-card product-card--disabled" tabindex="0">
+        <div class="product-card__media">
+          <img class="product-card__image" src="https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?q=80&w=1950" alt="Chocolate Lava Cake">
+          <span class="badge badge--error product-card__badge">Out of Stock</span>
+        </div>
+        <div class="product-card__content">
+          <h3 class="product-card__title">Chocolate Lava Cake</h3>
+          <p class="product-card__description">A decadent warm chocolate cake with a gooey, molten center. Served with a scoop of vanilla ice cream.</p>
+          <div class="product-card__footer">
+            <span class="product-card__price">₹180.00</span>
+            <button class="btn btn--primary" disabled aria-label="Add Chocolate Lava Cake to cart">Add to Cart</button>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+</main>
+	
+	<div>
+      <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : grid-view</h3>
+		<normal> The default variant, which responsively adapts from a vertical layout on mobile to a horizontal layout on desktop. This is the primary representation. </normal>
+		<article class="product-card" tabindex="0">
+            <div class="product-card__media">
+                <img class="product-card__image" src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?q=80&w=2070" alt="Fresh vegetable salad">
+                <span class="badge badge--success product-card__badge">Available</span>
+            </div>
+            <div class="product-card__content">
+                <h3 class="product-card__title">Fresh Garden Salad (Grid/Responsive)</h3>
+                <p class="product-card__description">A crisp mix of fresh vegetables.</p>
+                <div class="product-card__footer">
+                    <span class="product-card__price">₹250.00</span>
+                    <button class="btn btn--primary" aria-label="Add Fresh Garden Salad to cart">Add to Cart</button>
+                </div>
+            </div>
+        </article>
+      </div>
+      <div>
+        <h3>Variant Name : list-view</h3>
+		<normal> This variant is achieved implicitly on mobile screens (< 768px) where the layout becomes a vertical stack, suitable for a single-column list. </normal>
+		<p style="font-size: var(--font-size-sm); color: var(--color-neutral-600);">Note: To see this variant, view this page on a screen narrower than 768px.</p>
+      </div>
+	</div>
+</body>
+</html>

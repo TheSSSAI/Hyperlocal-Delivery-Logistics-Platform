@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Registration Screen</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+    }
+    body {
+      line-height: 1.6;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    img, picture, video, canvas, svg {
+      display: block;
+      max-width: 100%;
+    }
+    input, button, textarea, select {
+      font: inherit;
+    }
+    p, h1, h2, h3, h4, h5, h6 {
+      overflow-wrap: break-word;
+    }
+
+    /* Design System Tokens */
+    :root {
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray_50: #F7F9FC;
+      --color-neutrals-gray_100: #E9EDF2;
+      --color-neutrals-gray_200: #D3D9E1;
+      --color-neutrals-gray_300: #BCC4CF;
+      --color-neutrals-gray_500: #8E9BAA;
+      --color-neutrals-gray_700: #555D66;
+      --color-neutrals-gray_900: #1C1F22;
+      --color-semantic-success: #00C875;
+      --color-semantic-error: #FF4D4D;
+      
+      /* Typography */
+      --font-primary: 'Inter', sans-serif;
+      --font-size-h3: 28px;
+      --font-weight-h3: 600;
+      --font-size-body: 16px;
+      --font-weight-body: 400;
+      --font-size-caption: 14px;
+      
+      /* Spacing */
+      --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px;
+      --space-24: 24px; --space-32: 32px; --space-48: 48px;
+
+      /* Borders */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+    }
+
+    /* Base Styles */
+    body {
+      background-color: var(--color-neutrals-gray_50);
+      color: var(--color-neutrals-gray_900);
+      font-size: var(--font-size-body);
+    }
+    
+    .screen-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--space-32);
+      min-height: 100vh;
+    }
+    
+    .registration-card {
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: 0px 4px 12px rgba(28, 31, 34, 0.08);
+      padding: var(--space-32) var(--space-48);
+      width: 100%;
+      max-width: 800px;
+    }
+
+    .card-header {
+        text-align: center;
+        margin-bottom: var(--space-32);
+    }
+
+    .card-header h1 {
+        font-size: var(--font-size-h3);
+        font-weight: var(--font-weight-h3);
+        color: var(--color-neutrals-gray_900);
+    }
+    
+    .card-header p {
+        color: var(--color-neutrals-gray_700);
+        margin-top: var(--space-8);
+    }
+
+    /* Tab Navigation */
+    .tab-nav {
+      display: flex;
+      border-bottom: 1px solid var(--color-neutrals-gray_100);
+      margin-bottom: var(--space-32);
+    }
+    .tab-nav__label {
+      padding: var(--space-12) var(--space-24);
+      cursor: pointer;
+      color: var(--color-neutrals-gray_500);
+      position: relative;
+      transition: color 0.2s ease-in-out;
+    }
+    .tab-nav__label:hover {
+      color: var(--color-neutrals-gray_900);
+    }
+    .tab-nav__radio {
+      display: none;
+    }
+    .tab-nav__radio:checked + .tab-nav__label {
+      color: var(--color-primary-500);
+      font-weight: 600;
+    }
+    .tab-nav__radio:checked + .tab-nav__label::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background-color: var(--color-primary-500);
+      border-radius: 3px 3px 0 0;
+    }
+
+    /* Tab Content */
+    .tab-content { display: none; }
+    #customer-tab:checked ~ .registration-card__body #customer-content,
+    #vendor-tab:checked ~ .registration-card__body #vendor-content,
+    #rider-tab:checked ~ .registration-card__body #rider-content {
+      display: block;
+    }
+    
+    /* Form Styles */
+    .form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--space-24);
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-8);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: var(--color-neutrals-gray_700);
+        font-size: var(--font-size-caption);
+    }
+    
+    .form-input {
+        border: 1px solid var(--color-neutrals-gray_300);
+        background: var(--color-neutrals-white);
+        padding: 12px 16px;
+        border-radius: var(--border-radius-md);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        width: 100%;
+    }
+    
+    .form-input:focus, .form-input:focus-visible {
+        outline: none;
+        border-color: var(--color-primary-500);
+        box-shadow: 0 0 0 3px var(--color-primary-100);
+    }
+
+    .form-input.has-error {
+        border-color: var(--color-semantic-error);
+    }
+    
+    .form-error-message {
+        color: var(--color-semantic-error);
+        font-size: var(--font-size-caption);
+    }
+
+    .form-actions {
+        margin-top: var(--space-32);
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    /* Button Component */
+    .btn {
+      border: none;
+      border-radius: var(--border-radius-md);
+      padding: 12px 24px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-8);
+    }
+    
+    .btn--primary {
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+    }
+    
+    .btn--primary:hover {
+      background-color: var(--color-primary-600);
+    }
+    
+    .btn:active {
+      transform: scale(0.98);
+    }
+    
+    .btn:disabled {
+      background-color: var(--color-neutrals-gray_200);
+      color: var(--color-neutrals-gray_500);
+      cursor: not-allowed;
+    }
+    
+    .btn:focus-visible {
+      outline: 3px solid var(--color-primary-300);
+      outline-offset: 2px;
+    }
+
+    .btn--loading {
+        cursor: wait;
+    }
+
+    /* Spinner Component */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top-color: var(--color-neutrals-white);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* FileUpload Component */
+    .file-upload {
+        border: 2px dashed var(--color-neutrals-gray_200);
+        border-radius: var(--border-radius-md);
+        padding: var(--space-24);
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, background-color 0.2s;
+    }
+    .file-upload:hover {
+        background-color: var(--color-neutrals-gray_50);
+        border-color: var(--color-primary-300);
+    }
+    .file-upload__input {
+        display: none;
+    }
+    .file-upload__icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto var(--space-12);
+        color: var(--color-primary-500);
+    }
+    .file-upload__text {
+        font-weight: 600;
+        color: var(--color-primary-500);
+    }
+    .file-upload__hint {
+        font-size: var(--font-size-caption);
+        color: var(--color-neutrals-gray_500);
+        margin-top: var(--space-4);
+    }
+    .file-upload__filename {
+        font-weight: 600;
+        color: var(--color-neutrals-gray_700);
+        margin-top: var(--space-12);
+    }
+
+    /* OTPInput Component */
+    .otp-input-group {
+        display: flex;
+        gap: var(--space-12);
+        justify-content: center;
+    }
+    .otp-input {
+        width: 50px;
+        height: 60px;
+        font-size: 24px;
+        text-align: center;
+        border: 1px solid var(--color-neutrals-gray_300);
+        border-radius: var(--border-radius-md);
+    }
+    .otp-input:focus {
+        border-color: var(--color-primary-500);
+        box-shadow: 0 0 0 3px var(--color-primary-100);
+        outline: none;
+    }
+
+    /* Alert Component */
+    .alert {
+        padding: var(--space-16);
+        border-radius: var(--border-radius-md);
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+        text-align: center;
+    }
+    .alert--success {
+        background-color: #E5F9F1;
+        color: #003D24;
+        border: 1px solid #00C875;
+    }
+    .alert__icon {
+        width: 24px;
+        height: 24px;
+    }
+    .alert__text {
+        font-weight: 600;
+    }
+
+
+    /* Responsive Styles */
+    @media (min-width: 768px) {
+        .form-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .form-group--full-width {
+            grid-column: 1 / -1;
+        }
+    }
+    @media (max-width: 767px) {
+        .screen-container {
+            padding: var(--space-16);
+        }
+        .registration-card {
+            padding: var(--space-24);
+        }
+    }
+
+    /* Variations section for demo */
+    .screen-variations {
+        margin-top: var(--space-48);
+        padding: var(--space-32);
+        background-color: var(--color-neutrals-gray_100);
+        width: 100%;
+        max-width: 800px;
+        border-radius: var(--border-radius-lg);
+    }
+    .screen-variations h2 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: var(--space-24);
+        border-bottom: 1px solid var(--color-neutrals-gray_200);
+        padding-bottom: var(--space-16);
+    }
+    .variation-group {
+        margin-bottom: var(--space-32);
+    }
+    .variation-group h3 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: var(--space-8);
+    }
+    .variation-group normal {
+        display: block;
+        color: var(--color-neutrals-gray_700);
+        font-size: var(--font-size-caption);
+        margin-bottom: var(--space-16);
+    }
+    .is-submitting .form-input, .is-submitting .file-upload {
+        pointer-events: none;
+        background-color: var(--color-neutrals-gray_100);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-container">
+    <div class="registration-card">
+      <header class="card-header">
+        <h1>Create Your Account</h1>
+        <p>Join our platform and start your journey today!</p>
+      </header>
+
+      <nav class="tab-nav">
+        <input type="radio" id="customer-tab" name="reg-tabs" class="tab-nav__radio" checked>
+        <label for="customer-tab" class="tab-nav__label">I'm a Customer</label>
+        
+        <input type="radio" id="vendor-tab" name="reg-tabs" class="tab-nav__radio">
+        <label for="vendor-tab" class="tab-nav__label">I'm a Vendor</label>
+        
+        <input type="radio" id="rider-tab" name="reg-tabs" class="tab-nav__radio">
+        <label for="rider-tab" class="tab-nav__label">I'm a Rider</label>
+      </nav>
+
+      <div class="registration-card__body">
+        
+        <!-- Customer Registration Form -->
+        <div id="customer-content" class="tab-content">
+          <form class="form-grid">
+            <div class="form-group form-group--full-width">
+              <label for="customer-mobile" class="form-label">Mobile Number</label>
+              <input type="tel" id="customer-mobile" class="form-input" placeholder="Enter your 10-digit mobile number">
+            </div>
+            <div class="form-group form-group--full-width">
+              <label for="customer-otp" class="form-label">One-Time Password (OTP)</label>
+              <div class="otp-input-group">
+                <input type="text" maxlength="1" class="otp-input">
+                <input type="text" maxlength="1" class="otp-input">
+                <input type="text" maxlength="1" class="otp-input">
+                <input type="text" maxlength="1" class="otp-input">
+                <input type="text" maxlength="1" class="otp-input">
+                <input type="text" maxlength="1" class="otp-input">
+              </div>
+            </div>
+            <div class="form-actions form-group--full-width">
+              <button type="submit" class="btn btn--primary">Verify & Register</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Vendor Registration Form -->
+        <div id="vendor-content" class="tab-content">
+          <form class="form-grid">
+            <div class="form-group">
+              <label for="vendor-name" class="form-label">Business Name</label>
+              <input type="text" id="vendor-name" class="form-input" placeholder="e.g., Global Bites Kitchen">
+            </div>
+            <div class="form-group">
+              <label for="vendor-mobile" class="form-label">Contact Mobile</label>
+              <input type="tel" id="vendor-mobile" class="form-input" placeholder="10-digit mobile number">
+            </div>
+            <div class="form-group form-group--full-width">
+              <label for="vendor-address" class="form-label">Business Address</label>
+              <textarea id="vendor-address" class="form-input" rows="3" placeholder="Full business address"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="vendor-gst" class="form-label">GST Number</label>
+              <input type="text" id="vendor-gst" class="form-input" placeholder="e.g., 22AAAAA0000A1Z5">
+            </div>
+            <div class="form-group">
+              <label for="vendor-fssai" class="form-label">FSSAI License (if applicable)</label>
+              <input type="text" id="vendor-fssai" class="form-input" placeholder="14-digit FSSAI number">
+            </div>
+            <div class="form-group form-group--full-width">
+                <label class="form-label">Upload Documents</label>
+                <div class="form-grid">
+                    <label for="vendor-gst-cert" class="file-upload">
+                        <input type="file" id="vendor-gst-cert" class="file-upload__input">
+                        <svg class="file-upload__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                        <span class="file-upload__text">Upload GST Certificate</span>
+                        <p class="file-upload__hint">PNG, JPG up to 5MB</p>
+                    </label>
+                    <label for="vendor-fssai-cert" class="file-upload">
+                        <input type="file" id="vendor-fssai-cert" class="file-upload__input">
+                        <svg class="file-upload__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                        <span class="file-upload__text">Upload FSSAI License</span>
+                        <p class="file-upload__hint">PNG, JPG up to 5MB</p>
+                    </label>
+                </div>
+            </div>
+            <div class="form-actions form-group--full-width">
+              <button type="submit" class="btn btn--primary">Submit Application</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Rider Registration Form -->
+        <div id="rider-content" class="tab-content">
+          <form class="form-grid">
+            <div class="form-group">
+                <label for="rider-name" class="form-label">Full Name</label>
+                <input type="text" id="rider-name" class="form-input" placeholder="As per your ID">
+            </div>
+            <div class="form-group">
+                <label for="rider-mobile" class="form-label">Mobile Number</label>
+                <input type="tel" id="rider-mobile" class="form-input" placeholder="10-digit mobile number">
+            </div>
+            <div class="form-group">
+                <label for="rider-dl" class="form-label">Driver's License Number</label>
+                <input type="text" id="rider-dl" class="form-input">
+            </div>
+            <div class="form-group">
+                <label for="rider-vehicle" class="form-label">Vehicle Registration Number</label>
+                <input type="text" id="rider-vehicle" class="form-input" placeholder="e.g., MH01AB1234">
+            </div>
+            <div class="form-group form-group--full-width">
+                <label class="form-label">Upload Documents</label>
+                <div class="form-grid">
+                    <label for="rider-aadhaar" class="file-upload">
+                        <input type="file" id="rider-aadhaar" class="file-upload__input">
+                        <svg class="file-upload__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                        <span class="file-upload__text">Upload Aadhaar Card</span>
+                    </label>
+                    <label for="rider-pan" class="file-upload">
+                        <input type="file" id="rider-pan" class="file-upload__input">
+                        <svg class="file-upload__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                        <span class="file-upload__text">Upload PAN Card</span>
+                    </label>
+                </div>
+            </div>
+             <div class="form-actions form-group--full-width">
+              <button type="submit" class="btn btn--primary">Submit Application</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="screen-variations">
+    <h2>Screen Variations</h2>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Submitting State"</h3>
+      <normal>Demonstrates the form's appearance while an API call is in progress. All fields are disabled, and the button shows a loading spinner.</normal>
+      <div class="registration-card is-submitting">
+        <header class="card-header">
+            <h1>Create Vendor Account</h1>
+        </header>
+        <form class="form-grid">
+            <div class="form-group">
+                <label for="vendor-name-submitting" class="form-label">Business Name</label>
+                <input type="text" id="vendor-name-submitting" class="form-input" placeholder="e.g., Global Bites Kitchen" value="My Awesome Cafe" disabled>
+            </div>
+            <div class="form-group">
+                <label for="vendor-mobile-submitting" class="form-label">Contact Mobile</label>
+                <input type="tel" id="vendor-mobile-submitting" class="form-input" placeholder="10-digit mobile number" value="9876543210" disabled>
+            </div>
+            <div class="form-actions form-group--full-width">
+              <button type="submit" class="btn btn--primary btn--loading" disabled>
+                <span class="spinner"></span>
+                Submitting...
+              </button>
+            </div>
+        </form>
+      </div>
+    </div>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Success State"</h3>
+      <normal>Represents the confirmation screen shown to the user after a successful registration submission.</normal>
+      <div class="registration-card">
+        <div class="alert alert--success" style="justify-content: center;">
+            <svg class="alert__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span class="alert__text">Application Submitted!</span>
+        </div>
+        <p style="text-align: center; margin-top: var(--space-16); color: var(--color-neutrals-gray_700);">
+            Thank you for registering. Your application is now under review. We will notify you once it has been processed.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

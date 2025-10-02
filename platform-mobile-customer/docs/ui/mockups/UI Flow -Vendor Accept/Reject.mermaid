@@ -1,0 +1,43 @@
+sequenceDiagram
+    participant CustomerApp as CA
+    participant OrderService as OS
+    participant NotificationService as NS
+    participant VendorDashboard as VD
+    participant Scheduler as S
+
+    %% Order Placement and Notification to Vendor
+    CA->>OS: 1. POST /api/v1/orders (Place Order)
+    OS->>OS: 2. Create Order (status='Pending Vendor Acceptance')
+    OS->>S: 3. Schedule Auto-Reject Timer (5 mins) for orderId
+    OS->>NS: 4. Publish OrderPlacedEvent
+    NS->>VD: 5. (WebSocket) push('new_order', {orderId, details})
+
+    par Vendor Action and Auto-Reject Timer
+        VD->>VD: 6. Display New Order with Countdown Timer (REQ-FUN-010)
+
+        alt Happy Path: Vendor Accepts
+            VD->>OS: 7a. POST /api/v1/orders/{id}/accept (with prepTime)
+            OS->>S: 8a. Cancel Auto-Reject Timer for orderId
+            OS->>OS: 9a. Update Order status to 'Preparing'
+            OS->>NS: 10a. Publish OrderAcceptedEvent
+            NS->>CA: 11a. (Push Notification) "Your order is being prepared."
+        else Alternative Path: Vendor Rejects
+            VD->>OS: 7b. POST /api/v1/orders/{id}/reject
+            OS->>S: 8b. Cancel Auto-Reject Timer for orderId
+            OS->>OS: 9b. Update Order status to 'Cancelled'
+            OS->>OS: 10b. [If Prepaid] Initiate Refund Process
+            OS->>NS: 11b. Publish OrderCancelledByVendorEvent
+            NS->>CA: 12b. (Push Notification) "Your order was cancelled."
+        end
+
+    and
+
+        S->>OS: 13. [After 5 mins] Trigger: Auto-Reject Order
+        note over S, OS: This happens if vendor doesn't act in time (SYS-001)
+        OS->>OS: 14. Update Order status to 'Cancelled' (reason: timeout)
+        OS->>OS: 15. [If Prepaid] Initiate Refund Process
+        OS->>NS: 16. Publish OrderAutoRejectedEvent
+        NS->>CA: 17. (Push Notification) "Your order was cancelled."
+        NS->>VD: 18. (WebSocket) push('order_removed', {orderId})
+
+    end

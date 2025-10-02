@@ -1,0 +1,597 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatInterface - Component Specifications</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        
+        .component-type-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .section h2 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4f46e5;
+            display: inline-block;
+        }
+        
+        .section h3 {
+            color: #4f46e5;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 20px 0 12px 0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .info-card h4 {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        
+        .info-card p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .variations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        
+        .variation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .variation-name {
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 8px;
+        }
+        
+        .variation-code {
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            color: #1e293b;
+            overflow-x: auto;
+            margin: 8px 0;
+            border-left: 4px solid #4f46e5;
+        }
+        
+        .variation-description {
+            font-size: 13px;
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .feature-category {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .feature-category h4 {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .feature-category ul {
+            list-style: none;
+        }
+        
+        .feature-category li {
+            padding: 6px 0;
+            color: #4b5563;
+            font-size: 14px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .feature-category li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .tokens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        
+        .token {
+            background: #f0f9ff;
+            color: #0369a1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            border: 1px solid #bae6fd;
+            text-align: center;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 16px 0;
+            line-height: 1.4;
+        }
+        
+        .stats-bar {
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .stat {
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ChatInterface</h1>
+            <div class="component-type-badge">organism Component</div>
+        </div>
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-number">0</span>
+                <span class="stat-label">Variations</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">17</span>
+                <span class="stat-label">Design Tokens</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Breakpoints</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">5</span>
+                <span class="stat-label">A11y Features</span>
+            </div>
+        </div><div class="content">
+        <div class="section">
+            <h2>Component Information</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Component Id</h4>
+                    <p>ORGA-COMM-001</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Name</h4>
+                    <p>ChatInterface</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Type</h4>
+                    <p>organism</p>
+                </div>
+                <div class="info-card">
+                    <h4>Description</h4>
+                    <p>A full-featured chat interface for real-time communication between users. It includes a message history, a text input area with a send button, quick reply options, and handles different states like active, read-only, loading, and error.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Design System Alignment</h4>
+                    <p>This organism combines molecular components like TextInput and Button, and atomic components like Icons and Spinners. It heavily relies on the design system's tokens for color, typography, spacing, and shadows to create a cohesive and branded communication experience.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Design Tokens Used</h2>
+            <div class="tokens-grid"><div class="token">--color-primary-500</div><div class="token">--color-primary-50</div><div class="token">--color-neutral-white</div><div class="token">--color-neutral-50</div><div class="token">--color-neutral-100</div><div class="token">--color-neutral-500</div><div class="token">--color-neutral-900</div><div class="token">--color-semantic-error</div><div class="token">--font-family-secondary</div><div class="token">--fs-body</div><div class="token">--fs-caption</div><div class="token">--fw-semibold</div><div class="token">--space-sm</div><div class="token">--space-md</div><div class="token">--radius-md</div><div class="token">--radius-full</div><div class="token">--shadow-md</div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Responsive Specifications</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Mobile Adaptations</h4>
+                    <ul><li>The component is designed mobile-first, occupying the full height of its container.</li><li>The input footer is designed to sit cleanly above the virtual keyboard when it appears.</li><li>Quick replies are horizontally scrollable to accommodate many options on a narrow screen.</li>
+                    </ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Tablet Adaptations</h4>
+                    <ul><li>The interface scales gracefully to tablet sizes without layout changes.</li>
+                    </ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Desktop Enhancements</h4>
+                    <ul><li>The interface works well in a column or modal on desktop dashboards, maintaining its mobile-first structure.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Accessibility Features</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Keyboard Support</h4><p>The input field is focusable, and messages can be sent by activating the 'Send' button with Enter/Space. Quick replies are focusable buttons.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Screen Reader Support</h4><p>The message list has `aria-live='polite'` to announce new incoming messages. The input has a hidden label. The send button and quick replies have descriptive `aria-label`s.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Focus Management</h4><p>Focus is managed within the chat input area. All interactive elements have clear focus indicators.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Aria Attributes</h4><ul><li>aria-live='polite'</li><li>aria-label for the main input and buttons</li></ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Color Contrast</h4><p>All text and interactive elements meet WCAG 2.1 AA contrast ratio requirements.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>CSS Implementation</h2>
+            <div class="code-block">/* Chat Interface CSS */
+:root {
+  /* Tokens from Design System */
+  --color-primary-500: #0068FF;
+  --color-primary-50: #E6F0FF;
+  --color-neutral-white: #FFFFFF;
+  --color-neutral-50: #F8F9FA;
+  --color-neutral-100: #F1F3F5;
+  --color-neutral-500: #868E96;
+  --color-neutral-900: #212529;
+  --color-semantic-error: #DC3545;
+  --font-family-secondary: &#039;Inter&#039;, sans-serif;
+  --fs-body: 16px;
+  --fs-caption: 14px;
+  --fw-semibold: 600;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --radius-md: 8px;
+  --radius-full: 9999px;
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.chat-interface {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--color-neutral-100);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.chat-interface__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background-color: var(--color-neutral-white);
+  border-bottom: 1px solid var(--color-neutral-100);
+  flex-shrink: 0;
+}
+
+.chat-interface__title {
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-body);
+  color: var(--color-neutral-900);
+}
+
+.chat-interface__messages {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Message Bubble (simulated) */
+.message-bubble {
+  display: inline-block;
+  max-width: 80%;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  line-height: 1.5;
+}
+.message-bubble--incoming {
+  background-color: var(--color-neutral-white);
+  color: var(--color-neutral-900);
+  border-bottom-left-radius: var(--space-xs);
+  align-self: flex-start;
+}
+.message-bubble--outgoing {
+  background-color: var(--color-primary-500);
+  color: var(--color-neutral-white);
+  border-bottom-right-radius: var(--space-xs);
+  align-self: flex-end;
+}
+
+.chat-interface__footer {
+  padding: var(--space-md);
+  background-color: var(--color-neutral-white);
+  border-top: 1px solid var(--color-neutral-100);
+  flex-shrink: 0;
+}
+
+/* Quick Replies (simulated) */
+.quick-replies {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  padding-bottom: var(--space-md);
+  scrollbar-width: none; /* Firefox */
+}
+.quick-replies::-webkit-scrollbar { display: none; }
+
+.quick-reply__btn {
+  flex-shrink: 0;
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-primary-50);
+  color: var(--color-primary-500);
+  border: 1px solid var(--color-primary-100);
+  border-radius: var(--radius-full);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+}
+
+.chat-input-form {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.chat-input-form__input {
+  flex-grow: 1;
+  border: 1px solid var(--color-neutral-500);
+  border-radius: var(--radius-full);
+  padding: 10px 16px;
+  font-size: var(--fs-body);
+}
+.chat-input-form__input:focus {
+    outline: 2px solid var(--color-primary-500);
+    border-color: var(--color-primary-500);
+}
+
+.chat-input-form__send-btn {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--color-primary-500);
+  color: var(--color-neutral-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* States */
+.chat-interface--read-only .chat-interface__footer {
+  display: none;
+}
+.chat-interface__system-message {
+    text-align: center;
+    font-size: var(--fs-caption);
+    color: var(--color-neutral-500);
+    padding: var(--space-sm) 0;
+}
+
+.chat-interface__state-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    color: var(--color-neutral-500);
+}
+.chat-interface__state-overlay h4 { color: var(--color-neutral-900); }
+
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.spinner { display: inline-block; width: 32px; height: 32px; border-radius: 50%; border: 3px solid var(--color-neutral-100); border-top-color: var(--color-primary-500); animation: spin 0.8s linear infinite; }</div>
+        </div>
+        <div class="section">
+            <h2>Implementation Notes</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Embedded Css Architecture</h4>
+                    <p>All CSS is embedded in a single `<style>` tag, using design system tokens and a BEM methodology. The layout is built primarily with modern CSS Flexbox for robust vertical stacking.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Organization</h4>
+                    <p>The HTML file showcases the Chat Interface in its four key states: active, read-only, loading, and error. This demonstrates the component's full lifecycle.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Responsive Design</h4>
+                    <p>The component is inherently responsive due to its flexible, column-based layout. It is designed to fit within various container sizes, from full-screen mobile to a sidebar widget on desktop.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Accessibility Compliance</h4>
+                    <p>WCAG 2.1 AA is addressed through semantic HTML, ARIA live regions for dynamic content, and proper labeling for all interactive controls.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Browser Support</h4>
+                    <p>Designed for modern evergreen browsers (Chrome, Firefox, Safari, Edge).</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Usage Guidelines</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>When To Use</h4><p>Use for any feature requiring real-time, one-on-one text communication, such as customer-vendor chat, customer-rider chat, or within a support ticket system.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Content Guidelines</h4><p>The header should clearly identify the other party in the conversation. Quick reply text should be concise and action-oriented.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Placement Rules</h4><p>Typically rendered as a full-screen view on mobile or within a modal/dedicated panel on web dashboards.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Customization Options</h4><ul><li style="list-style: disc; margin-left: 16px; padding-left: 0;">Control the state by applying modifier classes: `.chat-interface--read-only`, `.chat-interface--loading`, `.chat-interface--error`.</li><li style="list-style: disc; margin-left: 16px; padding-left: 0;">The quick replies and message history are populated dynamically.</li></ul>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Testing Recommendations</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Browser Testing</h4><p>Test in Chrome, Firefox, Safari, Edge for web dashboards.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Device Testing</h4><p>Crucial to test on both iOS and Android physical devices to verify behavior with the virtual keyboard, especially input field positioning and scrolling.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Accessibility Testing</h4><ul><li>Test with VoiceOver (iOS) and TalkBack (Android) to ensure new messages are announced correctly.</li><li>Verify keyboard navigation and focus management on the web version.</li></ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Performance Testing</h4><p>Ensure smooth scrolling with a long message history (e.g., 100+ messages).</p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

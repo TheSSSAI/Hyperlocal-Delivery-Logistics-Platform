@@ -1,0 +1,112 @@
+sequenceDiagram
+    actor CustomerApp
+    participant OrderService
+    participant CatalogService
+    participant PaymentsService
+    participant PaymentGateway
+    actor VendorDashboard
+    participant RiderLogisticsService
+    actor RiderApp
+    participant NotificationService
+
+    %% Phase 1: Order Placement & Payment
+    CustomerApp->>OrderService: 1. POST /api/v1/orders (Place Order)
+    activate OrderService
+    OrderService->>CatalogService: 2. [Validation] Check stock availability (REQ-1-055)
+    activate CatalogService
+    CatalogService-->>OrderService: 3. Stock available
+    deactivate CatalogService
+    OrderService->>PaymentsService: 4. Create Payment Intent (REQ-1-054)
+    activate PaymentsService
+    PaymentsService->>PaymentGateway: 5. Create Order/Intent
+    activate PaymentGateway
+    PaymentGateway-->>PaymentsService: 6. payment_intent_id
+    deactivate PaymentGateway
+    PaymentsService-->>OrderService: 7. payment_intent_id
+    deactivate PaymentsService
+    OrderService-->>CustomerApp: 8. payment_intent_id (Redirect to Gateway)
+    deactivate OrderService
+
+    CustomerApp->>PaymentGateway: 9. User completes payment
+    PaymentGateway-->>PaymentsService: 10. [Webhook] Payment Successful
+    activate PaymentsService
+    PaymentsService->>OrderService: 11. [Event] Publish PaymentSucceeded
+    deactivate PaymentsService
+
+    %% Phase 2: Vendor Acceptance & Preparation
+    activate OrderService
+    OrderService->>OrderService: 12. Create Order, Status: 'pending_vendor_acceptance' (REQ-1-056)
+    OrderService->>NotificationService: 13. [Event] Notify Vendor of New Order
+    activate NotificationService
+    NotificationService->>VendorDashboard: 14. [WebSocket] push('new_order')
+    deactivate NotificationService
+    deactivate OrderService
+
+    VendorDashboard->>OrderService: 15. POST /orders/{id}/accept (with prep_time) (REQ-1-066)
+    activate OrderService
+    OrderService->>OrderService: 16. Update Status: 'Preparing'
+    OrderService->>NotificationService: 17. [Event] Notify Customer of acceptance
+    activate NotificationService
+    NotificationService-->>CustomerApp: 18. [Push] 'Your order is being prepared'
+    deactivate NotificationService
+    OrderService-->>VendorDashboard: 19. 200 OK
+    deactivate OrderService
+
+    VendorDashboard->>OrderService: 20. POST /orders/{id}/ready-for-pickup (REQ-1-078)
+    activate OrderService
+    OrderService->>OrderService: 21. Update Status: 'Ready for Pickup'
+    OrderService->>RiderLogisticsService: 22. [Event] Trigger Rider Allocation
+    OrderService-->>VendorDashboard: 23. 200 OK
+    deactivate OrderService
+
+    %% Phase 3: Rider Allocation & Pickup
+    activate RiderLogisticsService
+    RiderLogisticsService->>RiderLogisticsService: 24. Find best available rider
+    RiderLogisticsService->>NotificationService: 25. [Event] Send task offer to Rider
+    activate NotificationService
+    NotificationService->>RiderApp: 26. [Push/WebSocket] push('new_task_offer') (REQ-1-071)
+    deactivate NotificationService
+    RiderApp->>RiderLogisticsService: 27. POST /tasks/{id}/accept
+    RiderLogisticsService->>RiderLogisticsService: 28. Assign Rider to Order
+    RiderLogisticsService->>OrderService: 29. [Event] Update order with Rider info
+    RiderLogisticsService->>NotificationService: 30. [Event] Notify Customer of assignment
+    activate NotificationService
+    NotificationService-->>CustomerApp: 31. [Push] 'Your rider is on the way to the store'
+    deactivate NotificationService
+    RiderLogisticsService-->>RiderApp: 32. 200 OK, with task details
+    deactivate RiderLogisticsService
+
+    RiderApp->>OrderService: 33. POST /orders/{id}/status (status: 'picked_up') (REQ-1-072)
+    activate OrderService
+    OrderService->>OrderService: 34. Update Status: 'In Transit'
+    OrderService->>NotificationService: 35. [Event] Notify Customer of pickup
+    activate NotificationService
+    NotificationService-->>CustomerApp: 36. [Push] 'Your order has been picked up!'
+    deactivate NotificationService
+    deactivate OrderService
+    note over CustomerApp,RiderApp: Live tracking is now active (REQ-1-059)
+
+    %% Phase 4: Delivery & Completion
+    RiderApp->>OrderService: 37. POST /orders/{id}/status (status: 'arrived_at_destination')
+    activate OrderService
+    OrderService->>OrderService: 38. Update Status: 'Arrived at Destination'
+    OrderService->>NotificationService: 39. [Event] Notify Customer of arrival
+    activate NotificationService
+    NotificationService-->>CustomerApp: 40. [Push] 'Your rider has arrived!'
+    deactivate NotificationService
+    deactivate OrderService
+
+    RiderApp->>OrderService: 41. POST /orders/{id}/pod (with OTP/Photo) (REQ-1-074)
+    activate OrderService
+    OrderService-->>RiderApp: 42. 200 OK (POD confirmed)
+    deactivate OrderService
+
+    RiderApp->>OrderService: 43. POST /orders/{id}/status (status: 'delivered') (REQ-1-077)
+    activate OrderService
+    OrderService->>OrderService: 44. Update Status: 'Delivered'
+    OrderService->>NotificationService: 45. [Event] Notify Customer of delivery & prompt for rating
+    activate NotificationService
+    NotificationService-->>CustomerApp: 46. [Push] 'Your order is delivered! Rate your experience.' (REQ-1-062)
+    deactivate NotificationService
+    note over OrderService: Triggers financial settlement processes (REQ-1-082)
+    deactivate OrderService

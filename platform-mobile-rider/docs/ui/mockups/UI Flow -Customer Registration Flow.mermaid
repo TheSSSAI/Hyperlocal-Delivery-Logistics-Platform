@@ -1,0 +1,53 @@
+flowchart TD
+    subgraph "Mobile App"
+        A[Start: User selects 'Sign Up'] --> B[Enter Mobile Number screen];
+        B --> C{Enter 10-digit mobile number};
+        C --> D[User submits number];
+    end
+
+    subgraph "Backend Service"
+        D --> E{Is number format valid?};
+        E -->|No| F[Return format error];
+        E -->|Yes| G[Check for existing user in DB];
+        G --> H{User exists?};
+        H -->|Yes| I[Return 'Already Registered' error];
+        H -->|No| J[Generate & send OTP via SMS Gateway];
+        J --> K[Return success to app];
+    end
+
+    subgraph "Mobile App"
+        F --> C;
+        I --> L[Show 'Already Registered' error <br> with link to Login screen];
+        K --> M[OTP Verification Screen];
+        M --> N{Enter received OTP};
+        N --> O[User submits OTP];
+    end
+
+    subgraph "Backend Service"
+        O --> P[Validate submitted OTP];
+        P --> Q{OTP is valid & not expired?};
+        Q -->|No| R[Return 'Invalid/Expired OTP' error];
+        Q -->|Yes| S[Create new Customer account in DB];
+        S --> T[Generate JWTs (Access & Refresh Tokens)];
+        T --> U[Return tokens to app];
+    end
+
+    subgraph "Mobile App"
+        R --> M;
+        U --> V[Securely store tokens];
+        V --> W[Navigate to Profile Setup / Home screen];
+        W --> X[End: Registration complete];
+    end
+
+    %% Styling
+    classDef errorNode fill:#ffebee,stroke:#c62828,color:#c62828
+    classDef successNode fill:#e8f5e9,stroke:#2e7d32,color:#2e7d32
+    classDef processNode fill:#e3f2fd,stroke:#1565c0,color:#000
+    classDef decision fill:#fff9c4,stroke:#f57f17,color:#000
+    classDef startEnd fill:#f3e5f5,stroke:#4a148c
+
+    class F,I,R,L errorNode;
+    class S,T,U,V,W,X,J,K successNode;
+    class C,N,D,O processNode;
+    class E,H,Q decision;
+    class A startEnd;

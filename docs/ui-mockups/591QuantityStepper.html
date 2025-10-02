@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: QuantityStepper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================== */
+    /* Design System Tokens & Base Styles              */
+    /* =============================================== */
+    :root {
+      /* Colors */
+      --color-primary-100: #B8D4FF;
+      --color-primary-500: #0068FF;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-200: #D3D9E1;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-400: #A5B0BD;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      /* Typography */
+      --font-family-primary: 'Inter', sans-serif;
+      --font-size-body: 16px;
+      /* Borders */
+      --border-radius-md: 8px;
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+    body {
+      font-family: var(--font-family-primary);
+      background-color: #f0f2f5;
+      color: var(--color-neutrals-gray-900);
+      margin: 0;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+    .showcase {
+      background-color: white;
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 600px;
+    }
+    h1, h2, p {
+      margin: 0;
+    }
+    h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    p {
+      font-size: 16px;
+      color: var(--color-neutrals-gray-700);
+      margin-bottom: 24px;
+    }
+    h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--color-neutrals-gray-200);
+      padding-bottom: 12px;
+    }
+    .variant-group {
+        margin-bottom: 24px;
+    }
+    .variant-group p {
+        font-size: 14px;
+        margin-bottom: 12px;
+    }
+
+    /* =============================================== */
+    /* Icon Styles (for QuantityStepper)               */
+    /* =============================================== */
+    .icon {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      stroke-width: 0;
+      stroke: currentColor;
+      fill: currentColor;
+      vertical-align: middle;
+    }
+
+    /* =============================================== */
+    /* QuantityStepper CSS                             */
+    /* =============================================== */
+    
+    /* Component Base */
+    .quantity-stepper {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--color-neutrals-gray-300);
+      border-radius: var(--border-radius-md);
+      overflow: hidden;
+      transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    }
+    
+    /* Provides a focus ring around the entire component for accessibility */
+    .quantity-stepper:focus-within {
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+    }
+
+    /* Stepper Button (Element) */
+    .quantity-stepper__button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px; /* WCAG minimum touch target size */
+      height: 44px; /* WCAG minimum touch target size */
+      background-color: var(--color-neutrals-white);
+      border: none;
+      padding: 0;
+      color: var(--color-neutrals-gray-700);
+      cursor: pointer;
+      transition: background-color var(--transition-fast);
+    }
+
+    .quantity-stepper__button .icon {
+      font-size: 20px;
+      color: var(--color-neutrals-gray-700);
+      transition: color var(--transition-fast);
+    }
+
+    /* States for Button */
+    .quantity-stepper__button:hover:not([disabled]) {
+      background-color: var(--color-neutrals-gray-50);
+    }
+
+    .quantity-stepper__button:active:not([disabled]) {
+      background-color: var(--color-neutrals-gray-100);
+    }
+    
+    /* The focus state is handled by the parent :focus-within for a better group indication */
+    .quantity-stepper__button:focus {
+      outline: none; 
+    }
+    .quantity-stepper__button:focus-visible {
+       outline: none;
+    }
+
+    /* Disabled State for Button */
+    .quantity-stepper__button[disabled] {
+      cursor: not-allowed;
+      background-color: var(--color-neutrals-gray-50);
+    }
+
+    .quantity-stepper__button[disabled] .icon {
+      color: var(--color-neutrals-gray-300);
+    }
+
+    /* Stepper Input (Element) */
+    .quantity-stepper__input {
+      width: 48px;
+      height: 44px;
+      text-align: center;
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      font-weight: 600;
+      color: var(--color-neutrals-gray-900);
+      border: none;
+      border-left: 1px solid var(--color-neutrals-gray-200);
+      border-right: 1px solid var(--color-neutrals-gray-200);
+      padding: 0;
+      -moz-appearance: textfield; /* Firefox */
+    }
+    
+    /* Remove number input spinners in Webkit browsers */
+    .quantity-stepper__input::-webkit-outer-spin-button,
+    .quantity-stepper__input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    
+    /* The focus state is handled by the parent :focus-within */
+    .quantity-stepper__input:focus {
+      outline: none;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="showcase">
+    <h1>Molecular Component: QuantityStepper</h1>
+    <p>A control for incrementing or decrementing a numerical value, typically used in shopping carts.</p>
+
+    <div>
+      <h2>Component Variations</h2>
+
+      <div class="variant-group">
+        <h3>Default State</h3>
+        <p>The standard interactive state where the user can increase or decrease the quantity.</p>
+        
+        <!-- Default State Component -->
+        <div class="quantity-stepper" role="group" aria-labelledby="stepper-label-1">
+          <button class="quantity-stepper__button" type="button" aria-label="Decrease quantity">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 13H5V11H19V13Z" fill="currentColor"/></svg>
+          </button>
+          <input class="quantity-stepper__input" type="text" value="2" readonly aria-live="polite">
+          <button class="quantity-stepper__button" type="button" aria-label="Increase quantity">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/></svg>
+          </button>
+        </div>
+        <span id="stepper-label-1" style="display: none;">Product Quantity</span>
+      </div>
+
+      <div class="variant-group">
+        <h3>Disabled Minus State</h3>
+        <p>Occurs when the quantity is at its minimum value (e.g., 1). The 'Decrease' button is disabled.</p>
+
+        <!-- Disabled Minus State Component -->
+        <div class="quantity-stepper" role="group" aria-labelledby="stepper-label-2">
+          <button class="quantity-stepper__button" type="button" aria-label="Decrease quantity" disabled>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 13H5V11H19V13Z" fill="currentColor"/></svg>
+          </button>
+          <input class="quantity-stepper__input" type="text" value="1" readonly aria-live="polite">
+          <button class="quantity-stepper__button" type="button" aria-label="Increase quantity">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/></svg>
+          </button>
+        </div>
+        <span id="stepper-label-2" style="display: none;">Product Quantity (Minimum)</span>
+      </div>
+
+      <div class="variant-group">
+        <h3>Disabled Plus State</h3>
+        <p>Occurs when the quantity reaches the maximum available stock. The 'Increase' button is disabled.</p>
+
+        <!-- Disabled Plus State Component -->
+        <div class="quantity-stepper" role="group" aria-labelledby="stepper-label-3">
+          <button class="quantity-stepper__button" type="button" aria-label="Decrease quantity">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 13H5V11H19V13Z" fill="currentColor"/></svg>
+          </button>
+          <input class="quantity-stepper__input" type="text" value="5" readonly aria-live="polite">
+          <button class="quantity-stepper__button" type="button" aria-label="Increase quantity" disabled>
+            <svg class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 13H13V19H11V13H5V11H11V5H13V11H19V13Z" fill="currentColor"/></svg>
+          </button>
+        </div>
+        <span id="stepper-label-3" style="display: none;">Product Quantity (Maximum Stock Reached)</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

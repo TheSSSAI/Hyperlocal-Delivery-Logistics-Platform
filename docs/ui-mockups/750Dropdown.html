@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: Dropdown</title>
+  <style>
+    /* ---------------------------------- */
+    /* --- DESIGN SYSTEM FOUNDATION --- */
+    /* ---------------------------------- */
+    :root {
+      /* Font Families */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      /* Colors: Primary */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      /* Colors: Neutrals */
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-100: #E9EDF2;
+      --color-gray-200: #D3D9E1;
+      --color-gray-300: #BCC4CF;
+      --color-gray-500: #8E9BAA;
+      --color-gray-900: #1C1F22;
+      /* Spacing */
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+      /* Border Radius */
+      --radius-sm: 4px; --radius-md: 8px; --radius-lg: 12px;
+      /* Shadows */
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.08);
+    }
+    /* ---------------------------------- */
+    /* --- BASE & LAYOUT STYLES --- */
+    /* ---------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: var(--font-family-primary); color: var(--color-gray-900); background-color: var(--color-gray-50); margin: 0; padding: var(--space-6); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+    .showcase { max-width: 1200px; margin: 0 auto; }
+    .showcase-header { margin-bottom: var(--space-6); }
+    h1 { font-size: 36px; margin: 0 0 var(--space-2) 0; }
+    h2 { font-size: 28px; margin: var(--space-7) 0 var(--space-5) 0; padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-gray-200); }
+    h3 { font-size: 20px; margin: 0 0 var(--space-4) 0; }
+    .component-section { background-color: var(--color-white); padding: var(--space-6); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+    .component-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-6); }
+    .component-group > p { margin-top: 0; margin-bottom: var(--space-3); font-weight: 600; }
+    
+    /* ---------------------------------- */
+    /* --- ATOMIC DEPENDENCIES --- */
+    /* ---------------------------------- */
+    /* Icon */
+    .icon { display: inline-block; vertical-align: middle; stroke-width: 2.5; fill: none; stroke: currentColor; }
+    .icon--sm { width: 16px; height: 16px; }
+    .icon--md { width: 24px; height: 24px; }
+    /* Checkbox (for multi-select) */
+    .checkbox__control { width: 20px; height: 20px; border: 2px solid var(--color-gray-300); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; background-color: var(--color-white); }
+    .checkbox__control .icon { opacity: 0; transform: scale(0.5); transition: all 0.2s ease; color: var(--color-white); }
+    .dropdown__item[data-checked="true"] .checkbox__control { background-color: var(--color-primary-500); border-color: var(--color-primary-500); }
+    .dropdown__item[data-checked="true"] .checkbox__control .icon { opacity: 1; transform: scale(1); }
+
+    /* ---------------------------------- */
+    /* --- MOLECULAR: DROPDOWN --- */
+    /* ---------------------------------- */
+    .dropdown-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 320px;
+      font-family: var(--font-family-primary);
+    }
+
+    .dropdown__trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      font-size: 16px;
+      text-align: left;
+      background-color: var(--color-white);
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dropdown__trigger:focus-visible {
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+      outline: none;
+    }
+
+    .dropdown__value {
+      color: var(--color-gray-900);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dropdown__value--placeholder {
+      color: var(--color-gray-500);
+    }
+
+    .dropdown__icon {
+      color: var(--color-gray-500);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+      margin-left: var(--space-2);
+    }
+
+    /* Open State */
+    .dropdown--open .dropdown__trigger {
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+    }
+
+    .dropdown--open .dropdown__icon {
+      transform: rotate(180deg);
+    }
+
+    .dropdown__panel {
+      position: absolute;
+      top: calc(100% + var(--space-2));
+      left: 0;
+      width: 100%;
+      background-color: var(--color-white);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-gray-200);
+      box-shadow: var(--shadow-md);
+      z-index: 10;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-8px);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .dropdown--open .dropdown__panel {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown__list {
+      list-style: none;
+      margin: 0;
+      padding: var(--space-2);
+    }
+
+    .dropdown__item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.15s ease;
+    }
+    
+    .dropdown__item:focus-visible {
+      outline: none;
+      background-color: var(--color-primary-50);
+    }
+
+    .dropdown__item:hover, .dropdown__item--highlighted {
+      background-color: var(--color-primary-50);
+    }
+
+    .dropdown__item[aria-selected="true"] {
+      font-weight: 600;
+      color: var(--color-primary-600);
+      background-color: var(--color-primary-100);
+    }
+
+    .dropdown__item-icon {
+      color: var(--color-primary-500);
+      visibility: hidden;
+    }
+
+    .dropdown__item[aria-selected="true"] .dropdown__item-icon {
+      visibility: visible;
+    }
+
+    /* Disabled State */
+    .dropdown--disabled .dropdown__trigger {
+      background-color: var(--color-gray-100);
+      color: var(--color-gray-500);
+      border-color: var(--color-gray-200);
+      cursor: not-allowed;
+    }
+
+    .dropdown--disabled .dropdown__value {
+      color: var(--color-gray-500);
+    }
+    
+    .dropdown--disabled .dropdown__trigger:focus-visible {
+      box-shadow: none;
+    }
+
+    /* Multi-select Variant */
+    .dropdown--multi-select .dropdown__item[aria-selected="true"] {
+      background-color: transparent;
+      color: var(--color-gray-900);
+      font-weight: 400;
+    }
+    
+    .dropdown--multi-select .dropdown__item:hover,
+    .dropdown--multi-select .dropdown__item:focus-visible {
+      background-color: var(--color-primary-50);
+    }
+
+    .dropdown--multi-select .dropdown__item .checkbox__control {
+      flex-shrink: 0;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="showcase">
+    <header class="showcase-header">
+      <h1>Molecular Component: Dropdown</h1>
+      <p>A custom select component for choosing one or more options from a list.</p>
+    </header>
+
+    <section class="component-section">
+      <div class="component-grid">
+        <div class="component-group">
+          <h3>Single-Select Dropdown</h3>
+          <p>Allows the user to select one option from a list.</p>
+          
+          <label id="ss-label-1" style="font-weight: 600; margin-bottom: 4px;">Default State</label>
+          <div id="ss-1" class="dropdown-wrapper">
+            <button class="dropdown__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="ss-label-1 ss-1-value" aria-controls="ss-1-listbox">
+              <span id="ss-1-value" class="dropdown__value dropdown__value--placeholder">Select a category</span>
+              <svg class="icon icon--sm dropdown__icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="dropdown__panel">
+              <ul id="ss-1-listbox" class="dropdown__list" role="listbox">
+                <!-- Options here -->
+              </ul>
+            </div>
+          </div>
+          
+          <label id="ss-label-2" style="font-weight: 600; margin-top: 16px; margin-bottom: 4px;">Open State</label>
+          <div id="ss-2" class="dropdown-wrapper dropdown--open">
+            <button class="dropdown__trigger" aria-haspopup="listbox" aria-expanded="true" aria-labelledby="ss-label-2 ss-2-value" aria-controls="ss-2-listbox">
+              <span id="ss-2-value" class="dropdown__value">Appetizers</span>
+              <svg class="icon icon--sm dropdown__icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="dropdown__panel">
+              <ul id="ss-2-listbox" class="dropdown__list" role="listbox" aria-labelledby="ss-label-2">
+                <li class="dropdown__item" role="option" aria-selected="true" tabindex="0">
+                  <svg class="icon icon--sm dropdown__item-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Appetizers
+                </li>
+                <li class="dropdown__item" role="option" aria-selected="false" tabindex="-1">
+                  <svg class="icon icon--sm dropdown__item-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Main Courses
+                </li>
+                <li class="dropdown__item" role="option" aria-selected="false" tabindex="-1">
+                  <svg class="icon icon--sm dropdown__item-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Desserts
+                </li>
+                <li class="dropdown__item" role="option" aria-selected="false" tabindex="-1">
+                  <svg class="icon icon--sm dropdown__item-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Beverages
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <label id="ss-label-3" style="font-weight: 600; margin-top: 16px; margin-bottom: 4px;">Disabled State</label>
+          <div id="ss-3" class="dropdown-wrapper dropdown--disabled">
+            <button class="dropdown__trigger" disabled aria-labelledby="ss-label-3 ss-3-value">
+              <span id="ss-3-value" class="dropdown__value dropdown__value--placeholder">Cannot select</span>
+              <svg class="icon icon--sm dropdown__icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+          </div>
+
+        </div>
+
+        <div class="component-group">
+          <h3>Multi-Select Dropdown</h3>
+          <p>Allows the user to select multiple options.</p>
+
+          <label id="ms-label-1" style="font-weight: 600; margin-bottom: 4px;">Default State</label>
+          <div id="ms-1" class="dropdown-wrapper dropdown--multi-select">
+            <button class="dropdown__trigger" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="ms-label-1 ms-1-value" aria-controls="ms-1-listbox">
+              <span id="ms-1-value" class="dropdown__value">2 ingredients selected</span>
+              <svg class="icon icon--sm dropdown__icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+          </div>
+
+          <label id="ms-label-2" style="font-weight: 600; margin-top: 16px; margin-bottom: 4px;">Open State</label>
+          <div id="ms-2" class="dropdown-wrapper dropdown--multi-select dropdown--open">
+            <button class="dropdown__trigger" aria-haspopup="listbox" aria-expanded="true" aria-labelledby="ms-label-2 ms-2-value" aria-controls="ms-2-listbox">
+              <span id="ms-2-value" class="dropdown__value">2 ingredients selected</span>
+              <svg class="icon icon--sm dropdown__icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+            <div class="dropdown__panel">
+              <ul id="ms-2-listbox" class="dropdown__list" role="listbox" aria-multiselectable="true" aria-labelledby="ms-label-2">
+                <li class="dropdown__item" role="option" aria-selected="true" data-checked="true" tabindex="0">
+                  <span class="checkbox__control"><svg class="icon icon--sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                  <span>Lettuce</span>
+                </li>
+                <li class="dropdown__item" role="option" aria-selected="false" data-checked="false" tabindex="-1">
+                  <span class="checkbox__control"><svg class="icon icon--sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                  <span>Tomatoes</span>
+                </li>
+                <li class="dropdown__item" role="option" aria-selected="true" data-checked="true" tabindex="-1">
+                  <span class="checkbox__control"><svg class="icon icon--sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                  <span>Onions</span>
+                </li>
+                <li class="dropdown__item" role="option" aria-selected="false" data-checked="false" tabindex="-1">
+                  <span class="checkbox__control"><svg class="icon icon--sm" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></span>
+                  <span>Cucumbers</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <label id="ms-label-3" style="font-weight: 600; margin-top: 16px; margin-bottom: 4px;">Disabled State</label>
+          <div id="ms-3" class="dropdown-wrapper dropdown--multi-select dropdown--disabled">
+            <button class="dropdown__trigger" disabled aria-labelledby="ms-label-3 ms-3-value">
+              <span id="ms-3-value" class="dropdown__value">Selection locked</span>
+              <svg class="icon icon--sm dropdown__icon" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div>
+        <h2>Component Variations</h2>
+        <div>
+            <h3>Variant Name: Single-Select</h3>
+            <p>The standard dropdown where a user can only select one option from the list. The selected value replaces the placeholder in the trigger.</p>
+        </div>
+        <div>
+            <h3>Variant Name: Multi-Select</h3>
+            <p>Allows users to select multiple options from the list. The trigger typically displays a count of selected items rather than the items themselves.</p>
+        </div>
+    </div>
+
+  </div>
+</body>
+</html>

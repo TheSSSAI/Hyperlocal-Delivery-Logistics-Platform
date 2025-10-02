@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: MapView</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================== */
+    /* 1. Design System Tokens & Base Styles           */
+    /* =============================================== */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', sans-serif;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      /* Colors */
+      --color-primary-100: #E6F0FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-500: #8E9BAA;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      /* Spacing */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --border-radius-full: 9999px;
+      --shadow-md: 0px 6px 12px rgba(28, 31, 34, 0.1);
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-900);
+      margin: 0;
+      padding: var(--space-32);
+    }
+    .showcase { max-width: 1000px; margin: auto; }
+    h1 { font-size: 36px; text-align: center; margin-bottom: var(--space-32); }
+    h2 { font-size: 24px; margin: var(--space-32) 0 var(--space-16) 0; border-bottom: 1px solid var(--color-neutrals-gray-100); padding-bottom: var(--space-8); }
+    
+    /* =============================================== */
+    /* 2. Atomic Dependency Styles                     */
+    /* =============================================== */
+    .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .spinner { animation: spin 0.8s linear infinite; border-radius: 50%; border: 4px solid var(--color-primary-500); border-right-color: transparent; width: 48px; height: 48px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8); font-weight: 600; padding: 10px 16px; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; text-decoration: none; transition: all var(--transition-fast); }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutrals-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .btn--secondary { background-color: var(--color-neutrals-gray-100); color: var(--color-neutrals-gray-700); }
+    .btn--secondary:hover { background-color: var(--color-neutrals-gray-200); }
+    .btn--full-width { width: 100%; }
+    .avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--color-neutrals-gray-300); }
+    .search-bar { width: 100%; padding: var(--space-12); border-radius: var(--border-radius-md); border: 1px solid var(--color-neutrals-gray-300); font-size: var(--font-size-body); }
+    .form-group { margin-bottom: var(--space-16); }
+    .label { display: block; font-size: var(--font-size-caption); font-weight: 600; color: var(--color-neutrals-gray-700); margin-bottom: var(--space-8); }
+
+    /* =============================================== */
+    /* 3. Organism Component: MapView                  */
+    /* =============================================== */
+    .map-view {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      background-color: var(--color-neutrals-gray-100);
+    }
+    .map-view__canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    /* --- States --- */
+    .map-view--loading .map-view__overlay {
+      display: flex;
+    }
+    .map-view__overlay {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    /* --- Live Tracking Variant --- */
+    .live-tracking-panel {
+      position: absolute;
+      bottom: var(--space-16);
+      left: var(--space-16);
+      right: var(--space-16);
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-16);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-12);
+    }
+    .live-tracking-panel__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .live-tracking-panel__status { font-weight: 600; }
+    .live-tracking-panel__eta { font-size: var(--font-size-caption); color: var(--color-neutrals-gray-700); }
+    .live-tracking-panel__rider {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      border-top: 1px solid var(--color-neutrals-gray-100);
+      padding-top: var(--space-12);
+    }
+    .live-tracking-panel__rider-info { flex-grow: 1; }
+    .live-tracking-panel__rider-name { font-weight: 600; }
+    .live-tracking-panel__rider-rating { font-size: var(--font-size-caption); color: var(--color-neutrals-gray-700); }
+    .live-tracking-panel__rider-actions { display: flex; gap: var(--space-8); }
+    
+    /* --- Address Picker Variant --- */
+    .address-picker__pin {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -100%); /* Pin point at center */
+      z-index: 5;
+      font-size: 48px;
+      color: var(--color-primary-500);
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    }
+    .address-picker__search-bar {
+      position: absolute;
+      top: var(--space-16);
+      left: var(--space-16);
+      right: var(--space-16);
+      z-index: 10;
+    }
+    .address-picker__panel {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background-color: var(--color-neutrals-white);
+      padding: var(--space-16);
+      border-top-left-radius: var(--border-radius-lg);
+      border-top-right-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      z-index: 10;
+    }
+    .address-picker__panel h4 { margin: 0 0 var(--space-8) 0; }
+    .address-picker__panel p { margin: 0 0 var(--space-16) 0; color: var(--color-neutrals-gray-700); font-size: var(--font-size-caption); }
+    
+    /* --- Geofencing Tool Variant --- */
+    .geofencing-tool__toolbar {
+      position: absolute;
+      top: var(--space-16);
+      right: var(--space-16);
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-md);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      padding: var(--space-4);
+    }
+    .geofencing-tool__panel {
+      position: absolute;
+      bottom: var(--space-16);
+      left: var(--space-16);
+      width: calc(100% - 32px);
+      max-width: 360px;
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      padding: var(--space-24);
+      z-index: 10;
+    }
+    .geofencing-tool__panel .form-actions { display: flex; gap: var(--space-12); margin-top: var(--space-16); }
+
+    /* Responsive Adaptations */
+    @media (max-width: 768px) {
+      .map-view { aspect-ratio: 4 / 5; }
+      .live-tracking-panel, .address-picker__panel, .geofencing-tool__panel {
+        left: var(--space-8);
+        right: var(--space-8);
+        bottom: var(--space-8);
+        width: auto;
+      }
+      .address-picker__search-bar { left: var(--space-8); right: var(--space-8); top: var(--space-8); }
+      .geofencing-tool__toolbar { top: var(--space-8); right: var(--space-8); }
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase">
+    <h1>MapView Organism</h1>
+
+    <!-- =============================================== -->
+    <!-- Variant 1: Live Tracking                      -->
+    <!-- =============================================== -->
+    <h2>Variant: Live Tracking</h2>
+    <div class="map-view map-view--live-tracking">
+      <img class="map-view__canvas" src="https://user-images.githubusercontent.com/10992333/218413100-385a41e6-b489-482d-8b5e-f07662c64e57.png" alt="A map showing a delivery route from a vendor to a customer with a rider's location in between.">
+      <div class="live-tracking-panel">
+        <div class="live-tracking-panel__header">
+          <span class="live-tracking-panel__status">Your order is on its way</span>
+          <span class="live-tracking-panel__eta">Arriving in 12 mins</span>
+        </div>
+        <div class="live-tracking-panel__rider">
+          <img src="https://i.pravatar.cc/80" alt="Rider profile picture" class="avatar">
+          <div class="live-tracking-panel__rider-info">
+            <div class="live-tracking-panel__rider-name">Rohan Patel</div>
+            <div class="live-tracking-panel__rider-rating">⭐ 4.8</div>
+          </div>
+          <div class="live-tracking-panel__rider-actions">
+            <a href="#" class="btn btn--secondary" style="padding: 10px;">
+              <svg class="icon" style="font-size: 20px;" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"></path></svg>
+            </a>
+            <a href="#" class="btn btn--secondary" style="padding: 10px;">
+              <svg class="icon" style="font-size: 20px;" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =============================================== -->
+    <!-- Variant 2: Address Picker                     -->
+    <!-- =============================================== -->
+    <h2>Variant: Address Picker</h2>
+    <div class="map-view map-view--address-picker">
+      <img class="map-view__canvas" src="https://user-images.githubusercontent.com/10992333/218413100-385a41e6-b489-482d-8b5e-f07662c64e57.png" alt="A map centered on a specific location.">
+      <svg class="icon address-picker__pin" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"></path></svg>
+      <div class="address-picker__search-bar">
+        <input type="text" class="search-bar" placeholder="Search for area, street name...">
+      </div>
+      <div class="address-picker__panel">
+        <h4>Confirm your location</h4>
+        <p>123, Marine Drive, Nariman Point, Mumbai, Maharashtra 400021</p>
+        <button class="btn btn--primary btn--full-width">Confirm Address</button>
+      </div>
+    </div>
+
+    <!-- =============================================== -->
+    <!-- Variant 3: Geofencing Tool                    -->
+    <!-- =============================================== -->
+    <h2>Variant: Geofencing Tool (Admin)</h2>
+    <div class="map-view map-view--geofencing-tool">
+      <img class="map-view__canvas" src="https://user-images.githubusercontent.com/10992333/218413100-385a41e6-b489-482d-8b5e-f07662c64e57.png" alt="A map showing a polygonal geofenced area.">
+      <div class="geofencing-tool__toolbar">
+        <button class="btn" style="padding: 10px;" aria-label="Draw Polygon">
+          <svg class="icon" style="font-size: 24px;" viewBox="0 0 24 24"><path d="M21 16.5c0 .83-.34 1.58-.88 2.12l-5.74-5.74c.54-.54.88-1.29.88-2.12 0-1.65-1.35-3-3-3s-3 1.35-3 3c0 .83.34 1.58.88 2.12L3.39 18.61c-1.17 1.17-1.17 3.07 0 4.24l1.41 1.41c1.17 1.17 3.07 1.17 4.24 0l11.08-11.08c.54.54 1.29.88 2.12.88 1.65 0 3-1.35 3-3s-1.35-3-3-3-3 1.35-3 3z"></path></svg>
+        </button>
+        <button class="btn" style="padding: 10px;" aria-label="Edit Polygon">
+          <svg class="icon" style="font-size: 24px;" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg>
+        </button>
+      </div>
+      <div class="geofencing-tool__panel">
+        <div class="form-group">
+          <label class="label" for="zone-name">Zone Name</label>
+          <input type="text" id="zone-name" class="search-bar" value="Mumbai South">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn--secondary">Cancel</button>
+          <button class="btn btn--primary">Save Zone</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- =============================================== -->
+    <!-- State: Loading                                -->
+    <!-- =============================================== -->
+    <h2>State: Loading</h2>
+    <div class="map-view map-view--loading" aria-busy="true">
+        <img class="map-view__canvas" src="https://user-images.githubusercontent.com/10992333/218413100-385a41e6-b489-482d-8b5e-f07662c64e57.png" alt="A map." style="filter: blur(4px);">
+      <div class="map-view__overlay">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+  </div>
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "live-tracking"</h3>
+		<!--description--><normal> Used by customers to track the real-time location of a rider for an active order. It features a bottom panel with ETA and rider details. </normal>
+		<!-- vrient 1 html -->
+        <div class="map-view map-view--live-tracking">
+      <img class="map-view__canvas" src="https://user-images.githubusercontent.com/10992333/218413100-385a41e6-b489-482d-8b5e-f07662c64e57.png" alt="A map showing a delivery route from a vendor to a customer with a rider's location in between.">
+      <div class="live-tracking-panel">
+        <div class="live-tracking-panel__header">
+          <span class="live-tracking-panel__status">Your order is on its way</span>
+          <span class="live-tracking-panel__eta">Arriving in 12 mins</span>
+        </div>
+        <div class="live-tracking-panel__rider">
+          <img src="https://i.pravatar.cc/80" alt="Rider profile picture" class="avatar">
+          <div class="live-tracking-panel__rider-info">
+            <div class="live-tracking-panel__rider-name">Rohan Patel</div>
+            <div class="live-tracking-panel__rider-rating">⭐ 4.8</div>
+          </div>
+          <div class="live-tracking-panel__rider-actions">
+            <a href="#" class="btn btn--secondary" style="padding: 10px;">
+              <svg class="icon" style="font-size: 20px;" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"></path></svg>
+            </a>
+            <a href="#" class="btn btn--secondary" style="padding: 10px;">
+              <svg class="icon" style="font-size: 20px;" viewBox="0 0 24 24"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"></path></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "address-picker"</h3>
+		<!--description--><normal> Used in forms where a user needs to select a precise location on a map. Features a central pin and a confirmation panel. </normal>
+		<!-- vrient 1 html -->
+        <div class="map-view map-view--address-picker">
+      <img class="map-view__canvas" src="https://user-images.githubusercontent.com/10992333/218413100-385a41e6-b489-482d-8b5e-f07662c64e57.png" alt="A map centered on a specific location.">
+      <svg class="icon address-picker__pin" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"></path></svg>
+      <div class="address-picker__search-bar">
+        <input type="text" class="search-bar" placeholder="Search for area, street name...">
+      </div>
+      <div class="address-picker__panel">
+        <h4>Confirm your location</h4>
+        <p>123, Marine Drive, Nariman Point, Mumbai, Maharashtra 400021</p>
+        <button class="btn btn--primary btn--full-width">Confirm Address</button>
+      </div>
+    </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "geofencing-tool"</h3>
+		<!--description--><normal> A specialized tool for administrators to draw and manage polygonal operational zones. Includes a toolbar and an info panel. </normal>
+		<!-- vrient 1 html -->
+        <div class="map-view map-view--geofencing-tool">
+      <img class="map-view__canvas" src="https://user-images.githubusercontent.com/10992333/218413100-385a41e6-b489-482d-8b5e-f07662c64e57.png" alt="A map showing a polygonal geofenced area.">
+      <div class="geofencing-tool__toolbar">
+        <button class="btn" style="padding: 10px;" aria-label="Draw Polygon">
+          <svg class="icon" style="font-size: 24px;" viewBox="0 0 24 24"><path d="M21 16.5c0 .83-.34 1.58-.88 2.12l-5.74-5.74c.54-.54.88-1.29.88-2.12 0-1.65-1.35-3-3-3s-3 1.35-3 3c0 .83.34 1.58.88 2.12L3.39 18.61c-1.17 1.17-1.17 3.07 0 4.24l1.41 1.41c1.17 1.17 3.07 1.17 4.24 0l11.08-11.08c.54.54 1.29.88 2.12.88 1.65 0 3-1.35 3-3s-1.35-3-3-3-3 1.35-3 3z"></path></svg>
+        </button>
+        <button class="btn" style="padding: 10px;" aria-label="Edit Polygon">
+          <svg class="icon" style="font-size: 24px;" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"></path></svg>
+        </button>
+      </div>
+      <div class="geofencing-tool__panel">
+        <div class="form-group">
+          <label class="label" for="zone-name-2">Zone Name</label>
+          <input type="text" id="zone-name-2" class="search-bar" value="Mumbai South">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn--secondary">Cancel</button>
+          <button class="btn btn--primary">Save Zone</button>
+        </div>
+      </div>
+    </div>     
+		
+      <div>
+	 </div>
+	 </div>
+</body>
+</html>

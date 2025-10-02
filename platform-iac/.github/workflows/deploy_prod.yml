@@ -1,0 +1,76 @@
+# .github/workflows/deploy_prod.yml
+name: "Deploy Infrastructure to Production"
+
+on:
+  push:
+    branches:
+      - main # Assumes 'main' branch maps to production environment
+    paths:
+      - "environments/prod/**"
+      - "modules/**"
+      - "**.tf"
+
+permissions:
+  id-token: write # Required for AWS OIDC authentication
+  contents: read # Required to checkout the code
+
+# Prevent concurrent deployments to the same environment
+concurrency:
+  group: "prod-deployment"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: "Deploy to Production"
+    runs-on: ubuntu-latest
+    
+    # CRITICAL: This requires setting up a "production" environment in the repository settings
+    # and adding required reviewers to it. This step enforces manual approval.
+    environment: 
+      name: production
+      url: 'https://console.aws.amazon.com' # Optional: Link to the AWS console
+
+    steps:
+      - name: "Checkout Code"
+        uses: actions/checkout@v4
+
+      - name: "Setup Terraform"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.0"
+
+      - name: "Configure AWS Credentials for Production"
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionRole-prod"
+          aws-region: "ap-south-1"
+
+      - name: "Terraform Init"
+        id: init
+        run: terraform init
+        working-directory: ./environments/prod
+        env:
+          AWS_BUCKET_NAME: ${{ secrets.AWS_TF_STATE_BUCKET }}
+          AWS_DYNAMODB_TABLE: ${{ secrets.AWS_TF_LOCK_TABLE }}
+
+      - name: "Terraform Plan"
+        id: plan
+        run: terraform plan -no-color -out=tfplan
+        working-directory: ./environments/prod
+        # In a more advanced setup, you could post this plan to a Slack channel for the approver to see.
+
+      - name: "Terraform Apply"
+        id: apply
+        # The job will pause here and wait for a manual approval from a designated reviewer
+        # before this step is executed.
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./environments/prod
+
+      # Optional: Add a step for notifications (e.g., Slack) on success or failure
+      - name: "Notify on Success"
+        if: success()
+        run: echo "Production deployment successful!"
+
+      - name: "Notify on Failure"
+        if: failure()
+        run: echo "🚨 Production deployment failed! 🚨"

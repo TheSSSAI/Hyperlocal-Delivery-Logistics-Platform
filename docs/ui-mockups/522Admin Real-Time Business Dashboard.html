@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Real-Time Business Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Design System Tokens (CSS Variables) */
+    :root {
+      --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      
+      --color-background: #f8f9fa;
+      --color-surface: #ffffff;
+      --color-text-primary: #212529;
+      --color-text-secondary: #6c757d;
+      --color-text-tertiary: #adb5bd;
+      --color-border: #dee2e6;
+      
+      --color-primary: #4f46e5;
+      --color-green-value: #198754;
+      --color-red-value: #dc3545;
+      --color-orange-value: #fd7e14;
+      
+      --font-size-xs: 0.75rem;   /* 12px */
+      --font-size-sm: 0.875rem;  /* 14px */
+      --font-size-base: 1rem;    /* 16px */
+      --font-size-lg: 1.125rem;  /* 18px */
+      --font-size-xl: 1.25rem;   /* 20px */
+      --font-size-2xl: 1.5rem;   /* 24px */
+      --font-size-3xl: 2.25rem;  /* 36px */
+      
+      --spacing-1: 0.25rem; /* 4px */
+      --spacing-2: 0.5rem;  /* 8px */
+      --spacing-3: 0.75rem; /* 12px */
+      --spacing-4: 1rem;    /* 16px */
+      --spacing-5: 1.25rem; /* 20px */
+      --spacing-6: 1.5rem;  /* 24px */
+      --spacing-8: 2rem;    /* 32px */
+      
+      --border-radius-md: 0.375rem; /* 6px */
+      --border-radius-lg: 0.5rem;   /* 8px */
+      
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    /* Base Styles */
+    body {
+      font-family: var(--font-family-sans);
+      background-color: var(--color-background);
+      color: var(--color-text-primary);
+      line-height: 1.5;
+    }
+
+    /* Screen Layout */
+    .screen-container {
+      padding: var(--spacing-6) var(--spacing-8);
+      max-width: 1600px;
+      margin-inline: auto;
+    }
+    
+    .screen-header {
+      margin-bottom: var(--spacing-6);
+    }
+
+    .screen-header h1 {
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+    }
+
+    .widget-grid {
+      display: grid;
+      gap: var(--spacing-6);
+      grid-template-columns: repeat(4, 1fr);
+    }
+    
+    /* Responsive Adaptations */
+    @media (max-width: 1200px) {
+      .widget-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .screen-container {
+        padding: var(--spacing-4);
+      }
+      .widget-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Component: DashboardWidget */
+    .dashboard-widget {
+      background-color: var(--color-surface);
+      border-radius: var(--border-radius-lg);
+      border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-sm);
+      padding: var(--spacing-6);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .dashboard-widget__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-4);
+    }
+
+    .dashboard-widget__title {
+      font-size: var(--font-size-base);
+      font-weight: 600;
+      color: var(--color-text-secondary);
+    }
+
+    .dashboard-widget__content {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Variant: KPI Card */
+    .kpi-card .dashboard-widget__content {
+      justify-content: center;
+    }
+
+    .kpi-card__value {
+      font-size: var(--font-size-3xl);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    
+    .kpi-card__subtext {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-secondary);
+      margin-top: var(--spacing-1);
+    }
+    
+    .kpi-card__change {
+        display: flex;
+        align-items: center;
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+        margin-top: var(--spacing-4);
+    }
+    .kpi-card__change svg {
+        width: 16px;
+        height: 16px;
+        margin-right: var(--spacing-1);
+    }
+    .kpi-card__change--positive { color: var(--color-green-value); }
+    .kpi-card__change--negative { color: var(--color-red-value); }
+
+    /* Variant: Line Chart */
+    .line-chart {
+      grid-column: span 2;
+    }
+    
+    .line-chart .dashboard-widget__content {
+        justify-content: flex-end;
+    }
+    
+    .line-chart__chart-area {
+        width: 100%;
+        height: 150px;
+    }
+    .line-chart__chart-area svg {
+        width: 100%;
+        height: 100%;
+        overflow: visible;
+    }
+    .line-chart__line {
+        fill: none;
+        stroke: var(--color-primary);
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+    .line-chart__area {
+        fill: var(--color-primary);
+        opacity: 0.1;
+    }
+    .line-chart__axis {
+        font-size: var(--font-size-xs);
+        color: var(--color-text-tertiary);
+        stroke: var(--color-border);
+    }
+    
+    /* State: Loading (Skeleton) */
+    .skeleton {
+      animation: shimmer 1.5s infinite linear;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 200% 100%;
+      border-radius: var(--border-radius-md);
+      color: transparent !important;
+      user-select: none;
+    }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .kpi-card .skeleton--value { height: 2.5rem; width: 60%; margin-bottom: var(--spacing-2); }
+    .kpi-card .skeleton--subtext { height: 1rem; width: 40%; }
+    .line-chart .skeleton--chart { height: 150px; width: 100%; }
+
+    /* State: Error (Alert) */
+    .error-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      height: 100%;
+    }
+    .error-state__icon {
+      color: var(--color-red-value);
+      width: 32px;
+      height: 32px;
+      margin-bottom: var(--spacing-2);
+    }
+    .error-state__title {
+      font-weight: 600;
+      color: var(--color-text-primary);
+      font-size: var(--font-size-sm);
+    }
+    .error-state__message {
+      color: var(--color-text-secondary);
+      font-size: var(--font-size-xs);
+    }
+    
+    /* Screen Variations Wrapper */
+    .screen-variations {
+        margin-top: var(--spacing-8);
+        padding-top: var(--spacing-8);
+        border-top: 1px solid var(--color-border);
+    }
+    .screen-variations h2 {
+        font-size: var(--font-size-xl);
+        font-weight: 600;
+        margin-bottom: var(--spacing-6);
+    }
+    .variation-group {
+        margin-bottom: var(--spacing-8);
+    }
+    .variation-group h3 {
+        font-size: var(--font-size-lg);
+        font-weight: 500;
+        margin-bottom: var(--spacing-4);
+        border-bottom: 1px solid var(--color-border);
+        padding-bottom: var(--spacing-2);
+    }
+    .variation-group h3 code {
+        font-family: monospace;
+        font-size: 0.9em;
+        background-color: #e9ecef;
+        padding: 2px 6px;
+        border-radius: 4px;
+    }
+    .variation-group p {
+        color: var(--color-text-secondary);
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--spacing-4);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="screen-container">
+    <header class="screen-header">
+      <h1>Dashboard</h1>
+    </header>
+    
+    <main class="widget-grid">
+      <!-- KPI Card: Total Orders (Today) -->
+      <div class="dashboard-widget kpi-card" aria-label="Total Orders Today">
+        <div class="dashboard-widget__header">
+          <h2 class="dashboard-widget__title">Total Orders (Today)</h2>
+        </div>
+        <div class="dashboard-widget__content">
+          <div class="kpi-card__value">1,284</div>
+          <div class="kpi-card__change kpi-card__change--positive">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" /></svg>
+            <span>12.5% vs yesterday</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- KPI Card: Total GMV (Today) -->
+      <div class="dashboard-widget kpi-card" aria-label="Total Gross Merchandise Volume Today">
+        <div class="dashboard-widget__header">
+          <h2 class="dashboard-widget__title">Total GMV (Today)</h2>
+        </div>
+        <div class="dashboard-widget__content">
+          <div class="kpi-card__value">₹4,52,312</div>
+           <div class="kpi-card__change kpi-card__change--positive">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5 12 3m0 0 7.5 7.5M12 3v18" /></svg>
+            <span>8.2% vs yesterday</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI Card: Active Riders -->
+      <div class="dashboard-widget kpi-card" aria-label="Active Riders">
+        <div class="dashboard-widget__header">
+          <h2 class="dashboard-widget__title">Active Riders</h2>
+        </div>
+        <div class="dashboard-widget__content">
+          <div class="kpi-card__value">78</div>
+          <div class="kpi-card__subtext">out of 95 total</div>
+        </div>
+      </div>
+
+      <!-- KPI Card: Active Vendors -->
+      <div class="dashboard-widget kpi-card" aria-label="Active Vendors">
+        <div class="dashboard-widget__header">
+          <h2 class="dashboard-widget__title">Active Vendors</h2>
+        </div>
+        <div class="dashboard-widget__content">
+          <div class="kpi-card__value">215</div>
+          <div class="kpi-card__subtext">out of 230 total</div>
+        </div>
+      </div>
+      
+      <!-- Line Chart Widget: Orders per Minute -->
+      <div class="dashboard-widget line-chart" aria-label="Orders per Minute chart">
+        <div class="dashboard-widget__header">
+          <h2 class="dashboard-widget__title">Orders per Minute (Last Hour)</h2>
+        </div>
+        <div class="dashboard-widget__content">
+            <div class="line-chart__chart-area">
+                <svg viewBox="0 0 500 150" preserveAspectRatio="none">
+                    <path class="line-chart__area" d="M0,80 L50,70 L100,90 L150,60 L200,75 L250,50 L300,65 L350,85 L400,70 L450,95 L500,80 L500,150 L0,150 Z"></path>
+                    <path class="line-chart__line" d="M0,80 L50,70 L100,90 L150,60 L200,75 L250,50 L300,65 L350,85 L400,70 L450,95 L500,80"></path>
+                </svg>
+            </div>
+        </div>
+      </div>
+      
+      <!-- KPI Card: Avg. Delivery Time -->
+      <div class="dashboard-widget kpi-card" aria-label="Average Delivery Time">
+        <div class="dashboard-widget__header">
+          <h2 class="dashboard-widget__title">Avg. Delivery Time</h2>
+        </div>
+        <div class="dashboard-widget__content">
+          <div class="kpi-card__value">28.5 <span style="font-size: 1.5rem; color: var(--color-text-secondary);">min</span></div>
+          <div class="kpi-card__change kpi-card__change--negative">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" /></svg>
+            <span>+2.1 min vs yesterday</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- KPI Card: Rider Allocation Success -->
+      <div class="dashboard-widget kpi-card" aria-label="Rider Allocation Success Rate">
+        <div class="dashboard-widget__header">
+          <h2 class="dashboard-widget__title">Rider Allocation Success</h2>
+        </div>
+        <div class="dashboard-widget__content">
+          <div class="kpi-card__value" style="color: var(--color-green-value);">99.2%</div>
+          <div class="kpi-card__subtext">Last 24 hours</div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Screen Variations Section -->
+  <div class="screen-variations screen-container">
+    <h2>Screen Variations</h2>
+    
+    <div class="variation-group">
+      <h3>Variant Name: <code>loading (skeleton)</code></h3>
+      <p>This state is shown when the dashboard is first loaded and data is being fetched. Each widget displays a skeleton placeholder with a shimmer animation.</p>
+      <div class="widget-grid">
+        <!-- Skeleton KPI -->
+        <div class="dashboard-widget kpi-card">
+          <div class="dashboard-widget__header"><h2 class="dashboard-widget__title">Total Orders (Today)</h2></div>
+          <div class="dashboard-widget__content">
+            <div class="skeleton skeleton--value"></div>
+            <div class="skeleton skeleton--subtext"></div>
+          </div>
+        </div>
+        <!-- Skeleton KPI -->
+        <div class="dashboard-widget kpi-card">
+          <div class="dashboard-widget__header"><h2 class="dashboard-widget__title">Total GMV (Today)</h2></div>
+          <div class="dashboard-widget__content">
+            <div class="skeleton skeleton--value"></div>
+            <div class="skeleton skeleton--subtext"></div>
+          </div>
+        </div>
+        <!-- Skeleton KPI -->
+        <div class="dashboard-widget kpi-card">
+            <div class="dashboard-widget__header"><h2 class="dashboard-widget__title">Active Riders</h2></div>
+            <div class="dashboard-widget__content">
+                <div class="skeleton skeleton--value"></div>
+                <div class="skeleton skeleton--subtext"></div>
+            </div>
+        </div>
+        <!-- Skeleton KPI -->
+        <div class="dashboard-widget kpi-card">
+            <div class="dashboard-widget__header"><h2 class="dashboard-widget__title">Active Vendors</h2></div>
+            <div class="dashboard-widget__content">
+                <div class="skeleton skeleton--value"></div>
+                <div class="skeleton skeleton--subtext"></div>
+            </div>
+        </div>
+        <!-- Skeleton Chart -->
+        <div class="dashboard-widget line-chart">
+          <div class="dashboard-widget__header"><h2 class="dashboard-widget__title">Orders per Minute (Last Hour)</h2></div>
+          <div class="dashboard-widget__content">
+            <div class="skeleton skeleton--chart"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="variation-group">
+      <h3>Variant Name: <code>partial-error</code></h3>
+      <p>This state demonstrates how the dashboard gracefully handles a failure to load data for a single widget, while others load successfully.</p>
+      <div class="widget-grid">
+         <!-- Data KPI -->
+        <div class="dashboard-widget kpi-card" aria-label="Total Orders Today">
+            <div class="dashboard-widget__header"><h2 class="dashboard-widget__title">Total Orders (Today)</h2></div>
+            <div class="dashboard-widget__content"><div class="kpi-card__value">1,284</div></div>
+        </div>
+        <!-- Data KPI -->
+        <div class="dashboard-widget kpi-card" aria-label="Total Gross Merchandise Volume Today">
+            <div class="dashboard-widget__header"><h2 class="dashboard-widget__title">Total GMV (Today)</h2></div>
+            <div class="dashboard-widget__content"><div class="kpi-card__value">₹4,52,312</div></div>
+        </div>
+        <!-- Error Widget -->
+        <div class="dashboard-widget" aria-label="Error loading Active Riders">
+            <div class="dashboard-widget__header"><h2 class="dashboard-widget__title">Active Riders</h2></div>
+            <div class="dashboard-widget__content error-state">
+                <svg class="error-state__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                </svg>
+                <div class="error-state__title">Data Unavailable</div>
+                <div class="error-state__message">Could not load metric.</div>
+            </div>
+        </div>
+        <!-- Data KPI -->
+        <div class="dashboard-widget kpi-card" aria-label="Active Vendors">
+            <div class="dashboard-widget__header"><h2 class="dashboard-widget__title">Active Vendors</h2></div>
+            <div class="dashboard-widget__content"><div class="kpi-card__value">215</div></div>
+        </div>
+      </div>
+    </div>
+
+     <div class="variation-group">
+        <h3>Variant Name: <code>empty/zero-data</code></h3>
+        <p>This state shows how widgets appear at the start of a new day or when there is no activity. Metrics that require calculation display 'N/A'.</p>
+        <div class="widget-grid">
+           <!-- Zero KPI -->
+          <div class="dashboard-widget kpi-card" aria-label="Total Orders Today">
+              <div class="dashboard-widget__header"><h2 class="dashboard-widget__title">Total Orders (Today)</h2></div>
+              <div class="dashboard-widget__content">
+                <div class="kpi-card__value">0</div>
+              </div>
+          </div>
+          <!-- Zero KPI -->
+          <div class="dashboard-widget kpi-card" aria-label="Total Gross Merchandise Volume Today">
+              <div class="dashboard-widget__header"><h2 class="dashboard-widget__title">Total GMV (Today)</h2></div>
+              <div class="dashboard-widget__content">
+                <div class="kpi-card__value">₹0.00</div>
+              </div>
+          </div>
+          <!-- N/A KPI -->
+          <div class="dashboard-widget kpi-card" aria-label="Average Delivery Time">
+            <div class="dashboard-widget__header">
+              <h2 class="dashboard-widget__title">Avg. Delivery Time</h2>
+            </div>
+            <div class="dashboard-widget__content">
+              <div class="kpi-card__value" style="color: var(--color-text-tertiary);">N/A</div>
+              <div class="kpi-card__subtext">No completed orders yet.</div>
+            </div>
+          </div>
+          <!-- Zero KPI -->
+          <div class="dashboard-widget kpi-card" aria-label="Rider Allocation Success Rate">
+            <div class="dashboard-widget__header">
+              <h2 class="dashboard-widget__title">Rider Allocation Success</h2>
+            </div>
+            <div class="dashboard-widget__content">
+              <div class="kpi-card__value" style="color: var(--color-text-tertiary);">N/A</div>
+               <div class="kpi-card__subtext">No allocation attempts yet.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+  </div>
+</body>
+</html>

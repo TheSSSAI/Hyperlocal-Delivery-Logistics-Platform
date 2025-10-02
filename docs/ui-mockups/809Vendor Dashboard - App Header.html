@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Dashboard - App Header</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Design System Tokens (from visual_foundation) */
+    :root {
+      /* Typography */
+      --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-weight-normal: 400;
+      --font-weight-bold: 600;
+
+      /* Colors */
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-600: #717C88;
+      --color-neutrals-gray-800: #383E44;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+
+      /* Spacing */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+
+      /* Borders */
+      --border-radius-sm: 4px;
+      --border-radius-md: 8px;
+      --border-radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+
+    body {
+      font-family: var(--font-primary);
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-900);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      padding-top: 80px; /* To prevent content from being hidden behind the fixed header */
+    }
+
+    /* Screen-level styles */
+    .screen-container {
+        padding: var(--space-24);
+    }
+
+    /* AppHeader Component Styles */
+    .app-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 64px;
+      background-color: var(--color-neutrals-white);
+      border-bottom: 1px solid var(--color-neutrals-gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-24);
+      z-index: 1000;
+    }
+
+    .header-section {
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      font-weight: var(--font-weight-bold);
+      font-size: 20px;
+      color: var(--color-neutrals-gray-900);
+      text-decoration: none;
+    }
+    .logo svg {
+      color: var(--color-primary-500);
+    }
+
+    /* Icon Button Styles */
+    .icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background-color: transparent;
+      border: none;
+      border-radius: var(--border-radius-full);
+      cursor: pointer;
+      color: var(--color-neutrals-gray-600);
+      transition: background-color 0.2s ease, color 0.2s ease;
+      position: relative;
+    }
+    .icon-btn:hover {
+      background-color: var(--color-neutrals-gray-100);
+      color: var(--color-neutrals-gray-800);
+    }
+    .icon-btn:focus-visible {
+      outline: 2px solid var(--color-primary-500);
+      outline-offset: 2px;
+    }
+    .icon-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* Hamburger Menu (Mobile only) */
+    .hamburger-menu {
+      display: none; /* Hidden on desktop by default */
+    }
+
+    /* Notification Bell Component */
+    .notification-bell .badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 10px;
+      height: 10px;
+      background-color: var(--color-semantic-error);
+      border: 2px solid var(--color-neutrals-white);
+      border-radius: var(--border-radius-full);
+      transform: scale(0);
+      transition: transform 0.2s ease-out;
+    }
+    .notification-bell.has-notifications .badge {
+      transform: scale(1);
+    }
+
+    /* Profile Dropdown Component */
+    .profile-dropdown {
+      position: relative;
+    }
+
+    .avatar-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--border-radius-full);
+      overflow: hidden;
+      border: 2px solid transparent;
+      cursor: pointer;
+      padding: 0;
+      background-color: var(--color-neutrals-gray-100);
+    }
+    .avatar-btn:focus-visible {
+      border-color: var(--color-primary-500);
+      outline: none;
+    }
+    .avatar-btn img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + var(--space-8));
+      right: 0;
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-lg);
+      width: 220px;
+      padding: var(--space-8) 0;
+      list-style: none;
+      opacity: 0;
+      transform: translateY(-10px);
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 1100;
+    }
+    .dropdown-menu.is-open {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .dropdown-header {
+      padding: var(--space-8) var(--space-16);
+      border-bottom: 1px solid var(--color-neutrals-gray-100);
+      margin-bottom: var(--space-8);
+    }
+    .dropdown-header-name {
+      font-weight: var(--font-weight-bold);
+      color: var(--color-neutrals-gray-900);
+      font-size: 14px;
+    }
+    .dropdown-header-email {
+      font-size: 12px;
+      color: var(--color-neutrals-gray-600);
+    }
+
+    .dropdown-item a, .dropdown-item button {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      width: 100%;
+      padding: var(--space-8) var(--space-16);
+      background: none;
+      border: none;
+      text-align: left;
+      font-size: 14px;
+      color: var(--color-neutrals-gray-800);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .dropdown-item a:hover, .dropdown-item button:hover {
+      background-color: var(--color-neutrals-gray-50);
+    }
+    .dropdown-item a:focus-visible, .dropdown-item button:focus-visible {
+      background-color: var(--color-primary-50);
+      color: var(--color-primary-600);
+      outline: none;
+    }
+    .dropdown-item svg {
+      width: 16px;
+      height: 16px;
+      color: var(--color-neutrals-gray-600);
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background-color: var(--color-neutrals-gray-100);
+      margin: var(--space-8) 0;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .hamburger-menu {
+        display: inline-flex;
+      }
+    }
+    
+    /* Demo content styles */
+    .screen-variations {
+        margin-top: 48px;
+        padding: 24px;
+        background-color: #f0f2f5;
+        border-radius: 8px;
+    }
+    .variation-group {
+        margin-bottom: 32px;
+    }
+    .variation-group h3 {
+        margin-bottom: 8px;
+        font-size: 18px;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 8px;
+    }
+    .variation-group normal {
+        font-style: italic;
+        color: #555;
+        display: block;
+        margin-bottom: 16px;
+    }
+    .variation-group .app-header {
+      position: static; /* Unfix headers in the variations section for easy viewing */
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MAIN IMPLEMENTATION of the AppHeader -->
+  <header class="app-header">
+    <div class="header-section">
+      <button class="icon-btn hamburger-menu" aria-label="Open navigation menu">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path></svg>
+      </button>
+      <a href="#" class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M21 15.24V19.95L17.21 18.28L12 20.74L4 16.95V7.05L12 3.25L13.13 3.73L10.03 14.54L12 15.5L21 11.71V15.24ZM12 5.52L6 8.32V15.68L12 18.48L15.39 17.06L12.3 6.25L12 5.52ZM19 12.9L12 15.5L10.03 14.54L13.13 3.73L20.09 7.05L19 12.9Z"></path></svg>
+        <span>Platform</span>
+      </a>
+    </div>
+
+    <div class="header-section">
+      <button class="icon-btn notification-bell" aria-label="View notifications">
+        <div class="badge"></div>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M20 17H22V19H2V17H4V10C4 5.58172 7.58172 2 12 2C16.4183 2 20 5.58172 20 10V17ZM9 21H15V23H9V21Z"></path></svg>
+      </button>
+      <div class="profile-dropdown">
+        <button class="avatar-btn" id="avatar-button" aria-haspopup="true" aria-expanded="false" aria-label="Open user menu">
+          <img src="https://i.pravatar.cc/40?u=vendor1" alt="Vendor profile picture">
+        </button>
+        <ul class="dropdown-menu" id="dropdown-menu" role="menu" aria-labelledby="avatar-button">
+          <li role="none">
+            <div class="dropdown-header">
+              <div class="dropdown-header-name">Global Foods</div>
+              <div class="dropdown-header-email">contact@globalfoods.com</div>
+            </div>
+          </li>
+          <li class="dropdown-item" role="menuitem">
+            <a href="#">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 4C7.58 4 4 7.58 4 12C4 16.42 7.58 20 12 20C16.42 20 20 16.42 20 12C20 7.58 16.42 4 12 4ZM12 11C10.62 11 9.5 9.88 9.5 8.5C9.5 7.12 10.62 6 12 6C13.38 6 14.5 7.12 14.5 8.5C14.5 9.88 13.38 11 12 11ZM12 13C14.67 13 18 14.34 18 17V18H6V17C6 14.34 9.33 13 12 13Z"></path></svg>
+              <span>My Profile</span>
+            </a>
+          </li>
+          <li class="dropdown-item" role="menuitem">
+            <a href="#">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13.34 2.067C13.1 1.84 12.79 1.75 12.5 1.75H4.5C4.21 1.75 3.9 1.84 3.66 2.067L1.22 4.1C1.08 4.22 1 4.4 1 4.58V19.42C1 19.6 1.08 19.78 1.22 19.9L3.66 21.93C3.9 22.16 4.21 22.25 4.5 22.25H12.5C12.79 22.25 13.1 22.16 13.34 21.93L15.78 19.9C15.92 19.78 16 19.6 16 19.42V14H23V10H16V4.58C16 4.4 15.92 4.22 15.78 4.1L13.34 2.067ZM3 19.42L3 4.58L4.5 3.25L12.5 3.25L14 4.58L14 19.42L12.5 20.75L4.5 20.75L3 19.42ZM18 12V11H21V12H18Z"></path></svg>
+              <span>Store Settings</span>
+            </a>
+          </li>
+          <li class="dropdown-divider" role="none"></li>
+          <li class="dropdown-item" role="menuitem">
+            <button type="button">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5 21V3H12.5858L19.5858 9.00001L19.6923 9.10645V21H5ZM7 5V19H17V11H11V5H7ZM13 5.41421V9H16.5858L13 5.41421Z"></path></svg>
+              <span>Help Center</span>
+            </button>
+          </li>
+          <li class="dropdown-divider" role="none"></li>
+          <li class="dropdown-item" role="menuitem">
+            <button type="button">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5 2H19C19.5523 2 20 2.44772 20 3V21C20 21.5523 19.5523 22 19 22H5C4.44772 22 4 21.5523 4 21V3C4 2.44772 4.44772 2 5 2ZM10.7929 16L8.64645 13.8536L7.23223 15.2678L10.7929 18.8284L17.7678 11.8536L16.3536 10.4393L10.7929 16Z"></path></svg>
+              <span>Logout</span>
+            </button>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </header>
+  
+  <div class="screen-container">
+    <h1>Page Content for Vendor Dashboard</h1>
+    <p>This area represents the main content of any page within the vendor dashboard, positioned below the fixed App Header.</p>
+  </div>
+
+  <!-- Screen Variations Section -->
+  <div class="screen-variations">
+    <h2>Screen Variations</h2>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Default State"</h3>
+      <!--description--><normal>Standard header appearance with no active notifications.</normal>
+      <header class="app-header">
+        <div class="header-section">
+          <button class="icon-btn hamburger-menu" aria-label="Open navigation menu">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path></svg>
+          </button>
+          <a href="#" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M21 15.24V19.95L17.21 18.28L12 20.74L4 16.95V7.05L12 3.25L13.13 3.73L10.03 14.54L12 15.5L21 11.71V15.24ZM12 5.52L6 8.32V15.68L12 18.48L15.39 17.06L12.3 6.25L12 5.52ZM19 12.9L12 15.5L10.03 14.54L13.13 3.73L20.09 7.05L19 12.9Z"></path></svg>
+            <span>Platform</span>
+          </a>
+        </div>
+        <div class="header-section">
+          <button class="icon-btn notification-bell" aria-label="View notifications">
+            <div class="badge"></div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 17H22V19H2V17H4V10C4 5.58172 7.58172 2 12 2C16.4183 2 20 5.58172 20 10V17ZM9 21H15V23H9V21Z"></path></svg>
+          </button>
+          <div class="profile-dropdown">
+            <button class="avatar-btn" aria-label="Open user menu">
+              <img src="https://i.pravatar.cc/40?u=vendor1" alt="Vendor profile picture">
+            </button>
+          </div>
+        </div>
+      </header>
+    </div>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Notifications Active"</h3>
+      <!--description--><normal>Header appearance when there are unread notifications, indicated by a badge on the bell icon.</normal>
+      <header class="app-header">
+        <div class="header-section">
+          <button class="icon-btn hamburger-menu" aria-label="Open navigation menu">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path></svg>
+          </button>
+          <a href="#" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M21 15.24V19.95L17.21 18.28L12 20.74L4 16.95V7.05L12 3.25L13.13 3.73L10.03 14.54L12 15.5L21 11.71V15.24ZM12 5.52L6 8.32V15.68L12 18.48L15.39 17.06L12.3 6.25L12 5.52ZM19 12.9L12 15.5L10.03 14.54L13.13 3.73L20.09 7.05L19 12.9Z"></path></svg>
+            <span>Platform</span>
+          </a>
+        </div>
+        <div class="header-section">
+          <button class="icon-btn notification-bell has-notifications" aria-label="View notifications (1 unread)">
+            <div class="badge"></div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 17H22V19H2V17H4V10C4 5.58172 7.58172 2 12 2C16.4183 2 20 5.58172 20 10V17ZM9 21H15V23H9V21Z"></path></svg>
+          </button>
+          <div class="profile-dropdown">
+            <button class="avatar-btn" aria-label="Open user menu">
+              <img src="https://i.pravatar.cc/40?u=vendor1" alt="Vendor profile picture">
+            </button>
+          </div>
+        </div>
+      </header>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const avatarButton = document.getElementById('avatar-button');
+      const dropdownMenu = document.getElementById('dropdown-menu');
+
+      if (avatarButton && dropdownMenu) {
+        avatarButton.addEventListener('click', (event) => {
+          event.stopPropagation();
+          const isExpanded = avatarButton.getAttribute('aria-expanded') === 'true';
+          avatarButton.setAttribute('aria-expanded', !isExpanded);
+          dropdownMenu.classList.toggle('is-open');
+        });
+
+        document.addEventListener('click', (event) => {
+          if (!avatarButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+            avatarButton.setAttribute('aria-expanded', 'false');
+            dropdownMenu.classList.remove('is-open');
+          }
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && dropdownMenu.classList.contains('is-open')) {
+                avatarButton.setAttribute('aria-expanded', 'false');
+                dropdownMenu.classList.remove('is-open');
+                avatarButton.focus();
+            }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

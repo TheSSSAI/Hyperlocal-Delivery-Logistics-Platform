@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: ModalDialog</title>
+  <style>
+    /* Design System Tokens */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --fs-h3: 28px;
+      --fs-h4: 20px;
+      --fs-body: 16px;
+      --lh-body: 1.6;
+      --fs-caption: 14px;
+      --lh-caption: 1.5;
+
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-200: #8AB9FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-100: #E9EDF2;
+      --color-gray-200: #D3D9E1;
+      --color-gray-300: #BCC4CF;
+      --color-gray-500: #8E9BAA;
+      --color-gray-700: #555D66;
+      --color-gray-900: #1C1F22;
+      --color-danger: #FF4D4D;
+      --color-danger-hover: #D94040;
+      --color-info: #0068FF;
+
+      /* Spacing */
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-lg: 0px 8px 16px -4px rgba(28, 31, 34, 0.1), 0px 20px 40px -4px rgba(28, 31, 34, 0.1);
+    }
+
+    /* Base & Layout Styles */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-gray-50);
+      color: var(--color-gray-900);
+      padding: var(--space-6);
+    }
+    .showcase {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+    .showcase > h1 {
+      font-size: var(--fs-h3);
+      text-align: center;
+      margin-bottom: var(--space-4);
+    }
+    .variant-section {
+      background-color: var(--color-white);
+      padding: var(--space-5);
+      border-radius: var(--border-radius-lg);
+    }
+    .variant-section > h2 {
+      font-size: var(--fs-h4);
+      margin-bottom: var(--space-2);
+    }
+    .variant-section > p {
+      font-size: var(--fs-caption);
+      color: var(--color-gray-700);
+      margin-bottom: var(--space-4);
+    }
+
+    /* Dependent Atomic Components */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); font-weight: var(--font-weight-semibold); text-decoration: none; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; min-height: 44px; }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-200); outline-offset: 2px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .btn--secondary { background-color: var(--color-white); color: var(--color-gray-700); border-color: var(--color-gray-300); }
+    .btn--secondary:hover { background-color: var(--color-gray-100); }
+    .btn--danger { background-color: var(--color-danger); color: var(--color-white); }
+    .btn--danger:hover { background-color: var(--color-danger-hover); }
+    .btn--icon-only { padding: var(--space-2); background: none; border: none; }
+    .icon { width: 1em; height: 1em; fill: currentColor; }
+    .form-group { display: flex; flex-direction: column; margin-bottom: var(--space-4); }
+    .label { display: block; font-weight: var(--font-weight-semibold); margin-bottom: var(--space-2); color: var(--color-gray-700); font-size: 14px; }
+    .input { width: 100%; padding: var(--space-3) var(--space-4); border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-md); }
+    .input:focus-visible { border: 2px solid var(--color-primary-500); padding: calc(var(--space-3) - 1px) calc(var(--space-4) - 1px); outline: none; }
+
+    /* ModalDialog CSS */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(28, 31, 34, 0.6);
+      z-index: 99;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal {
+      position: fixed;
+      background-color: var(--color-white);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY(20px) scale(0.98);
+      pointer-events: none;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      /* Mobile-first: full screen */
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      border-radius: 0;
+      padding: var(--space-5);
+    }
+    
+    /* Open State */
+    .modal[open] {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .modal[open] + .modal-overlay {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    
+    /* Modal Structure */
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: var(--space-4);
+      border-bottom: 1px solid var(--color-gray-100);
+      flex-shrink: 0;
+    }
+    .modal__title {
+      font-size: var(--fs-h4);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-900);
+    }
+    .modal__close-btn {
+      font-size: 1.5rem;
+      color: var(--color-gray-500);
+    }
+    .modal__body {
+      flex-grow: 1;
+      padding-top: var(--space-5);
+      padding-bottom: var(--space-5);
+      overflow-y: auto;
+      color: var(--color-gray-700);
+      line-height: var(--lh-body);
+    }
+    .modal__footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--color-gray-100);
+      flex-shrink: 0;
+    }
+    
+    /* Variants */
+    .modal--confirmation .modal__icon-wrapper {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      margin: 0 auto var(--space-4) auto;
+    }
+    .modal--confirmation .modal__icon {
+      font-size: 24px;
+    }
+    .modal--confirmation--danger .modal__icon-wrapper {
+      background-color: #FEF2F2;
+      color: var(--color-danger);
+    }
+    .modal--confirmation--info .modal__icon-wrapper {
+      background-color: var(--color-primary-50);
+      color: var(--color-info);
+    }
+    .modal--confirmation .modal__body {
+      text-align: center;
+    }
+    .modal--confirmation .modal__body p {
+        margin-top: var(--space-2);
+    }
+    
+    /* Responsive Adaptations */
+    @media (min-width: 768px) {
+      .modal {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.98);
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        max-height: 90vh;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+      }
+      .modal[open] {
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="icon-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+      <symbol id="icon-warning" viewBox="0 0 24 24"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></symbol>
+      <symbol id="icon-info" viewBox="0 0 24 24"><path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></symbol>
+    </defs>
+  </svg>
+
+  <main class="showcase">
+    <h1>ModalDialog Component</h1>
+
+    <div class="variant-section">
+      <h2>Confirmation Modal</h2>
+      <p>Used to confirm a critical or destructive action. Focuses user attention on a single decision.</p>
+      <button class="btn btn--primary" onclick="document.getElementById('confirmation-modal').showModal()">Open Confirmation Modal</button>
+    </div>
+    
+    <div class="variant-section">
+      <h2>Form Modal</h2>
+      <p>Used for creating or editing data without leaving the current page context.</p>
+      <button class="btn btn--primary" onclick="document.getElementById('form-modal').showModal()">Open Form Modal</button>
+    </div>
+
+    <div class="variant-section">
+      <h2>Info Modal</h2>
+      <p>Used to display important information or context to the user.</p>
+      <button class="btn btn--primary" onclick="document.getElementById('info-modal').showModal()">Open Info Modal</button>
+    </div>
+  </main>
+  
+  <!-- MODALS (placed at the end of body) -->
+
+  <!-- Confirmation Modal -->
+  <dialog id="confirmation-modal" class="modal modal--confirmation modal--confirmation--danger" aria-labelledby="confirm-title" aria-modal="true">
+    <form method="dialog" class="modal__content-wrapper" style="display: flex; flex-direction: column; height: 100%;">
+      <header class="modal__header">
+        <h2 class="modal__title" id="confirm-title">Confirm Deletion</h2>
+        <button type="submit" class="btn btn--icon-only modal__close-btn" aria-label="Close dialog">
+          <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+      </header>
+      <div class="modal__body">
+        <div class="modal__icon-wrapper">
+            <svg class="icon modal__icon"><use href="#icon-warning"/></svg>
+        </div>
+        <p>Are you sure you want to delete this user account? This action is permanent and cannot be undone.</p>
+      </div>
+      <footer class="modal__footer">
+        <button type="submit" class="btn btn--secondary">Cancel</button>
+        <button type="submit" class="btn btn--danger" autofocus>Confirm Delete</button>
+      </footer>
+    </form>
+  </dialog>
+  <div class="modal-overlay"></div>
+
+  <!-- Form Modal -->
+  <dialog id="form-modal" class="modal modal--form-modal" aria-labelledby="form-title" aria-modal="true">
+    <form method="dialog" class="modal__content-wrapper" style="display: flex; flex-direction: column; height: 100%;">
+      <header class="modal__header">
+        <h2 class="modal__title" id="form-title">Add New Product Category</h2>
+        <button type="submit" class="btn btn--icon-only modal__close-btn" aria-label="Close dialog">
+          <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+      </header>
+      <div class="modal__body">
+        <div class="form-group">
+            <label class="label" for="category-name">Category Name</label>
+            <input class="input" type="text" id="category-name" placeholder="e.g., Appetizers">
+        </div>
+        <div class="form-group">
+            <label class="label" for="category-desc">Description (Optional)</label>
+            <textarea class="input" id="category-desc" style="min-height: 80px;" placeholder="A short description of the category."></textarea>
+        </div>
+      </div>
+      <footer class="modal__footer">
+        <button type="submit" class="btn btn--secondary">Cancel</button>
+        <button type="submit" class="btn btn--primary">Save Category</button>
+      </footer>
+    </form>
+  </dialog>
+  <div class="modal-overlay"></div>
+
+  <!-- Info Modal -->
+  <dialog id="info-modal" class="modal modal--confirmation modal--confirmation--info" aria-labelledby="info-title" aria-modal="true">
+    <form method="dialog" class="modal__content-wrapper" style="display: flex; flex-direction: column; height: 100%;">
+      <header class="modal__header">
+        <h2 class="modal__title" id="info-title">Feature Update</h2>
+        <button type="submit" class="btn btn--icon-only modal__close-btn" aria-label="Close dialog">
+          <svg class="icon"><use href="#icon-close"/></svg>
+        </button>
+      </header>
+      <div class="modal__body">
+        <div class="modal__icon-wrapper">
+          <svg class="icon modal__icon"><use href="#icon-info"/></svg>
+        </div>
+        <p>We've updated our business hours management. You can now add multiple time slots for each day to account for lunch breaks.</p>
+      </div>
+      <footer class="modal__footer">
+        <button type="submit" class="btn btn--primary">Got it</button>
+      </footer>
+    </form>
+  </dialog>
+  <div class="modal-overlay"></div>
+
+  <script>
+    // Basic script to handle dialogs. Native <dialog> handles ESC and focus trapping.
+    document.addEventListener('DOMContentLoaded', () => {
+        const allModals = document.querySelectorAll('.modal');
+
+        allModals.forEach(modal => {
+            // Close the dialog when clicking on the overlay
+            const overlay = modal.nextElementSibling;
+            if (overlay && overlay.classList.contains('modal-overlay')) {
+                overlay.addEventListener('click', () => {
+                    modal.close();
+                });
+            }
+        });
+    });
+  </script>
+	
+	<div class="showcase"> <h2> Component Variations</h2>
+      <div class="variant-section">
+        <h3>Variant Name : "confirmation"<h3>
+		<!--description--><normal> A modal used to get explicit user confirmation for an action, especially a destructive one. It typically has a clear question and two opposing actions (e.g., 'Confirm' and 'Cancel'). </normal>
+		<!-- vrient 1 html -->
+        <button class="btn btn--danger" onclick="document.getElementById('confirmation-modal').showModal()">Open Confirmation Example</button>
+		
+      </div>
+	 </div>
+      <div class="variant-section">
+        <h3>Variant Name : "form-modal"<h3>
+		<!--description--><normal> A modal that contains a form for creating or editing data. This allows users to perform an action without navigating away from their current context. It usually contains input fields and 'Save'/'Cancel' actions. </normal>
+		<!-- vrient 1 html -->
+        <button class="btn btn--secondary" onclick="document.getElementById('form-modal').showModal()">Open Form Example</button>
+		
+      </div>
+	 </div>
+      <div class="variant-section">
+        <h3>Variant Name : "info"<h3>
+		<!--description--><normal> A simple modal used to display information to the user. It typically has a single action button to acknowledge the message (e.g., 'OK' or 'Got it'). </normal>
+		<!-- vrient 1 html -->
+        <button class="btn btn--secondary" onclick="document.getElementById('info-modal').showModal()">Open Info Example</button>
+		
+      </div>
+	 </div>    
+	
+	</body>
+</html>

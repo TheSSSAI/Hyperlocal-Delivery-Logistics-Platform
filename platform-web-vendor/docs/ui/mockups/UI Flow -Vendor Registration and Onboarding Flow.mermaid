@@ -1,0 +1,54 @@
+flowchart TD
+    subgraph Vendor Journey
+        A[Prospective Vendor visits Registration Page] --> B[Fills out Registration Form with Details & Documents];
+        B --> C{Client-Side Validation};
+        C -->|Invalid| D[Displays inline errors];
+        D --> B;
+        C -->|Valid| E[Submits Form to Backend];
+    end
+
+    subgraph Backend Processing
+        E --> F{Backend Validation: Duplicate Mobile/GST?};
+        F -->|Yes| G[Return 'User Exists' Error];
+        F -->|No| H[Create Vendor Account with 'pending_verification' status];
+        H --> I[Securely Store Uploaded Documents];
+    end
+
+    subgraph Vendor Post-Submission
+        G --> D;
+        I --> J[Redirect Vendor to 'Pending Verification' Screen];
+        K[Vendor logs in later] --> L{Status Check};
+        L -->|Pending| J;
+        L -->|Active| M[Access Full Vendor Dashboard];
+    end
+
+    subgraph Admin Review Workflow
+        I --> N[New Application Appears in Admin's 'Pending' Queue];
+        Admin[Administrator] --> N;
+        N --> O[Admin Reviews Submitted Details & Documents];
+        O --> P{Admin Decision: Approve or Reject?};
+        P -->|Approve| Q[Admin Clicks 'Approve'];
+        P -->|Reject| R[Admin Clicks 'Reject' & Provides Reason];
+    end
+
+    subgraph Final State & Notifications
+        Q --> S[Backend: Set Status to 'active'];
+        R --> T[Backend: Set Status to 'rejected'];
+        S --> U[Notification Service: Send Approval Notice (SMS/Push)];
+        T --> V[Notification Service: Send Rejection Notice (SMS/Push)];
+        U --> L;
+        V --> W[End: Application Rejected];
+    end
+
+    %% Styling Definitions
+    classDef userAction fill:#e3f2fd,stroke:#2196f3,color:#000;
+    classDef systemProcess fill:#f3e5f5,stroke:#8e24aa,color:#000;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,color:#000;
+    classDef successState fill:#e8f5e9,stroke:#4caf50,color:#000;
+    classDef errorState fill:#ffebee,stroke:#d32f2f,color:#000;
+
+    class A,B,K,Admin userAction;
+    class H,I,S,T,U,V systemProcess;
+    class C,F,L,P decision;
+    class M successState;
+    class D,G,W errorState;

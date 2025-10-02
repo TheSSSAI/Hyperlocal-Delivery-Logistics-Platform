@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChatPanel Component</title>
+    <style>
+        /* 1. CSS Reset & Base */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* 2. Design System Tokens (CSS Custom Properties) */
+        :root {
+            /* Typography */
+            --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-size-body: 16px;
+            --font-weight-regular: 400;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+            --line-height-body: 1.6;
+            /* Colors */
+            --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-300: #5C9EFF; --color-primary-500: #0068FF; --color-primary-600: #0053CC; --color-primary-700: #003E99;
+            --color-neutral-white: #FFFFFF; --color-neutral-50: #F7F9FC; --color-neutral-100: #E9EDF2; --color-neutral-200: #D3D9E1; --color-neutral-300: #BCC4CF; --color-neutral-500: #8E9BAA; --color-neutral-700: #555D66; --color-neutral-900: #1C1F22;
+            /* Spacing */
+            --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px; --space-24: 24px; --space-32: 32px;
+            /* Borders & Shadows */
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+            --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+        }
+
+        /* 3. Base & Showcase Layout Styles */
+        body {
+            font-family: var(--font-family-primary);
+            font-size: var(--font-size-body);
+            line-height: var(--line-height-body);
+            background-color: var(--color-neutral-100);
+            color: var(--color-neutral-900);
+            padding: var(--space-32);
+        }
+        .showcase { max-width: 1200px; margin: 0 auto; }
+        .showcase-header { text-align: center; margin-bottom: var(--space-32); }
+        h1 { font-size: 36px; font-weight: var(--font-weight-bold); margin-bottom: var(--space-8); }
+        h2 { font-size: 24px; font-weight: var(--font-weight-semibold); margin-top: var(--space-32); margin-bottom: var(--space-16); }
+        p.description { color: var(--color-neutral-700); font-size: 14px; max-width: 70ch; margin: 0 auto var(--space-24) auto; }
+        .component-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-32); }
+        .component-container { height: 70vh; min-height: 500px; display: flex; flex-direction: column; }
+        .component-container h3 { text-align: center; margin-bottom: var(--space-8); }
+
+        /* 4. Icon Definitions */
+        .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; vertical-align: middle; }
+
+        /* 5. Atomic Dependencies */
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: var(--space-12); font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); border: 1px solid transparent; border-radius: var(--border-radius-md); cursor: pointer; transition: background-color 0.2s ease-in-out; }
+        .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutral-white); }
+        .btn--primary:hover { background-color: var(--color-primary-600); }
+        .btn:disabled { background-color: var(--color-neutral-200); color: var(--color-neutral-500); cursor: not-allowed; }
+        .form-input { padding: var(--space-12) var(--space-16); border: 1px solid var(--color-neutral-300); border-radius: var(--border-radius-md); font-size: var(--font-size-body); width: 100%; }
+        .form-input:focus { border-color: var(--color-primary-500); outline: 3px solid var(--color-primary-100); }
+        .form-input:disabled { background-color: var(--color-neutral-100); }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .spinner { display: inline-block; border-radius: 50%; border: 4px solid var(--color-primary-100); border-top-color: var(--color-primary-500); animation: spin 0.8s linear infinite; width: 48px; height: 48px; }
+
+        /* 6. Molecular Dependencies: MessageBubble & QuickReplyChip */
+        .message-bubble { max-width: 80%; padding: var(--space-12) var(--space-16); border-radius: var(--border-radius-lg); }
+        .message-bubble__text { margin: 0; font-size: 15px; }
+        .message-bubble__timestamp { font-size: 11px; opacity: 0.7; display: block; margin-top: var(--space-4); }
+        .message-bubble--sent { background-color: var(--color-primary-500); color: var(--color-neutral-white); border-bottom-right-radius: var(--space-4); align-self: flex-end; }
+        .message-bubble--sent .message-bubble__timestamp { text-align: right; }
+        .message-bubble--received { background-color: var(--color-neutral-100); color: var(--color-neutral-900); border-bottom-left-radius: var(--space-4); align-self: flex-start; }
+        .quick-reply-chip { background: var(--color-neutral-white); color: var(--color-primary-600); border: 1px solid var(--color-neutral-300); border-radius: 20px; padding: var(--space-8) var(--space-16); font-size: 14px; cursor: pointer; white-space: nowrap; transition: background-color 0.2s; }
+        .quick-reply-chip:hover { background-color: var(--color-primary-50); }
+
+        /* 7. Organism: ChatPanel */
+        .chat-panel { display: flex; flex-direction: column; height: 100%; width: 100%; background-color: var(--color-neutral-white); border: 1px solid var(--color-neutral-200); border-radius: var(--border-radius-lg); overflow: hidden; position: relative; box-shadow: var(--shadow-sm); }
+        .chat-panel__header { display: flex; align-items: center; gap: var(--space-12); padding: var(--space-12) var(--space-16); border-bottom: 1px solid var(--color-neutral-200); background-color: var(--color-neutral-white); flex-shrink: 0; }
+        .chat-panel__header-avatar { width: 32px; height: 32px; border-radius: 50%; background-color: var(--color-neutral-200); display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-semibold); font-size: 14px; color: var(--color-neutral-700); }
+        .chat-panel__header-info { flex-grow: 1; }
+        .chat-panel__header-name { font-weight: var(--font-weight-semibold); color: var(--color-neutral-900); }
+        .chat-panel__header-subtext { font-size: 12px; color: var(--color-neutral-500); }
+        .chat-panel__close-btn { background: none; border: none; padding: var(--space-8); cursor: pointer; color: var(--color-neutral-500); }
+        .chat-panel__close-btn:hover { color: var(--color-neutral-900); }
+        .chat-panel__body { flex-grow: 1; overflow-y: auto; padding: var(--space-16); display: flex; flex-direction: column; }
+        .chat-panel__messages { display: flex; flex-direction: column; gap: var(--space-16); margin-top: auto; }
+        .chat-panel__footer { padding: var(--space-16); border-top: 1px solid var(--color-neutral-200); background-color: var(--color-neutral-50); flex-shrink: 0; }
+        .chat-panel__quick-replies { display: flex; gap: var(--space-8); overflow-x: auto; padding-bottom: var(--space-12); scrollbar-width: none; }
+        .chat-panel__quick-replies::-webkit-scrollbar { display: none; }
+        .chat-panel__input-area { display: flex; gap: var(--space-12); align-items: center; }
+        .chat-panel__input-area .form-input { flex-grow: 1; }
+        /* States */
+        .chat-panel--read-only .chat-panel__footer { display: none; }
+        .chat-panel--read-only .chat-panel__body { padding-bottom: 0; }
+        .chat-panel__read-only-notice { padding: var(--space-12); text-align: center; background-color: var(--color-neutral-100); color: var(--color-neutral-700); font-size: 14px; font-style: italic; }
+        .chat-panel .chat-panel__loading-overlay { display: none; }
+        .chat-panel--loading .chat-panel__loading-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.8); display: flex; align-items: center; justify-content: center; z-index: 10; }
+    </style>
+</head>
+<body>
+    <svg style="display: none;">
+        <symbol id="icon-send" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></symbol>
+        <symbol id="icon-close" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></symbol>
+    </svg>
+
+    <main class="showcase">
+        <header class="showcase-header">
+            <h1>ChatPanel Component</h1>
+            <p class="description">A complete chat interface for real-time communication within an order context. This showcase demonstrates the component in its 'docked' variant across various states.</p>
+        </header>
+
+        <div class="component-grid">
+            <!-- Active State -->
+            <div class="component-container">
+                <h3>Active State</h3>
+                <div class="chat-panel">
+                    <header class="chat-panel__header">
+                        <div class="chat-panel__header-avatar">PS</div>
+                        <div class="chat-panel__header-info">
+                            <div class="chat-panel__header-name">Priya Sharma (Customer)</div>
+                            <div class="chat-panel__header-subtext">Order #ORD-12345</div>
+                        </div>
+                        <button class="chat-panel__close-btn" aria-label="Close chat"><svg class="icon"><use href="#icon-close"/></svg></button>
+                    </header>
+                    <div class="chat-panel__body" aria-live="polite">
+                        <div class="chat-panel__messages">
+                            <div class="message-bubble message-bubble--received">
+                                <p class="message-bubble__text">Hi, is my order ready for pickup yet?</p>
+                                <span class="message-bubble__timestamp">10:32 AM</span>
+                            </div>
+                            <div class="message-bubble message-bubble--sent">
+                                <p class="message-bubble__text">Hi Priya! Yes, it's packed and waiting. The rider should be there any minute.</p>
+                                <span class="message-bubble__timestamp">10:33 AM</span>
+                            </div>
+                        </div>
+                    </div>
+                    <footer class="chat-panel__footer">
+                        <div class="chat-panel__quick-replies">
+                            <button class="quick-reply-chip">Order is ready</button>
+                            <button class="quick-reply-chip">Rider is on the way</button>
+                            <button class="quick-reply-chip">Thanks!</button>
+                        </div>
+                        <div class="chat-panel__input-area">
+                            <input type="text" class="form-input" placeholder="Type your message...">
+                            <button class="btn btn--primary" aria-label="Send message"><svg class="icon"><use href="#icon-send"/></svg></button>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+
+            <!-- Read-Only State -->
+            <div class="component-container">
+                <h3>Read-Only State</h3>
+                <div class="chat-panel chat-panel--read-only">
+                    <header class="chat-panel__header">
+                        <div class="chat-panel__header-avatar">RK</div>
+                        <div class="chat-panel__header-info">
+                            <div class="chat-panel__header-name">Rohan Kumar (Rider)</div>
+                            <div class="chat-panel__header-subtext">Order #ORD-54321</div>
+                        </div>
+                        <button class="chat-panel__close-btn" aria-label="Close chat"><svg class="icon"><use href="#icon-close"/></svg></button>
+                    </header>
+                    <div class="chat-panel__body">
+                        <div class="chat-panel__messages">
+                           <div class="message-bubble message-bubble--received">
+                                <p class="message-bubble__text">I'm having trouble finding your building. Can you provide a landmark?</p>
+                                <span class="message-bubble__timestamp">2:15 PM</span>
+                            </div>
+                            <div class="message-bubble message-bubble--sent">
+                                <p class="message-bubble__text">Yes, I'm in the blue building right next to the post office.</p>
+                                <span class="message-bubble__timestamp">2:16 PM</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chat-panel__read-only-notice">
+                        This chat is now closed. The order has been delivered.
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading State -->
+            <div class="component-container">
+                <h3>Loading State</h3>
+                <div class="chat-panel chat-panel--loading">
+                    <div class="chat-panel__loading-overlay">
+                        <div class="spinner"></div>
+                    </div>
+                    <header class="chat-panel__header">
+                        <div class="chat-panel__header-avatar"></div>
+                        <div class="chat-panel__header-info">
+                            <div class="chat-panel__header-name">Loading Chat...</div>
+                            <div class="chat-panel__header-subtext">...</div>
+                        </div>
+                        <button class="chat-panel__close-btn" aria-label="Close chat"><svg class="icon"><use href="#icon-close"/></svg></button>
+                    </header>
+                    <div class="chat-panel__body"></div>
+                    <footer class="chat-panel__footer">
+                        <div class="chat-panel__input-area">
+                            <input type="text" class="form-input" placeholder="Type your message..." disabled>
+                            <button class="btn btn--primary" aria-label="Send message" disabled><svg class="icon"><use href="#icon-send"/></svg></button>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "docked"</h3>
+        <normal> The standard variant for desktop web dashboards (Vendor/Admin). It is designed to sit within a larger layout, such as a sidebar or a column next to other content. It has a fixed height and its own internal scrolling. </normal>
+        <div class="component-container" style="height: 600px; width: 380px; margin: 16px auto;">
+            <div class="chat-panel">
+                <header class="chat-panel__header">
+                    <div class="chat-panel__header-avatar">PS</div>
+                    <div class="chat-panel__header-info">
+                        <div class="chat-panel__header-name">Priya Sharma (Customer)</div>
+                        <div class="chat-panel__header-subtext">Order #ORD-12345</div>
+                    </div>
+                    <button class="chat-panel__close-btn" aria-label="Close chat"><svg class="icon"><use href="#icon-close"/></svg></button>
+                </header>
+                <div class="chat-panel__body" aria-live="polite">
+                    <div class="chat-panel__messages">
+                        <div class="message-bubble message-bubble--received">
+                            <p class="message-bubble__text">Hi, is my order ready for pickup yet?</p>
+                            <span class="message-bubble__timestamp">10:32 AM</span>
+                        </div>
+                    </div>
+                </div>
+                <footer class="chat-panel__footer">
+                    <div class="chat-panel__input-area">
+                        <input type="text" class="form-input" placeholder="Type your message...">
+                        <button class="btn btn--primary" aria-label="Send message"><svg class="icon"><use href="#icon-send"/></svg></button>
+                    </div>
+                </footer>
+            </div>
+        </div>
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : "modal"</h3>
+        <normal> Used on mobile applications (Customer/Rider) where the chat interface typically takes over the full screen for a focused experience. On larger web viewports, it could be a centered modal dialog. </normal>
+        <div style="position: relative; height: 600px; width: 380px; margin: 16px auto; border: 1px solid #ccc; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+            <div class="chat-panel" style="border-radius: 0; border: none; box-shadow: none;">
+                <header class="chat-panel__header">
+                    <div class="chat-panel__header-avatar">RK</div>
+                    <div class="chat-panel__header-info">
+                        <div class="chat-panel__header-name">Rohan Kumar (Rider)</div>
+                        <div class="chat-panel__header-subtext">Order #ORD-54321</div>
+                    </div>
+                    <button class="chat-panel__close-btn" aria-label="Close chat"><svg class="icon"><use href="#icon-close"/></svg></button>
+                </header>
+                <div class="chat-panel__body">
+                    <div class="chat-panel__messages">
+                       <div class="message-bubble message-bubble--sent">
+                            <p class="message-bubble__text">I am arriving now, please come to the gate.</p>
+                            <span class="message-bubble__timestamp">2:18 PM</span>
+                        </div>
+                    </div>
+                </div>
+                <footer class="chat-panel__footer">
+                    <div class="chat-panel__quick-replies">
+                        <button class="quick-reply-chip">OK</button>
+                        <button class="quick-reply-chip">I'm at the gate</button>
+                        <button class="quick-reply-chip">Please wait 2 mins</button>
+                    </div>
+                    <div class="chat-panel__input-area">
+                        <input type="text" class="form-input" placeholder="Type your message...">
+                        <button class="btn btn--primary" aria-label="Send message"><svg class="icon"><use href="#icon-send"/></svg></button>
+                    </div>
+                </footer>
+            </div>
+        </div>
+      </div>
+	 </div>
+</body>
+</html>

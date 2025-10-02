@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molecular Component: StarRatingDisplay</title>
+    <style>
+        /* 1. CSS Reset & Base */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* 2. Design System Tokens (CSS Custom Properties) */
+        :root {
+          /* Typography */
+          --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+          --font-size-body: 16px;
+          --font-weight-regular: 400;
+          --font-weight-semibold: 600;
+          --font-weight-bold: 700;
+          --line-height-body: 1.6;
+
+          /* Colors */
+          --color-primary-500: #0068FF;
+          --color-primary-700: #003E99;
+          --color-neutral-white: #FFFFFF;
+          --color-neutral-50: #F7F9FC;
+          --color-neutral-200: #D3D9E1;
+          --color-neutral-700: #555D66;
+          --color-neutral-900: #1C1F22;
+          --color-semantic-warning: #FFB800;
+          
+          /* Spacing */
+          --space-4: 4px;
+          --space-8: 8px;
+          --space-16: 16px;
+          --space-24: 24px;
+          --space-32: 32px;
+          
+          /* Borders & Shadows */
+          --border-radius-lg: 12px;
+          --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+        }
+        
+        /* 3. Base & Showcase Layout Styles */
+        body { 
+          font-family: var(--font-family-primary); 
+          font-size: var(--font-size-body); 
+          line-height: var(--line-height-body); 
+          background-color: var(--color-neutral-50); 
+          color: var(--color-neutral-900); 
+          padding: var(--space-32); 
+        }
+        .showcase { max-width: 800px; margin: 0 auto; }
+        .showcase-header { margin-bottom: var(--space-32); border-bottom: 1px solid var(--color-neutral-200); padding-bottom: var(--space-16); }
+        h1 { font-size: 36px; font-weight: var(--font-weight-bold); margin-bottom: var(--space-8); }
+        h2 { font-size: 28px; font-weight: var(--font-weight-bold); margin-top: var(--space-32); margin-bottom: var(--space-24); color: var(--color-primary-700); }
+        h3 { font-size: 20px; font-weight: var(--font-weight-semibold); margin-bottom: var(--space-16); }
+        .component-section { background-color: var(--color-neutral-white); border-radius: var(--border-radius-lg); padding: var(--space-32); margin-bottom: var(--space-32); box-shadow: var(--shadow-sm); }
+        .component-group { display: flex; flex-direction: column; gap: var(--space-16); }
+        .component-group-item { display: flex; align-items: center; gap: var(--space-16); }
+        .component-group-item code { background-color: var(--color-neutral-50); padding: var(--space-4) var(--space-8); border-radius: 4px; font-family: monospace; }
+        
+        /* 4. Icon Definitions */
+        .icon { 
+          display: inline-block; 
+          width: 1em; 
+          height: 1em; 
+          stroke-width: 0; 
+          stroke: currentColor; 
+          fill: currentColor; 
+          vertical-align: middle; 
+        }
+
+        /* 5. StarRatingDisplay Component CSS */
+        .star-rating {
+          position: relative;
+          display: inline-block;
+          vertical-align: middle;
+        }
+
+        .star-rating__stars-background,
+        .star-rating__stars-foreground {
+          display: flex;
+          gap: var(--space-4); /* Gap between stars */
+        }
+
+        .star-rating__stars-foreground {
+          position: absolute;
+          top: 0;
+          left: 0;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+
+        .star-rating .icon {
+          font-size: var(--star-size, 20px); /* Default size, can be overridden */
+          flex-shrink: 0;
+        }
+
+        .star-rating__stars-background .icon {
+          color: var(--color-neutral-200); /* Empty star color */
+        }
+
+        .star-rating__stars-foreground .icon {
+          color: var(--color-semantic-warning); /* Filled star color */
+        }
+
+        /* Size Variants */
+        .star-rating--sm {
+            --star-size: 16px;
+        }
+
+        .star-rating--lg {
+            --star-size: 24px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- SVG Icon Definition for the Star -->
+    <svg style="display: none;">
+      <symbol id="icon-star" viewBox="0 0 24 24">
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+      </symbol>
+    </svg>
+
+    <main class="showcase">
+        <header class="showcase-header">
+            <h1>Molecular Component: StarRatingDisplay</h1>
+            <p>A read-only component for visually displaying a numerical rating using star icons. It supports fractional ratings by showing partially filled stars.</p>
+        </header>
+
+        <section class="component-section">
+            <h3>Examples</h3>
+            <div class="component-group">
+                
+                <div class="component-group-item">
+                    <!-- Example for 4.5 Stars -->
+                    <div class="star-rating" role="img" aria-label="Rated 4.5 out of 5 stars">
+                      <div class="star-rating__stars-background">
+                        <svg class="icon"><use href="#icon-star"></use></svg>
+                        <svg class="icon"><use href="#icon-star"></use></svg>
+                        <svg class="icon"><use href="#icon-star"></use></svg>
+                        <svg class="icon"><use href="#icon-star"></use></svg>
+                        <svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                      <div class="star-rating__stars-foreground" style="width: 90%;">
+                        <svg class="icon"><use href="#icon-star"></use></svg>
+                        <svg class="icon"><use href="#icon-star"></use></svg>
+                        <svg class="icon"><use href="#icon-star"></use></svg>
+                        <svg class="icon"><use href="#icon-star"></use></svg>
+                        <svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                    </div>
+                    <code>4.5 Stars (width: 90%)</code>
+                </div>
+
+                <div class="component-group-item">
+                    <!-- Example for 3.0 Stars -->
+                    <div class="star-rating" role="img" aria-label="Rated 3 out of 5 stars">
+                      <div class="star-rating__stars-background">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                      <div class="star-rating__stars-foreground" style="width: 60%;">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                    </div>
+                    <code>3.0 Stars (width: 60%)</code>
+                </div>
+
+                <div class="component-group-item">
+                    <!-- Example for 5.0 Stars -->
+                    <div class="star-rating" role="img" aria-label="Rated 5 out of 5 stars">
+                      <div class="star-rating__stars-background">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                      <div class="star-rating__stars-foreground" style="width: 100%;">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                    </div>
+                    <code>5.0 Stars (width: 100%)</code>
+                </div>
+
+                <div class="component-group-item">
+                    <!-- Example for 0 Stars -->
+                    <div class="star-rating" role="img" aria-label="Rated 0 out of 5 stars">
+                      <div class="star-rating__stars-background">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                      <div class="star-rating__stars-foreground" style="width: 0%;">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                    </div>
+                    <code>0 Stars (width: 0%)</code>
+                </div>
+
+                <div class="component-group-item">
+                    <!-- Example for 3.7 Stars -->
+                    <div class="star-rating" role="img" aria-label="Rated 3.7 out of 5 stars">
+                      <div class="star-rating__stars-background">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                      <div class="star-rating__stars-foreground" style="width: 74%;">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                    </div>
+                    <code>3.7 Stars (width: 74%)</code>
+                </div>
+            </div>
+        </section>
+
+        <section class="component-section">
+            <h3>Size Variants</h3>
+            <div class="component-group">
+                <div class="component-group-item">
+                    <!-- Small Size -->
+                    <div class="star-rating star-rating--sm" role="img" aria-label="Rated 4.2 out of 5 stars">
+                      <div class="star-rating__stars-background">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                      <div class="star-rating__stars-foreground" style="width: 84%;">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                    </div>
+                    <code>Small (.star-rating--sm)</code>
+                </div>
+                <div class="component-group-item">
+                    <!-- Default Size -->
+                    <div class="star-rating" role="img" aria-label="Rated 4.2 out of 5 stars">
+                      <div class="star-rating__stars-background">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                      <div class="star-rating__stars-foreground" style="width: 84%;">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                    </div>
+                    <code>Default (no size class)</code>
+                </div>
+                <div class="component-group-item">
+                    <!-- Large Size -->
+                    <div class="star-rating star-rating--lg" role="img" aria-label="Rated 4.2 out of 5 stars">
+                      <div class="star-rating__stars-background">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                      <div class="star-rating__stars-foreground" style="width: 84%;">
+                        <svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg><svg class="icon"><use href="#icon-star"></use></svg>
+                      </div>
+                    </div>
+                    <code>Large (.star-rating--lg)</code>
+                </div>
+            </div>
+        </section>
+    </main>
+    <div>
+      <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "read-only"</h3>
+        <normal> The default and only variant. This component is for display purposes only and does not accept user input. It's used to show an existing rating value. </normal>
+        <div class="star-rating" role="img" aria-label="Rated 3.5 out of 5 stars">
+          <div class="star-rating__stars-background">
+            <svg class="icon"><use href="#icon-star"></use></svg>
+            <svg class="icon"><use href="#icon-star"></use></svg>
+            <svg class="icon"><use href="#icon-star"></use></svg>
+            <svg class="icon"><use href="#icon-star"></use></svg>
+            <svg class="icon"><use href="#icon-star"></use></svg>
+          </div>
+          <div class="star-rating__stars-foreground" style="width: 70%;">
+            <svg class="icon"><use href="#icon-star"></use></svg>
+            <svg class="icon"><use href="#icon-star"></use></svg>
+            <svg class="icon"><use href="#icon-star"></use></svg>
+            <svg class="icon"><use href="#icon-star"></use></svg>
+            <svg class="icon"><use href="#icon-star"></use></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+</body>
+</html>

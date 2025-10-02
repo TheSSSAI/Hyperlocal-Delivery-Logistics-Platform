@@ -1,0 +1,433 @@
+
+{
+  "component_inventory": {
+    "atomic_components": [
+      {
+        "component_name": "Button",
+        "category": "form_controls",
+        "variants": ["primary", "secondary", "danger", "link", "icon-only"],
+        "states": ["default", "hover", "active", "focus", "disabled", "loading"],
+        "responsive_needs": "Consistent sizing, full-width on mobile modals.",
+        "dependencies": ["Icon", "Spinner"],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "4 hours"
+      },
+      {
+        "component_name": "TextInput",
+        "category": "form_controls",
+        "variants": ["default", "with-icon-prefix", "textarea", "number-input"],
+        "states": ["default", "focus", "error", "disabled", "filled"],
+        "responsive_needs": "Full-width on mobile viewports.",
+        "dependencies": ["Icon", "Label", "ErrorMessage"],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "4 hours"
+      },
+      {
+        "component_name": "Label",
+        "category": "form_controls",
+        "variants": ["default", "required"],
+        "states": ["default", "disabled"],
+        "responsive_needs": "Adapts to typography scale.",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "1 hour"
+      },
+      {
+        "component_name": "Icon",
+        "category": "display",
+        "variants": ["small", "medium", "large"],
+        "states": ["default", "interactive"],
+        "responsive_needs": "N/A",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "2 hours"
+      },
+      {
+        "component_name": "Badge",
+        "category": "display",
+        "variants": ["success", "warning", "error", "info", "neutral", "pending"],
+        "states": ["default"],
+        "responsive_needs": "N/A",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "2 hours"
+      },
+      {
+        "component_name": "Spinner",
+        "category": "feedback",
+        "variants": ["small", "medium", "large", "inline"],
+        "states": ["loading"],
+        "responsive_needs": "N/A",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "1 hour"
+      },
+      {
+        "component_name": "Alert",
+        "category": "feedback",
+        "variants": ["success", "warning", "error", "info"],
+        "states": ["visible", "dismissible"],
+        "responsive_needs": "Full-width on mobile viewports.",
+        "dependencies": ["Icon", "Button"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "3 hours"
+      },
+      {
+        "component_name": "ToggleSwitch",
+        "category": "form_controls",
+        "variants": [],
+        "states": ["on", "off", "disabled", "loading"],
+        "responsive_needs": "Standard sizing.",
+        "dependencies": ["Label"],
+        "complexity_level": "low",
+        "implementation_priority": 3,
+        "estimated_effort": "3 hours"
+      },
+      {
+        "component_name": "CountdownTimer",
+        "category": "display",
+        "variants": ["circular-progress", "text-only"],
+        "states": ["running", "expired"],
+        "responsive_needs": "N/A",
+        "dependencies": [],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "4 hours"
+      }
+    ],
+    "molecular_components": [
+      {
+        "component_name": "FormGroup",
+        "category": "forms",
+        "variants": [],
+        "states": ["default", "error"],
+        "responsive_needs": "Vertical stacking of elements.",
+        "dependencies": ["Label", "TextInput", "ErrorMessage"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "2 hours"
+      },
+      {
+        "component_name": "DataTable",
+        "category": "data_display",
+        "variants": ["sortable", "filterable"],
+        "states": ["loading", "empty", "with-data", "error"],
+        "responsive_needs": "Horizontal scroll on mobile or transform to a card list.",
+        "dependencies": ["Spinner", "Pagination", "TableHeader", "TableRow", "Checkbox"],
+        "complexity_level": "high",
+        "implementation_priority": 3,
+        "estimated_effort": "16 hours"
+      },
+      {
+        "component_name": "Pagination",
+        "category": "navigation",
+        "variants": [],
+        "states": ["default", "disabled-prev", "disabled-next"],
+        "responsive_needs": "Simplified view on mobile (e.g., prev/next buttons only).",
+        "dependencies": ["Button", "Icon"],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "4 hours"
+      },
+      {
+        "component_name": "FileUpload",
+        "category": "forms",
+        "variants": ["single-file", "image-upload-with-preview"],
+        "states": ["idle", "uploading", "success", "error"],
+        "responsive_needs": "Full-width on mobile.",
+        "dependencies": ["Button", "Spinner", "Alert"],
+        "complexity_level": "medium",
+        "implementation_priority": 2,
+        "estimated_effort": "8 hours"
+      },
+      {
+        "component_name": "OTPInput",
+        "category": "forms",
+        "variants": ["6-digit"],
+        "states": ["default", "focus", "filled", "error"],
+        "responsive_needs": "Touch-friendly input segments.",
+        "dependencies": ["TextInput"],
+        "complexity_level": "medium",
+        "implementation_priority": 2,
+        "estimated_effort": "4 hours"
+      },
+      {
+        "component_name": "TimeSlotInput",
+        "category": "forms",
+        "variants": [],
+        "states": ["default", "error"],
+        "responsive_needs": "Uses native time picker on mobile.",
+        "dependencies": ["TimePicker", "Button", "Icon"],
+        "complexity_level": "medium",
+        "implementation_priority": 4,
+        "estimated_effort": "6 hours"
+      },
+      {
+        "component_name": "StarRatingDisplay",
+        "category": "display",
+        "variants": ["read-only"],
+        "states": ["default"],
+        "responsive_needs": "N/A",
+        "dependencies": ["Icon"],
+        "complexity_level": "low",
+        "implementation_priority": 5,
+        "estimated_effort": "2 hours"
+      }
+    ],
+    "organism_components": [
+      {
+        "component_name": "AppHeader",
+        "category": "layout",
+        "variants": ["vendor-dashboard"],
+        "states": ["default", "notifications-active"],
+        "responsive_needs": "Integrates with SidebarNav for mobile hamburger menu.",
+        "dependencies": ["Button", "Icon", "Avatar", "Dropdown", "NotificationBell"],
+        "complexity_level": "medium",
+        "implementation_priority": 2,
+        "estimated_effort": "8 hours"
+      },
+      {
+        "component_name": "SidebarNav",
+        "category": "navigation",
+        "variants": ["vendor-dashboard"],
+        "states": ["expanded", "collapsed"],
+        "responsive_needs": "Collapses to icon-only on tablet, hides in off-canvas menu on mobile.",
+        "dependencies": ["Link", "Icon"],
+        "complexity_level": "medium",
+        "implementation_priority": 2,
+        "estimated_effort": "6 hours"
+      },
+      {
+        "component_name": "ModalDialog",
+        "category": "overlays",
+        "variants": ["confirmation", "form-modal", "critical-action"],
+        "states": ["open", "closed"],
+        "responsive_needs": "Full-screen or larger on mobile.",
+        "dependencies": ["Button", "Icon", "TextInput"],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "6 hours"
+      },
+      {
+        "component_name": "VendorRegistrationForm",
+        "category": "forms",
+        "variants": ["multi-step"],
+        "states": ["default", "submitting", "success", "error"],
+        "responsive_needs": "Vertical step indicator on mobile.",
+        "dependencies": ["FormGroup", "Button", "FileUpload", "Alert"],
+        "complexity_level": "high",
+        "implementation_priority": 2,
+        "estimated_effort": "16 hours"
+      },
+      {
+        "component_name": "OrderManagementGrid",
+        "category": "data_display",
+        "variants": [],
+        "states": ["loading", "with-new-orders", "empty"],
+        "responsive_needs": "Columns stack on mobile/tablet view.",
+        "dependencies": ["OrderCard", "Spinner"],
+        "complexity_level": "high",
+        "implementation_priority": 3,
+        "estimated_effort": "12 hours"
+      },
+      {
+        "component_name": "ProductForm",
+        "category": "forms",
+        "variants": ["add", "edit"],
+        "states": ["default", "saving"],
+        "responsive_needs": "Single column layout.",
+        "dependencies": ["FormGroup", "Button", "FileUpload", "Dropdown"],
+        "complexity_level": "medium",
+        "implementation_priority": 4,
+        "estimated_effort": "8 hours"
+      },
+      {
+        "component_name": "BulkImportWizard",
+        "category": "specialized",
+        "variants": [],
+        "states": ["idle", "uploading", "processing", "complete-with-errors", "complete-success"],
+        "responsive_needs": "Simplified view on mobile.",
+        "dependencies": ["FileUpload", "Button", "Alert", "Link"],
+        "complexity_level": "medium",
+        "implementation_priority": 4,
+        "estimated_effort": "8 hours"
+      },
+      {
+        "component_name": "ChatPanel",
+        "category": "communication",
+        "variants": ["docked", "modal"],
+        "states": ["loading", "active", "read-only"],
+        "responsive_needs": "Full-screen modal on mobile viewports.",
+        "dependencies": ["MessageBubble", "TextInput", "Button", "QuickReplyChip"],
+        "complexity_level": "high",
+        "implementation_priority": 5,
+        "estimated_effort": "12 hours"
+      }
+    ]
+  },
+  "screen_inventory": [
+    {
+      "screen_name": "Vendor - Registration",
+      "screen_type": "authentication",
+      "variants": ["web"],
+      "states": ["default", "submitting", "success"],
+      "required_components": ["VendorRegistrationForm"],
+      "platform_optimizations": "Desktop-first, multi-step form for clarity.",
+      "implementation_priority": 2,
+      "estimated_effort": "16 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Vendor - Login",
+      "screen_type": "authentication",
+      "variants": ["web"],
+      "states": ["default", "loading", "error"],
+      "required_components": ["TextInput", "Button", "Alert", "OTPInput"],
+      "platform_optimizations": "Standard web login form.",
+      "implementation_priority": 2,
+      "estimated_effort": "6 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Vendor - Pending Verification",
+      "screen_type": "static_page",
+      "variants": ["web"],
+      "states": ["default"],
+      "required_components": ["Alert", "Button"],
+      "platform_optimizations": "Simple, centered content page.",
+      "implementation_priority": 2,
+      "estimated_effort": "2 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Vendor - Main Dashboard (Order Management)",
+      "screen_type": "dashboard",
+      "variants": ["desktop", "tablet", "mobile"],
+      "states": ["loading", "with-data", "empty", "error"],
+      "required_components": ["AppHeader", "SidebarNav", "OrderManagementGrid", "ToggleSwitch"],
+      "platform_optimizations": "Real-time updates via WebSockets for new orders.",
+      "implementation_priority": 3,
+      "estimated_effort": "20 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Vendor - Product Catalog Management",
+      "screen_type": "management",
+      "variants": ["list-view"],
+      "states": ["loading", "with-data", "empty"],
+      "required_components": ["DataTable", "Pagination", "Button", "ModalDialog", "ProductForm", "BulkImportWizard"],
+      "platform_optimizations": "Data-dense table for efficient management.",
+      "implementation_priority": 4,
+      "estimated_effort": "24 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Vendor - Store Settings",
+      "screen_type": "configuration",
+      "variants": ["profile", "business-hours", "licenses"],
+      "states": ["loading", "default", "saving"],
+      "required_components": ["FormGroup", "Button", "Alert", "BusinessHoursForm", "TimeSlotInput", "FileUpload"],
+      "platform_optimizations": "Tabbed interface for different setting categories.",
+      "implementation_priority": 4,
+      "estimated_effort": "16 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Vendor - Reports & Analytics",
+      "screen_type": "analytics",
+      "variants": ["sales-report", "top-selling-items"],
+      "states": ["loading", "with-data", "empty"],
+      "required_components": ["DateRangePicker", "DashboardWidget", "DataTable", "Button"],
+      "platform_optimizations": "Interactive charts and data export functionality.",
+      "implementation_priority": 5,
+      "estimated_effort": "18 hours",
+      "user_flow_criticality": "medium"
+    },
+    {
+      "screen_name": "Vendor - Financials",
+      "screen_type": "financials",
+      "variants": [],
+      "states": ["loading", "with-data", "empty"],
+      "required_components": ["DataTable", "DateRangePicker", "Button"],
+      "platform_optimizations": "Clear display of monthly statements and download options.",
+      "implementation_priority": 5,
+      "estimated_effort": "10 hours",
+      "user_flow_criticality": "medium"
+    },
+    {
+      "screen_name": "Vendor - Ratings & Reviews",
+      "screen_type": "feedback",
+      "variants": [],
+      "states": ["loading", "with-data", "empty"],
+      "required_components": ["StarRatingDisplay", "DataTable", "Pagination", "Dropdown"],
+      "platform_optimizations": "Filterable list of customer feedback.",
+      "implementation_priority": 5,
+      "estimated_effort": "8 hours",
+      "user_flow_criticality": "medium"
+    },
+    {
+      "screen_name": "Vendor - Help & Support",
+      "screen_type": "helpdesk",
+      "variants": ["ticket-list", "create-ticket"],
+      "states": ["loading", "default"],
+      "required_components": ["DataTable", "Button", "ModalDialog", "FormGroup"],
+      "platform_optimizations": "Simple interface for creating and tracking support requests.",
+      "implementation_priority": 5,
+      "estimated_effort": "8 hours",
+      "user_flow_criticality": "medium"
+    }
+  ],
+  "implementation_plan": {
+    "phase_1_foundation": {
+      "components": ["Button", "TextInput", "Label", "Icon", "Spinner", "Alert"],
+      "rationale": "Core atomic components required by all other UI elements, establishing the visual baseline.",
+      "estimated_duration": "3 days"
+    },
+    "phase_2_layout_and_auth": {
+      "components": ["AppHeader", "SidebarNav", "FormGroup", "ModalDialog", "OTPInput", "FileUpload"],
+      "screens": ["Vendor - Login", "Vendor - Registration", "Vendor - Pending Verification"],
+      "rationale": "Build the main application shell and the critical entry path for all vendors.",
+      "estimated_duration": "7 days"
+    },
+    "phase_3_core_order_flow": {
+      "components": ["OrderCard", "CountdownTimer", "ToggleSwitch", "Badge"],
+      "screens": ["Vendor - Main Dashboard (Order Management)"],
+      "rationale": "Implement the single most critical, real-time feature for the vendor: managing incoming orders.",
+      "estimated_duration": "6 days"
+    },
+    "phase_4_catalog_and_settings": {
+      "components": ["DataTable", "Pagination", "ProductForm", "BulkImportWizard", "BusinessHoursForm"],
+      "screens": ["Vendor - Product Catalog Management", "Vendor - Store Settings"],
+      "rationale": "Enable vendors to build their catalog and configure their store, which are prerequisites for going live.",
+      "estimated_duration": "10 days"
+    },
+    "phase_5_feedback_and_support": {
+      "components": ["ChatPanel", "ReportViewer", "StarRatingDisplay"],
+      "screens": ["Vendor - Reports & Analytics", "Vendor - Financials", "Vendor - Ratings & Reviews", "Vendor - Help & Support"],
+      "rationale": "Build out the secondary but high-value features for analytics, financials, and support.",
+      "estimated_duration": "12 days"
+    }
+  },
+  "platform_implementation_strategy": {
+    "target_platform": "Web (React.js) for the Vendor Dashboard.",
+    "implementation_approach": "Desktop-first, with a fully responsive design that gracefully degrades to tablet and mobile web viewports.",
+    "responsive_strategy": "Use a combination of CSS Grid, Flexbox, and media queries. Data-heavy components like tables will become horizontally scrollable on small screens.",
+    "progressive_enhancement": "Core CRUD functionalities will be prioritized. Real-time features (order notifications, chat) will be layered on top, with fallbacks (manual refresh) if connections fail.",
+    "browser_support": "Latest two versions of Chrome, Firefox, Safari, and Edge.",
+    "accessibility_integration": "WCAG 2.1 AA compliance is a mandatory part of the Definition of Done for all components and screens. Automated and manual testing will be integrated into the development process."
+  },
+  "quality_assurance_plan": {
+    "component_testing": "Use Storybook for isolated visual regression and interaction testing of each component with various props and states.",
+    "integration_testing": "Use React Testing Library to test component compositions and interactions on each screen, mocking API responses.",
+    "responsive_testing": "Use Cypress or Playwright to run E2E tests across defined viewport sizes (desktop, tablet, mobile). Manual testing on real devices for critical flows.",
+    "accessibility_testing": "Run automated accessibility audits with Axe in the CI pipeline. Perform manual keyboard and screen reader (NVDA, VoiceOver) testing before each release.",
+    "performance_testing": "Use Lighthouse and WebPageTest for measuring key performance metrics like LCP and TTI. Profile components with React DevTools to identify rendering bottlenecks."
+  }
+}

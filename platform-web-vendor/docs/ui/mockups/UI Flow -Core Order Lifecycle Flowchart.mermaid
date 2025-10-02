@@ -1,0 +1,52 @@
+flowchart TD
+    subgraph Customer Journey
+        A[Start: Customer Places Order] --> B(Order: Pending Vendor Acceptance);
+    end
+
+    subgraph Vendor Action
+        B --> C{Vendor Action within Time Limit?};
+        C -->|Accepts| D[Order: Preparing];
+        C -->|Rejects| E[Order: Cancelled];
+        C -->|No Action (Timeout)| F[System Auto-Rejects];
+        D --> G[Order: Ready for Pickup];
+    end
+
+    subgraph System Logistics
+        G --> H(System: Rider Allocation Triggered);
+        H --> I{Rider Found & Accepts?};
+        I -->|Yes| J[Order: In Transit];
+        I -->|No (After Retries)| K[Order: Allocation Failed];
+    end
+
+    subgraph Rider Journey
+        J --> L[Rider Arrives at Destination];
+        L --> M[Rider Confirms Delivery (POD)];
+    end
+
+    subgraph Final States
+        M --> N((End: Order Delivered));
+        F --> E;
+        K --> O((End: Allocation Failure));
+        E --> P((End: Order Cancelled));
+    end
+
+    subgraph Customer Cancellation
+        B --> Q{Customer Cancels within Grace Period?};
+        Q -->|Yes| E;
+        Q -->|No| B;
+    end
+
+    %% Styling
+    classDef customerNode fill:#E6F0FF,stroke:#0068FF,color:#002A66;
+    classDef vendorNode fill:#E5F9F1,stroke:#00C875,color:#003D24;
+    classDef riderNode fill:#FFF8E1,stroke:#FFB800,color:#4D3800;
+    classDef systemNode fill:#F7F9FC,stroke:#555D66,color:#1C1F22;
+    classDef successNode fill:#e8f5e8,stroke:#4caf50,color:#000;
+    classDef failureNode fill:#ffebee,stroke:#d32f2f,color:#000;
+
+    class A,Q customerNode;
+    class C,D,G vendorNode;
+    class J,L,M riderNode;
+    class B,F,H,I systemNode;
+    class N successNode;
+    class E,K,O,P failureNode;

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: OTPInput</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@600&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================== */
+    /* 1. Design System Tokens & Base Styles           */
+    /* =============================================== */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-family-monospace: 'Roboto Mono', monospace;
+      --font-h3-size: 28px;
+      --font-weight-h3: 600;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      /* Colors */
+      --color-primary-100: #B8D4FF;
+      --color-primary-500: #0068FF;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-200: #D3D9E1;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      --color-danger-light: #ffdddd;
+      /* Spacing */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+    /* Base Styles */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      line-height: 1.6;
+      color: var(--color-neutrals-gray-900);
+      background-color: var(--color-neutrals-gray-50);
+      padding: var(--space-32);
+    }
+    /* Showcase Layout Styles */
+    .showcase-wrapper {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .showcase-header {
+      padding-bottom: var(--space-16);
+      margin-bottom: var(--space-32);
+      border-bottom: 1px solid var(--color-neutrals-gray-200);
+      text-align: center;
+    }
+    .showcase-header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin: 0;
+    }
+    .showcase-header p {
+      font-size: 18px;
+      color: var(--color-neutrals-gray-700);
+      margin: var(--space-8) 0 0 0;
+    }
+    .component-display {
+      background-color: var(--color-neutrals-white);
+      padding: var(--space-32);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .component-display h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 var(--space-24) 0;
+    }
+    .variant {
+      margin-bottom: var(--space-32);
+    }
+    .variant:last-child {
+      margin-bottom: 0;
+    }
+    .variant h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-neutrals-gray-700);
+      margin: 0 0 var(--space-16) 0;
+    }
+    .variant-container {
+      border: 1px solid var(--color-neutrals-gray-100);
+      padding: var(--space-24);
+      border-radius: var(--border-radius-md);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-16);
+    }
+    .js-note {
+      font-size: var(--font-size-caption);
+      color: var(--color-neutrals-gray-700);
+      text-align: center;
+      max-width: 500px;
+      margin-top: var(--space-16);
+    }
+    .error-text {
+      font-size: var(--font-size-caption);
+      color: var(--color-semantic-error);
+    }
+    /* =============================================== */
+    /* 2. Molecular Component: OTPInput                */
+    /* =============================================== */
+    .otp-input {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-16);
+    }
+    
+    .otp-input__legend {
+        font-size: var(--font-size-body);
+        font-weight: 600;
+        color: var(--color-neutrals-gray-900);
+        margin-bottom: var(--space-8);
+        padding: 0;
+        border: 0;
+    }
+    .otp-input__group {
+      display: flex;
+      gap: var(--space-8);
+      direction: ltr; /* Ensures input order is correct regardless of page language */
+    }
+    .otp-input__digit {
+      width: 48px;
+      height: 56px;
+      border: 1px solid var(--color-neutrals-gray-300);
+      border-radius: var(--border-radius-md);
+      font-family: var(--font-family-primary);
+      font-size: var(--font-h3-size);
+      font-weight: var(--font-weight-h3);
+      text-align: center;
+      color: var(--color-neutrals-gray-900);
+      background-color: var(--color-neutrals-white);
+      transition: all var(--transition-fast);
+      /* For browsers that support it, hide the number input spinners */
+      -moz-appearance: textfield;
+    }
+    .otp-input__digit::-webkit-outer-spin-button,
+    .otp-input__digit::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    /* States */
+    .otp-input__digit:focus {
+      outline: none;
+      border: 2px solid var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+      /* Adjust padding to keep size consistent */
+      padding-left: 0; 
+      padding-right: 0;
+    }
+    .otp-input__digit[data-filled='true'] {
+      border-color: var(--color-neutrals-gray-700);
+    }
+    .otp-input--error .otp-input__digit {
+      border-color: var(--color-semantic-error);
+    }
+    .otp-input--error .otp-input__digit:focus {
+      border-color: var(--color-semantic-error);
+      box-shadow: 0 0 0 3px var(--color-danger-light);
+    }
+    .otp-input__digit:disabled {
+      background-color: var(--color-neutrals-gray-100);
+      cursor: not-allowed;
+      border-color: var(--color-neutrals-gray-200);
+    }
+    /* Responsive Adaptations */
+    @media (max-width: 480px) {
+      .otp-input__group {
+        gap: var(--space-4);
+      }
+      .otp-input__digit {
+        width: 40px;
+        height: 48px;
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase-wrapper">
+    <header class="showcase-header">
+      <h1>OTPInput</h1>
+      <p>A molecular component for entering One-Time Passwords, composed of individual digit inputs.</p>
+    </header>
+    <main class="component-display">
+      <div class="variant">
+        <h2>4-Digit OTP Input</h2>
+        <div class="variant-container">
+          <!-- Default State -->
+          <fieldset class="otp-input" role="group">
+            <legend class="otp-input__legend">Enter your 4-digit verification code</legend>
+            <div class="otp-input__group otp-input--4-digit">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 1 of 4" autocomplete="one-time-code">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 2 of 4">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 3 of 4">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 4 of 4">
+            </div>
+            <div class="js-note"><strong>Note:</strong> Auto-focusing to the next input and handling paste requires JavaScript.</div>
+          </fieldset>
+          <!-- Focus State -->
+          <h3>Focus State</h3>
+          <fieldset class="otp-input" role="group">
+            <legend class="otp-input__legend" id="otp-label-focus">Enter your 4-digit verification code</legend>
+            <div class="otp-input__group otp-input--4-digit">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-labelledby="otp-label-focus" aria-label="Digit 1 of 4" value="1" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-labelledby="otp-label-focus" aria-label="Digit 2 of 4" value="2" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-labelledby="otp-label-focus" aria-label="Digit 3 of 4" style="border: 2px solid var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-100);">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-labelledby="otp-label-focus" aria-label="Digit 4 of 4">
+            </div>
+          </fieldset>
+        </div>
+      </div>
+      <div class="variant">
+        <h2>6-Digit OTP Input</h2>
+        <div class="variant-container">
+          <!-- Filled State -->
+          <h3>Filled State</h3>
+          <fieldset class="otp-input" role="group">
+            <legend class="otp-input__legend">Enter your 6-digit verification code</legend>
+            <div class="otp-input__group otp-input--6-digit">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 1 of 6" value="1" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 2 of 6" value="2" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 3 of 6" value="3" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 4 of 6" value="4" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 5 of 6" value="5" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 6 of 6" value="6" data-filled="true">
+            </div>
+          </fieldset>
+          <!-- Error State -->
+          <h3>Error State</h3>
+          <fieldset class="otp-input otp-input--error" role="group">
+            <legend class="otp-input__legend" id="otp-label-error">Enter your 6-digit verification code</legend>
+            <div class="otp-input__group otp-input--6-digit">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-labelledby="otp-label-error" aria-describedby="otp-error-msg" aria-label="Digit 1 of 6" value="1" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-labelledby="otp-label-error" aria-describedby="otp-error-msg" aria-label="Digit 2 of 6" value="2" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-labelledby="otp-label-error" aria-describedby="otp-error-msg" aria-label="Digit 3 of 6" value="3" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-labelledby="otp-label-error" aria-describedby="otp-error-msg" aria-label="Digit 4 of 6" value="4" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-labelledby="otp-label-error" aria-describedby="otp-error-msg" aria-label="Digit 5 of 6" value="5" data-filled="true">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-labelledby="otp-label-error" aria-describedby="otp-error-msg" aria-label="Digit 6 of 6" value="7" data-filled="true">
+            </div>
+            <div id="otp-error-msg" class="error-text">Invalid OTP. Please try again.</div>
+          </fieldset>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script>
+    // Minimal JS for better UX demonstration (auto-focusing and pasting)
+    // This is a required enhancement for a production component.
+    document.querySelectorAll('.otp-input__group').forEach(group => {
+      const inputs = Array.from(group.querySelectorAll('.otp-input__digit'));
+      
+      inputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+          if (input.value) {
+            input.setAttribute('data-filled', 'true');
+            if (index < inputs.length - 1) {
+              inputs[index + 1].focus();
+            }
+          } else {
+            input.removeAttribute('data-filled');
+          }
+        });
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !input.value && index > 0) {
+            inputs[index - 1].focus();
+          }
+        });
+        
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasteData = (e.clipboardData || window.clipboardData).getData('text').trim();
+            if (/^\d+$/.test(pasteData)) {
+                const digits = pasteData.split('').slice(0, inputs.length);
+                digits.forEach((digit, i) => {
+                    if(inputs[i]) {
+                        inputs[i].value = digit;
+                        inputs[i].setAttribute('data-filled', 'true');
+                    }
+                });
+                const lastFilledIndex = Math.min(digits.length, inputs.length) - 1;
+                if(inputs[lastFilledIndex + 1]) {
+                    inputs[lastFilledIndex + 1].focus();
+                } else {
+                    inputs[lastFilledIndex].focus();
+                }
+            }
+        });
+      });
+    });
+  </script>
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "4-digit"</h3>
+		<!--description--><normal> Used for standard OTP verification where a 4-digit code is sufficient. </normal>
+		<!-- vrient 1 html -->
+        <fieldset class="otp-input" role="group">
+            <legend class="otp-input__legend">Enter your 4-digit verification code</legend>
+            <div class="otp-input__group otp-input--4-digit">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 1 of 4">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 2 of 4">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 3 of 4">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 4 of 4">
+            </div>
+          </fieldset>
+		
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : "6-digit"</h3>
+		<!--description--><normal> Used for higher-security OTP verification, common in financial transactions or account recovery. </normal>
+		<!-- vrient 1 html -->
+        <fieldset class="otp-input" role="group">
+            <legend class="otp-input__legend">Enter your 6-digit verification code</legend>
+            <div class="otp-input__group otp-input--6-digit">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 1 of 6">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 2 of 6">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 3 of 6">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 4 of 6">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 5 of 6">
+              <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="1" class="otp-input__digit" aria-label="Digit 6 of 6">
+            </div>
+          </fieldset>
+		
+      </div>
+	 </div>
+	
+	</body>
+</html>

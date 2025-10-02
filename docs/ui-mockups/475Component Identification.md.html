@@ -1,0 +1,515 @@
+
+{
+  "component_inventory": {
+    "atomic_components": [
+      {
+        "component_name": "Button",
+        "category": "form_controls",
+        "variants": ["primary", "secondary", "danger", "link", "icon-only"],
+        "states": ["default", "hover", "active", "focus", "disabled", "loading"],
+        "responsive_needs": "Minimum 44x44px touch target on mobile; Rider app critical buttons larger (56px height).",
+        "dependencies": ["Icon", "Spinner"],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "4-6 hours"
+      },
+      {
+        "component_name": "TextInput",
+        "category": "form_controls",
+        "variants": ["default", "with-icon", "textarea", "number-input"],
+        "states": ["default", "focus", "error", "disabled", "filled"],
+        "responsive_needs": "Full-width on mobile, max-width on desktop.",
+        "dependencies": ["Icon", "Label", "ErrorMessage"],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "3-5 hours"
+      },
+      {
+        "component_name": "Label",
+        "category": "form_controls",
+        "variants": ["default", "required"],
+        "states": ["default", "disabled"],
+        "responsive_needs": "Scales with typography system.",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "1-2 hours"
+      },
+      {
+        "component_name": "Icon",
+        "category": "display",
+        "variants": ["small", "medium", "large"],
+        "states": ["default", "interactive"],
+        "responsive_needs": "N/A",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "2-4 hours (for setting up icon library)"
+      },
+      {
+        "component_name": "Badge",
+        "category": "display",
+        "variants": ["success", "warning", "error", "info", "neutral"],
+        "states": ["default"],
+        "responsive_needs": "N/A",
+        "dependencies": ["Icon"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "2-3 hours"
+      },
+      {
+        "component_name": "Spinner",
+        "category": "feedback",
+        "variants": ["small", "medium", "large", "inline"],
+        "states": ["loading"],
+        "responsive_needs": "N/A",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "1-2 hours"
+      },
+      {
+        "component_name": "Alert",
+        "category": "feedback",
+        "variants": ["success", "warning", "error", "info"],
+        "states": ["visible", "dismissed"],
+        "responsive_needs": "Full-width on mobile.",
+        "dependencies": ["Icon", "Button"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "3-4 hours"
+      },
+      {
+        "component_name": "Checkbox",
+        "category": "form_controls",
+        "variants": [],
+        "states": ["checked", "unchecked", "disabled", "focus"],
+        "responsive_needs": "Enlarged touch target for mobile.",
+        "dependencies": ["Label"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "2-3 hours"
+      },
+      {
+        "component_name": "RadioButton",
+        "category": "form_controls",
+        "variants": [],
+        "states": ["selected", "unselected", "disabled", "focus"],
+        "responsive_needs": "Enlarged touch target for mobile.",
+        "dependencies": ["Label"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "2-3 hours"
+      },
+      {
+        "component_name": "ToggleSwitch",
+        "category": "form_controls",
+        "variants": [],
+        "states": ["on", "off", "disabled", "loading"],
+        "responsive_needs": "Standard mobile OS sizing.",
+        "dependencies": ["Label"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "3-4 hours"
+      },
+      {
+        "component_name": "Link",
+        "category": "navigation",
+        "variants": ["default", "inline"],
+        "states": ["default", "hover", "active", "visited"],
+        "responsive_needs": "N/A",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "1-2 hours"
+      },
+      {
+        "component_name": "Avatar",
+        "category": "display",
+        "variants": ["small", "medium", "large"],
+        "states": ["default", "with-badge"],
+        "responsive_needs": "N/A",
+        "dependencies": ["Badge"],
+        "complexity_level": "low",
+        "implementation_priority": 3,
+        "estimated_effort": "2-3 hours"
+      }
+    ],
+    "molecular_components": [
+      {
+        "component_name": "FormGroup",
+        "category": "forms",
+        "variants": [],
+        "states": ["default", "error"],
+        "responsive_needs": "Vertical stacking of elements.",
+        "dependencies": ["Label", "TextInput", "ErrorMessage"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "2-3 hours"
+      },
+      {
+        "component_name": "SearchBar",
+        "category": "forms",
+        "variants": ["simple", "with-filters"],
+        "states": ["default", "focus", "loading", "with-results"],
+        "responsive_needs": "Collapses to icon on mobile, expands on tap.",
+        "dependencies": ["TextInput", "Button", "Icon"],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "4-6 hours"
+      },
+      {
+        "component_name": "OTPInput",
+        "category": "forms",
+        "variants": ["4-digit", "6-digit"],
+        "states": ["default", "focus", "filled", "error"],
+        "responsive_needs": "Touch-friendly input segments.",
+        "dependencies": ["TextInput"],
+        "complexity_level": "medium",
+        "implementation_priority": 2,
+        "estimated_effort": "4-6 hours"
+      },
+      {
+        "component_name": "QuantityStepper",
+        "category": "form_controls",
+        "variants": [],
+        "states": ["default", "disabled-minus", "disabled-plus"],
+        "responsive_needs": "Large touch targets.",
+        "dependencies": ["Button", "Icon", "TextInput"],
+        "complexity_level": "medium",
+        "implementation_priority": 4,
+        "estimated_effort": "3-5 hours"
+      },
+      {
+        "component_name": "ProductCard",
+        "category": "data_display",
+        "variants": ["grid-view", "list-view"],
+        "states": ["default", "hover", "disabled (out of stock)"],
+        "responsive_needs": "Adapts from grid on desktop to list on mobile.",
+        "dependencies": ["Badge", "Button", "QuantityStepper"],
+        "complexity_level": "medium",
+        "implementation_priority": 4,
+        "estimated_effort": "5-8 hours"
+      },
+      {
+        "component_name": "OrderCard",
+        "category": "data_display",
+        "variants": ["new-order", "in-progress", "history"],
+        "states": ["default"],
+        "responsive_needs": "Vertical stacking of details on mobile.",
+        "dependencies": ["Badge", "Button", "CountdownTimer"],
+        "complexity_level": "medium",
+        "implementation_priority": 4,
+        "estimated_effort": "4-6 hours"
+      },
+      {
+        "component_name": "DataTable",
+        "category": "data_display",
+        "variants": [],
+        "states": ["loading", "empty", "with-data"],
+        "responsive_needs": "Transforms to card list or allows horizontal scroll on mobile.",
+        "dependencies": ["Spinner", "Pagination", "TableHeader", "TableRow"],
+        "complexity_level": "high",
+        "implementation_priority": 4,
+        "estimated_effort": "12-16 hours"
+      },
+      {
+        "component_name": "Pagination",
+        "category": "navigation",
+        "variants": [],
+        "states": ["default", "disabled-prev", "disabled-next"],
+        "responsive_needs": "Simplified view on mobile (e.g., just prev/next buttons).",
+        "dependencies": ["Button", "Icon"],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "4-6 hours"
+      },
+      {
+        "component_name": "StarRating",
+        "category": "form_controls",
+        "variants": ["interactive", "read-only"],
+        "states": ["default", "selected"],
+        "responsive_needs": "Large touch targets.",
+        "dependencies": ["Icon"],
+        "complexity_level": "medium",
+        "implementation_priority": 5,
+        "estimated_effort": "4-6 hours"
+      },
+      {
+        "component_name": "FileUpload",
+        "category": "forms",
+        "variants": ["single-file", "image-upload-with-preview"],
+        "states": ["idle", "uploading", "success", "error"],
+        "responsive_needs": "Full-width on mobile.",
+        "dependencies": ["Button", "Spinner", "Alert"],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "6-8 hours"
+      }
+    ],
+    "organism_components": [
+      {
+        "component_name": "AppHeader",
+        "category": "layout",
+        "variants": ["customer-mobile", "rider-mobile", "vendor-web", "admin-web"],
+        "states": ["default", "mobile-menu-open"],
+        "responsive_needs": "Collapsible hamburger menu for web dashboards on smaller screens.",
+        "dependencies": ["Button", "Icon", "Link", "SearchBar", "Avatar"],
+        "complexity_level": "high",
+        "implementation_priority": 3,
+        "estimated_effort": "8-12 hours"
+      },
+      {
+        "component_name": "SidebarNav",
+        "category": "navigation",
+        "variants": ["vendor", "admin"],
+        "states": ["expanded", "collapsed"],
+        "responsive_needs": "Collapses to icon-only on tablet, hides in off-canvas menu on mobile.",
+        "dependencies": ["Link", "Icon"],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "6-8 hours"
+      },
+      {
+        "component_name": "ModalDialog",
+        "category": "overlays",
+        "variants": ["confirmation", "form-modal", "info"],
+        "states": ["open", "closed"],
+        "responsive_needs": "Full-screen on mobile.",
+        "dependencies": ["Button", "Icon"],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "5-7 hours"
+      },
+      {
+        "component_name": "ChatInterface",
+        "category": "communication",
+        "variants": [],
+        "states": ["active", "read-only", "loading", "error"],
+        "responsive_needs": "Adapts to mobile keyboard and screen real estate.",
+        "dependencies": ["TextInput", "Button", "MessageBubble", "QuickReply"],
+        "complexity_level": "high",
+        "implementation_priority": 6,
+        "estimated_effort": "16-24 hours"
+      },
+      {
+        "component_name": "MapView",
+        "category": "specialized",
+        "variants": ["live-tracking", "address-picker", "geofencing-tool"],
+        "states": ["loading", "interactive", "static"],
+        "responsive_needs": "Touch-friendly gestures on mobile.",
+        "dependencies": ["Icon", "Spinner"],
+        "complexity_level": "very high",
+        "implementation_priority": 5,
+        "estimated_effort": "24-40 hours"
+      },
+      {
+        "component_name": "DashboardWidget",
+        "category": "data_display",
+        "variants": ["kpi-card", "line-chart", "list-widget"],
+        "states": ["loading", "with-data", "error"],
+        "responsive_needs": "Stack vertically on mobile.",
+        "dependencies": ["Spinner", "Alert"],
+        "complexity_level": "medium",
+        "implementation_priority": 5,
+        "estimated_effort": "6-8 hours"
+      },
+      {
+        "component_name": "RegistrationForm",
+        "category": "forms",
+        "variants": ["customer", "vendor", "rider"],
+        "states": ["default", "submitting", "success"],
+        "responsive_needs": "Single-column layout on mobile.",
+        "dependencies": ["FormGroup", "Button", "FileUpload", "OTPInput"],
+        "complexity_level": "high",
+        "implementation_priority": 2,
+        "estimated_effort": "12-18 hours"
+      }
+    ]
+  },
+  "screen_inventory": [
+    {
+      "screen_name": "Customer - Registration & Login",
+      "screen_type": "authentication",
+      "variants": ["mobile-number-entry", "otp-verification"],
+      "states": ["loading", "default", "error", "locked-out"],
+      "required_components": ["TextInput", "Button", "OTPInput", "Alert"],
+      "platform_optimizations": "Mobile App (React Native)",
+      "implementation_priority": 2,
+      "estimated_effort": "8-12 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Customer - Home (Vendor Discovery)",
+      "screen_type": "discovery",
+      "variants": ["mobile"],
+      "states": ["loading", "with-data", "empty (no vendors)", "error (no location)"],
+      "required_components": ["AppHeader", "SearchBar", "VendorCard", "Spinner", "Alert"],
+      "platform_optimizations": "Mobile App (React Native), location-aware",
+      "implementation_priority": 3,
+      "estimated_effort": "12-16 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Customer - Vendor Profile",
+      "screen_type": "detail_view",
+      "variants": ["mobile"],
+      "states": ["loading", "with-data", "empty (no products)", "closed"],
+      "required_components": ["ProductCard", "SearchBar", "StarRating", "Badge"],
+      "platform_optimizations": "Mobile App (React Native)",
+      "implementation_priority": 4,
+      "estimated_effort": "10-14 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Customer - Cart & Checkout",
+      "screen_type": "checkout_flow",
+      "variants": ["cart-summary", "address-selection", "payment-selection", "order-confirmation"],
+      "states": ["loading", "default", "empty-cart", "error"],
+      "required_components": ["Button", "RadioButton", "CartItemCard", "Alert", "TextInput"],
+      "platform_optimizations": "Mobile App (React Native), multi-step wizard",
+      "implementation_priority": 4,
+      "estimated_effort": "20-28 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Customer - Live Order Tracking",
+      "screen_type": "tracking",
+      "variants": ["mobile"],
+      "states": ["loading", "live", "signal-lost", "delivered"],
+      "required_components": ["MapView", "ChatInterface", "Button"],
+      "platform_optimizations": "Mobile App (React Native), real-time updates",
+      "implementation_priority": 5,
+      "estimated_effort": "18-24 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Vendor - Dashboard (Web)",
+      "screen_type": "dashboard",
+      "variants": ["desktop", "tablet", "mobile"],
+      "states": ["loading", "with-orders", "no-new-orders"],
+      "required_components": ["AppHeader", "SidebarNav", "OrderCard", "DataTable"],
+      "platform_optimizations": "Web (React.js), responsive layout",
+      "implementation_priority": 3,
+      "estimated_effort": "16-24 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Vendor - Product Management (Web)",
+      "screen_type": "crud_management",
+      "variants": ["list-view", "add-edit-form"],
+      "states": ["loading", "with-products", "empty"],
+      "required_components": ["DataTable", "Button", "ModalDialog", "FormGroup", "FileUpload"],
+      "platform_optimizations": "Web (React.js), responsive table/form",
+      "implementation_priority": 4,
+      "estimated_effort": "14-20 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Rider - Home/Availability",
+      "screen_type": "dashboard",
+      "variants": ["mobile"],
+      "states": ["online", "offline", "receiving-offer"],
+      "required_components": ["ToggleSwitch", "MapView", "ModalDialog"],
+      "platform_optimizations": "Mobile App (React Native), large touch targets",
+      "implementation_priority": 3,
+      "estimated_effort": "12-16 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Rider - Active Task",
+      "screen_type": "workflow",
+      "variants": ["navigate-to-vendor", "navigate-to-customer", "proof-of-delivery"],
+      "states": ["default", "navigating"],
+      "required_components": ["Button", "MapView", "ChatInterface", "OTPInput"],
+      "platform_optimizations": "Mobile App (React Native), at-a-glance info",
+      "implementation_priority": 5,
+      "estimated_effort": "16-24 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Admin - User Management (Web)",
+      "screen_type": "management",
+      "variants": ["list-view", "detail-view"],
+      "states": ["loading", "with-data", "empty"],
+      "required_components": ["DataTable", "SearchBar", "Pagination", "ModalDialog"],
+      "platform_optimizations": "Web (React.js), data-dense interface",
+      "implementation_priority": 4,
+      "estimated_effort": "14-20 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Admin - Settings (Web)",
+      "screen_type": "configuration",
+      "variants": ["financial", "operational", "logistics"],
+      "states": ["loading", "default"],
+      "required_components": ["FormGroup", "Button", "Alert"],
+      "platform_optimizations": "Web (React.js)",
+      "implementation_priority": 5,
+      "estimated_effort": "10-15 hours",
+      "user_flow_criticality": "medium"
+    },
+    {
+      "screen_name": "Admin - Geofencing Tool (Web)",
+      "screen_type": "specialized_tool",
+      "variants": [],
+      "states": ["loading", "viewing", "editing"],
+      "required_components": ["MapView", "DataTable", "Button", "FormGroup"],
+      "platform_optimizations": "Web (React.js), desktop-focused",
+      "implementation_priority": 6,
+      "estimated_effort": "24-32 hours",
+      "user_flow_criticality": "high"
+    }
+  ],
+  "implementation_plan": {
+    "phase_1_foundation": {
+      "components": ["Button", "TextInput", "Label", "Icon", "Spinner", "Link", "Layout Primitives (Grid, Stack)"],
+      "rationale": "Core atomic components and layout structure required for every other component and screen.",
+      "estimated_duration": "3-5 days"
+    },
+    "phase_2_building_blocks": {
+      "components": ["Alert", "Badge", "FormGroup", "ModalDialog", "Pagination", "Card Primitives"],
+      "rationale": "Slightly more complex components that combine atomic elements and are widely reused.",
+      "estimated_duration": "4-6 days"
+    },
+    "phase_3_authentication_flow": {
+      "screens": ["Registration & Login Screens (All user types)", "Pending Verification Screens"],
+      "components": ["RegistrationForm", "OTPInput"],
+      "rationale": "Implement the critical user entry path. Unblocks all other authenticated features.",
+      "estimated_duration": "5-8 days"
+    },
+    "phase_4_core_dashboards": {
+      "screens": ["Vendor Dashboard", "Rider Home", "Admin Dashboard Shell", "Customer Home"],
+      "components": ["AppHeader", "SidebarNav", "ToggleSwitch", "DataTable"],
+      "rationale": "Establish the main landing pages and navigation structures for each user type.",
+      "estimated_duration": "8-12 days"
+    },
+    "phase_5_order_lifecycle": {
+      "screens": ["Customer - Vendor Profile", "Customer - Cart & Checkout", "Customer - Live Tracking", "Vendor - Product Management", "Rider - Active Task"],
+      "components": ["ProductCard", "OrderCard", "QuantityStepper", "ChatInterface", "MapView (Tracking)"],
+      "rationale": "Implement the end-to-end order flow, which is the platform's core business logic.",
+      "estimated_duration": "15-20 days"
+    },
+    "phase_6_admin_tools": {
+      "screens": ["Admin - User Management", "Admin - Geofencing Tool", "Admin - Settings", "Reports"],
+      "components": ["DashboardWidget", "MapView (Geofencing)"],
+      "rationale": "Build out the administrative and operational tools needed for platform management.",
+      "estimated_duration": "10-15 days"
+    }
+  },
+  "platform_implementation_strategy": {
+    "target_platform": "Mobile (Customer & Rider Apps) and Web (Vendor & Admin Dashboards)",
+    "implementation_approach": "Mobile-first for React Native apps, Responsive Desktop-first for React.js web apps.",
+    "responsive_strategy": "A combination of shared responsive components and platform-specific layouts.",
+    "progressive_enhancement": "Core functionality (viewing, ordering) is prioritized. Real-time features (chat, tracking) and offline support are layered on top.",
+    "browser_support": "Latest versions of Chrome, Firefox, Safari, Edge for web. iOS 15+ and Android 8+ for mobile.",
+    "accessibility_integration": "WCAG 2.1 AA compliance integrated into the definition of done for every component and screen."
+  },
+  "quality_assurance_plan": {
+    "component_testing": "Storybook or a similar tool for isolated visual and functional testing of each component with various props and states.",
+    "integration_testing": "Testing component compositions on screens and verifying data flow from APIs to the UI.",
+    "responsive_testing": "Automated (Cypress/Playwright) and manual testing across defined breakpoints (mobile, tablet, desktop).",
+    "accessibility_testing": "Automated scans with Axe, supplemented by manual keyboard navigation and screen reader (VoiceOver, NVDA) testing.",
+    "performance_testing": "Lighthouse audits for web performance (LCP, TTI) and profiling tools for React Native app performance."
+  }
+}

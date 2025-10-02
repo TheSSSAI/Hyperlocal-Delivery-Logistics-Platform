@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: AppHeader</title>
+  <style>
+    /* 1. CSS Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* 2. Design System Tokens (CSS Custom Properties) */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --line-height-body: 1.6;
+      /* Colors */
+      --color-primary-300: #5C9EFF;
+      --color-neutral-white: #FFFFFF;
+      --color-neutral-50: #F7F9FC;
+      --color-neutral-100: #E9EDF2;
+      --color-neutral-200: #D3D9E1;
+      --color-neutral-500: #8E9BAA;
+      --color-neutral-700: #555D66;
+      --color-neutral-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      --color-danger-50: #FFEBEB;
+      --color-danger-700: #CC3D3D;
+      /* Spacing */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.1);
+    }
+
+    /* 3. Base & Showcase Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutral-50);
+      color: var(--color-neutral-900);
+      padding-top: 64px; /* To offset the fixed header */
+    }
+    .showcase { padding: var(--space-32); max-width: 1200px; margin: 0 auto; }
+    h1 { font-size: 28px; margin-bottom: var(--space-8); }
+    p { margin-bottom: var(--space-16); color: var(--color-neutral-700); }
+    .component-wrapper { margin-top: var(--space-32); }
+    h2 { font-size: 20px; margin-bottom: var(--space-16); font-weight: var(--font-weight-semibold); }
+    .placeholder-content { height: 150vh; background-image: linear-gradient(var(--color-neutral-100) 1px, transparent 1px), linear-gradient(to right, var(--color-neutral-100) 1px, var(--color-neutral-50) 1px); background-size: 20px 20px; border-radius: var(--border-radius-lg); border: 1px solid var(--color-neutral-200); }
+
+    /* 4. Icon Definitions */
+    .icon {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        stroke-width: 0;
+        stroke: currentColor;
+        fill: currentColor;
+        vertical-align: middle;
+    }
+
+    /* 5. AppHeader Component CSS */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-24);
+      height: 64px;
+      background-color: var(--color-neutral-white);
+      border-bottom: 1px solid var(--color-neutral-200);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    .app-header__left, .app-header__right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+    }
+
+    .app-header__logo {
+      font-weight: var(--font-weight-bold);
+      font-size: 20px;
+      color: var(--color-neutral-900);
+      text-decoration: none;
+    }
+
+    .app-header__menu-toggle {
+      display: none;
+      padding: var(--space-8);
+      border: none;
+      background: transparent;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      color: var(--color-neutral-700);
+    }
+    .app-header__menu-toggle:hover {
+      background-color: var(--color-neutral-100);
+    }
+    .app-header__menu-toggle .icon { font-size: 24px; }
+
+    .app-header__notification-bell {
+      position: relative;
+    }
+
+    .app-header__notification-bell .notification-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 10px;
+      height: 10px;
+      background-color: var(--color-semantic-error);
+      border-radius: 50%;
+      border: 2px solid var(--color-neutral-white);
+      display: none;
+    }
+
+    .app-header__notification-bell--active .notification-badge {
+      display: block;
+    }
+
+    .app-header__profile {
+      position: relative;
+    }
+
+    .profile-dropdown__toggle {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      background: none;
+      border: none;
+      border-radius: var(--border-radius-md);
+      padding: var(--space-4) var(--space-8);
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    .profile-dropdown__toggle:hover {
+      background-color: var(--color-neutral-100);
+    }
+
+    .profile-dropdown__toggle .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--color-neutral-200);
+      object-fit: cover;
+      border: 2px solid var(--color-neutral-white);
+      box-shadow: 0 0 0 1px var(--color-neutral-300);
+    }
+
+    .profile-dropdown__toggle .username {
+      font-weight: var(--font-weight-semibold);
+      font-size: 14px;
+      color: var(--color-neutral-900);
+    }
+
+    .profile-dropdown__toggle .icon {
+      color: var(--color-neutral-500);
+    }
+
+    .profile-dropdown__menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 200px;
+      background-color: var(--color-neutral-white);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--color-neutral-200);
+      padding: var(--space-8) 0;
+      z-index: 1001;
+    }
+
+    .app-header__profile:hover .profile-dropdown__menu,
+    .profile-dropdown__toggle:focus-within + .profile-dropdown__menu {
+      display: block;
+    }
+    
+    .profile-dropdown__menu:hover {
+      display: block;
+    }
+
+
+    .profile-dropdown__item {
+      display: block;
+      width: 100%;
+      padding: var(--space-12) var(--space-16);
+      font-size: 14px;
+      color: var(--color-neutral-700);
+      text-decoration: none;
+      text-align: left;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    .profile-dropdown__item:hover {
+      background-color: var(--color-neutral-50);
+      color: var(--color-neutral-900);
+    }
+
+    .profile-dropdown__item--danger {
+      color: var(--color-danger-700);
+    }
+
+    .profile-dropdown__item--danger:hover {
+      background-color: var(--color-danger-50);
+    }
+    
+    /* Utility button style for icon buttons in header */
+    .btn--icon-only { 
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background: transparent;
+        color: var(--color-neutral-700);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    .btn--icon-only:hover {
+        background-color: var(--color-neutral-100);
+    }
+    .btn--icon-only .icon {
+        font-size: 22px;
+    }
+
+    /* Responsive Adaptations */
+    @media (max-width: 768px) {
+      .app-header {
+        padding: 0 var(--space-16);
+      }
+      .app-header__menu-toggle {
+        display: inline-flex;
+      }
+      .profile-dropdown__toggle .username, .profile-dropdown__toggle .icon--chevron {
+        display: none;
+      }
+      .profile-dropdown__toggle {
+        padding: var(--space-4);
+      }
+    }
+
+    /* Accessibility */
+    .btn--icon-only:focus-visible, .app-header__menu-toggle:focus-visible, .profile-dropdown__toggle:focus-visible {
+      outline: 3px solid var(--color-primary-300);
+      outline-offset: 2px;
+      background-color: var(--color-neutral-100);
+    }
+    
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+  </style>
+</head>
+<body>
+  <svg style="display: none;">
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></symbol>
+    <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></symbol>
+    <symbol id="icon-chevron-down" viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></symbol>
+  </svg>
+
+  <div class="component-wrapper">
+    <!-- Default State -->
+    <header class="app-header">
+        <div class="app-header__left">
+            <button class="app-header__menu-toggle" aria-label="Open navigation menu" aria-expanded="false">
+                <svg class="icon"><use href="#icon-menu"/></svg>
+            </button>
+            <a href="#" class="app-header__logo">Vendor Portal</a>
+        </div>
+        <div class="app-header__right">
+            <div class="app-header__notification-bell">
+                <button class="btn--icon-only" aria-label="View notifications">
+                    <svg class="icon"><use href="#icon-bell"/></svg>
+                    <span class="notification-badge"></span>
+                </button>
+            </div>
+            <div class="app-header__profile">
+                <button class="profile-dropdown__toggle" aria-haspopup="true" aria-expanded="false">
+                    <img src="https://i.pravatar.cc/40?u=vendor" alt="Vendor profile picture" class="avatar">
+                    <span class="username">Global Bites</span>
+                    <svg class="icon icon--chevron"><use href="#icon-chevron-down"/></svg>
+                </button>
+                <div class="profile-dropdown__menu" role="menu">
+                    <a href="#" class="profile-dropdown__item" role="menuitem">Profile</a>
+                    <a href="#" class="profile-dropdown__item" role="menuitem">Store Settings</a>
+                    <hr style="border: none; border-top: 1px solid var(--color-neutral-100); margin: var(--space-8) 0;">
+                    <button class="profile-dropdown__item profile-dropdown__item--danger" role="menuitem">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+  </div>
+  
+  <main class="showcase">
+    <h1>AppHeader Organism</h1>
+    <p>This is the main application header for vendor and admin dashboards. It is fixed to the top of the viewport and contains primary navigation triggers and utility controls. Below is a placeholder to demonstrate scrolling behavior.</p>
+
+    <div class="component-wrapper">
+      <h2>Default State</h2>
+      <p>Standard header with no active notifications.</p>
+      <!-- The header is already displayed above, this is just for documentation context -->
+    </div>
+    
+    <div class="component-wrapper">
+      <h2>Notifications Active State</h2>
+      <p>To showcase this state, a class <code>.app-header__notification-bell--active</code> would be added to the bell container, making the red dot visible.</p>
+    </div>
+
+    <div class="component-wrapper">
+      <h2>Responsive Behavior</h2>
+      <p>On screens smaller than 768px, the hamburger menu appears, and the profile dropdown is simplified to just an avatar. Resize your browser window to see this effect.</p>
+    </div>
+
+    <div class="placeholder-content"></div>
+  </main>
+    
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "vendor-dashboard"<h3>
+		<!--description--><normal> This is the only defined variant for the `AppHeader` in the provided specification. It includes a logo/title on the left, and notification and profile dropdown controls on the right. It is responsive and integrates with a sidebar for mobile navigation. </normal>
+		<!-- vrient 1 html -->
+        <header class="app-header">
+        <div class="app-header__left">
+            <button class="app-header__menu-toggle" aria-label="Open navigation menu" aria-expanded="false">
+                <svg class="icon"><use href="#icon-menu"></use></svg>
+            </button>
+            <a href="#" class="app-header__logo">Vendor Portal</a>
+        </div>
+        <div class="app-header__right">
+            <div class="app-header__notification-bell app-header__notification-bell--active">
+                <button class="btn--icon-only" aria-label="View notifications, 1 unread">
+                    <svg class="icon"><use href="#icon-bell"></use></svg>
+                    <span class="notification-badge"></span>
+                </button>
+            </div>
+            <div class="app-header__profile">
+                <button class="profile-dropdown__toggle" aria-haspopup="true" aria-expanded="false">
+                    <img src="https://i.pravatar.cc/40?u=vendor" alt="Vendor profile picture" class="avatar">
+                    <span class="username">Global Bites</span>
+                    <svg class="icon icon--chevron"><use href="#icon-chevron-down"></use></svg>
+                </button>
+                <div class="profile-dropdown__menu" role="menu">
+                    <a href="#" class="profile-dropdown__item" role="menuitem">Profile</a>
+                    <a href="#" class="profile-dropdown__item" role="menuitem">Store Settings</a>
+                    <hr style="border: none; border-top: 1px solid var(--color-neutral-100); margin: var(--space-8) 0;">
+                    <button class="profile-dropdown__item profile-dropdown__item--danger" role="menuitem">Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>"     
+		
+      <div>
+	 </div>    
+	
+	</body>
+</html>

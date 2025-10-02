@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: Bulk Import Wizard</title>
+  <style>
+    /* 1. CSS Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* 2. Design System Tokens (CSS Custom Properties) */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --line-height-body: 1.6;
+
+      /* Colors */
+      --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-300: #5C9EFF; --color-primary-500: #0068FF; --color-primary-600: #0053CC; --color-primary-700: #003E99;
+      --color-secondary-50: #E5F9F1; --color-secondary-900: #003D24;
+      --color-danger-50: #FFEBEB; --color-danger-500: #FF4D4D; --color-danger-700: #CC3D3D;
+      --color-warning-50: #FFFBE6; --color-warning-700: #8C6A00;
+      --color-neutral-white: #FFFFFF; --color-neutral-50: #F7F9FC; --color-neutral-100: #E9EDF2; --color-neutral-200: #D3D9E1; --color-neutral-300: #BCC4CF; --color-neutral-500: #8E9BAA; --color-neutral-700: #555D66; --color-neutral-900: #1C1F22;
+      --color-semantic-success: #00C875; --color-semantic-warning: #FFB800; --color-semantic-error: #FF4D4D; --color-semantic-info: #0068FF;
+
+      /* Spacing */
+      --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px; --space-24: 24px; --space-32: 32px; --space-48: 48px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* 3. Base & Showcase Layout Styles */
+    body { font-family: var(--font-family-primary); font-size: var(--font-size-body); line-height: var(--line-height-body); background-color: var(--color-neutral-100); color: var(--color-neutral-900); padding: var(--space-32); }
+    .showcase { max-width: 700px; margin: 0 auto; }
+    .showcase-header { margin-bottom: var(--space-32); text-align: center; }
+    h1 { font-size: 32px; font-weight: var(--font-weight-bold); margin-bottom: var(--space-8); }
+    h2 { font-size: 24px; font-weight: var(--font-weight-semibold); margin-top: var(--space-48); margin-bottom: var(--space-16); color: var(--color-primary-700); border-bottom: 1px solid var(--color-neutral-200); padding-bottom: var(--space-8); }
+    p.description { color: var(--color-neutral-700); font-size: 14px; }
+    
+    /* 4. Icon Definitions */
+    .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; vertical-align: middle; }
+
+    /* 5. Atomic Dependencies */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8); padding: var(--space-12) var(--space-24); font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); border: 1px solid transparent; border-radius: var(--border-radius-md); text-decoration: none; cursor: pointer; transition: all 0.2s ease-in-out; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutral-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .btn--secondary { background-color: var(--color-neutral-white); color: var(--color-primary-500); border-color: var(--color-primary-500); }
+    .btn--secondary:hover { background-color: var(--color-primary-50); }
+    
+    .link { color: var(--color-primary-500); text-decoration: underline; font-weight: var(--font-weight-semibold); cursor: pointer; }
+    .link:hover { color: var(--color-primary-700); }
+
+    .alert { display: flex; align-items: flex-start; gap: var(--space-12); padding: var(--space-16); border-radius: var(--border-radius-md); border: 1px solid; }
+    .alert .icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+    .alert p { margin: 0; font-size: 14px; }
+    .alert strong { display: block; margin-bottom: var(--space-4); }
+    .alert--success { background-color: var(--color-secondary-50); color: var(--color-secondary-900); border-color: var(--color-semantic-success); }
+    .alert--warning { background-color: var(--color-warning-50); color: var(--color-warning-700); border-color: var(--color-semantic-warning); }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .spinner { display: inline-block; border-radius: 50%; border: 4px solid currentColor; border-top-color: transparent; animation: spin 0.8s linear infinite; }
+    .spinner--lg { width: 48px; height: 48px; }
+    
+    /* 6. FileUpload (Simplified Molecular Component) */
+    .file-upload__label { display: block; padding: var(--space-32); border: 2px dashed var(--color-neutral-300); border-radius: var(--border-radius-lg); background-color: var(--color-neutral-50); text-align: center; cursor: pointer; transition: background-color 0.2s ease, border-color 0.2s ease; }
+    .file-upload__label:hover { background-color: var(--color-primary-50); border-color: var(--color-primary-300); }
+    .file-upload__input { width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; position: absolute; z-index: -1; }
+    .file-upload__input:focus-visible + .file-upload__label { outline: 3px solid var(--color-primary-300); outline-offset: 2px; border-color: var(--color-primary-500); }
+    .file-upload__icon { color: var(--color-primary-500); margin-bottom: var(--space-12); font-size: 32px; }
+    .file-upload__text { font-weight: var(--font-weight-semibold); color: var(--color-neutral-900); }
+    .file-upload__subtext { font-size: 14px; color: var(--color-neutral-500); margin-top: var(--space-4); }
+
+    /* 7. Organism: BulkImportWizard Component CSS */
+    .bulk-import-wizard {
+      background-color: var(--color-neutral-white);
+      border: 1px solid var(--color-neutral-200);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: var(--space-32);
+      text-align: center;
+    }
+    .bulk-import-wizard__header {
+      margin-bottom: var(--space-24);
+    }
+    .bulk-import-wizard__title {
+      font-size: 20px;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-neutral-900);
+      margin-bottom: var(--space-8);
+    }
+    .bulk-import-wizard__description {
+      color: var(--color-neutral-700);
+      font-size: 14px;
+      max-width: 45ch;
+      margin: 0 auto var(--space-24);
+    }
+    .bulk-import-wizard__content {
+      margin-bottom: var(--space-24);
+    }
+    .bulk-import-wizard__footer {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-16);
+    }
+    .bulk-import-wizard__state--processing .spinner {
+      margin: var(--space-24) auto;
+      color: var(--color-primary-500);
+    }
+    .bulk-import-wizard__state--processing .bulk-import-wizard__description {
+      font-weight: var(--font-weight-semibold);
+    }
+    .bulk-import-wizard__state--complete .alert {
+      text-align: left;
+    }
+    .bulk-import-wizard__download-link {
+      font-size: 14px;
+      font-weight: var(--font-weight-semibold);
+    }
+
+    @media (max-width: 768px) {
+      .bulk-import-wizard {
+        padding: var(--space-24);
+      }
+      body {
+          padding: var(--space-16);
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg style="display: none;">
+    <symbol id="icon-upload-cloud" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 18a4.6 4.4 0 0 1 0-9a5 4.5 0 0 1 11 2h1a3.5 3.5 0 0 1 0 7h-1m-1 1l-2-2m2 2l2-2m-2-4V9"/></symbol>
+    <symbol id="icon-check-circle" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></symbol>
+    <symbol id="icon-warning-circle" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></symbol>
+  </svg>
+
+  <main class="showcase">
+    <header class="showcase-header">
+      <h1>Organism: BulkImportWizard</h1>
+      <p class="description">Guides a vendor through the CSV product import process across its various states.</p>
+    </header>
+
+    <!-- ============================================= -->
+    <!--            State 1: Idle                      -->
+    <!-- ============================================= -->
+    <h2>Idle State</h2>
+    <div class="bulk-import-wizard bulk-import-wizard--idle">
+      <div class="bulk-import-wizard__header">
+        <h3 class="bulk-import-wizard__title">Bulk Import Products</h3>
+        <p class="bulk-import-wizard__description">Save time by uploading your product catalog from a CSV file. Make sure your file matches our template.</p>
+      </div>
+      <div class="bulk-import-wizard__content">
+        <div class="file-upload">
+          <div class="file-upload__dropzone">
+            <input type="file" id="file-input-idle" class="file-upload__input" accept=".csv">
+            <label for="file-input-idle" class="file-upload__label">
+              <div class="file-upload__icon"><svg class="icon"><use href="#icon-upload-cloud" /></svg></div>
+              <span class="file-upload__text">Click to upload or drag and drop</span>
+              <span class="file-upload__subtext">CSV file up to 10MB</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="bulk-import-wizard__footer">
+        <a href="#" class="link bulk-import-wizard__download-link">Download CSV Template</a>
+      </div>
+    </div>
+    
+    <!-- ============================================= -->
+    <!--            State 2 & 3: Processing            -->
+    <!-- ============================================= -->
+    <h2>Uploading / Processing State</h2>
+    <div class="bulk-import-wizard bulk-import-wizard__state--processing">
+      <div class="bulk-import-wizard__header">
+        <h3 class="bulk-import-wizard__title">Processing Your File</h3>
+        <p class="bulk-import-wizard__description">Please wait while we validate and import your products. This may take a few moments.</p>
+      </div>
+      <div class="bulk-import-wizard__content">
+        <div class="spinner spinner--lg"></div>
+      </div>
+    </div>
+    
+    <!-- ============================================= -->
+    <!--            State 4: Complete with Success     -->
+    <!-- ============================================= -->
+    <h2>Complete with Success State</h2>
+    <div class="bulk-import-wizard bulk-import-wizard__state--complete">
+        <div class="bulk-import-wizard__header">
+            <h3 class="bulk-import-wizard__title">Import Successful</h3>
+        </div>
+        <div class="bulk-import-wizard__content">
+            <div class="alert alert--success" role="status">
+                <svg class="icon"><use href="#icon-check-circle"/></svg>
+                <div>
+                    <strong>Your catalog has been updated.</strong>
+                    <p>7 products were created and 3 products were updated.</p>
+                </div>
+            </div>
+        </div>
+        <div class="bulk-import-wizard__footer">
+            <button class="btn btn--primary">View Products</button>
+        </div>
+    </div>
+    
+    <!-- ============================================= -->
+    <!--            State 5: Complete with Errors      -->
+    <!-- ============================================= -->
+    <h2>Complete with Errors State</h2>
+    <div class="bulk-import-wizard bulk-import-wizard__state--complete">
+        <div class="bulk-import-wizard__header">
+            <h3 class="bulk-import-wizard__title">Import Complete with Errors</h3>
+        </div>
+        <div class="bulk-import-wizard__content">
+            <div class="alert alert--warning" role="alert">
+                <svg class="icon"><use href="#icon-warning-circle"/></svg>
+                <div>
+                    <strong>Some rows could not be imported.</strong>
+                    <p>We successfully imported 25 products, but 5 rows had errors. Download the report to see details and correct your file.</p>
+                </div>
+            </div>
+        </div>
+        <div class="bulk-import-wizard__footer">
+            <button class="btn btn--primary">Download Error Report (.csv)</button>
+            <button class="btn btn--secondary">Try Again</button>
+        </div>
+    </div>
+
+  </main>
+
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "idle"<h3>
+		<!--description--><normal> The initial state of the wizard, prompting the user to upload a CSV file. It includes a dropzone and a link to download the required template. </normal>
+		<!-- vrient 1 html -->
+        <div class="bulk-import-wizard bulk-import-wizard--idle">
+      <div class="bulk-import-wizard__header">
+        <h3 class="bulk-import-wizard__title">Bulk Import Products</h3>
+        <p class="bulk-import-wizard__description">Save time by uploading your product catalog from a CSV file. Make sure your file matches our template.</p>
+      </div>
+      <div class="bulk-import-wizard__content">
+        <div class="file-upload">
+          <div class="file-upload__dropzone">
+            <input type="file" id="file-input-idle" class="file-upload__input" accept=".csv">
+            <label for="file-input-idle" class="file-upload__label">
+              <div class="file-upload__icon"><svg class="icon"><use href="#icon-upload-cloud"></use></svg></div>
+              <span class="file-upload__text">Click to upload or drag and drop</span>
+              <span class="file-upload__subtext">CSV file up to 10MB</span>
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="bulk-import-wizard__footer">
+        <a href="#" class="link bulk-import-wizard__download-link">Download CSV Template</a>
+      </div>
+    </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "uploading"<h3>
+		<!--description--><normal> A transient state shown immediately after a file is selected, indicating that the file is being transferred to the server. </normal>
+		<!-- vrient 1 html -->
+        <div class="bulk-import-wizard bulk-import-wizard__state--processing">
+      <div class="bulk-import-wizard__header">
+        <h3 class="bulk-import-wizard__title">Uploading File...</h3>
+        <p class="bulk-import-wizard__description">Your file is being securely uploaded.</p>
+      </div>
+      <div class="bulk-import-wizard__content">
+        <div class="spinner spinner--lg"></div>
+      </div>
+    </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "processing"<h3>
+		<!--description--><normal> A transient state shown after the upload is complete, indicating that the server is validating and importing the data. </normal>
+		<!-- vrient 1 html -->
+        <div class="bulk-import-wizard bulk-import-wizard__state--processing">
+      <div class="bulk-import-wizard__header">
+        <h3 class="bulk-import-wizard__title">Processing Your File</h3>
+        <p class="bulk-import-wizard__description">Please wait while we validate and import your products. This may take a few moments.</p>
+      </div>
+      <div class="bulk-import-wizard__content">
+        <div class="spinner spinner--lg"></div>
+      </div>
+    </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "complete-with-errors"<h3>
+		<!--description--><normal> A final state indicating that the import process finished, but some rows failed validation. It provides a summary and a clear call-to-action to download a detailed error report. </normal>
+		<!-- vrient 1 html -->
+        <div class="bulk-import-wizard bulk-import-wizard__state--complete">
+        <div class="bulk-import-wizard__header">
+            <h3 class="bulk-import-wizard__title">Import Complete with Errors</h3>
+        </div>
+        <div class="bulk-import-wizard__content">
+            <div class="alert alert--warning" role="alert">
+                <svg class="icon"><use href="#icon-warning-circle"></use></svg>
+                <div>
+                    <strong>Some rows could not be imported.</strong>
+                    <p>We successfully imported 25 products, but 5 rows had errors. Download the report to see details and correct your file.</p>
+                </div>
+            </div>
+        </div>
+        <div class="bulk-import-wizard__footer">
+            <button class="btn btn--primary">Download Error Report (.csv)</button>
+            <button class="btn btn--secondary">Try Again</button>
+        </div>
+    </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "complete-success"<h3>
+		<!--description--><normal> A final state indicating that the entire CSV file was processed successfully. It provides a summary of created and updated products. </normal>
+		<!-- vrient 1 html -->
+        <div class="bulk-import-wizard bulk-import-wizard__state--complete">
+        <div class="bulk-import-wizard__header">
+            <h3 class="bulk-import-wizard__title">Import Successful</h3>
+        </div>
+        <div class="bulk-import-wizard__content">
+            <div class="alert alert--success" role="status">
+                <svg class="icon"><use href="#icon-check-circle"></use></svg>
+                <div>
+                    <strong>Your catalog has been updated.</strong>
+                    <p>7 products were created and 3 products were updated.</p>
+                </div>
+            </div>
+        </div>
+        <div class="bulk-import-wizard__footer">
+            <button class="btn btn--primary">View Products</button>
+        </div>
+    </div>     
+		
+      <div>
+	 </div>    
+	
+	</body>
+</html>

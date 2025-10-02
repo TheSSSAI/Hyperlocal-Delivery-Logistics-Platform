@@ -1,0 +1,164 @@
+graph TD
+    %% Define Styles
+    classDef organism fill:#f2e6ff,stroke:#8e44ad,stroke-width:2px,color:#333
+    classDef molecule fill:#e6f2ff,stroke:#2980b9,stroke-width:2px,color:#333
+    classDef atom fill:#e6ffe6,stroke:#27ae60,stroke-width:2px,color:#333
+    classDef primitive fill:#fef9e7,stroke:#f39c12,stroke-width:1px,color:#333
+
+    subgraph Organisms
+        O_AppHeader("AppHeader")
+        O_SidebarNav("SidebarNav")
+        O_ModalDialog("ModalDialog")
+        O_DashboardWidget("DashboardWidget")
+        O_GeofencingTool("GeofencingTool")
+        O_ReadOnlyChatViewer("ReadOnlyChatViewer")
+        O_ChatInterface("ChatInterface")
+        O_MapView("MapView")
+        O_RegistrationForm("RegistrationForm")
+    end
+
+    subgraph Molecules
+        M_FormGroup("FormGroup")
+        M_SearchBar("SearchBar")
+        M_DataTable("DataTable")
+        M_Pagination("Pagination")
+        M_DateRangePicker("DateRangePicker")
+        M_Dropdown("Dropdown")
+        M_OTPInput("OTPInput")
+        M_QuantityStepper("QuantityStepper")
+        M_ProductCard("ProductCard")
+        M_OrderCard("OrderCard")
+        M_StarRating("StarRating")
+        M_FileUpload("FileUpload")
+    end
+
+    subgraph Atoms
+        A_Button("Button")
+        A_TextInput("TextInput")
+        A_Label("Label")
+        A_Icon("Icon")
+        A_Badge("Badge")
+        A_Spinner("Spinner")
+        A_Alert("Alert")
+        A_Checkbox("Checkbox")
+        A_RadioButton("RadioButton")
+        A_ToggleSwitch("ToggleSwitch")
+        A_Link("Link")
+        A_Avatar("Avatar")
+    end
+
+    subgraph Primitives
+        P_ErrorMessage("ErrorMessage")
+        P_TableHeader("TableHeader")
+        P_TableRow("TableRow")
+        P_CalendarView("CalendarView")
+        P_ListItem("ListItem")
+        P_NotificationBell("NotificationBell")
+        P_MessageBubble("MessageBubble")
+        P_QuickReply("QuickReply")
+        P_ChartWrapper("Chart.js Wrapper")
+        P_CountdownTimer("CountdownTimer")
+    end
+
+    %% Organism Dependencies
+    O_AppHeader --> M_SearchBar
+    O_AppHeader --> A_Button
+    O_AppHeader --> A_Icon
+    O_AppHeader --> A_Avatar
+    O_AppHeader --> M_Dropdown
+    O_AppHeader --> P_NotificationBell
+    O_AppHeader --> A_Link
+
+    O_SidebarNav --> A_Link
+    O_SidebarNav --> A_Icon
+
+    O_ModalDialog --> A_Button
+    O_ModalDialog --> A_Icon
+    O_ModalDialog --> A_TextInput
+
+    O_DashboardWidget --> A_Spinner
+    O_DashboardWidget --> A_Alert
+    O_DashboardWidget --> P_ChartWrapper
+
+    O_GeofencingTool --> O_MapView
+    O_GeofencingTool --> M_DataTable
+    O_GeofencingTool --> A_Button
+    O_GeofencingTool --> M_FormGroup
+
+    O_ReadOnlyChatViewer --> P_MessageBubble
+    O_ReadOnlyChatViewer --> A_Spinner
+
+    O_ChatInterface --> A_TextInput
+    O_ChatInterface --> A_Button
+    O_ChatInterface --> P_MessageBubble
+    O_ChatInterface --> P_QuickReply
+
+    O_MapView --> A_Icon
+    O_MapView --> A_Spinner
+
+    O_RegistrationForm --> M_FormGroup
+    O_RegistrationForm --> A_Button
+    O_RegistrationForm --> M_FileUpload
+    O_RegistrationForm --> M_OTPInput
+    
+    %% Molecule Dependencies
+    M_FormGroup --> A_Label
+    M_FormGroup --> A_TextInput
+    M_FormGroup --> P_ErrorMessage
+
+    M_SearchBar --> A_TextInput
+    M_SearchBar --> A_Button
+    M_SearchBar --> A_Icon
+
+    M_DataTable --> A_Spinner
+    M_DataTable --> M_Pagination
+    M_DataTable --> P_TableHeader
+    M_DataTable --> P_TableRow
+    M_DataTable --> A_Checkbox
+
+    M_Pagination --> A_Button
+    M_Pagination --> A_Icon
+
+    M_DateRangePicker --> A_TextInput
+    M_DateRangePicker --> A_Icon
+    M_DateRangePicker --> P_CalendarView
+
+    M_Dropdown --> A_TextInput
+    M_Dropdown --> A_Icon
+    M_Dropdown --> P_ListItem
+
+    M_OTPInput --> A_TextInput
+
+    M_QuantityStepper --> A_Button
+    M_QuantityStepper --> A_Icon
+    M_QuantityStepper --> A_TextInput
+
+    M_ProductCard --> A_Badge
+    M_ProductCard --> A_Button
+    M_ProductCard --> M_QuantityStepper
+
+    M_OrderCard --> A_Badge
+    M_OrderCard --> A_Button
+    M_OrderCard --> P_CountdownTimer
+
+    M_StarRating --> A_Icon
+
+    M_FileUpload --> A_Button
+    M_FileUpload --> A_Spinner
+    M_FileUpload --> A_Alert
+
+    %% Atom Dependencies
+    A_Button --> A_Icon
+    A_Button --> A_Spinner
+    A_Alert --> A_Icon
+    A_Alert --> A_Button
+    A_Checkbox --> A_Label
+    A_RadioButton --> A_Label
+    A_ToggleSwitch --> A_Label
+    A_Avatar --> A_Badge
+
+    %% Apply Class Styles
+    class O_AppHeader,O_SidebarNav,O_ModalDialog,O_DashboardWidget,O_GeofencingTool,O_ReadOnlyChatViewer,O_ChatInterface,O_MapView,O_RegistrationForm organism
+    class M_FormGroup,M_SearchBar,M_DataTable,M_Pagination,M_DateRangePicker,M_Dropdown,M_OTPInput,M_QuantityStepper,M_ProductCard,M_OrderCard,M_StarRating,M_FileUpload molecule
+    class A_Button,A_TextInput,A_Label,A_Icon,A_Badge,A_Spinner,A_Alert,A_Checkbox,A_RadioButton,A_ToggleSwitch,A_Link,A_Avatar atom
+    class P_ErrorMessage,P_TableHeader,P_TableRow,P_CalendarView,P_ListItem,P_NotificationBell,P_MessageBubble,P_QuickReply,P_ChartWrapper,P_CountdownTimer primitive

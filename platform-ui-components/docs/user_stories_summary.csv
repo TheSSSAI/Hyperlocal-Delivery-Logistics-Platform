@@ -1,0 +1,2 @@
+"total_stories","total_story_points","must_have_stories","should_have_stories","could_have_stories","epics_identified","estimated_sprints","key_dependencies"
+"19","94","14","4","1","[""Service Foundation & Core Infrastructure"",""Vendor Profile & Compliance Management"",""Product Catalog Management"",""Bulk Data Operations & Onboarding""]","5","[""Availability of AWS infrastructure (EKS, RDS, S3, SQS)"",""API contracts with other microservices (Order Management, Notification, Audit)""]"

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Registration Form</title>
+    <style>
+        /* 1. CSS Reset & Base */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        /* 2. Design System Tokens (CSS Custom Properties) */
+        :root {
+            /* Typography */
+            --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-size-body: 16px; --font-weight-regular: 400; --font-weight-semibold: 600; --font-weight-bold: 700; --line-height-body: 1.6;
+            /* Colors */
+            --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-300: #5C9EFF; --color-primary-500: #0068FF; --color-primary-600: #0053CC; --color-primary-700: #003E99;
+            --color-secondary-50: #E5F9F1; --color-secondary-900: #003D24;
+            --color-danger-50: #FFEBEB; --color-danger-500: #FF4D4D; --color-danger-700: #CC3D3D;
+            --color-neutral-white: #FFFFFF; --color-neutral-50: #F7F9FC; --color-neutral-100: #E9EDF2; --color-neutral-200: #D3D9E1; --color-neutral-300: #BCC4CF; --color-neutral-500: #8E9BAA; --color-neutral-700: #555D66; --color-neutral-900: #1C1F22;
+            --color-semantic-success: #00C875; --color-semantic-error: #FF4D4D;
+            /* Spacing */
+            --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px; --space-24: 24px; --space-32: 32px; --space-48: 48px;
+            /* Borders & Shadows */
+            --border-radius-md: 8px; --border-radius-lg: 12px; --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+        }
+
+        /* 3. Base & Showcase Layout Styles */
+        body { font-family: var(--font-family-primary); font-size: var(--font-size-body); line-height: var(--line-height-body); background-color: var(--color-neutral-50); color: var(--color-neutral-900); padding: var(--space-32); }
+        .showcase { max-width: 800px; margin: 40px auto; background-color: var(--color-neutral-white); border-radius: var(--border-radius-lg); padding: var(--space-48); box-shadow: var(--shadow-sm); }
+        h1 { font-size: 32px; font-weight: var(--font-weight-bold); margin-bottom: var(--space-32); text-align: center; }
+
+        /* 4. ATOMIC/MOLECULAR COMPONENT DEPENDENCIES */
+        /* == Button == */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8); padding: var(--space-12) var(--space-24); font-size: var(--font-size-body); font-weight: var(--font-weight-semibold); border: 1px solid transparent; border-radius: var(--border-radius-md); cursor: pointer; transition: all 0.2s ease-in-out; min-height: 44px; }
+        .btn:focus-visible { outline: 3px solid var(--color-primary-300); outline-offset: 2px; }
+        .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutral-white); }
+        .btn--primary:hover { background-color: var(--color-primary-600); }
+        .btn--secondary { background-color: var(--color-neutral-white); color: var(--color-neutral-700); border-color: var(--color-neutral-300); }
+        .btn--secondary:hover { background-color: var(--color-neutral-100); }
+        .btn:disabled { background-color: var(--color-neutral-200); color: var(--color-neutral-500); border-color: var(--color-neutral-200); cursor: not-allowed; }
+        /* == FormGroup & Inputs == */
+        .form-group { display: flex; flex-direction: column; gap: var(--space-8); }
+        .form-label { font-weight: var(--font-weight-semibold); font-size: 14px; }
+        .form-label--required::after { content: ' *'; color: var(--color-danger-500); }
+        .form-input { padding: var(--space-12) var(--space-16); border: 1px solid var(--color-neutral-300); border-radius: var(--border-radius-md); font-size: var(--font-size-body); width: 100%; }
+        .form-input:focus { border-color: var(--color-primary-500); outline: 3px solid var(--color-primary-100); }
+        .form-group.has-error .form-input { border-color: var(--color-semantic-error); }
+        .form-error-message { font-size: 14px; color: var(--color-semantic-error); display: none; }
+        .form-group.has-error .form-error-message { display: block; }
+        textarea.form-input { min-height: 100px; resize: vertical; }
+        /* == FileUpload == */
+        .file-upload-group { display: flex; flex-direction: column; gap: var(--space-8); }
+        .file-upload__label { display: block; padding: var(--space-24); border: 2px dashed var(--color-neutral-300); border-radius: var(--border-radius-lg); background-color: var(--color-neutral-50); text-align: center; cursor: pointer; }
+        .file-upload__label:hover { border-color: var(--color-primary-300); }
+        .file-upload__input { width: 0.1px; height: 0.1px; opacity: 0; overflow: hidden; position: absolute; z-index: -1; }
+        .file-upload__text { font-weight: var(--font-weight-semibold); }
+        .file-upload__subtext { font-size: 14px; color: var(--color-neutral-500); }
+        /* == Alert == */
+        .alert { display: flex; align-items: flex-start; gap: var(--space-12); padding: var(--space-16); border-radius: var(--border-radius-md); border: 1px solid; }
+        .alert--error { background-color: var(--color-danger-50); color: var(--color-danger-700); border-color: var(--color-semantic-error); }
+        /* == Spinner == */
+        @keyframes spin { 100% { transform: rotate(359deg); } }
+        .spinner { display: inline-block; border-radius: 50%; border: 4px solid var(--color-primary-100); border-top-color: var(--color-primary-500); animation: spin 0.8s linear infinite; width: 48px; height: 48px; }
+
+        /* 5. ORGANISM STYLES: VendorRegistrationForm */
+        .registration-form { position: relative; overflow: hidden; }
+        .registration-form__steps { display: flex; justify-content: space-between; list-style: none; padding: 0; margin-bottom: var(--space-48); counter-reset: step; }
+        .registration-form__step-indicator { display: flex; align-items: center; color: var(--color-neutral-300); font-weight: var(--font-weight-semibold); font-size: 14px; position: relative; flex: 1; }
+        .registration-form__step-indicator:not(:last-child)::after { content: ''; position: absolute; left: 100%; top: 16px; width: calc(100% - 32px); height: 2px; background-color: var(--color-neutral-200); margin: 0 16px; transition: background-color 0.3s ease; }
+        .registration-form__step-indicator::before { counter-increment: step; content: counter(step); display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--color-neutral-300); background-color: var(--color-neutral-white); margin-right: var(--space-12); transition: all 0.3s ease; }
+        .registration-form__step-indicator.is-active { color: var(--color-primary-500); }
+        .registration-form__step-indicator.is-active::before { background-color: var(--color-primary-500); border-color: var(--color-primary-500); color: var(--color-neutral-white); }
+        .registration-form__step-indicator.is-completed { color: var(--color-neutral-700); }
+        .registration-form__step-indicator.is-completed::before { content: '✓'; font-weight: bold; background-color: var(--color-semantic-success); border-color: var(--color-semantic-success); color: var(--color-neutral-white); }
+        .registration-form__step-indicator.is-completed:not(:last-child)::after { background-color: var(--color-semantic-success); }
+        .registration-form__step { display: none; }
+        .registration-form__step.is-active { display: block; animation: fadeIn 0.5s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .registration-form__step fieldset { border: none; padding: 0; margin: 0; }
+        .registration-form__step legend { font-size: 24px; font-weight: var(--font-weight-bold); margin-bottom: var(--space-24); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-24); }
+        .form-grid--full { grid-template-columns: 1fr; }
+        .registration-form__navigation { display: flex; justify-content: space-between; margin-top: var(--space-32); border-top: 1px solid var(--color-neutral-200); padding-top: var(--space-24); }
+        .registration-form__state-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transition: opacity 0.3s ease; z-index: 10; }
+        .registration-form:not(.is-submitting):not(.is-success) .registration-form__state-overlay { display: none; }
+        .registration-form .registration-form__state-overlay .success-icon { display: none; }
+        .registration-form.is-success .registration-form__state-overlay .success-icon { display: block; color: var(--color-semantic-success); font-size: 64px; }
+        .registration-form.is-success .registration-form__state-overlay .spinner { display: none; }
+        .registration-form__state-overlay h3 { color: var(--color-neutral-900); font-size: 20px; margin-top: var(--space-16); }
+        .registration-form__state-overlay p { color: var(--color-neutral-700); max-width: 400px; }
+
+        @media (max-width: 768px) {
+            .showcase { padding: var(--space-24); }
+            h1 { font-size: 24px; }
+            .registration-form__steps { flex-direction: column; align-items: flex-start; gap: var(--space-24); margin-left: var(--space-16); }
+            .registration-form__step-indicator { flex: none; }
+            .registration-form__step-indicator:not(:last-child)::after { width: 2px; height: calc(100% + 24px); left: 15px; top: 100%; margin: 0; }
+            .registration-form__step-indicator .step-label { display: block; }
+            .form-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .registration-form__step-indicator .step-label { display: none; } /* Hide labels on very small screens */
+        }
+    </style>
+</head>
+<body>
+    <svg style="display: none;">
+        <symbol id="icon-check-circle" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></symbol>
+    </svg>
+    <main class="showcase">
+        <h1>Vendor Registration</h1>
+        <form class="registration-form" id="vendorRegistrationForm">
+            <!-- Step Indicator -->
+            <ol class="registration-form__steps">
+                <li class="registration-form__step-indicator is-active" data-step="1"><span class="step-label">Business Details</span></li>
+                <li class="registration-form__step-indicator" data-step="2"><span class="step-label">Contact Info</span></li>
+                <li class="registration-form__step-indicator" data-step="3"><span class="step-label">Documents</span></li>
+                <li class="registration-form__step-indicator" data-step="4"><span class="step-label">Submit</span></li>
+            </ol>
+
+            <div class="registration-form__content">
+                <!-- Step 1: Business Details -->
+                <div class="registration-form__step is-active" data-step="1">
+                    <fieldset>
+                        <legend>Business Details</legend>
+                        <div class="form-grid form-grid--full">
+                            <div class="form-group">
+                                <label for="business-name" class="form-label form-label--required">Business Name</label>
+                                <input type="text" id="business-name" class="form-input" placeholder="e.g., Global Bites Kitchen" required>
+                                <span class="form-error-message">This field is required.</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="business-address" class="form-label form-label--required">Business Address</label>
+                                <textarea id="business-address" class="form-input" placeholder="Enter your full store address" required></textarea>
+                                <span class="form-error-message">This field is required.</span>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- Step 2: Contact Info -->
+                <div class="registration-form__step" data-step="2">
+                    <fieldset>
+                        <legend>Contact Information</legend>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="contact-phone" class="form-label form-label--required">Contact Phone Number</label>
+                                <input type="tel" id="contact-phone" class="form-input" placeholder="10-digit mobile number" required>
+                                <span class="form-error-message">Please enter a valid 10-digit number.</span>
+                            </div>
+                            <div class="form-group">
+                                <label for="contact-email" class="form-label form-label--required">Contact Email</label>
+                                <input type="email" id="contact-email" class="form-input" placeholder="e.g., contact@yourstore.com" required>
+                                <span class="form-error-message">Please enter a valid email.</span>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- Step 3: Documents -->
+                <div class="registration-form__step" data-step="3">
+                    <fieldset>
+                        <legend>Legal Documents</legend>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="gst-number" class="form-label form-label--required">GST Number</label>
+                                <input type="text" id="gst-number" class="form-input" placeholder="e.g., 22AAAAA0000A1Z5" required>
+                                <span class="form-error-message">This field is required.</span>
+                            </div>
+                            <div class="file-upload-group">
+                                <label class="form-label form-label--required">GST Certificate</label>
+                                <label for="gst-upload" class="file-upload__label">
+                                    <span class="file-upload__text">Click to upload</span>
+                                    <span class="file-upload__subtext">PDF, JPG, or PNG (max. 5MB)</span>
+                                </label>
+                                <input type="file" id="gst-upload" class="file-upload__input" required>
+                                <span class="form-error-message">A GST Certificate is required.</span>
+                            </div>
+                        </div>
+                        <div class="form-grid" style="margin-top: var(--space-24);">
+                            <div class="form-group">
+                                <label for="fssai-number" class="form-label">FSSAI License Number (if applicable)</label>
+                                <input type="text" id="fssai-number" class="form-input" placeholder="e.g., 10012345678901">
+                            </div>
+                            <div class="file-upload-group">
+                                <label class="form-label">FSSAI License Document</label>
+                                <label for="fssai-upload" class="file-upload__label">
+                                    <span class="file-upload__text">Click to upload</span>
+                                    <span class="file-upload__subtext">PDF, JPG, or PNG (max. 5MB)</span>
+                                </label>
+                                <input type="file" id="fssai-upload" class="file-upload__input">
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <!-- Step 4: Submit -->
+                <div class="registration-form__step" data-step="4">
+                    <fieldset>
+                        <legend>Review & Submit</legend>
+                        <p>Please review your information before submitting. You will be notified once your application has been reviewed by our team.</p>
+                        <div class="alert alert--info" style="margin-top: var(--space-24);">
+                            <p>By submitting this application, you agree to our Terms of Service and Privacy Policy.</p>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="registration-form__navigation">
+                <button type="button" class="btn btn--secondary" id="backBtn" disabled>Back</button>
+                <button type="button" class="btn btn--primary" id="nextBtn">Next</button>
+                <button type="submit" class="btn btn--primary" id="submitBtn" style="display: none;">Submit Application</button>
+            </div>
+
+            <!-- State Overlays -->
+            <div class="registration-form__state-overlay">
+                <div class="spinner"></div>
+                <div class="success-icon"><svg class="icon"><use href="#icon-check-circle"/></svg></div>
+                <h3 id="overlay-title">Submitting Application...</h3>
+                <p id="overlay-text">Please wait while we process your information.</p>
+            </div>
+        </form>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('vendorRegistrationForm');
+            const steps = Array.from(form.querySelectorAll('.registration-form__step'));
+            const stepIndicators = Array.from(form.querySelectorAll('.registration-form__step-indicator'));
+            const backBtn = document.getElementById('backBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            let currentStep = 1;
+            const totalSteps = steps.length;
+
+            const updateFormState = () => {
+                steps.forEach(step => {
+                    step.classList.toggle('is-active', parseInt(step.dataset.step) === currentStep);
+                });
+
+                stepIndicators.forEach(indicator => {
+                    const stepNum = parseInt(indicator.dataset.step);
+                    indicator.classList.toggle('is-active', stepNum === currentStep);
+                    indicator.classList.toggle('is-completed', stepNum < currentStep);
+                });
+
+                backBtn.disabled = currentStep === 1;
+                nextBtn.style.display = currentStep === totalSteps ? 'none' : 'inline-flex';
+                submitBtn.style.display = currentStep === totalSteps ? 'inline-flex' : 'none';
+            };
+
+            const validateStep = (stepNumber) => {
+                const currentStepElement = form.querySelector(`.registration-form__step[data-step='${stepNumber}']`);
+                const inputs = currentStepElement.querySelectorAll('input[required], textarea[required]');
+                let isValid = true;
+                inputs.forEach(input => {
+                    const formGroup = input.closest('.form-group') || input.closest('.file-upload-group');
+                    if (!input.value.trim()) {
+                        isValid = false;
+                        if(formGroup) formGroup.classList.add('has-error');
+                    } else {
+                        if(formGroup) formGroup.classList.remove('has-error');
+                    }
+                });
+                return isValid;
+            };
+
+            nextBtn.addEventListener('click', () => {
+                if (validateStep(currentStep) && currentStep < totalSteps) {
+                    currentStep++;
+                    updateFormState();
+                }
+            });
+
+            backBtn.addEventListener('click', () => {
+                if (currentStep > 1) {
+                    currentStep--;
+                    updateFormState();
+                }
+            });
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                if (!validateStep(currentStep)) return;
+
+                form.classList.add('is-submitting');
+                
+                // Simulate API call
+                setTimeout(() => {
+                    form.classList.remove('is-submitting');
+                    form.classList.add('is-success');
+                    document.getElementById('overlay-title').textContent = 'Application Submitted!';
+                    document.getElementById('overlay-text').textContent = 'Thank you for registering! Your application is now under review. We will notify you once it has been processed.';
+                    // Hide navigation buttons in success state
+                    document.querySelector('.registration-form__navigation').style.display = 'none';
+                }, 2000);
+            });
+            
+            updateFormState();
+        });
+    </script>
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "multi-step"<h3>
+		<!--description--><normal> The form is presented as a series of logical steps to guide the user through the data collection process without overwhelming them. This is the primary and only variant of this component. The different states below demonstrate its lifecycle. </normal>
+		<!-- vrient 1 html -->
+        <!-- The entire HTML above represents the multi-step variant in its default interactive state. -->
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "Submitting State"<h3>
+		<!--description--><normal> After the user clicks the final 'Submit' button, the form is overlaid with a loading indicator to provide feedback that the submission is in progress. The form content is not interactive during this time. </normal>
+		<!-- vrient 1 html -->
+        <!-- This state is dynamically applied via the 'is-submitting' class on the main form element. See the `.registration-form__state-overlay` in the CSS and the JavaScript logic. -->
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "Success State"<h3>
+		<!--description--><normal> Upon successful submission, the loading indicator is replaced with a success icon and a confirmation message. This provides a clear end to the registration journey. </normal>
+		<!-- vrient 1 html -->
+        <!-- This state is dynamically applied via the 'is-success' class on the main form element. See the `.registration-form__state-overlay` in the CSS and the JavaScript logic. -->
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "Error State"<h3>
+		<!--description--><normal> If form validation fails on any step, the respective form fields are highlighted, and an inline error message appears. This state is managed at the molecular `FormGroup` level. A form-wide error (e.g., API failure on submit) would be shown using the `Alert` component. </normal>
+		<!-- vrient 1 html -->
+                <div class="form-group has-error">
+                    <label class="form-label form-label--required" for="error-example">Business Name</label>
+                    <input type="text" id="error-example" class="form-input" value="">
+                    <span class="form-error-message">This field is required.</span>
+                </div>
+      <div>
+	 </div>
+	</div>
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: AppHeader</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================== */
+    /* 1. Design System Tokens & Base Styles           */
+    /* =============================================== */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-200: #D3D9E1;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-500: #8E9BAA;
+      --color-neutrals-gray-600: #717C88;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      /* Spacing */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --border-radius-full: 9999px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutrals-gray-100);
+      color: var(--color-neutrals-gray-900);
+    }
+    .showcase-wrapper { padding: var(--space-32); }
+    .showcase-title { font-size: 28px; font-weight: var(--font-weight-bold); margin-bottom: var(--space-8); }
+    .showcase-description { font-size: 16px; color: var(--color-neutrals-gray-700); margin-bottom: var(--space-24); }
+    .component-container { background-color: var(--color-neutrals-white); border-radius: var(--border-radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: var(--space-32); }
+    .component-container h3 { padding: var(--space-16) var(--space-24) 0; margin: 0; }
+    .component-body-placeholder { height: 150px; background: repeating-linear-gradient(45deg, var(--color-neutrals-gray-50), var(--color-neutrals-gray-50) 10px, #fdfdff 10px, #fdfdff 20px); }
+
+    /* =============================================== */
+    /* 2. Atomic Dependency Styles (Simplified)        */
+    /* =============================================== */
+    .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; }
+    .avatar { display: inline-block; border-radius: 50%; overflow: hidden; background-color: var(--color-neutrals-gray-200); }
+    .avatar__img { width: 100%; height: 100%; object-fit: cover; }
+    .link { text-decoration: none; color: var(--color-neutrals-gray-700); font-weight: var(--font-weight-semibold); font-size: var(--font-size-caption); padding: var(--space-8) var(--space-12); border-radius: var(--border-radius-md); transition: background-color var(--transition-fast); }
+    .link:hover, .link.is-active { background-color: var(--color-primary-50); color: var(--color-primary-600); }
+    .link:focus-visible { outline: 2px solid var(--color-primary-500); outline-offset: 2px; }
+    .btn { background: none; border: none; cursor: pointer; padding: 0; }
+    .btn--icon { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; color: var(--color-neutrals-gray-600); transition: background-color var(--transition-fast); }
+    .btn--icon:hover { background-color: var(--color-neutrals-gray-100); }
+    .btn--icon:focus-visible { outline: 2px solid var(--color-primary-500); outline-offset: 2px; }
+    .search-bar { display: none; } /* Simplified for this showcase */
+    @media (min-width: 1024px) {
+      .search-bar { display: flex; align-items: center; background-color: var(--color-neutrals-gray-50); border: 1px solid var(--color-neutrals-gray-200); border-radius: var(--border-radius-md); padding: var(--space-8) var(--space-12); gap: var(--space-8); width: 100%; max-width: 320px; }
+      .search-bar input { border: none; background: none; outline: none; width: 100%; }
+    }
+    /* =============================================== */
+    /* 3. Organism: AppHeader                          */
+    /* =============================================== */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-24);
+      height: 64px;
+      background-color: var(--color-neutrals-white);
+      border-bottom: 1px solid var(--color-neutrals-gray-200);
+      position: relative; /* Changed from sticky for showcase */
+      z-index: 100;
+    }
+    .app-header__brand {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      text-decoration: none;
+    }
+    .app-header__logo { color: var(--color-primary-500); font-size: 28px; }
+    .app-header__title { font-size: 20px; font-weight: var(--font-weight-bold); color: var(--color-neutrals-gray-900); }
+    .app-header__nav { display: none; }
+    .app-header__nav-list { display: flex; gap: var(--space-8); list-style: none; }
+    .app-header__user-menu { display: flex; align-items: center; gap: var(--space-16); }
+    .app-header__mobile-toggle { display: none; }
+    
+    /* Mobile Menu Overlay Styles */
+    .app-header__mobile-nav {
+      display: none;
+      position: absolute; /* Changed from fixed for showcase */
+      top: 64px;
+      left: 0;
+      right: 0;
+      background-color: var(--color-neutrals-white);
+      padding: var(--space-24);
+      border-bottom: 1px solid var(--color-neutrals-gray-200);
+      box-shadow: var(--shadow-md);
+    }
+    .app-header__mobile-nav-list { list-style: none; display: flex; flex-direction: column; gap: var(--space-8); }
+    .app-header__mobile-nav .link { display: block; padding: var(--space-12); font-size: var(--font-size-body); }
+    
+    /* State: Mobile Menu Open */
+    .mobile-menu-is-open .app-header__mobile-nav {
+      display: block;
+    }
+
+    /* Variants */
+    .app-header--mobile .app-header__title { font-size: 18px; }
+
+    /* Responsive Adaptations for Web Headers */
+    @media (min-width: 1024px) {
+      .app-header--web .app-header__nav {
+        display: block;
+      }
+      .app-header--web .app-header__mobile-toggle {
+        display: none;
+      }
+    }
+    @media (max-width: 1023px) {
+      .app-header--web .app-header__nav {
+        display: none;
+      }
+      .app-header--web .app-header__mobile-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        background-color: transparent;
+        cursor: pointer;
+        padding: var(--space-8);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase-wrapper">
+    <header class="showcase-header">
+      <h1>AppHeader</h1>
+      <p>The AppHeader provides consistent branding, navigation, and user actions across different application variants.</p>
+    </header>
+
+    <!-- Variant 1: Customer Mobile Header -->
+    <div class="component-container">
+      <h3>Variant: customer-mobile</h3>
+      <header class="app-header app-header--mobile">
+        <a href="#" class="app-header__brand">
+          <svg class="icon app-header__logo" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"></path></svg>
+          <h1 class="app-header__title">Mumbai, AP</h1>
+        </a>
+        <div class="app-header__user-menu">
+          <div class="avatar" style="width: 36px; height: 36px;">
+            <img class="avatar__img" src="https://i.pravatar.cc/72?u=customer" alt="Customer Profile">
+          </div>
+        </div>
+      </header>
+    </div>
+
+    <!-- Variant 2: Rider Mobile Header -->
+    <div class="component-container">
+      <h3>Variant: rider-mobile</h3>
+      <header class="app-header app-header--mobile">
+        <a href="#" class="app-header__brand">
+          <svg class="icon app-header__logo" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"></path></svg>
+          <h1 class="app-header__title">Rider Dashboard</h1>
+        </a>
+        <div class="app-header__user-menu">
+          <button class="btn btn--icon" aria-label="Notifications">
+            <svg class="icon" style="font-size: 24px;" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"></path></svg>
+          </button>
+          <div class="avatar" style="width: 36px; height: 36px;">
+            <img class="avatar__img" src="https://i.pravatar.cc/72?u=rider" alt="Rider Profile">
+          </div>
+        </div>
+      </header>
+    </div>
+
+    <!-- Variant 3: Vendor Web Header (Default State) -->
+    <div class="component-container" id="vendor-header-default">
+      <h3>Variant: vendor-web (Default)</h3>
+      <header class="app-header app-header--web">
+        <div class="app-header__brand">
+          <svg class="icon app-header__logo" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"></path></svg>
+          <h1 class="app-header__title">Vendor Admin</h1>
+        </div>
+        <nav class="app-header__nav" aria-label="Main Navigation">
+          <ul class="app-header__nav-list">
+            <li><a href="#" class="link is-active">Dashboard</a></li>
+            <li><a href="#" class="link">Orders</a></li>
+            <li><a href="#" class="link">Products</a></li>
+            <li><a href="#" class="link">Reports</a></li>
+          </ul>
+        </nav>
+        <div class="app-header__user-menu">
+          <div class="search-bar">
+            <svg class="icon" style="color: var(--color-neutrals-gray-500);" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+            <input type="search" placeholder="Search orders...">
+          </div>
+          <button class="btn btn--icon" aria-label="Notifications">
+            <svg class="icon" style="font-size: 24px;" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"></path></svg>
+          </button>
+          <div class="avatar" style="width: 36px; height: 36px;">
+            <img class="avatar__img" src="https://i.pravatar.cc/72?u=vendor" alt="Vendor Profile">
+          </div>
+          <button class="app-header__mobile-toggle btn btn--icon" aria-label="Open menu" aria-expanded="false" aria-controls="vendor-mobile-nav">
+            <svg class="icon" style="font-size: 28px;" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
+          </button>
+        </div>
+        <nav class="app-header__mobile-nav" id="vendor-mobile-nav">
+            <ul class="app-header__mobile-nav-list">
+                <li><a href="#" class="link is-active">Dashboard</a></li>
+                <li><a href="#" class="link">Orders</a></li>
+                <li><a href="#" class="link">Products</a></li>
+                <li><a href="#" class="link">Reports</a></li>
+              </ul>
+        </nav>
+      </header>
+      <div class="component-body-placeholder"></div>
+    </div>
+    
+    <!-- Variant 4: Admin Web Header (Mobile Menu Open State) -->
+    <div class="component-container mobile-menu-is-open" id="admin-header-open">
+      <h3>Variant: admin-web (Mobile Menu Open)</h3>
+      <header class="app-header app-header--web">
+        <div class="app-header__brand">
+          <svg class="icon app-header__logo" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 0 1 0-5 2.5 2.5 0 0 1 0 5z"></path></svg>
+          <h1 class="app-header__title">Platform Admin</h1>
+        </div>
+        <nav class="app-header__nav" aria-label="Main Navigation">
+          <ul class="app-header__nav-list">
+            <li><a href="#" class="link">Dashboard</a></li>
+            <li><a href="#" class="link is-active">Users</a></li>
+            <li><a href="#" class="link">Zones</a></li>
+            <li><a href="#" class="link">Settings</a></li>
+          </ul>
+        </nav>
+        <div class="app-header__user-menu">
+          <button class="app-header__mobile-toggle btn btn--icon" aria-label="Close menu" aria-expanded="true" aria-controls="admin-mobile-nav">
+            <svg class="icon" style="font-size: 28px;" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"></path></svg>
+          </button>
+        </div>
+        <nav class="app-header__mobile-nav" id="admin-mobile-nav">
+            <ul class="app-header__mobile-nav-list">
+                <li><a href="#" class="link">Dashboard</a></li>
+                <li><a href="#" class="link is-active">Users</a></li>
+                <li><a href="#" class="link">Zones</a></li>
+                <li><a href="#" class="link">Settings</a></li>
+              </ul>
+        </nav>
+      </header>
+      <div class="component-body-placeholder"></div>
+    </div>
+  </div>
+  
+  <script>
+    // Minimal JS to handle mobile menu toggle for web variants
+    document.querySelectorAll('.app-header--web .app-header__mobile-toggle').forEach(button => {
+      button.addEventListener('click', () => {
+        const headerContainer = button.closest('.component-container');
+        const isExpanded = button.getAttribute('aria-expanded') === 'true';
+        
+        button.setAttribute('aria-expanded', !isExpanded);
+        headerContainer.classList.toggle('mobile-menu-is-open');
+
+        // Swap icon for demo purposes
+        const openIconPath = "M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z";
+        const closeIconPath = "M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z";
+        const iconPath = button.querySelector('path');
+        if (!isExpanded) {
+            iconPath.setAttribute('d', closeIconPath);
+            button.setAttribute('aria-label', 'Close menu');
+        } else {
+            iconPath.setAttribute('d', openIconPath);
+            button.setAttribute('aria-label', 'Open menu');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

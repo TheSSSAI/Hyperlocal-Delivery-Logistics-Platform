@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pagination Component</title>
+  <style>
+    /* Design System Tokens (Subset) */
+    :root {
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-100: #E9EDF2;
+      --color-gray-200: #D3D9E1;
+      --color-gray-300: #BCC4CF;
+      --color-gray-400: #A5B0BD;
+      --color-gray-600: #717C88;
+      --color-gray-700: #555D66;
+      --color-gray-900: #1C1F22;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 32px;
+      --radius-md: 8px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* Base & Showcase Styles */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-family-primary);
+      color: var(--color-gray-900);
+      background-color: var(--color-gray-50);
+      margin: 0;
+      padding: var(--space-6);
+    }
+    .showcase { max-width: 900px; margin: 0 auto; }
+    .component-section {
+      background-color: var(--color-white);
+      padding: var(--space-6);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: var(--space-6);
+    }
+    .showcase-header { margin-bottom: var(--space-6); padding-bottom: var(--space-4); border-bottom: 1px solid var(--color-gray-200); }
+    h1 { font-size: 32px; margin: 0; }
+    h2 { font-size: 24px; margin-top: 0; margin-bottom: var(--space-4); }
+    p { margin-top: 0; margin-bottom: var(--space-4); color: var(--color-gray-700); }
+    .variant { margin-bottom: var(--space-6); }
+    .variant h3 { font-size: 18px; margin-bottom: var(--space-4); }
+    .icon {
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        stroke-width: 2;
+        stroke: currentColor;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    /* Pagination Component CSS */
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-family-primary);
+    }
+    
+    .pagination__controls {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .pagination__list {
+      display: none; /* Hidden on mobile by default */
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      align-items: center;
+      gap: var(--space-2);
+    }
+    
+    .pagination__item {
+      margin: 0;
+    }
+    
+    .pagination__link,
+    .pagination__ellipsis {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      min-width: 40px;
+      height: 40px;
+      padding: 0 var(--space-2);
+      border-radius: var(--radius-md);
+      transition: background-color 0.2s ease, color 0.2s ease;
+      color: var(--color-gray-700);
+    }
+    
+    .pagination__link {
+      border: 1px solid var(--color-gray-200);
+      background-color: var(--color-white);
+    }
+    
+    .pagination__link:hover {
+      background-color: var(--color-gray-50);
+    }
+    
+    .pagination__link:focus-visible {
+      outline: 3px solid var(--color-primary-300);
+      outline-offset: 2px;
+      border-color: var(--color-primary-500);
+    }
+    
+    /* Component States & Variants */
+    .pagination__link--current {
+      background-color: var(--color-primary-500);
+      border-color: var(--color-primary-500);
+      color: var(--color-white);
+      cursor: default;
+      pointer-events: none; /* Make it non-clickable */
+    }
+    
+    .pagination__link--current:hover {
+      background-color: var(--color-primary-500);
+    }
+    
+    .pagination__control-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-gray-300);
+      background-color: var(--color-white);
+      color: var(--color-gray-700);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      min-height: 40px;
+    }
+
+    .pagination__control-btn:hover:not(:disabled) {
+        background-color: var(--color-gray-50);
+    }
+
+    .pagination__control-btn:focus-visible {
+      outline: 3px solid var(--color-primary-300);
+      outline-offset: 2px;
+    }
+    
+    .pagination__control-btn:disabled {
+      background-color: var(--color-gray-100);
+      color: var(--color-gray-400);
+      border-color: var(--color-gray-200);
+      cursor: not-allowed;
+    }
+    
+    .pagination__control-btn .icon {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .pagination__info {
+        color: var(--color-gray-600);
+        font-size: 14px;
+        display: block; /* Shown on mobile by default */
+    }
+    
+    /* Responsive Adaptations */
+    @media (min-width: 768px) {
+      .pagination__list {
+        display: flex;
+      }
+      .pagination__info {
+          display: none; /* Hidden on desktop */
+      }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="showcase">
+    <header class="showcase-header">
+      <h1>Pagination</h1>
+      <p>The Pagination component is used for navigating through paged content. It simplifies on mobile and expands on larger screens.</p>
+    </header>
+
+    <div class="component-section">
+      <h2>Component Variations</h2>
+
+      <div class="variant">
+        <h3>Default State (Middle of range)</h3>
+        <p>This is the standard appearance when the user is on a page that is neither the first nor the last.</p>
+        <nav class="pagination" aria-label="pagination">
+          <div class="pagination__controls">
+            <button class="pagination__control-btn">
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Previous</span>
+            </button>
+          </div>
+
+          <span class="pagination__info">Page 5 of 10</span>
+
+          <ul class="pagination__list">
+            <li class="pagination__item"><a href="#" class="pagination__link">1</a></li>
+            <li class="pagination__item"><span class="pagination__ellipsis">...</span></li>
+            <li class="pagination__item"><a href="#" class="pagination__link">4</a></li>
+            <li class="pagination__item"><a href="#" class="pagination__link pagination__link--current" aria-current="page">5</a></li>
+            <li class="pagination__item"><a href="#" class="pagination__link">6</a></li>
+            <li class="pagination__item"><span class="pagination__ellipsis">...</span></li>
+            <li class="pagination__item"><a href="#" class="pagination__link">10</a></li>
+          </ul>
+
+          <div class="pagination__controls">
+            <button class="pagination__control-btn">
+              <span>Next</span>
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <div class="variant">
+        <h3>Start of Range (Previous Disabled)</h3>
+        <p>When the user is on the first page, the 'Previous' button is disabled.</p>
+        <nav class="pagination" aria-label="pagination">
+          <div class="pagination__controls">
+            <button class="pagination__control-btn" disabled>
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Previous</span>
+            </button>
+          </div>
+
+          <span class="pagination__info">Page 1 of 10</span>
+
+          <ul class="pagination__list">
+            <li class="pagination__item"><a href="#" class="pagination__link pagination__link--current" aria-current="page">1</a></li>
+            <li class="pagination__item"><a href="#" class="pagination__link">2</a></li>
+            <li class="pagination__item"><a href="#" class="pagination__link">3</a></li>
+            <li class="pagination__item"><span class="pagination__ellipsis">...</span></li>
+            <li class="pagination__item"><a href="#" class="pagination__link">10</a></li>
+          </ul>
+
+          <div class="pagination__controls">
+            <button class="pagination__control-btn">
+              <span>Next</span>
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <div class="variant">
+        <h3>End of Range (Next Disabled)</h3>
+        <p>When the user is on the last page, the 'Next' button is disabled.</p>
+        <nav class="pagination" aria-label="pagination">
+          <div class="pagination__controls">
+            <button class="pagination__control-btn">
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Previous</span>
+            </button>
+          </div>
+
+          <span class="pagination__info">Page 10 of 10</span>
+          
+          <ul class="pagination__list">
+            <li class="pagination__item"><a href="#" class="pagination__link">1</a></li>
+            <li class="pagination__item"><span class="pagination__ellipsis">...</span></li>
+            <li class="pagination__item"><a href="#" class="pagination__link">8</a></li>
+            <li class="pagination__item"><a href="#" class="pagination__link">9</a></li>
+            <li class="pagination__item"><a href="#" class="pagination__link pagination__link--current" aria-current="page">10</a></li>
+          </ul>
+
+          <div class="pagination__controls">
+            <button class="pagination__control-btn" disabled>
+              <span>Next</span>
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+        </nav>
+      </div>
+
+      <div class="variant">
+        <h3>Few Pages (No Ellipsis)</h3>
+        <p>If there are not enough pages to require truncation, the ellipsis (...) is not displayed.</p>
+        <nav class="pagination" aria-label="pagination">
+          <div class="pagination__controls">
+            <button class="pagination__control-btn" >
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+              <span>Previous</span>
+            </button>
+          </div>
+          
+          <span class="pagination__info">Page 2 of 3</span>
+
+          <ul class="pagination__list">
+            <li class="pagination__item"><a href="#" class="pagination__link">1</a></li>
+            <li class="pagination__item"><a href="#" class="pagination__link pagination__link--current" aria-current="page">2</a></li>
+            <li class="pagination__item"><a href="#" class="pagination__link">3</a></li>
+          </ul>
+          
+          <div class="pagination__controls">
+            <button class="pagination__control-btn">
+              <span>Next</span>
+              <svg class="icon" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+        </nav>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

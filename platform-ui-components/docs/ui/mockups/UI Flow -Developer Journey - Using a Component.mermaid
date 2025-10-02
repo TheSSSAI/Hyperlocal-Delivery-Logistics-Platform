@@ -1,0 +1,43 @@
+flowchart TD
+    subgraph Discovery & Evaluation
+        A[Developer identifies a UI requirement] --> B[Browse Component Library in Storybook];
+        B --> C{Component Found?};
+        C -->|No| D[Builds custom component or requests new one];
+        C -->|Yes| E[Experiment with component props/controls];
+        E --> F{Component fits requirement?};
+        F -->|No| G[Provide feedback on component or build custom];
+    end
+
+    subgraph Implementation
+        F -->|Yes| H[Read 'Docs' tab for usage & code snippet];
+        H --> I[Copy import statement & usage example];
+        I --> J[Paste code into application codebase in IDE];
+        J --> K{Library package installed?};
+        K -->|No| L[Run 'npm install @library/package'];
+        L --> M[Run application locally];
+        K -->|Yes| M;
+    end
+
+    subgraph Verification & Completion
+        M --> N{Component works as expected?};
+        N -->|No| O[Debug implementation / Re-read docs];
+        O --> H;
+        N -->|Yes| P[Commit code];
+    end
+
+    subgraph End State
+        D --> Z[End];
+        G --> Z;
+        P --> Z;
+    end
+
+    %% Styling
+    classDef decision fill:#e3f2fd,stroke:#2196f3,color:#000;
+    classDef action fill:#fff,stroke:#383E44,color:#000;
+    classDef outcome fill:#e8f5e8,stroke:#4caf50,color:#000;
+    classDef negativeOutcome fill:#ffebee,stroke:#d32f2f,color:#000;
+
+    class C,F,K,N decision;
+    class A,B,E,H,I,J,L,M,O action;
+    class P,Z outcome;
+    class D,G negativeOutcome;

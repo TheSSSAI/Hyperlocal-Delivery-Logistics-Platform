@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - User Management</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Reset */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--color-neutrals-gray_50); color: var(--color-neutrals-gray_900); font-size: 16px; line-height: 1.6; }
+        table { border-collapse: collapse; width: 100%; }
+        button, input, select { font: inherit; }
+        img { display: block; max-width: 100%; }
+
+        /* Design System Tokens */
+        :root {
+            --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-300: #5C9EFF; --color-primary-500: #0068FF; --color-primary-600: #0053CC; --color-primary-700: #003E99;
+            --color-secondary-50: #E5F9F1; --color-secondary-500: #00C875; --color-secondary-900: #003D24;
+            --color-neutrals-white: #FFFFFF; --color-neutrals-gray_50: #F7F9FC; --color-neutrals-gray_100: #E9EDF2; --color-neutrals-gray_200: #D3D9E1; --color-neutrals-gray_300: #BCC4CF; --color-neutrals-gray_500: #8E9BAA; --color-neutrals-gray_700: #555D66; --color-neutrals-gray_900: #1C1F22;
+            --color-semantic-success: #00C875; --color-semantic-success-bg: #E5F9F1; --color-semantic-success-text: #003D24;
+            --color-semantic-warning: #FFB800; --color-semantic-warning-bg: #FFF8E6; --color-semantic-warning-text: #664A00;
+            --color-semantic-error: #FF4D4D; --color-semantic-error-bg: #FFEBEB; --color-semantic-error-text: #8B0000;
+            --color-semantic-info: #0068FF;
+            --spacing-xs: 4px; --spacing-sm: 8px; --spacing-md: 16px; --spacing-lg: 24px; --spacing-xl: 32px; --spacing-2xl: 48px;
+            --font-size-body: 16px; --font-size-caption: 14px; --font-size-h1: 36px;
+            --font-weight-regular: 400; --font-weight-medium: 500; --font-weight-semibold: 600;
+            --border-radius-sm: 4px; --border-radius-md: 8px; --border-radius-lg: 12px;
+            --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+            --shadow-md: 0px 4px 8px -2px rgba(28, 31, 34, 0.1), 0px 2px 4px -2px rgba(28, 31, 34, 0.06);
+        }
+
+        /* Screen Layout */
+        .admin-page-container { display: flex; min-height: 100vh; }
+        .main-content { flex-grow: 1; padding: var(--spacing-lg) var(--spacing-xl); max-width: 1440px; margin: 0 auto; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-lg); }
+        .page-header h1 { font-size: var(--font-size-h1); font-weight: var(--font-weight-semibold); }
+        .page-controls { display: flex; gap: var(--spacing-md); margin-bottom: var(--spacing-lg); padding: var(--spacing-md); }
+        .page-main-content { }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0; }
+
+        /* Card Component */
+        .card { background-color: var(--color-neutrals-white); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
+        
+        /* Button Component */
+        .btn { border: none; border-radius: var(--border-radius-md); padding: 10px var(--spacing-md); font-weight: var(--font-weight-medium); cursor: pointer; transition: all 0.2s ease-in-out; display: inline-flex; align-items: center; gap: var(--spacing-sm); }
+        .btn:focus-visible { outline: 3px solid var(--color-primary-300); outline-offset: 2px; }
+        .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutrals-white); }
+        .btn--primary:hover { background-color: var(--color-primary-600); box-shadow: var(--shadow-md); }
+        .btn--secondary { background-color: var(--color-neutrals-white); color: var(--color-neutrals-gray_700); border: 1px solid var(--color-neutrals-gray_200); }
+        .btn--secondary:hover { background-color: var(--color-neutrals-gray_50); border-color: var(--color-neutrals-gray_300); }
+        .btn--icon { padding: 8px; }
+
+        /* Form Controls */
+        .search-bar { display: flex; align-items: center; background: var(--color-neutrals-white); border: 1px solid var(--color-neutrals-gray_200); border-radius: var(--border-radius-md); padding-left: var(--spacing-md); flex-grow: 1; }
+        .search-bar:focus-within { border-color: var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-100); }
+        .search-bar .icon { color: var(--color-neutrals-gray_500); }
+        .search-bar input { border: none; outline: none; padding: 10px var(--spacing-sm); width: 100%; background: transparent; }
+        .dropdown-wrapper { position: relative; }
+        .dropdown-wrapper select { appearance: none; -webkit-appearance: none; background-color: var(--color-neutrals-white); border: 1px solid var(--color-neutrals-gray_200); border-radius: var(--border-radius-md); padding: 10px 40px 10px var(--spacing-md); cursor: pointer; min-width: 180px; }
+        .dropdown-wrapper select:focus { border-color: var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-100); outline: none; }
+        .dropdown-wrapper .icon { position: absolute; right: var(--spacing-md); top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-neutrals-gray_500); }
+
+        /* Data Table */
+        .data-table-container { overflow: hidden; }
+        .table-responsive-wrapper { overflow-x: auto; }
+        .data-table { border-spacing: 0; }
+        .data-table th, .data-table td { padding: var(--spacing-md) var(--spacing-lg); text-align: left; border-bottom: 1px solid var(--color-neutrals-gray_100); font-size: var(--font-size-caption); }
+        .data-table th { color: var(--color-neutrals-gray_500); font-weight: var(--font-weight-medium); text-transform: uppercase; letter-spacing: 0.5px; }
+        .data-table tbody tr:hover { background-color: var(--color-neutrals-gray_50); }
+        .data-table td { color: var(--color-neutrals-gray_700); }
+        .user-cell { display: flex; align-items: center; gap: var(--spacing-md); }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--color-neutrals-gray_200); display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-medium); color: var(--color-neutrals-gray_700); overflow: hidden; }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-weight: var(--font-weight-medium); color: var(--color-neutrals-gray_900); }
+        .user-email { color: var(--color-neutrals-gray_500); }
+
+        /* Badge Component */
+        .badge { display: inline-flex; align-items: center; gap: var(--spacing-xs); padding: var(--spacing-xs) var(--spacing-sm); border-radius: 999px; font-size: 12px; font-weight: var(--font-weight-medium); }
+        .badge-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .badge--success { background-color: var(--color-semantic-success-bg); color: var(--color-semantic-success-text); }
+        .badge--success .badge-dot { background-color: var(--color-semantic-success); }
+        .badge--warning { background-color: var(--color-semantic-warning-bg); color: var(--color-semantic-warning-text); }
+        .badge--warning .badge-dot { background-color: var(--color-semantic-warning); }
+        .badge--error { background-color: var(--color-semantic-error-bg); color: var(--color-semantic-error-text); }
+        .badge--error .badge-dot { background-color: var(--color-semantic-error); }
+        .badge--neutral { background-color: var(--color-neutrals-gray_100); color: var(--color-neutrals-gray_700); }
+        .badge--neutral .badge-dot { background-color: var(--color-neutrals-gray_500); }
+
+        /* Action Menu (Dropdown) */
+        .action-menu { position: relative; }
+        .action-menu__list { position: absolute; top: 100%; right: 0; background-color: var(--color-neutrals-white); border-radius: var(--border-radius-md); box-shadow: var(--shadow-md); list-style: none; min-width: 180px; z-index: 10; padding: var(--spacing-sm) 0; display: none; }
+        .action-menu.is-open .action-menu__list { display: block; }
+        .action-menu__item a, .action-menu__item button { display: flex; align-items: center; gap: var(--spacing-sm); width: 100%; padding: var(--spacing-sm) var(--spacing-md); text-decoration: none; color: var(--color-neutrals-gray_700); background: none; border: none; cursor: pointer; text-align: left; }
+        .action-menu__item a:hover, .action-menu__item button:hover { background-color: var(--color-neutrals-gray_50); }
+        .action-menu__item--danger a, .action-menu__item--danger button { color: var(--color-semantic-error); }
+
+        /* Pagination */
+        .pagination-container { padding: var(--spacing-md) var(--spacing-lg); display: flex; justify-content: space-between; align-items: center; }
+        .pagination-info { font-size: var(--font-size-caption); color: var(--color-neutrals-gray_500); }
+        .pagination-controls { display: flex; gap: var(--spacing-sm); }
+        .pagination-controls .btn { padding: 8px 12px; }
+
+        /* Variations & Placeholders */
+        .screen-variations { margin-top: var(--spacing-2xl); padding: var(--spacing-xl); background: #eee; border-radius: var(--border-radius-lg); }
+        .screen-variations h2 { margin-bottom: var(--spacing-xl); border-bottom: 2px solid #ccc; padding-bottom: var(--spacing-md); }
+        .variation-group { margin-bottom: var(--spacing-2xl); }
+        .variation-group h3 { margin-bottom: var(--spacing-md); }
+        .variation-group p { color: #555; margin-bottom: var(--spacing-lg); font-style: italic; }
+        
+        /* Skeleton Loader */
+        .skeleton { background-color: var(--color-neutrals-gray_100); border-radius: var(--border-radius-sm); position: relative; overflow: hidden; }
+        .skeleton::after { content: ''; position: absolute; top: 0; left: -150%; width: 150%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent); animation: shimmer 1.5s infinite; }
+        @keyframes shimmer { 100% { left: 150%; } }
+        .skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; }
+        .skeleton-text { height: 16px; margin-bottom: var(--spacing-sm); }
+        .skeleton-text--short { width: 40%; }
+        .skeleton-badge { width: 100px; height: 24px; border-radius: 999px; }
+
+        /* Empty & Error States */
+        .empty-state, .error-state { text-align: center; padding: var(--spacing-2xl); }
+        .empty-state .icon, .error-state .icon { margin: 0 auto var(--spacing-md); color: var(--color-neutrals-gray_300); }
+        .empty-state h4, .error-state h4 { font-weight: var(--font-weight-medium); color: var(--color-neutrals-gray_900); margin-bottom: var(--spacing-sm); }
+        .empty-state p, .error-state p { color: var(--color-neutrals-gray_500); }
+        .error-state .alert { text-align: left; }
+        .alert { display: flex; gap: var(--spacing-md); padding: var(--spacing-md); border-radius: var(--border-radius-md); border: 1px solid; }
+        .alert--error { background-color: var(--color-semantic-error-bg); border-color: var(--color-semantic-error); color: var(--color-semantic-error-text); }
+        .alert .icon { flex-shrink: 0; }
+        .alert-content { display: flex; flex-direction: column; }
+        .alert-content strong { font-weight: var(--font-weight-semibold); }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .page-header { flex-direction: column; align-items: flex-start; gap: var(--spacing-md); }
+            .page-controls { flex-direction: column; }
+            .pagination-container { flex-direction: column; gap: var(--spacing-md); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="admin-page-container">
+        <!-- Sidebar would be here -->
+        <div class="main-content">
+            <header class="page-header">
+                <h1>User Management</h1>
+                <div class="header-actions">
+                    <button class="btn btn--primary" type="button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                        <span>Create User</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="page-controls card">
+                <div class="search-bar">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                    <label for="user-search" class="sr-only">Search users</label>
+                    <input type="search" id="user-search" placeholder="Search by name, email, or phone...">
+                </div>
+                <div class="dropdown-wrapper">
+                    <label for="role-filter" class="sr-only">Filter by role</label>
+                    <select id="role-filter">
+                        <option>All Roles</option>
+                        <option>Customer</option>
+                        <option>Vendor</option>
+                        <option>Rider</option>
+                        <option>Administrator</option>
+                    </select>
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+                <div class="dropdown-wrapper">
+                    <label for="status-filter" class="sr-only">Filter by status</label>
+                    <select id="status-filter">
+                        <option>All Statuses</option>
+                        <option>Active</option>
+                        <option>Pending Verification</option>
+                        <option>Suspended</option>
+                        <option>Deactivated</option>
+                    </select>
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </div>
+            </div>
+
+            <main class="page-main-content">
+                <div class="data-table-container card">
+                    <div class="table-responsive-wrapper">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Role</th>
+                                    <th>Phone Number</th>
+                                    <th>Status</th>
+                                    <th>Registration Date</th>
+                                    <th><span class="sr-only">Actions</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Example Row 1: Active Rider -->
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="avatar"><img src="https://i.pravatar.cc/40?u=user1" alt=""></div>
+                                            <div class="user-info">
+                                                <span class="user-name">Ravi Kumar</span>
+                                                <span class="user-email">ravi.k@example.com</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Rider</td>
+                                    <td>+91 9876543210</td>
+                                    <td>
+                                        <div class="badge badge--success">
+                                            <span class="badge-dot"></span>
+                                            <span>Active</span>
+                                        </div>
+                                    </td>
+                                    <td>Jan 15, 2024</td>
+                                    <td>
+                                        <div class="action-menu" data-menu>
+                                            <button class="btn btn--secondary btn--icon" type="button" aria-label="More actions for Ravi Kumar" data-menu-button>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                            </button>
+                                            <ul class="action-menu__list">
+                                                <li class="action-menu__item"><a href="#">View Profile</a></li>
+                                                <li class="action-menu__item"><button type="button">Suspend User</button></li>
+                                                <li class="action-menu__item action-menu__item--danger"><button type="button">Deactivate User</button></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Example Row 2: Pending Vendor -->
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="avatar">SG</div>
+                                            <div class="user-info">
+                                                <span class="user-name">Shree Ganesh Sweets</span>
+                                                <span class="user-email">contact@sgsweets.com</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Vendor</td>
+                                    <td>+91 9123456780</td>
+                                    <td>
+                                        <div class="badge badge--warning">
+                                            <span class="badge-dot"></span>
+                                            <span>Pending Verification</span>
+                                        </div>
+                                    </td>
+                                    <td>Jan 14, 2024</td>
+                                    <td>
+                                        <div class="action-menu" data-menu>
+                                            <button class="btn btn--secondary btn--icon" type="button" aria-label="More actions for Shree Ganesh Sweets" data-menu-button>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                            </button>
+                                            <ul class="action-menu__list">
+                                                <li class="action-menu__item"><a href="#">Review Application</a></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Example Row 3: Suspended Customer -->
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="avatar"><img src="https://i.pravatar.cc/40?u=user3" alt=""></div>
+                                            <div class="user-info">
+                                                <span class="user-name">Priya Sharma</span>
+                                                <span class="user-email">priya.s@example.com</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Customer</td>
+                                    <td>+91 9988776655</td>
+                                    <td>
+                                        <div class="badge badge--error">
+                                            <span class="badge-dot"></span>
+                                            <span>Suspended</span>
+                                        </div>
+                                    </td>
+                                    <td>Jan 12, 2024</td>
+                                    <td>
+                                        <div class="action-menu" data-menu>
+                                            <button class="btn btn--secondary btn--icon" type="button" aria-label="More actions for Priya Sharma" data-menu-button>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                            </button>
+                                            <ul class="action-menu__list">
+                                                 <li class="action-menu__item"><a href="#">View Profile</a></li>
+                                                 <li class="action-menu__item"><button type="button">Reactivate User</button></li>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- Example Row 4: Deactivated -->
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="avatar"><img src="https://i.pravatar.cc/40?u=user4" alt=""></div>
+                                            <div class="user-info">
+                                                <span class="user-name">Amit Singh</span>
+                                                <span class="user-email">a.singh@example.com</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>Customer</td>
+                                    <td>+91 9876598765</td>
+                                    <td>
+                                        <div class="badge badge--neutral">
+                                            <span class="badge-dot"></span>
+                                            <span>Deactivated</span>
+                                        </div>
+                                    </td>
+                                    <td>Jan 10, 2024</td>
+                                    <td>
+                                         <div class="action-menu" data-menu>
+                                            <button class="btn btn--secondary btn--icon" type="button" aria-label="More actions for Amit Singh" data-menu-button>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                                            </button>
+                                             <ul class="action-menu__list">
+                                                 <li class="action-menu__item"><a href="#">View Profile</a></li>
+                                             </ul>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-container">
+                        <div class="pagination-info">Showing 1-4 of 2,345 users</div>
+                        <div class="pagination-controls">
+                            <button class="btn btn--secondary" type="button">Previous</button>
+                            <button class="btn btn--secondary" type="button">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <div class="screen-variations">
+        <h2>Screen Variations</h2>
+
+        <div class="variation-group">
+            <h3>Variant Name: "Loading State"</h3>
+            <p>The screen appearance while the initial user list is being fetched from the server. Uses a skeleton loader to mimic the final layout.</p>
+            <div class="data-table-container card">
+                <div class="table-responsive-wrapper">
+                    <table class="data-table">
+                        <thead>
+                           <tr><th>User</th><th>Role</th><th>Phone Number</th><th>Status</th><th>Registration Date</th><th><span class="sr-only">Actions</span></th></tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="skeleton skeleton-avatar"></div>
+                                        <div class="user-info">
+                                            <div class="skeleton skeleton-text" style="width: 120px;"></div>
+                                            <div class="skeleton skeleton-text skeleton-text--short"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><div class="skeleton skeleton-text" style="width: 50px;"></div></td>
+                                <td><div class="skeleton skeleton-text" style="width: 100px;"></div></td>
+                                <td><div class="skeleton skeleton-badge"></div></td>
+                                <td><div class="skeleton skeleton-text" style="width: 80px;"></div></td>
+                                <td><div class="skeleton skeleton-text" style="width: 36px; height: 36px; border-radius: 8px;"></div></td>
+                            </tr>
+                             <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        <div class="skeleton skeleton-avatar"></div>
+                                        <div class="user-info">
+                                            <div class="skeleton skeleton-text" style="width: 150px;"></div>
+                                            <div class="skeleton skeleton-text skeleton-text--short" style="width: 60%;"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><div class="skeleton skeleton-text" style="width: 60px;"></div></td>
+                                <td><div class="skeleton skeleton-text" style="width: 100px;"></div></td>
+                                <td><div class="skeleton skeleton-badge"></div></td>
+                                <td><div class="skeleton skeleton-text" style="width: 80px;"></div></td>
+                                <td><div class="skeleton skeleton-text" style="width: 36px; height: 36px; border-radius: 8px;"></div></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="variation-group">
+            <h3>Variant Name: "Empty State"</h3>
+            <p>The screen appearance when the API returns no users, either for the default view or after applying filters that yield no results.</p>
+            <div class="data-table-container card">
+                <div class="empty-state">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    <h4>No Users Found</h4>
+                    <p>No users match your current search and filter criteria. Try adjusting your filters.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="variation-group">
+            <h3>Variant Name: "Error State"</h3>
+            <p>The screen appearance when the API call to fetch users fails due to a server or network error.</p>
+            <div class="error-state">
+                 <div class="alert alert--error">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <div class="alert-content">
+                        <strong>Could not load user data</strong>
+                        <p>There was an error connecting to the server. Please check your connection and try again.</p>
+                    </div>
+                 </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Simple script to handle action menu toggle
+        document.addEventListener('click', function(event) {
+            const isMenuButton = event.target.closest('[data-menu-button]');
+            
+            // Close all menus
+            document.querySelectorAll('[data-menu].is-open').forEach(menu => {
+                if (!menu.contains(isMenuButton)) {
+                    menu.classList.remove('is-open');
+                }
+            });
+
+            // If a menu button was clicked, toggle its menu
+            if (isMenuButton) {
+                const menu = isMenuButton.closest('[data-menu]');
+                menu.classList.toggle('is-open');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+sequenceDiagram
+    actor RiderApp
+    participant APIGateway as API Gateway
+    participant IdentityService as Identity & Access Service
+    participant RiderProfileService as Rider Profile Service
+    participant AWSSNS as AWS SNS
+    participant AmazonS3 as Amazon S3
+    participant PostgreSQLDB as PostgreSQL DB
+
+    RiderApp->>RiderApp: 1. User enters mobile number and taps 'Send OTP'.
+    RiderApp->>APIGateway: 2. POST /api/v1/auth/register/rider/initiate
+    APIGateway->>IdentityService: 3. (Proxy) Check for duplicate mobile number.
+    IdentityService->>PostgreSQLDB: 4. SELECT 1 FROM users WHERE mobile_number = ?
+    PostgreSQLDB-->>IdentityService: 5. Returns 0 rows (number is unique).
+    IdentityService->>AWSSNS: 6. Publish OTP SMS.
+    AWSSNS-->>IdentityService: 7. SMS Sent Confirmation.
+    IdentityService-->>APIGateway: 8. 200 OK.
+    APIGateway-->>RiderApp: 9. 200 OK.
+    RiderApp->>RiderApp: 10. User enters OTP and taps 'Verify'.
+    RiderApp->>APIGateway: 11. POST /api/v1/auth/register/rider/verify
+    APIGateway->>IdentityService: 12. (Proxy) Validate OTP.
+    IdentityService-->>APIGateway: 13. 200 OK with temporary registration token.
+    APIGateway-->>RiderApp: 14. 200 OK with temp token.
+
+    RiderApp->>RiderApp: 15. User proceeds to document upload step.
+    RiderApp->>APIGateway: 16. GET /api/v1/riders/documents/upload-url?filename=license.jpg
+    APIGateway->>RiderProfileService: 17. (Proxy) Request pre-signed URL.
+    RiderProfileService->>AmazonS3: 18. Generate pre-signed PUT URL for secure upload.
+    AmazonS3-->>RiderProfileService: 19. Returns temporary, secure URL.
+    RiderProfileService-->>APIGateway: 20. Returns pre-signed URL.
+    APIGateway-->>RiderApp: 21. Returns pre-signed URL.
+    RiderApp->>AmazonS3: 22. PUT /... (Uploads file directly to S3).
+    AmazonS3-->>RiderApp: 23. 200 OK (Upload successful).
+
+    RiderApp->>RiderApp: 24. User fills all personal, vehicle, bank details and confirms submission.
+    RiderApp->>APIGateway: 25. POST /api/v1/riders/register (with all form data & document S3 keys).
+    APIGateway->>RiderProfileService: 26. (Proxy) Finalize registration.
+    RiderProfileService->>PostgreSQLDB: 27. BEGIN TRANSACTION.
+    RiderProfileService->>PostgreSQLDB: 28. INSERT into users table (status: 'pending_verification').
+    RiderProfileService->>PostgreSQLDB: 29. INSERT into rider_profiles, vehicles, bank_accounts tables.
+    RiderProfileService->>PostgreSQLDB: 30. COMMIT TRANSACTION.
+    PostgreSQLDB-->>RiderProfileService: 31. Success.
+    RiderProfileService-->>APIGateway: 32. 201 Created.
+    APIGateway-->>RiderApp: 33. 201 Created.
+    RiderApp->>RiderApp: 34. Navigate to 'Pending Verification' screen.
+
+    note over RiderApp, AmazonS3: Security: Direct upload to S3 using a pre-signed URL prevents large files from hitting the backend service, improving performance and security.
+    note over IdentityService, RiderProfileService: The temporary registration token issued after OTP verification is used to authorize subsequent steps like document upload and final submission.

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AppHeader Component (Admin)</title>
+  <style>
+    /* ---------------------------------- */
+    /* --- DESIGN SYSTEM FOUNDATION --- */
+    /* ---------------------------------- */
+    :root {
+      /* Font Families */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+      /* Colors: Primary */
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+
+      /* Colors: Neutrals */
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-100: #E9EDF2;
+      --color-gray-200: #D3D9E1;
+      --color-gray-500: #8E9BAA;
+      --color-gray-600: #717C88;
+      --color-gray-700: #555D66;
+      --color-gray-800: #383E44;
+      --color-gray-900: #1C1F22;
+      
+      /* Colors: Semantic */
+      --color-error: #FF4D4D;
+      --color-error-bg: #FFEBEB;
+
+      /* Spacing */
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+
+      /* Border Radius */
+      --radius-md: 8px;
+      --radius-full: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.08);
+    }
+
+    /* ---------------------------------- */
+    /* --- BASE & LAYOUT STYLES --- */
+    /* ---------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-family-primary);
+      color: var(--color-gray-900);
+      background-color: var(--color-gray-50);
+      margin: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .showcase {
+        padding: var(--space-6);
+    }
+
+    h2 {
+        font-size: 24px;
+        margin: var(--space-6) 0 var(--space-4) 0;
+        padding-bottom: var(--space-3);
+        border-bottom: 1px solid var(--color-gray-200);
+    }
+    
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+    }
+
+    /* ---------------------------------- */
+    /* --- AppHeader Component CSS --- */
+    /* ---------------------------------- */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-5);
+      height: 64px;
+      background-color: var(--color-white);
+      border-bottom: 1px solid var(--color-gray-200);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    /* Left Section */
+    .app-header__left {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+    }
+
+    .app-header__menu-toggle {
+      display: none; /* Hidden on desktop by default */
+      padding: var(--space-2);
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-radius: var(--radius-md);
+      color: var(--color-gray-600);
+    }
+    .app-header__menu-toggle:hover {
+        background-color: var(--color-gray-100);
+    }
+    .app-header__menu-toggle:focus-visible {
+      outline: 2px solid var(--color-primary-500);
+      outline-offset: 2px;
+    }
+
+    .app-header__logo {
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--color-gray-900);
+      text-decoration: none;
+    }
+
+    /* Right Section */
+    .app-header__right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-5);
+    }
+
+    /* Notification Bell */
+    .notification-bell {
+      position: relative;
+      padding: var(--space-2);
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-radius: 50%;
+      color: var(--color-gray-600);
+    }
+    .notification-bell:hover {
+      background-color: var(--color-gray-100);
+    }
+    .notification-bell:focus-visible {
+      outline: 2px solid var(--color-primary-500);
+      outline-offset: 2px;
+    }
+    .notification-bell__badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      background-color: var(--color-error);
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--color-white);
+      display: none; /* Hidden by default */
+    }
+    .notification-bell--active .notification-bell__badge {
+      display: block;
+    }
+
+    /* User Profile Dropdown */
+    .user-profile {
+      position: relative;
+    }
+
+    .user-profile__trigger {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      background: none;
+      border: none;
+      padding: var(--space-2);
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      text-align: left;
+    }
+    .user-profile__trigger:hover {
+      background-color: var(--color-gray-50);
+    }
+    .user-profile__trigger:focus-visible {
+      outline: 2px solid var(--color-primary-500);
+      outline-offset: 2px;
+    }
+
+    .user-profile__avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-full);
+      object-fit: cover;
+    }
+
+    .user-profile__details {
+      display: none; /* Hidden on mobile */
+    }
+
+    .user-profile__name {
+      font-weight: 600;
+      color: var(--color-gray-800);
+    }
+
+    .user-profile__role {
+      font-size: 12px;
+      color: var(--color-gray-600);
+    }
+
+    .user-profile__chevron {
+      color: var(--color-gray-500);
+      transition: transform 0.2s ease;
+    }
+    .user-profile--open .user-profile__chevron {
+      transform: rotate(180deg);
+    }
+
+    /* Dropdown Panel (Shared) */
+    .dropdown__panel {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      width: 220px;
+      background-color: var(--color-white);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-gray-200);
+      box-shadow: var(--shadow-md);
+      z-index: 110;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+      padding: var(--space-2);
+    }
+    .user-profile--open .dropdown__panel {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown__list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .dropdown__item a {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      border-radius: var(--radius-md);
+      text-decoration: none;
+      color: var(--color-gray-800);
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .dropdown__item a:hover {
+      background-color: var(--color-gray-50);
+    }
+     .dropdown__item a:focus-visible {
+      outline: 2px solid var(--color-primary-500);
+      outline-offset: -2px;
+    }
+
+    .dropdown__item--danger a {
+      color: var(--color-error);
+    }
+    .dropdown__item--danger a:hover {
+      background-color: var(--color-error-bg);
+    }
+    
+    .dropdown__divider {
+      height: 1px;
+      background-color: var(--color-gray-100);
+      margin: var(--space-2) 0;
+    }
+
+    /* Responsive Adaptations */
+    @media (min-width: 768px) {
+      .user-profile__details {
+        display: block;
+      }
+    }
+
+    @media (max-width: 1023px) {
+      .app-header__menu-toggle {
+        display: block;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase">
+    <h1>AppHeader (Admin Variant)</h1>
+
+    <h2>Default State</h2>
+    <p>This is the standard appearance of the header on a desktop viewport. The menu toggle is hidden.</p>
+    <header class="app-header">
+      <div class="app-header__left">
+        <button class="app-header__menu-toggle" aria-label="Open navigation menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <a href="#" class="app-header__logo">PlatformName</a>
+      </div>
+      <div class="app-header__right">
+        <button class="notification-bell" aria-label="View notifications">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <div class="notification-bell__badge"></div>
+        </button>
+        <div class="user-profile">
+          <button class="user-profile__trigger" aria-haspopup="menu" aria-expanded="false">
+            <img src="https://i.pravatar.cc/40?u=admin" alt="Admin user avatar" class="user-profile__avatar">
+            <div class="user-profile__details">
+              <div class="user-profile__name">Anjali Verma</div>
+              <div class="user-profile__role">Administrator</div>
+            </div>
+            <svg class="user-profile__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <h2>Notifications Active State</h2>
+    <p>The <code>.notification-bell--active</code> class is added to show the badge.</p>
+    <header class="app-header">
+      <div class="app-header__left">
+        <button class="app-header__menu-toggle" aria-label="Open navigation menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <a href="#" class="app-header__logo">PlatformName</a>
+      </div>
+      <div class="app-header__right">
+        <button class="notification-bell notification-bell--active" aria-label="You have new notifications">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <div class="notification-bell__badge"></div>
+        </button>
+        <div class="user-profile">
+          <button class="user-profile__trigger" aria-haspopup="menu" aria-expanded="false">
+            <img src="https://i.pravatar.cc/40?u=admin" alt="Admin user avatar" class="user-profile__avatar">
+            <div class="user-profile__details">
+              <div class="user-profile__name">Anjali Verma</div>
+              <div class="user-profile__role">Administrator</div>
+            </div>
+            <svg class="user-profile__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <h2>User Profile Dropdown Open</h2>
+    <p>The <code>.user-profile--open</code> class is added to show the dropdown panel.</p>
+    <header class="app-header">
+      <div class="app-header__left">
+        <button class="app-header__menu-toggle" aria-label="Open navigation menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <a href="#" class="app-header__logo">PlatformName</a>
+      </div>
+      <div class="app-header__right">
+        <button class="notification-bell" aria-label="View notifications">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <div class="notification-bell__badge"></div>
+        </button>
+        <div class="user-profile user-profile--open">
+          <button class="user-profile__trigger" aria-haspopup="menu" aria-expanded="true">
+            <img src="https://i.pravatar.cc/40?u=admin" alt="Admin user avatar" class="user-profile__avatar">
+            <div class="user-profile__details">
+              <div class="user-profile__name">Anjali Verma</div>
+              <div class="user-profile__role">Administrator</div>
+            </div>
+            <svg class="user-profile__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+          <div class="dropdown__panel" role="menu">
+            <ul class="dropdown__list">
+              <li class="dropdown__item" role="none">
+                <a href="#" role="menuitem">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  My Profile
+                </a>
+              </li>
+              <li class="dropdown__item" role="none">
+                <a href="#" role="menuitem">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1H15a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  Settings
+                </a>
+              </li>
+              <li class="dropdown__divider" role="separator"></li>
+              <li class="dropdown__item dropdown__item--danger" role="none">
+                <a href="#" role="menuitem">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                  Logout
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <h2>Mobile Viewport Example (&lt;1024px)</h2>
+    <p>On smaller screens, the menu toggle button becomes visible and the user's name/role is hidden.</p>
+     <div style="max-width: 400px; border: 1px solid #ccc; margin-top: 16px;">
+        <header class="app-header">
+          <div class="app-header__left">
+            <button class="app-header__menu-toggle" aria-label="Open navigation menu">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <a href="#" class="app-header__logo">Platform</a>
+          </div>
+          <div class="app-header__right">
+            <button class="notification-bell notification-bell--active" aria-label="You have new notifications">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+              <div class="notification-bell__badge"></div>
+            </button>
+            <div class="user-profile">
+              <button class="user-profile__trigger" aria-haspopup="menu" aria-expanded="false">
+                <img src="https://i.pravatar.cc/40?u=admin" alt="Admin user avatar" class="user-profile__avatar">
+                <div class="user-profile__details">
+                  <div class="user-profile__name">Anjali Verma</div>
+                  <div class="user-profile__role">Administrator</div>
+                </div>
+                <svg class="user-profile__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </button>
+            </div>
+          </div>
+        </header>
+     </div>
+  </div>
+  
+  <div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "admin"<h3>
+		<!--description--><normal> The AppHeader for the administrator dashboard. It includes a mobile menu toggle, logo, notification bell, and a user profile dropdown with links to profile, settings, and logout. </normal>
+		<!-- vrient 1 html -->
+        <header class="app-header">
+      <div class="app-header__left">
+        <button class="app-header__menu-toggle" aria-label="Open navigation menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <a href="#" class="app-header__logo">PlatformName</a>
+      </div>
+      <div class="app-header__right">
+        <button class="notification-bell" aria-label="View notifications">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <div class="notification-bell__badge"></div>
+        </button>
+        <div class="user-profile">
+          <button class="user-profile__trigger" aria-haspopup="menu" aria-expanded="false">
+            <img src="https://i.pravatar.cc/40?u=admin" alt="Admin user avatar" class="user-profile__avatar">
+            <div class="user-profile__details">
+              <div class="user-profile__name">Anjali Verma</div>
+              <div class="user-profile__role">Administrator</div>
+            </div>
+            <svg class="user-profile__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+          </button>
+        </div>
+      </div>
+    </header>     
+		
+      <div>
+	 </div>    
+  </body>
+</html>

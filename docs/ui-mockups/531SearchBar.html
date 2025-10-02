@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: SearchBar</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    body, h1, h2, h3, h4, p, figure, blockquote, dl, dd { margin: 0; }
+    input, button, textarea, select { font: inherit; }
+    form { width: 100%; }
+
+    /* Design System Tokens */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --fs-body: 16px; --lh-body: 1.6;
+      --fs-caption: 14px; --lh-caption: 1.5;
+      /* Colors */
+      --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-300: #5C9EFF; --color-primary-500: #0068FF;
+      --color-white: #FFFFFF; --color-gray-50: #F7F9FC; --color-gray-100: #E9EDF2; --color-gray-200: #D3D9E1; --color-gray-300: #BCC4CF; --color-gray-500: #8E9BAA; --color-gray-700: #555D66; --color-gray-800: #383E44; --color-gray-900: #1C1F22;
+      /* Spacing */
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+      /* Borders & Shadows */
+      --border-radius-md: 8px; --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* Base & Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+      background-color: var(--color-gray-50);
+      color: var(--color-gray-800);
+      padding: var(--space-6);
+    }
+    .showcase { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-6); }
+    .showcase__header { padding-bottom: var(--space-5); border-bottom: 1px solid var(--color-gray-200); }
+    .showcase__header h1 { font-size: 28px; color: var(--color-gray-900); }
+    .component-section { background-color: var(--color-white); padding: var(--space-5); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
+    .component-section h2 { font-size: 20px; margin-bottom: var(--space-2); color: var(--color-gray-900); }
+    .component-section p { font-size: var(--fs-caption); color: var(--color-gray-700); margin-bottom: var(--space-4); max-width: 60ch; }
+    .state-group { display: flex; flex-direction: column; gap: var(--space-4); }
+
+    /* Helper: Visually hidden */
+    .sr-only {
+      border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px;
+      overflow: hidden; padding: 0; position: absolute; width: 1px;
+    }
+
+    /* Icon definitions */
+    .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; }
+    
+    /* DEPENDENCIES: Spinner, Button */
+    .spinner { animation: spin 1s linear infinite; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; width: 1em; height: 1em; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); font-weight: var(--font-weight-semibold); text-decoration: none; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; min-height: 44px; }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-100); outline-offset: 2px; }
+    .btn--secondary { background-color: var(--color-white); color: var(--color-primary-500); border-color: var(--color-gray-300); }
+    .btn--secondary:hover { background-color: var(--color-gray-50); }
+    .btn--icon-only { padding: var(--space-3); font-size: 1.25rem; line-height: 1; }
+    .btn--icon-only:focus-visible { outline-color: var(--color-primary-300); }
+
+    /* SearchBar CSS */
+    .search-bar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .search-bar__wrapper {
+      position: relative;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+    }
+    
+    /* Search Input (adapts from atomic TextInput) */
+    .search-bar__input {
+      width: 100%;
+      height: 44px;
+      padding: var(--space-3) var(--space-4);
+      /* Space for left icon and right actions */
+      padding-left: calc(var(--space-4) * 2 + 1em); 
+      padding-right: calc(var(--space-4) * 2 + 1em);
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-md);
+      font-size: var(--fs-body);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-bar:focus-within {
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+      border-radius: var(--border-radius-md);
+    }
+    
+    .search-bar__input:focus {
+      outline: none;
+      border-color: var(--color-primary-500);
+    }
+
+    /* Icons and Actions within the input */
+    .search-bar__icon-prefix {
+      position: absolute;
+      left: var(--space-4);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-gray-500);
+      pointer-events: none;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    .search-bar__actions-suffix {
+      position: absolute;
+      right: var(--space-3);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+
+    .search-bar__clear-btn {
+      display: none; /* Hidden by default */
+      padding: var(--space-1);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--color-gray-500);
+      font-size: 1.25rem;
+    }
+
+    .search-bar__input:not(:placeholder-shown) ~ .search-bar__actions-suffix .search-bar__clear-btn {
+      display: block; /* Show when input has value */
+    }
+
+    /* Loading State */
+    .search-bar.is-loading .search-bar__icon-prefix {
+      display: none;
+    }
+    .search-bar.is-loading .search-bar__actions-suffix .spinner {
+      display: block;
+    }
+    .search-bar .spinner {
+      display: none;
+      font-size: 1.25rem;
+      color: var(--color-primary-500);
+    }
+
+    /* Responsive Collapsible Variant */
+    @media (max-width: 767px) {
+      .search-bar--collapsible {
+        max-width: 44px; /* Start as an icon */
+        transition: max-width 0.3s ease-in-out;
+        justify-content: flex-end; /* Align icon to the right */
+      }
+      .search-bar--collapsible .search-bar__wrapper,
+      .search-bar--collapsible .btn--secondary {
+        display: none; /* Hide input and filter button by default */
+      }
+      .search-bar--collapsible:focus-within {
+        max-width: 100%; /* Expand on focus */
+        justify-content: flex-start;
+      }
+      .search-bar--collapsible:focus-within .search-bar__wrapper,
+      .search-bar--collapsible:focus-within .btn--secondary {
+        display: flex;
+      }
+      .search-bar--collapsible:focus-within .search-bar__toggle-btn {
+        display: none; /* Hide the toggle icon when expanded */
+      }
+      .search-bar__toggle-btn {
+        display: inline-flex; /* Show only on mobile by default */
+      }
+    }
+    
+    @media (min-width: 768px) {
+      .search-bar--collapsible .search-bar__toggle-btn {
+        display: none; /* Hide toggle icon on desktop */
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="icon-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+      <symbol id="icon-filter" viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/></symbol>
+      <symbol id="icon-clear" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="showcase">
+    <header class="showcase__header">
+      <h1>Molecular Component: SearchBar</h1>
+    </header>
+
+    <section class="component-section">
+      <h2>Simple SearchBar</h2>
+      <p>A standard search input with a submit/search icon. A clear button appears when text is entered.</p>
+      <div class="state-group">
+        <div>
+          <h3>Default State</h3>
+          <form class="search-bar" role="search" aria-label="Simple item search">
+            <label for="search-input-1" class="sr-only">Search</label>
+            <div class="search-bar__wrapper">
+              <div class="search-bar__icon-prefix"><svg class="icon"><use href="#icon-search"></use></svg></div>
+              <input type="search" id="search-input-1" class="search-bar__input" placeholder="Search for stores or items...">
+              <div class="search-bar__actions-suffix">
+                <button type="reset" class="search-bar__clear-btn" aria-label="Clear search query"><svg class="icon"><use href="#icon-clear"></use></svg></button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div>
+          <h3>Focus State</h3>
+          <p>The entire component gets a focus ring for better keyboard navigation context.</p>
+          <form class="search-bar" role="search" aria-label="Focused item search">
+            <label for="search-input-2" class="sr-only">Search</label>
+            <div class="search-bar__wrapper">
+              <div class="search-bar__icon-prefix"><svg class="icon"><use href="#icon-search"></use></svg></div>
+              <input type="search" id="search-input-2" class="search-bar__input" placeholder="Search for stores or items...">
+              <div class="search-bar__actions-suffix">
+                 <button type="reset" class="search-bar__clear-btn" aria-label="Clear search query"><svg class="icon"><use href="#icon-clear"></use></svg></button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div>
+          <h3>With Value State</h3>
+          <p>When the user types, the clear button appears.</p>
+          <form class="search-bar" role="search" aria-label="Search with value">
+            <label for="search-input-3" class="sr-only">Search</label>
+            <div class="search-bar__wrapper">
+              <div class="search-bar__icon-prefix"><svg class="icon"><use href="#icon-search"></use></svg></div>
+              <input type="search" id="search-input-3" class="search-bar__input" value="Pizza">
+              <div class="search-bar__actions-suffix">
+                 <button type="reset" class="search-bar__clear-btn" aria-label="Clear search query"><svg class="icon"><use href="#icon-clear"></use></svg></button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div>
+          <h3>Loading State</h3>
+          <p>While a search query is being processed, a spinner replaces the clear button.</p>
+          <form class="search-bar is-loading" role="search" aria-label="Loading search results">
+            <label for="search-input-4" class="sr-only">Search</label>
+            <div class="search-bar__wrapper">
+              <div class="search-bar__icon-prefix"><svg class="icon"><use href="#icon-search"></use></svg></div>
+              <input type="search" id="search-input-4" class="search-bar__input" value="Ramen" readonly>
+              <div class="search-bar__actions-suffix">
+                <span class="spinner" aria-hidden="true"></span>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="component-section">
+      <h2>SearchBar with Filters</h2>
+      <p>A variant that includes a button to trigger filter options. This is common in complex discovery views.</p>
+      <div class="state-group">
+        <form class="search-bar" role="search" aria-label="Item search with filters">
+          <label for="search-input-5" class="sr-only">Search</g/label>
+          <div class="search-bar__wrapper">
+            <div class="search-bar__icon-prefix"><svg class="icon"><use href="#icon-search"></use></svg></div>
+            <input type="search" id="search-input-5" class="search-bar__input" placeholder="Search and filter...">
+            <div class="search-bar__actions-suffix">
+              <button type="reset" class="search-bar__clear-btn" aria-label="Clear search query"><svg class="icon"><use href="#icon-clear"></use></svg></button>
+            </div>
+          </div>
+          <button type="button" class="btn btn--secondary" aria-label="Open filters">
+            <svg class="icon" style="font-size: 1.25rem"><use href="#icon-filter"></use></svg>
+            <span>Filters</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <section class="component-section">
+      <h2>Responsive Collapsible SearchBar</h2>
+      <p>On mobile viewports, this variant collapses to a single icon. When focused or tapped, it expands. On desktop, it remains expanded. <strong>Note:</strong> In this mockup, click inside the search bar area to see the expand effect.</p>
+      <div class="state-group" style="min-height: 80px; align-items: center;">
+         <form class="search-bar search-bar--collapsible" role="search" aria-label="Collapsible item search">
+            <button type="button" class="btn btn--secondary btn--icon-only search-bar__toggle-btn" aria-label="Open search">
+                <svg class="icon"><use href="#icon-search"></use></svg>
+            </button>
+            <label for="search-input-6" class="sr-only">Search</label>
+            <div class="search-bar__wrapper">
+                <div class="search-bar__icon-prefix"><svg class="icon"><use href="#icon-search"></use></svg></div>
+                <input type="search" id="search-input-6" class="search-bar__input" placeholder="Search...">
+                <div class="search-bar__actions-suffix">
+                    <button type="reset" class="search-bar__clear-btn" aria-label="Clear search query"><svg class="icon"><use href="#icon-clear"></use></svg></button>
+                </div>
+            </div>
+            <button type="button" class="btn btn--secondary search-bar__filters-btn" aria-label="Open filters">
+                <svg class="icon" style="font-size: 1.25rem"><use href="#icon-filter"></use></svg>
+            </button>
+        </form>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="showcase" style="margin-top: 32px;">
+    <div> 
+      <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "Simple"</h3>
+		<normal> The default search bar with an input, search icon, and a clear button that appears when there is text.</normal>
+        <div class="component-section">
+            <form class="search-bar" role="search" aria-label="Simple item search example">
+                <label for="search-input-v1" class="sr-only">Search</label>
+                <div class="search-bar__wrapper">
+                <div class="search-bar__icon-prefix"><svg class="icon"><use href="#icon-search"></use></svg></div>
+                <input type="search" id="search-input-v1" class="search-bar__input" placeholder="Search for anything...">
+                <div class="search-bar__actions-suffix">
+                    <button type="reset" class="search-bar__clear-btn" aria-label="Clear search query"><svg class="icon"><use href="#icon-clear"></use></svg></button>
+                </div>
+                </div>
+            </form>
+        </div>     
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : "With Filters"</h3>
+		<normal> Includes an additional button, typically placed next to the search input, to open a modal or panel with advanced filtering options.</normal>
+        <div class="component-section">
+            <form class="search-bar" role="search" aria-label="Item search with filters example">
+                <label for="search-input-v2" class="sr-only">Search</g/label>
+                <div class="search-bar__wrapper">
+                    <div class="search-bar__icon-prefix"><svg class="icon"><use href="#icon-search"></use></svg></div>
+                    <input type="search" id="search-input-v2" class="search-bar__input" placeholder="Search and filter...">
+                    <div class="search-bar__actions-suffix">
+                    <button type="reset" class="search-bar__clear-btn" aria-label="Clear search query"><svg class="icon"><use href="#icon-clear"></use></svg></button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn--secondary" aria-label="Open filters">
+                    <svg class="icon" style="font-size: 1.25rem"><use href="#icon-filter"></use></svg>
+                    <span>Filters</span>
+                </button>
+            </form>
+        </div>     
+      </div>
+	 </div>    
+  </div>
+</body>
+</html>

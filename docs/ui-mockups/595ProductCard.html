@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProductCard Component</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================== */
+    /* 1. Design System Tokens & Base Styles           */
+    /* =============================================== */
+    :root {
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-secondary-50: #E5F9F1;
+      --color-secondary-900: #003D24;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-200: #D3D9E1;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-500: #8E9BAA;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-success: #00C875;
+      --color-semantic-warning: #FFB800;
+      --color-semantic-error: #FF4D4D;
+
+      /* Typography */
+      --font-family-primary: 'Inter', sans-serif;
+      --font-size-h4: 20px;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+
+      /* Spacing */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --border-radius-full: 9999px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --shadow-md: 0px 6px 12px rgba(28, 31, 34, 0.1);
+
+      /* Transitions */
+      --transition-fast: 200ms ease-in-out;
+    }
+
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutrals-gray-50);
+      margin: 0;
+      padding: var(--space-32);
+      color: var(--color-neutrals-gray-900);
+    }
+
+    .showcase {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .showcase__header {
+      text-align: center;
+      margin-bottom: var(--space-32);
+    }
+    .showcase__header h1 {
+      font-size: 36px;
+      margin-bottom: var(--space-8);
+    }
+    .showcase__header p {
+      font-size: 18px;
+      color: var(--color-neutrals-gray-700);
+      margin: 0;
+    }
+
+    .showcase__section {
+      margin-bottom: var(--space-32);
+    }
+
+    .showcase__section h2 {
+      font-size: 28px;
+      border-bottom: 1px solid var(--color-neutrals-gray-200);
+      padding-bottom: var(--space-12);
+      margin-bottom: var(--space-24);
+    }
+    
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: var(--space-24);
+    }
+    
+    .list-container {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-16);
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* =============================================== */
+    /* 2. Atomic Component Dependencies                */
+    /* =============================================== */
+
+    /* Badge Component */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: var(--space-4) var(--space-12);
+      font-size: 12px;
+      font-weight: 700;
+      border-radius: var(--border-radius-full);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge--success { background-color: var(--color-secondary-50); color: var(--color-secondary-900); }
+    .badge--warning { background-color: #FFF8E6; color: #996F00; }
+    .badge--error { background-color: #FFEBEB; color: #8B0000; }
+    
+    /* Button Component */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8);
+      font-family: var(--font-family-primary); font-size: var(--font-size-caption); font-weight: 600;
+      padding: 8px 16px; min-height: 40px; border: 1px solid transparent; border-radius: var(--border-radius-md);
+      text-decoration: none; cursor: pointer; transition: all var(--transition-fast);
+    }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 2px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutrals-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .btn[disabled] { background-color: var(--color-neutrals-gray-200); color: var(--color-neutrals-gray-500); cursor: not-allowed; }
+
+    /* QuantityStepper Component */
+    .quantity-stepper {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+    }
+    .quantity-stepper__btn {
+      width: 32px; height: 32px; padding: 0;
+      border: 1px solid var(--color-neutrals-gray-300);
+      background-color: var(--color-neutrals-white);
+      color: var(--color-neutrals-gray-700);
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      line-height: 1;
+    }
+     .quantity-stepper__btn:hover { background-color: var(--color-neutrals-gray-50); }
+    .quantity-stepper__quantity { font-weight: 700; font-size: var(--font-size-body); min-width: 2ch; text-align: center; }
+
+
+    /* =============================================== */
+    /* 3. Molecular Component: ProductCard             */
+    /* =============================================== */
+
+    .product-card {
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+
+    .product-card:focus-within,
+    .product-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .product-card__link {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .product-card__link:focus {
+      outline: none; /* The focus is handled on the parent card */
+    }
+
+    .product-card__image-container {
+      position: relative;
+      background-color: var(--color-neutrals-gray-100);
+    }
+
+    .product-card__image {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+    }
+
+    .product-card__stock-badge {
+      position: absolute;
+      top: var(--space-12);
+      left: var(--space-12);
+    }
+
+    .product-card__content {
+      padding: var(--space-16);
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    
+    .product-card__title {
+      font-size: var(--font-size-body);
+      font-weight: 600;
+      margin: 0 0 var(--space-8) 0;
+      line-height: 1.3;
+      color: var(--color-neutrals-gray-900);
+    }
+
+    .product-card__description {
+      font-size: var(--font-size-caption);
+      color: var(--color-neutrals-gray-700);
+      margin: 0 0 var(--space-16) 0;
+      flex-grow: 1;
+      /* Truncate long descriptions */
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;  
+      overflow: hidden;
+    }
+
+    .product-card__footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto; /* Pushes footer to the bottom */
+    }
+
+    .product-card__price {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-neutrals-gray-900);
+    }
+    
+    /* --- List View Variant (Mobile First) --- */
+    .product-card--list {
+      flex-direction: row;
+    }
+    
+    .product-card--list .product-card__image-container {
+      width: 100px;
+      flex-shrink: 0;
+    }
+    
+    .product-card--list .product-card__image {
+      aspect-ratio: 1 / 1;
+    }
+    
+    .product-card--list .product-card__content {
+        justify-content: center;
+    }
+    
+    .product-card--list .product-card__description {
+      -webkit-line-clamp: 1;
+    }
+
+    /* --- Disabled State --- */
+    .product-card--disabled {
+      filter: grayscale(80%);
+      opacity: 0.8;
+    }
+
+    .product-card--disabled:hover {
+        transform: none;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .product-card--disabled .product-card__link {
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* =============================================== */
+    /* 4. Responsive Adaptations                       */
+    /* =============================================== */
+
+    @media (min-width: 768px) {
+        .product-card--grid {
+            flex-direction: column;
+        }
+        .product-card--grid .product-card__image-container {
+            width: 100%;
+        }
+        .product-card--grid .product-card__image {
+            aspect-ratio: 16 / 10;
+        }
+        .product-card--grid .product-card__description {
+           -webkit-line-clamp: 2;
+        }
+    }
+    
+    /* Reduced motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      .product-card {
+        transition: none;
+      }
+      .product-card:hover {
+        transform: none;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="showcase">
+    <header class="showcase__header">
+      <h1>ProductCard Component</h1>
+      <p>A molecular component to display product information in various layouts and states.</p>
+    </header>
+
+    <section class="showcase__section">
+      <h2>Grid View (Desktop)</h2>
+      <div class="grid-container">
+        
+        <!-- Default State -->
+        <article class="product-card product-card--grid">
+          <a href="#product1" class="product-card__link">
+            <div class="product-card__image-container">
+              <img src="https://images.unsplash.com/photo-1593560704563-f176a2eb61db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60" alt="Spicy Chicken Ramen" class="product-card__image">
+              <span class="badge badge--success product-card__stock-badge">Available</span>
+            </div>
+            <div class="product-card__content">
+              <h3 class="product-card__title">Spicy Chicken Ramen</h3>
+              <p class="product-card__description">A rich and flavorful ramen bowl with tender chicken, a soft-boiled egg, and a spicy broth that will warm you up.</p>
+            </div>
+          </a>
+          <div class="product-card__footer product-card__content">
+              <span class="product-card__price">₹350.00</span>
+              <button class="btn btn--primary">Add to Cart</button>
+          </div>
+        </article>
+
+        <!-- Hover State (simulated) -->
+        <article class="product-card product-card--grid is-hover">
+            <a href="#product2" class="product-card__link">
+                <div class="product-card__image-container">
+                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60" alt="Margherita Pizza" class="product-card__image">
+                    <span class="badge badge--warning product-card__stock-badge">Limited Stock</span>
+                </div>
+                <div class="product-card__content">
+                    <h3 class="product-card__title">Margherita Pizza</h3>
+                    <p class="product-card__description">Classic Margherita with fresh mozzarella, San Marzano tomatoes, and basil on a crispy crust.</p>
+                </div>
+            </a>
+            <div class="product-card__footer product-card__content">
+                <span class="product-card__price">₹450.00</span>
+                <div class="quantity-stepper">
+                    <button class="quantity-stepper__btn" aria-label="Decrease quantity">-</button>
+                    <span class="quantity-stepper__quantity">1</span>
+                    <button class="quantity-stepper__btn" aria-label="Increase quantity">+</button>
+                </div>
+            </div>
+        </article>
+
+        <!-- Disabled State -->
+        <article class="product-card product-card--grid product-card--disabled">
+          <a href="#product3" class="product-card__link">
+            <div class="product-card__image-container">
+              <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=60" alt="Fresh Garden Salad" class="product-card__image">
+              <span class="badge badge--error product-card__stock-badge">Out of Stock</span>
+            </div>
+            <div class="product-card__content">
+              <h3 class="product-card__title">Fresh Garden Salad</h3>
+              <p class="product-card__description">A mix of fresh greens, cherry tomatoes, cucumbers, and a light vinaigrette. Currently unavailable.</p>
+            </div>
+          </a>
+          <div class="product-card__footer product-card__content">
+              <span class="product-card__price">₹220.00</span>
+              <button class="btn btn--primary" disabled aria-disabled="true">Out of Stock</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="showcase__section">
+      <h2>List View (Mobile)</h2>
+      <div class="list-container">
+
+        <!-- Default State -->
+        <article class="product-card product-card--list">
+          <a href="#product1-list" class="product-card__link" style="display: flex; flex-grow: 1;">
+            <div class="product-card__image-container">
+              <img src="https://images.unsplash.com/photo-1593560704563-f176a2eb61db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=60" alt="Spicy Chicken Ramen" class="product-card__image">
+              <span class="badge badge--success product-card__stock-badge">Available</span>
+            </div>
+            <div class="product-card__content">
+              <h3 class="product-card__title">Spicy Chicken Ramen</h3>
+              <p class="product-card__description">Rich and flavorful ramen bowl.</p>
+              <div class="product-card__footer" style="padding: 0;">
+                <span class="product-card__price">₹350.00</span>
+              </div>
+            </div>
+          </a>
+          <div class="product-card__footer" style="padding: 0 var(--space-16) 0 0;">
+              <button class="btn btn--primary">Add</button>
+          </div>
+        </article>
+
+        <!-- With Quantity Stepper -->
+        <article class="product-card product-card--list">
+          <a href="#product2-list" class="product-card__link" style="display: flex; flex-grow: 1;">
+            <div class="product-card__image-container">
+              <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=60" alt="Margherita Pizza" class="product-card__image">
+              <span class="badge badge--warning product-card__stock-badge">Limited</span>
+            </div>
+            <div class="product-card__content">
+              <h3 class="product-card__title">Margherita Pizza</h3>
+              <p class="product-card__description">Classic Italian pizza.</p>
+              <div class="product-card__footer" style="padding: 0;">
+                <span class="product-card__price">₹450.00</span>
+              </div>
+            </div>
+          </a>
+          <div class="product-card__footer" style="padding: 0 var(--space-16) 0 0;">
+             <div class="quantity-stepper">
+                <button class="quantity-stepper__btn" aria-label="Decrease quantity">-</button>
+                <span class="quantity-stepper__quantity">1</span>
+                <button class="quantity-stepper__btn" aria-label="Increase quantity">+</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Disabled State -->
+        <article class="product-card product-card--list product-card--disabled">
+          <a href="#product3-list" class="product-card__link" style="display: flex; flex-grow: 1;">
+            <div class="product-card__image-container">
+              <img src="https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&q=60" alt="Fresh Garden Salad" class="product-card__image">
+              <span class="badge badge--error product-card__stock-badge">Sold Out</span>
+            </div>
+            <div class="product-card__content">
+              <h3 class="product-card__title">Fresh Garden Salad</h3>
+              <p class="product-card__description">Currently unavailable.</p>
+              <div class="product-card__footer" style="padding: 0;">
+                <span class="product-card__price">₹220.00</span>
+              </div>
+            </div>
+          </a>
+           <div class="product-card__footer" style="padding: 0 var(--space-16) 0 0;">
+              <button class="btn btn--primary" disabled>Add</button>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+  
+  <div class="showcase">
+      <div class="showcase__section">
+          <h2>Component Variations</h2>
+          <div>
+              <h3>Variant Name: "grid-view"</h3>
+              <p>Used for desktop and tablet layouts where horizontal space is plentiful. Displays products in a multi-column grid. The component uses `flex-direction: column` and a larger aspect ratio for the image.</p>
+          </div>
+          <div>
+              <h3>Variant Name: "list-view"</h3>
+              <p>The mobile-first default. Used for single-column layouts on smaller screens. Displays the product with the image on the left and content on the right (`flex-direction: row`) for better scannability in a vertical list.</p>
+          </div>
+      </div>
+  </div>
+  
+
+</body>
+</html>

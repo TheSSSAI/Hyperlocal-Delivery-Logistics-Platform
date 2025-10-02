@@ -1,0 +1,41 @@
+flowchart TD
+    subgraph "New Vendor Registration Journey (VND-001)"
+        A[Start: User accesses Vendor Registration Page] --> B[Fills Business & Contact Details]
+        B --> C{Enter Mobile Number & Verify}
+        C -->|Number already registered| D[Show 'Already Registered' Error]
+        D --> C
+        C -->|New Number| E[System sends OTP via SMS]
+        E --> F[User Enters OTP]
+        F --> G{Is OTP Correct?}
+        G -->|No| H[Show 'Invalid OTP' Error]
+        H --> F
+        G -->|Yes| I[Fills Address, GST, & License Info]
+        I --> J[Uploads Documents]
+        J --> K{All mandatory fields & docs valid?}
+        K -->|No| L[Show validation errors on form]
+        L --> I
+        K -->|Yes| M[User Clicks 'Submit Application']
+        M --> N[System creates Vendor account with 'pending_verification' status]
+        N --> O([End: 'Application Submitted' Screen])
+    end
+
+    subgraph "Login Flow for Pending Vendor (VND-002)"
+        P[User with 'pending_verification' status attempts Login] --> Q[Enters Mobile & Correct OTP]
+        Q --> R{Check User Status}
+        R -->|Status is 'pending_verification'| S([End: Redirect to 'Pending Verification' Screen])
+        R -->|Status is 'active'| T([Redirect to Main Vendor Dashboard])
+        S -.-> U((Blocked from Dashboard))
+    end
+
+    O -.-> P
+
+    %% Styling
+    classDef errorNode fill:#ffebee,stroke:#d32f2f,color:#000
+    classDef successNode fill:#e8f5e8,stroke:#4caf50,color:#000
+    classDef processNode fill:#e3f2fd,stroke:#2196f3,color:#000
+    classDef terminalNode fill:#f5f5f5,stroke:#616161,color:#000,stroke-width:2px,stroke-dasharray: 5 5
+
+    class D,H,L errorNode
+    class N,Q,R successNode
+    class B,E,F,I,J,M processNode
+    class A,O,P,S,T,U terminalNode

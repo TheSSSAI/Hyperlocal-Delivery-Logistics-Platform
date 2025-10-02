@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "firsttris.vscode-jest-runner",
+    "styled-components.vscode-styled-components",
+    "visualstudioexptteam.vscodeintellicode",
+    "orta.vscode-jest",
+    "storybookjs.storybook-vscode-addon"
+  ]
+}

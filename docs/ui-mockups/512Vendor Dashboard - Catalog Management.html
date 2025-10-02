@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendor Dashboard - Catalog Management</title>
+    <style>
+        /* CSS Reset */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; background-color: var(--color-background-app); color: var(--color-text-primary); line-height: 1.5; }
+        h1, h2, h3, h4, h5, h6 { font-weight: 600; line-height: 1.2; }
+        a { text-decoration: none; color: inherit; }
+        button { font-family: inherit; border: none; background: none; cursor: pointer; }
+        input, textarea, select { font-family: inherit; width: 100%; }
+        table { border-collapse: collapse; width: 100%; }
+        img { max-width: 100%; display: block; }
+
+        /* Design System Tokens */
+        :root {
+            --color-background-app: #F3F4F6;
+            --color-background-content: #FFFFFF;
+            --color-background-nav: #1F2937;
+            --color-background-overlay: rgba(17, 24, 39, 0.6);
+            --color-background-hover: #F9FAFB;
+            --color-border-default: #E5E7EB;
+            --color-border-interactive: #D1D5DB;
+            --color-text-primary: #1F2937;
+            --color-text-secondary: #6B7280;
+            --color-text-placeholder: #9CA3AF;
+            --color-text-on-brand: #FFFFFF;
+            --color-brand-primary: #4F46E5;
+            --color-brand-primary-hover: #4338CA;
+            --color-brand-secondary: #E5E7EB;
+            --color-brand-secondary-hover: #D1D5DB;
+            --color-destructive: #EF4444;
+            --color-destructive-hover: #DC2626;
+            --color-success: #10B981;
+            --color-warning: #F59E0B;
+            --color-info: #3B82F6;
+
+            --font-size-xs: 0.75rem;   /* 12px */
+            --font-size-sm: 0.875rem;  /* 14px */
+            --font-size-base: 1rem;     /* 16px */
+            --font-size-lg: 1.125rem;  /* 18px */
+            --font-size-xl: 1.25rem;   /* 20px */
+            --font-size-2xl: 1.5rem;    /* 24px */
+            
+            --spacing-1: 0.25rem;
+            --spacing-2: 0.5rem;
+            --spacing-3: 0.75rem;
+            --spacing-4: 1rem;
+            --spacing-6: 1.5rem;
+            --spacing-8: 2rem;
+            --spacing-12: 3rem;
+
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+            --radius-sm: 0.25rem;
+            --radius-md: 0.375rem;
+            --radius-lg: 0.5rem;
+        }
+
+        /* App Layout */
+        .dashboard-layout { display: flex; min-height: 100vh; }
+        .side-navigation { width: 240px; background-color: var(--color-background-nav); color: var(--color-text-on-brand); padding: var(--spacing-6); display: flex; flex-direction: column; flex-shrink: 0; }
+        .main-content-wrapper { flex-grow: 1; display: flex; flex-direction: column; }
+
+        /* --- Component: Side Navigation --- */
+        .side-navigation .logo { font-size: var(--font-size-xl); font-weight: 800; margin-bottom: var(--spacing-8); }
+        .side-navigation .nav-group { margin-bottom: var(--spacing-6); }
+        .side-navigation .nav-group-title { font-size: var(--font-size-xs); color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--spacing-2); }
+        .side-navigation .nav-link { display: flex; align-items: center; padding: var(--spacing-2) var(--spacing-3); border-radius: var(--radius-md); font-size: var(--font-size-sm); font-weight: 500; color: #D1D5DB; margin-bottom: var(--spacing-1); transition: background-color 0.2s, color 0.2s; }
+        .side-navigation .nav-link svg { width: 20px; height: 20px; margin-right: var(--spacing-3); }
+        .side-navigation .nav-link:hover { background-color: #374151; color: var(--color-text-on-brand); }
+        .side-navigation .nav-link.active { background-color: var(--color-brand-primary); color: var(--color-text-on-brand); }
+        .side-navigation .nav-footer { margin-top: auto; }
+
+        /* --- Component: App Header --- */
+        .app-header { background-color: var(--color-background-content); padding: 0 var(--spacing-6); height: 65px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--color-border-default); flex-shrink: 0; }
+        .header-left { font-weight: 600; font-size: var(--font-size-lg); }
+        .header-right { display: flex; align-items: center; gap: var(--spacing-4); }
+        .header-right .icon-button { color: var(--color-text-secondary); }
+        .header-right .icon-button svg { width: 24px; height: 24px; }
+        .header-right .avatar { width: 36px; height: 36px; border-radius: 50%; background-color: var(--color-brand-secondary); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+        
+        /* --- Component: Button --- */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-2); font-size: var(--font-size-sm); font-weight: 600; padding: var(--spacing-2) var(--spacing-4); border-radius: var(--radius-md); transition: all 0.2s; white-space: nowrap; }
+        .btn svg { width: 16px; height: 16px; }
+        .btn--primary { background-color: var(--color-brand-primary); color: var(--color-text-on-brand); }
+        .btn--primary:hover { background-color: var(--color-brand-primary-hover); }
+        .btn--secondary { background-color: var(--color-background-content); color: var(--color-text-primary); border: 1px solid var(--color-border-interactive); box-shadow: var(--shadow-sm); }
+        .btn--secondary:hover { background-color: var(--color-background-hover); }
+        .btn--destructive { background-color: var(--color-destructive); color: var(--color-text-on-brand); }
+        .btn--destructive:hover { background-color: var(--color-destructive-hover); }
+        
+        /* --- Component: Search Bar --- */
+        .search-bar { position: relative; width: 100%; max-width: 320px; }
+        .search-bar svg { position: absolute; left: var(--spacing-3); top: 50%; transform: translateY(-50%); width: 20px; height: 20px; color: var(--color-text-placeholder); }
+        .search-bar .input { padding: var(--spacing-2) var(--spacing-3) var(--spacing-2) calc(var(--spacing-3) + 20px + var(--spacing-2)); }
+        
+        /* --- Component: Dropdown --- */
+        .dropdown { position: relative; }
+        .dropdown .select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1.5em 1.5em; padding-right: 2.5rem; }
+
+        /* --- Component: Form Input --- */
+        .input, .select, .textarea { border: 1px solid var(--color-border-interactive); border-radius: var(--radius-md); padding: var(--spacing-2) var(--spacing-3); font-size: var(--font-size-sm); background-color: var(--color-background-content); color: var(--color-text-primary); }
+        .input:focus, .select:focus, .textarea:focus { outline: 2px solid transparent; outline-offset: 2px; border-color: var(--color-brand-primary); box-shadow: 0 0 0 2px var(--color-brand-primary); }
+        .form-group { margin-bottom: var(--spacing-4); }
+        .form-label { display: block; font-size: var(--font-size-sm); font-weight: 500; margin-bottom: var(--spacing-2); }
+        .textarea { min-height: 80px; resize: vertical; }
+        .file-upload-zone { border: 2px dashed var(--color-border-interactive); border-radius: var(--radius-md); padding: var(--spacing-8); text-align: center; color: var(--color-text-secondary); }
+
+        /* Screen Styles: Catalog Management */
+        .screen-content { padding: var(--spacing-6); display: flex; flex-direction: column; gap: var(--spacing-6); }
+        .screen-header-bar { display: flex; justify-content: space-between; align-items: center; }
+        .screen-header-bar h1 { font-size: var(--font-size-2xl); color: var(--color-text-primary); }
+        .header-actions { display: flex; gap: var(--spacing-3); }
+        .content-filters { display: flex; gap: var(--spacing-4); align-items: center; flex-wrap: wrap; }
+        .content-body { background-color: var(--color-background-content); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; border: 1px solid var(--color-border-default); }
+
+        /* --- Component: Data Table --- */
+        .data-table { border-collapse: separate; border-spacing: 0; }
+        .data-table th, .data-table td { padding: var(--spacing-3) var(--spacing-4); text-align: left; }
+        .data-table thead { background-color: var(--color-background-hover); }
+        .data-table th { font-size: var(--font-size-xs); font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .data-table tbody tr { border-top: 1px solid var(--color-border-default); }
+        .data-table tbody tr:hover { background-color: var(--color-background-hover); }
+        .data-table td { font-size: var(--font-size-sm); color: var(--color-text-primary); }
+        .data-table .product-info { display: flex; align-items: center; gap: var(--spacing-4); }
+        .data-table .product-image { width: 40px; height: 40px; border-radius: var(--radius-sm); object-fit: cover; background-color: var(--color-background-app); }
+        .data-table .product-name { font-weight: 600; }
+        .data-table .action-buttons { display: flex; gap: var(--spacing-3); }
+        .data-table .action-buttons .icon-btn { color: var(--color-text-secondary); }
+        .data-table .action-buttons .icon-btn:hover { color: var(--color-text-primary); }
+        .data-table .action-buttons .icon-btn svg { width: 20px; height: 20px; }
+        
+        /* --- Component: Pill/Badge --- */
+        .pill { display: inline-flex; align-items: center; padding: 2px var(--spacing-2); border-radius: 9999px; font-size: var(--font-size-xs); font-weight: 600; }
+        .pill-dot { width: 6px; height: 6px; border-radius: 50%; margin-right: var(--spacing-2); }
+        .pill--success { color: #065F46; background-color: #D1FAE5; } .pill--success .pill-dot { background-color: #10B981; }
+        .pill--warning { color: #92400E; background-color: #FEF3C7; } .pill--warning .pill-dot { background-color: #F59E0B; }
+        .pill--info { color: #1E40AF; background-color: #DBEAFE; } .pill--info .pill-dot { background-color: #3B82F6; }
+
+        /* --- Component: Pagination --- */
+        .pagination { padding: var(--spacing-4); display: flex; justify-content: space-between; align-items: center; font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+        .pagination .pagination-controls { display: flex; gap: var(--spacing-1); }
+        .pagination .pagination-btn { padding: var(--spacing-2) var(--spacing-3); border: 1px solid var(--color-border-interactive); border-radius: var(--radius-md); }
+        .pagination .pagination-btn:hover { background-color: var(--color-background-hover); }
+        .pagination .pagination-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Empty State */
+        .empty-state { padding: var(--spacing-12); text-align: center; color: var(--color-text-secondary); }
+        .empty-state svg { width: 64px; height: 64px; margin: 0 auto var(--spacing-4); color: var(--color-border-interactive); }
+        .empty-state h3 { font-size: var(--font-size-lg); color: var(--color-text-primary); margin-bottom: var(--spacing-2); }
+        .empty-state p { margin-bottom: var(--spacing-6); }
+
+        /* --- Component: Modal --- */
+        .modal-overlay { position: fixed; inset: 0; background-color: var(--color-background-overlay); display: flex; align-items: center; justify-content: center; padding: var(--spacing-4); z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay:target { opacity: 1; pointer-events: auto; }
+        .modal-content { background-color: var(--color-background-content); border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-width: 500px; max-height: 90vh; display: flex; flex-direction: column; }
+        .modal-header { padding: var(--spacing-4) var(--spacing-6); border-bottom: 1px solid var(--color-border-default); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: var(--font-size-lg); }
+        .modal-header .close-btn { color: var(--color-text-secondary); }
+        .modal-header .close-btn svg { width: 24px; height: 24px; }
+        .modal-body { padding: var(--spacing-6); overflow-y: auto; }
+        .modal-footer { padding: var(--spacing-4) var(--spacing-6); border-top: 1px solid var(--color-border-default); display: flex; justify-content: flex-end; gap: var(--spacing-3); background-color: var(--color-background-hover); }
+        .modal--delete .icon-wrapper { width: 48px; height: 48px; border-radius: 50%; background-color: #FEE2E2; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--spacing-4); }
+        .modal--delete .icon-wrapper svg { color: var(--color-destructive); width: 24px; height: 24px; }
+        .modal--delete h3 { text-align: center; color: var(--color-text-primary); font-size: var(--font-size-lg); margin-bottom: var(--spacing-2); }
+        .modal--delete p { text-align: center; color: var(--color-text-secondary); font-size: var(--font-size-sm); margin-bottom: var(--spacing-6); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .data-table thead { display: none; }
+            .data-table tr { display: block; border: 1px solid var(--color-border-default); border-radius: var(--radius-md); margin-bottom: var(--spacing-4); }
+            .data-table td { display: block; text-align: right; padding-left: 50%; position: relative; border-bottom: 1px solid var(--color-border-default); }
+            .data-table td:last-child { border-bottom: 0; }
+            .data-table td::before { content: attr(data-label); position: absolute; left: var(--spacing-4); font-weight: 600; color: var(--color-text-secondary); text-align: left; }
+            .data-table .product-info { justify-content: flex-end; }
+            .screen-header-bar, .content-filters { flex-direction: column; align-items: flex-start; gap: var(--spacing-4); }
+            .header-actions, .content-filters .search-bar { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="side-navigation">
+            <div class="logo">Marketplace</div>
+            <div class="nav-group">
+                <a href="#" class="nav-link">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-link">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    Orders
+                </a>
+                <a href="#" class="nav-link active">
+                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2h2"></path></svg>
+                    Products
+                </a>
+                <a href="#" class="nav-link">
+                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01M12 12v.01M12 12v.01M12 16v.01M12 16v.01M12 21a9 9 0 110-18 9 9 0 010 18z"></path></svg>
+                    Financials
+                </a>
+            </div>
+             <div class="nav-group">
+                <a href="#" class="nav-link">
+                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Settings
+                </a>
+            </div>
+            <div class="nav-footer">
+                 <a href="#" class="nav-link">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Logout
+                </a>
+            </div>
+        </aside>
+        <div class="main-content-wrapper">
+            <header class="app-header">
+                <div class="header-left">
+                    <!-- Dynamic Title if needed -->
+                </div>
+                <div class="header-right">
+                    <button class="icon-button" aria-label="Notifications">
+                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    </button>
+                    <div class="avatar" aria-label="User Menu">GS</div>
+                </div>
+            </header>
+            <main class="screen-content" id="catalog-management">
+                <div class="screen-header-bar">
+                    <h1>Products</h1>
+                    <div class="header-actions">
+                        <a href="#bulkImportModal" class="btn btn--secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" ><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3.75 3.75M12 9.75l3.75 3.75M3.75 18A2.25 2.25 0 006 20.25h12A2.25 2.25 0 0020.25 18v-2.25a2.25 2.25 0 00-2.25-2.25H6a2.25 2.25 0 00-2.25 2.25V18z" /></svg>
+                            Import
+                        </a>
+                        <button class="btn btn--secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9.75v6.75m0 0l-3-3m3 3l3-3m-8.25 6a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                            Export
+                        </button>
+                        <a href="#addProductModal" class="btn btn--primary">
+                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                            Add Product
+                        </a>
+                    </div>
+                </div>
+                <div class="content-filters">
+                    <div class="search-bar">
+                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        <input type="search" class="input" placeholder="Search products...">
+                    </div>
+                    <select class="select dropdown">
+                        <option>All Categories</option>
+                        <option>Appetizers</option>
+                        <option>Main Course</option>
+                        <option>Desserts</option>
+                    </select>
+                     <select class="select dropdown">
+                        <option>All Statuses</option>
+                        <option>Available</option>
+                        <option>Limited Stock</option>
+                        <option>Out of Stock</option>
+                    </select>
+                </div>
+                <div class="content-body">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td data-label="Product">
+                                    <div class="product-info">
+                                        <img src="https://images.unsplash.com/photo-1593560704563-f176a2eb61db?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=50&q=80" alt="Spicy Ramen" class="product-image">
+                                        <div>
+                                            <div class="product-name">Spicy Ramen</div>
+                                            <div class="product-sku" style="font-size: var(--font-size-xs); color: var(--color-text-secondary);">SKU: RMN-001</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Category">Main Course</td>
+                                <td data-label="Price">₹350.00</td>
+                                <td data-label="Stock">25</td>
+                                <td data-label="Status">
+                                    <span class="pill pill--success">
+                                        <span class="pill-dot"></span>
+                                        Available
+                                    </span>
+                                </td>
+                                <td data-label="Actions">
+                                    <div class="action-buttons">
+                                        <a href="#editProductModal" class="icon-btn" aria-label="Edit Product">
+                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                        </a>
+                                        <a href="#deleteProductModal" class="icon-btn" aria-label="Delete Product">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Product">
+                                    <div class="product-info">
+                                        <img src="https://images.unsplash.com/photo-1588167067863-6d1c8b0da097?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=50&q=80" alt="Chocolate Lava Cake" class="product-image">
+                                         <div>
+                                            <div class="product-name">Chocolate Lava Cake</div>
+                                            <div class="product-sku" style="font-size: var(--font-size-xs); color: var(--color-text-secondary);">SKU: DSRT-005</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Category">Desserts</td>
+                                <td data-label="Price">₹220.00</td>
+                                <td data-label="Stock">8</td>
+                                <td data-label="Status">
+                                    <span class="pill pill--warning">
+                                        <span class="pill-dot"></span>
+                                        Limited Stock
+                                    </span>
+                                </td>
+                                <td data-label="Actions">
+                                    <div class="action-buttons">
+                                        <a href="#editProductModal" class="icon-btn" aria-label="Edit Product"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></a>
+                                        <a href="#deleteProductModal" class="icon-btn" aria-label="Delete Product"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td data-label="Product">
+                                    <div class="product-info">
+                                        <img src="https://images.unsplash.com/photo-1544025162-d76694265947?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=50&q=80" alt="Spring Rolls" class="product-image">
+                                         <div>
+                                            <div class="product-name">Veg Spring Rolls</div>
+                                            <div class="product-sku" style="font-size: var(--font-size-xs); color: var(--color-text-secondary);">SKU: APP-012</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td data-label="Category">Appetizers</td>
+                                <td data-label="Price">₹180.00</td>
+                                <td data-label="Stock">0</td>
+                                <td data-label="Status">
+                                    <span class="pill" style="color: #991B1B; background-color: #FEE2E2;">
+                                        <span class="pill-dot" style="background-color: #EF4444;"></span>
+                                        Out of Stock
+                                    </span>
+                                </td>
+                                <td data-label="Actions">
+                                    <div class="action-buttons">
+                                        <a href="#editProductModal" class="icon-btn" aria-label="Edit Product"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></a>
+                                        <a href="#deleteProductModal" class="icon-btn" aria-label="Delete Product"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div class="pagination">
+                        <div>Showing 1 to 3 of 27 results</div>
+                        <div class="pagination-controls">
+                            <button class="pagination-btn" disabled>Previous</button>
+                            <button class="pagination-btn">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="addProductModal" class="modal-overlay">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Add New Product</h2>
+                <a href="#" class="close-btn" aria-label="Close modal">&times;</a>
+            </header>
+            <main class="modal-body">
+                <div class="form-group">
+                    <label for="productName" class="form-label">Product Name</label>
+                    <input type="text" id="productName" class="input" placeholder="e.g., Spicy Chicken Ramen">
+                </div>
+                <div class="form-group">
+                    <label for="productDescription" class="form-label">Description</label>
+                    <textarea id="productDescription" class="textarea" placeholder="Describe your product..."></textarea>
+                </div>
+                <div style="display: flex; gap: var(--spacing-4);">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="productPrice" class="form-label">Price (₹)</label>
+                        <input type="number" id="productPrice" class="input" placeholder="e.g., 350.00">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="productStock" class="form-label">Stock Quantity</label>
+                        <input type="number" id="productStock" class="input" placeholder="e.g., 25">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="productCategory" class="form-label">Category</label>
+                    <select id="productCategory" class="select dropdown">
+                        <option>Select a category</option>
+                        <option>Appetizers</option>
+                        <option>Main Course</option>
+                        <option>Desserts</option>
+                    </select>
+                </div>
+                 <div class="form-group">
+                    <label class="form-label">Product Image</label>
+                    <div class="file-upload-zone">Click or drag file to upload</div>
+                </div>
+            </main>
+            <footer class="modal-footer">
+                <a href="#" class="btn btn--secondary">Cancel</a>
+                <a href="#" class="btn btn--primary">Save Product</a>
+            </footer>
+        </div>
+    </div>
+    
+     <div id="editProductModal" class="modal-overlay">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Edit Product</h2>
+                <a href="#" class="close-btn" aria-label="Close modal">&times;</a>
+            </header>
+            <main class="modal-body">
+                <div class="form-group">
+                    <label for="editProductName" class="form-label">Product Name</label>
+                    <input type="text" id="editProductName" class="input" value="Spicy Ramen">
+                </div>
+                <div class="form-group">
+                    <label for="editProductDescription" class="form-label">Description</label>
+                    <textarea id="editProductDescription" class="textarea">A delicious and spicy ramen bowl.</textarea>
+                </div>
+                 <div style="display: flex; gap: var(--spacing-4);">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="editProductPrice" class="form-label">Price (₹)</label>
+                        <input type="number" id="editProductPrice" class="input" value="350.00">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label for="editProductStock" class="form-label">Stock Quantity</label>
+                        <input type="number" id="editProductStock" class="input" value="25">
+                    </div>
+                </div>
+                 <div class="form-group">
+                    <label for="editProductCategory" class="form-label">Category</label>
+                    <select id="editProductCategory" class="select dropdown">
+                        <option>Appetizers</option>
+                        <option selected>Main Course</option>
+                        <option>Desserts</option>
+                    </select>
+                </div>
+            </main>
+            <footer class="modal-footer">
+                <a href="#" class="btn btn--secondary">Cancel</a>
+                <a href="#" class="btn btn--primary">Save Changes</a>
+            </footer>
+        </div>
+    </div>
+    
+     <div id="deleteProductModal" class="modal-overlay">
+        <div class="modal-content modal--delete" style="max-width: 400px;">
+            <main class="modal-body" style="padding: var(--spacing-8);">
+                <div class="icon-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+                </div>
+                <h3>Delete Product</h3>
+                <p>Are you sure you want to delete 'Spicy Ramen'? This action cannot be undone.</p>
+            </main>
+            <footer class="modal-footer" style="flex-direction: column; gap: var(--spacing-3);">
+                <a href="#" class="btn btn--destructive" style="width: 100%;">Confirm Delete</a>
+                <a href="#" class="btn btn--secondary" style="width: 100%;">Cancel</a>
+            </footer>
+        </div>
+    </div>
+    
+    <div id="bulkImportModal" class="modal-overlay">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Bulk Import Products</h2>
+                <a href="#" class="close-btn" aria-label="Close modal">&times;</a>
+            </header>
+            <main class="modal-body">
+                <p style="font-size: var(--font-size-sm); color: var(--color-text-secondary); margin-bottom: var(--spacing-4);">Upload a CSV file to add or update multiple products at once. Make sure your file follows the required format.</p>
+                <a href="#" style="font-size: var(--font-size-sm); color: var(--color-brand-primary); font-weight: 500; margin-bottom: var(--spacing-6); display: inline-block;">Download CSV Template</a>
+                <div class="form-group">
+                    <div class="file-upload-zone">Click or drag your CSV file here to upload</div>
+                </div>
+            </main>
+            <footer class="modal-footer">
+                <a href="#" class="btn btn--secondary">Cancel</a>
+                <a href="#" class="btn btn--primary">Start Import</a>
+            </footer>
+        </div>
+    </div>
+
+    <div class="screen-variations" style="padding: 2rem; background-color: #e5e7eb;">
+        <h2>Screen Variations</h2>
+        <hr style="margin: 1rem 0; border: 1px solid #d1d5db;">
+        
+        <div class="variation-group" style="margin-bottom: 2rem;">
+          <h3>Variant Name: "Empty State"</h3>
+          <p style="font-size: 14px; color: #6B7280; margin-bottom: 1rem;">This is how the screen appears when a vendor has not added any products yet. It provides a clear call-to-action.</p>
+          <div class="content-body">
+             <div class="empty-state">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                  </svg>
+                  <h3>No Products Yet</h3>
+                  <p>Get started by adding your first product to your catalog.</p>
+                  <a href="#addProductModal" class="btn btn--primary">
+                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                       Add Your First Product
+                  </a>
+              </div>
+          </div>
+        </div>
+
+         <div class="variation-group">
+          <h3>Variant Name: "Modal States"</h3>
+          <p style="font-size: 14px; color: #6B7280; margin-bottom: 1rem;">Use the buttons below to trigger the different modals used on this screen. In a real application, these are triggered by user actions like clicking 'Add Product' or 'Delete'.</p>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+             <a href="#addProductModal" class="btn btn--primary">Show Add Product Modal</a>
+             <a href="#editProductModal" class="btn btn--secondary">Show Edit Product Modal</a>
+             <a href="#deleteProductModal" class="btn btn--destructive">Show Delete Confirmation</a>
+             <a href="#bulkImportModal" class="btn btn--secondary">Show Bulk Import Modal</a>
+          </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: SidebarNav</title>
+  <style>
+    /* 1. CSS Reset & Base */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* 2. Design System Tokens (CSS Custom Properties) */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+
+      /* Colors */
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-neutral-white: #FFFFFF;
+      --color-neutral-50: #F7F9FC;
+      --color-neutral-100: #E9EDF2;
+      --color-neutral-200: #D3D9E1;
+      --color-neutral-300: #BCC4CF;
+      --color-neutral-700: #555D66;
+      --color-neutral-800: #383E44;
+      --color-neutral-900: #1C1F22;
+      
+      /* Spacing */
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-md: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 3. Base & Showcase Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutral-100);
+      color: var(--color-neutral-900);
+    }
+
+    .showcase-section {
+        padding: var(--space-32);
+        border-bottom: 1px solid var(--color-neutral-200);
+    }
+
+    h1, h2 {
+        font-family: var(--font-family-primary);
+        font-weight: var(--font-weight-bold);
+    }
+
+    /* 4. Icon Definitions */
+    .icon {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      stroke-width: 0;
+      stroke: currentColor;
+      fill: currentColor;
+      vertical-align: middle;
+    }
+
+    /* 5. SidebarNav Component CSS */
+    .sidebar-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--color-neutral-900);
+      color: var(--color-neutral-100);
+      transition: width 0.3s ease-in-out, transform 0.3s ease-in-out;
+      width: 240px; /* Expanded width */
+    }
+
+    .sidebar-nav__header {
+      display: flex;
+      align-items: center;
+      padding: var(--space-24);
+      height: 64px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--color-neutral-800);
+    }
+
+    .sidebar-nav__logo {
+      width: 32px;
+      height: 32px;
+      background-color: var(--color-primary-500);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .sidebar-nav__title {
+      font-size: 20px;
+      font-weight: var(--font-weight-bold);
+      color: var(--color-neutral-white);
+      margin-left: var(--space-12);
+      white-space: nowrap;
+      opacity: 1;
+      transition: opacity 0.2s ease;
+    }
+
+    .sidebar-nav__list {
+      list-style: none;
+      padding: var(--space-16) 0;
+      margin: 0;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    .sidebar-nav__item a {
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+      padding: var(--space-12) var(--space-24);
+      color: var(--color-neutral-300);
+      text-decoration: none;
+      font-weight: var(--font-weight-semibold);
+      font-size: 14px;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .sidebar-nav__item a:hover {
+      background-color: var(--color-neutral-800);
+      color: var(--color-neutral-white);
+    }
+
+    .sidebar-nav__item a.is-active {
+      background-color: #31373d; /* a darker shade than hover */
+      color: var(--color-neutral-white);
+    }
+
+    .sidebar-nav__item a.is-active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 24px;
+      width: 4px;
+      background-color: var(--color-primary-500);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .sidebar-nav__item a:focus-visible {
+      outline: 2px solid var(--color-primary-300);
+      outline-offset: -2px;
+      background-color: var(--color-neutral-700);
+    }
+
+    .sidebar-nav__link-text {
+      opacity: 1;
+      transition: opacity 0.2s ease;
+    }
+
+    .sidebar-nav__icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-nav__footer {
+      padding: var(--space-16);
+      border-top: 1px solid var(--color-neutral-800);
+      flex-shrink: 0;
+    }
+
+    .sidebar-nav__toggle {
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--color-neutral-300);
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+      padding: var(--space-12);
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+    }
+    
+    .sidebar-nav__toggle:hover { background-color: var(--color-neutral-800); color: var(--color-neutral-white); }
+    
+    .sidebar-nav__toggle-icon {
+      font-size: 20px;
+      transition: transform 0.3s ease-in-out;
+    }
+    
+    .sidebar-nav.is-collapsed {
+      width: 80px;
+    }
+    .sidebar-nav.is-collapsed .sidebar-nav__title,
+    .sidebar-nav.is-collapsed .sidebar-nav__link-text {
+      opacity: 0;
+      visibility: hidden;
+      width: 0;
+      transition: opacity 0.1s, visibility 0s 0.1s, width 0.1s;
+    }
+    .sidebar-nav.is-collapsed .sidebar-nav__item a {
+      justify-content: center;
+      padding: var(--space-16) 0;
+    }
+    .sidebar-nav.is-collapsed .sidebar-nav__toggle {
+        justify-content: center;
+    }
+    .sidebar-nav.is-collapsed .sidebar-nav__toggle-icon {
+      transform: rotate(180deg);
+    }
+    
+    /* Responsive Styles */
+    .main-content {
+      transition: margin-left 0.3s ease-in-out;
+      padding: var(--space-32);
+    }
+
+    .mobile-nav-toggle {
+        display: none;
+    }
+    .mobile-nav-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+    .is-open ~ .mobile-nav-overlay {
+        display: block;
+    }
+
+    /* Desktop (Default) */
+    .main-content { margin-left: 240px; }
+    .is-collapsed + .main-content { margin-left: 80px; }
+
+    /* Tablet */
+    @media (max-width: 1024px) {
+      .sidebar-nav:not(.is-open) { /* Force collapse if not explicitly opened on mobile */
+        width: 80px;
+      }
+      .sidebar-nav:not(.is-open) .sidebar-nav__title,
+      .sidebar-nav:not(.is-open) .sidebar-nav__link-text {
+        opacity: 0;
+        visibility: hidden;
+        width: 0;
+      }
+      .sidebar-nav:not(.is-open) .sidebar-nav__item a {
+        justify-content: center;
+        padding: var(--space-16) 0;
+      }
+      .sidebar-nav:not(.is-open) .sidebar-nav__toggle {
+        justify-content: center;
+      }
+      .sidebar-nav:not(.is-open) .sidebar-nav__toggle-icon {
+          transform: rotate(180deg);
+      }
+      .main-content { margin-left: 80px; }
+      .is-expanded + .main-content { margin-left: 240px; } /* Handle explicit expand toggle on tablet */
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      .sidebar-nav {
+        transform: translateX(-100%);
+        width: 260px;
+      }
+      .sidebar-nav.is-open {
+        transform: translateX(0);
+        box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      }
+      .sidebar-nav.is-open .sidebar-nav__title,
+      .sidebar-nav.is-open .sidebar-nav__link-text {
+          opacity: 1;
+          visibility: visible;
+          width: auto;
+      }
+      .sidebar-nav.is-open .sidebar-nav__item a {
+        justify-content: flex-start;
+        padding: var(--space-12) var(--space-24);
+      }
+
+      .sidebar-nav__footer { display: none; }
+      .main-content { margin-left: 0; }
+      .mobile-nav-toggle {
+        display: block;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 1001;
+        background: var(--color-neutral-white);
+        border: 1px solid var(--color-neutral-200);
+        border-radius: var(--border-radius-md);
+        padding: var(--space-8);
+        cursor: pointer;
+      }
+    }
+    
+    @media (prefers-reduced-motion: reduce) {
+      .sidebar-nav, .main-content, .sidebar-nav__toggle-icon, .sidebar-nav__title, .sidebar-nav__link-text {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg style="display: none;">
+    <symbol id="icon-dashboard" viewBox="0 0 24 24"><path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .5-.07.99-.2 1.46l2.11 1.22c.19-.38.35-.78.48-1.19C21.99 9.87 17.52 6 12 6c-.34 0-.68.02-1.01.05V2.05h2zM3 12c0-3.15 2.06-5.83 4.99-6.75V2.05H6C4.89 2.05 4 2.94 4 4.05v1.97C2.75 6.97 2 8.35 2 9.99c0 1.99 1.13 3.73 2.82 4.63L3.5 17.8c-.12.37-.04.78.22 1.09c.26.31.68.43 1.07.31l3.05-.93C8.61 19.34 10.21 20 12 20c.34 0 .67-.02 1-.05v3.03h2v-3.03c3.39-.49 6-3.39 6-6.92c0-1.03-.24-2-.68-2.86l-2.11-1.22c-.19.38-.35.78-.48 1.19c.13.47.2.96.2 1.46c0 3.53-2.61 6.43-6 6.92V12H3zm5-5c0-1.1.9-2 2-2s2 .9 2 2s-.9 2-2 2s-2-.9-2-2z"/></symbol>
+    <symbol id="icon-products" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></symbol>
+    <symbol id="icon-orders" viewBox="0 0 24 24"><path d="M15.55 13c.75 0 1.41-.41 1.75-1.03l3.58-6.49A.996.996 0 0 0 20.01 4H5.21l-.94-2H1v2h2l3.6 7.59l-1.35 2.44C4.52 15.37 5.48 17 7 17h12v-2H7l1.1-2h7.45zM6.16 6h12.15l-2.76 5H8.53L6.16 6zM7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2s-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2s2-.9 2-2s-.9-2-2-2z"/></symbol>
+    <symbol id="icon-settings" viewBox="0 0 24 24"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5s3.5 1.57 3.5 3.5s-1.57 3.5-3.5 3.5z"/></symbol>
+    <symbol id="icon-chevron-left" viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></symbol>
+    <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></symbol>
+  </svg>
+
+  <div class="showcase-section">
+      <h1>Sidebar Navigation Showcase</h1>
+  </div>
+  
+  <div class="page-wrapper">
+    <button class="mobile-nav-toggle" aria-label="Open navigation menu" aria-controls="main-nav" aria-expanded="false">
+      <svg class="icon"><use href="#icon-menu"/></svg>
+    </button>
+    <nav class="sidebar-nav" id="main-nav" aria-label="Main navigation">
+        <div class="sidebar-nav__header">
+            <div class="sidebar-nav__logo"></div>
+            <h2 class="sidebar-nav__title">Vendor Admin</h2>
+        </div>
+        <ul class="sidebar-nav__list">
+            <li class="sidebar-nav__item">
+                <a href="#" class="is-active" aria-current="page">
+                    <svg class="icon sidebar-nav__icon"><use href="#icon-dashboard"/></svg>
+                    <span class="sidebar-nav__link-text">Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-nav__item">
+                <a href="#">
+                    <svg class="icon sidebar-nav__icon"><use href="#icon-orders"/></svg>
+                    <span class="sidebar-nav__link-text">Orders</span>
+                </a>
+            </li>
+            <li class="sidebar-nav__item">
+                <a href="#">
+                    <svg class="icon sidebar-nav__icon"><use href="#icon-products"/></svg>
+                    <span class="sidebar-nav__link-text">Products</span>
+                </a>
+            </li>
+            <li class="sidebar-nav__item">
+                <a href="#">
+                    <svg class="icon sidebar-nav__icon"><use href="#icon-settings"/></svg>
+                    <span class="sidebar-nav__link-text">Settings</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-nav__footer">
+            <button class="sidebar-nav__toggle" aria-label="Collapse navigation" aria-controls="main-nav" aria-expanded="true">
+                <svg class="icon sidebar-nav__toggle-icon"><use href="#icon-chevron-left"/></svg>
+                <span class="sidebar-nav__link-text">Collapse</span>
+            </button>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"></div>
+
+    <main class="main-content">
+        <h2>Sidebar Navigation Component</h2>
+        <p>This page demonstrates the responsive SidebarNav organism. The sidebar's behavior changes based on the viewport width.</p>
+        <ul>
+            <li><strong>Desktop (> 1024px):</strong> The sidebar is expanded by default and can be collapsed to an icon-only view using the toggle at the bottom.</li>
+            <li><strong>Tablet (769px - 1024px):</strong> The sidebar is collapsed by default to save space.</li>
+            <li><strong>Mobile (<= 768px):</strong> The sidebar is hidden off-canvas. A hamburger menu icon appears at the top-left to toggle its visibility as an overlay.</li>
+        </ul>
+        <p>Use the toggle button in the sidebar footer (on desktop) or the hamburger icon (on mobile, resize your browser) to see the states in action.</p>
+    </main>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidebar = document.getElementById('main-nav');
+        const collapseToggle = document.querySelector('.sidebar-nav__toggle');
+        const mobileToggle = document.querySelector('.mobile-nav-toggle');
+        const overlay = document.querySelector('.mobile-nav-overlay');
+
+        if (collapseToggle) {
+            collapseToggle.addEventListener('click', () => {
+                const isCollapsed = sidebar.classList.toggle('is-collapsed');
+                sidebar.classList.toggle('is-expanded', !isCollapsed);
+                collapseToggle.setAttribute('aria-expanded', !isCollapsed);
+                collapseToggle.setAttribute('aria-label', isCollapsed ? 'Expand navigation' : 'Collapse navigation');
+            });
+        }
+        
+        if (mobileToggle) {
+            mobileToggle.addEventListener('click', () => {
+                const isOpen = sidebar.classList.toggle('is-open');
+                mobileToggle.setAttribute('aria-expanded', isOpen);
+            });
+        }
+
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                sidebar.classList.remove('is-open');
+                mobileToggle.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+  </script>
+
+  <div>
+      <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : vendor-dashboard</h3>
+        <normal> The primary variant for the Vendor and Admin web applications. It features a dark theme for high contrast and clear separation from the main content area. Includes icons and text labels for clarity. </normal>
+        <!-- This is demonstrated by the primary component showcase above -->
+      </div>
+  </div>
+</body>
+</html>

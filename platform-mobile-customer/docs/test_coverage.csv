@@ -1,0 +1,4 @@
+"component_name","business_criticality","technical_complexity","change_frequency","test_types_required","unit_test_coverage","integration_test_coverage","e2e_test_coverage","automation_percentage","manual_test_effort","automated_test_effort","total_test_cases","risk_mitigation_score","quality_confidence","maintenance_overhead","tool_compatibility","team_skill_alignment"
+"Identity & Access Service","Critical","High","Medium","[""Unit"",""Integration"",""Security"",""Performance"",""E2E""]","95","90","85","95","8","120","150","0.98","High","Medium","Excellent","Good"
+"Payments & Settlements Service","Critical","High","Medium","[""Unit"",""Integration"",""Security"",""E2E""]","98","95","90","98","4","180","200","0.99","High","High","Excellent","Good"
+"Rider Logistics Service","Critical","High","High","[""Unit"",""Integration"",""Performance"",""E2E""]","90","85","80","90","16","200","220","0.95","High","High","Excellent","Medium"

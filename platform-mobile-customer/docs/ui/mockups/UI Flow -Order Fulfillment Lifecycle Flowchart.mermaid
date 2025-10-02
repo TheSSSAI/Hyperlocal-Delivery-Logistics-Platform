@@ -1,0 +1,52 @@
+flowchart TD
+    subgraph "Order Placement"
+        A[Start: Customer Places Order] --> B{Payment Method?}
+    end
+
+    B -->|Online Payment| C(Payment Pending)
+    C --> D{Payment Success?}
+    D -->|Yes| E[Pending Vendor Acceptance]
+    D -->|No| F[Cancelled]
+
+    B -->|Cash on Delivery| E
+
+    subgraph "Vendor Fulfillment"
+        E -- Customer Action --> G{Vendor Action}
+        G -- Vendor Action -->|Accepts & Selects Prep Time| H[Preparing]
+        G -- Vendor/System Action -->|Rejects / Times Out| F
+        H -- Vendor Action --> I[Ready for Pickup]
+    end
+
+    subgraph "Customer Cancellation Logic"
+        E -->|Customer Cancels (Grace Period)| F
+        H -->|Customer Cancels (Fee Applied)| F
+    end
+
+    subgraph "Rider Logistics"
+        I -- System Trigger --> J(Rider Allocation Triggered)
+        J --> K{Rider Found & Accepts?}
+        K -- Rider Action -->|Yes| L[In Transit]
+        K -- System Action -->|No (After Retries)| M[Allocation Failed]
+        L -- Rider Action --> N[Delivered]
+    end
+
+    subgraph "Final States"
+        F --- Z((End))
+        M --- Z
+        N --- Z
+    end
+
+    %% Styling
+    classDef startEnd fill:#f0f0f0,stroke:#333,stroke-width:2px,font-weight:bold
+    classDef state fill:#e3f2fd,stroke:#2196f3
+    classDef decision fill:#fff9c4,stroke:#fbc02d
+    classDef success fill:#e8f5e9,stroke:#4caf50,font-weight:bold
+    classDef failure fill:#ffebee,stroke:#d32f2f,font-weight:bold
+    classDef process fill:#eceff1,stroke:#607d8b
+
+    class A,Z startEnd
+    class C,E,H,I,L state
+    class B,D,G,K decision
+    class N success
+    class F,M failure
+    class J process

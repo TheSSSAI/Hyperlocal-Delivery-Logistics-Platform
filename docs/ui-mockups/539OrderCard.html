@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: OrderCard</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    body, h1, h2, h3, p { margin: 0; }
+    button { font: inherit; }
+
+    /* Design System Tokens */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --fs-h2: 36px;
+      --fs-h3: 28px;
+      --fs-body: 16px;
+      --fs-caption: 14px;
+      /* Colors */
+      --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-500: #0068FF; --color-primary-600: #0053CC; --color-primary-700: #003E99;
+      --color-secondary-50: #E5F9F1; --color-secondary-900: #003D24;
+      --color-white: #FFFFFF; --color-gray-50: #F7F9FC; --color-gray-100: #E9EDF2; --color-gray-200: #D3D9E1; --color-gray-300: #BCC4CF; --color-gray-500: #8E9BAA; --color-gray-700: #555D66; --color-gray-800: #383E44; --color-gray-900: #1C1F22;
+      --color-success: #00C875; --color-warning: #FFB800; --color-error: #FF4D4D; --color-info: #0068FF;
+      /* Spacing */
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+      /* Borders & Shadows */
+      --border-radius-md: 8px; --border-radius-lg: 12px; --border-radius-full: 9999px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+      --shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.1);
+    }
+
+    /* Base & Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-gray-50);
+      color: var(--color-gray-800);
+      padding: var(--space-6);
+    }
+    .showcase-container {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-6);
+    }
+    h1 { font-size: var(--fs-h2); color: var(--color-gray-900); margin-bottom: var(--space-2); }
+    h2 { font-size: var(--fs-h3); color: var(--color-gray-800); margin-bottom: var(--space-4); padding-bottom: var(--space-3); border-bottom: 1px solid var(--color-gray-200); }
+    .component-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-5);
+    }
+
+    /* --- Atomic Dependency: Button --- */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-3) var(--space-4); font-weight: var(--font-weight-semibold); text-decoration: none; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; min-height: 44px; }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-100); outline-offset: 2px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .btn--secondary { background-color: var(--color-white); color: var(--color-primary-500); border-color: var(--color-gray-300); }
+    .btn--secondary:hover { background-color: var(--color-primary-50); }
+    .btn--danger { background-color: var(--color-error); color: var(--color-white); }
+    .btn--danger:hover { background-color: #d94040; }
+    .btn--link { background: none; border: none; color: var(--color-primary-500); padding: 0; min-height: auto; }
+    .btn--link:hover { text-decoration: underline; }
+
+    /* --- Atomic Dependency: Badge --- */
+    .badge { display: inline-flex; align-items: center; gap: var(--space-1); padding: var(--space-1) var(--space-3); border-radius: var(--border-radius-full); font-size: 12px; font-weight: var(--font-weight-bold); text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge--warning { background-color: #FFF8E6; color: #996F00; }
+    .badge--info { background-color: var(--color-primary-50); color: var(--color-primary-700); }
+    .badge--success { background-color: var(--color-secondary-50); color: var(--color-secondary-900); }
+    .badge--neutral { background-color: var(--color-gray-100); color: var(--color-gray-700); }
+
+    /* --- Atomic Dependency: Icon (Embedded SVG for timer) --- */
+    .icon { width: 1.2em; height: 1.2em; fill: currentColor; }
+    
+    /* --- Molecular Component: OrderCard --- */
+    .order-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-gray-100);
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .order-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    /* Header Section */
+    .order-card__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: var(--space-4);
+    }
+
+    .order-card__header-main {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .order-card__id {
+      font-size: var(--fs-body);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-800);
+    }
+
+    .order-card__timestamp {
+      font-size: var(--fs-caption);
+      color: var(--color-gray-500);
+    }
+
+    /* Body Section */
+    .order-card__body {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: var(--space-5);
+      padding: var(--space-4) 0;
+      border-top: 1px solid var(--color-gray-100);
+      border-bottom: 1px solid var(--color-gray-100);
+    }
+
+    .order-card__detail-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+    }
+
+    .order-card__detail-label {
+      font-size: var(--fs-caption);
+      color: var(--color-gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .order-card__detail-value {
+      font-size: var(--fs-body);
+      color: var(--color-gray-900);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    /* Footer Section */
+    .order-card__footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: var(--space-4);
+      flex-wrap: wrap;
+    }
+
+    .order-card__countdown-timer {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--fs-body);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-warning);
+    }
+
+    .order-card__actions {
+      display: flex;
+      gap: var(--space-3);
+      margin-left: auto;
+    }
+
+    /* Variants */
+    .order-card--new-order {
+      border-left: 4px solid var(--color-warning);
+      background-color: #fffefa;
+    }
+
+    .order-card--in-progress {
+      border-left: 4px solid var(--color-info);
+    }
+
+    .order-card--history {
+      border-left: 4px solid var(--color-gray-300);
+      opacity: 0.9;
+    }
+    
+    /* Responsive Adaptations */
+    @media (max-width: 768px) {
+        body {
+            padding: var(--space-4);
+        }
+        .order-card__header, .order-card__footer {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .order-card__actions {
+            width: 100%;
+            margin-left: 0;
+        }
+        .order-card__actions .btn {
+            flex-grow: 1;
+        }
+        .order-card__body {
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+        }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="icon-timer" viewBox="0 0 24 24">
+        <path d="M15 1H9v2h6V1zm-4 13h2V8h-2v6zm8.03-6.61l1.42-1.42c-.43-.51-.9-.99-1.41-1.41l-1.42 1.42C16.07 4.74 14.12 4 12 4c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-2.12-.74-4.07-1.97-5.61zM12 20c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <div class="showcase-container">
+    <header>
+      <h1>OrderCard Component</h1>
+    </header>
+
+    <main>
+      <section>
+        <h2>Variants</h2>
+        <div class="component-list">
+          
+          <!-- Variant 1: New Order -->
+          <article class="order-card order-card--new-order">
+            <header class="order-card__header">
+              <div class="order-card__header-main">
+                <span class="order-card__id">Order #8B54C2A1</span>
+                <span class="order-card__timestamp">Placed at 10:32 AM</span>
+              </div>
+              <span class="badge badge--warning">New Order</span>
+            </header>
+            <div class="order-card__body">
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Customer</span>
+                <span class="order-card__detail-value">Rohan Sharma</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Items</span>
+                <span class="order-card__detail-value">3 items</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Total Amount</span>
+                <span class="order-card__detail-value">₹850.50</span>
+              </div>
+               <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Payment</span>
+                <span class="order-card__detail-value">Prepaid</span>
+              </div>
+            </div>
+            <footer class="order-card__footer">
+              <div class="order-card__countdown-timer">
+                <svg class="icon" aria-hidden="true"><use href="#icon-timer"/></svg>
+                <span>4:15 remaining</span>
+              </div>
+              <div class="order-card__actions">
+                <button class="btn btn--secondary">Reject</button>
+                <button class="btn btn--primary">Accept</button>
+              </div>
+            </footer>
+          </article>
+
+          <!-- Variant 2: In-Progress Order -->
+          <article class="order-card order-card--in-progress">
+            <header class="order-card__header">
+              <div class="order-card__header-main">
+                <span class="order-card__id">Order #7D9F1B3C</span>
+                <span class="order-card__timestamp">Accepted at 10:33 AM</span>
+              </div>
+              <span class="badge badge--info">Preparing</span>
+            </header>
+            <div class="order-card__body">
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Customer</span>
+                <span class="order-card__detail-value">Priya Patel</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Items</span>
+                <span class="order-card__detail-value">1 item</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Total Amount</span>
+                <span class="order-card__detail-value">₹275.00</span>
+              </div>
+            </div>
+            <footer class="order-card__footer">
+              <div class="order-card__actions">
+                <button class="btn btn--primary">Mark as Ready</button>
+              </div>
+            </footer>
+          </article>
+
+          <!-- Variant 3: History Order -->
+          <article class="order-card order-card--history">
+            <header class="order-card__header">
+              <div class="order-card__header-main">
+                <span class="order-card__id">Order #A4E0C5F8</span>
+                <span class="order-card__timestamp">Delivered on Oct 26, 2024</span>
+              </div>
+              <span class="badge badge--success">Delivered</span>
+            </header>
+            <div class="order-card__body">
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Customer</span>
+                <span class="order-card__detail-value">Anjali Singh</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Items</span>
+                <span class="order-card__detail-value">5 items</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Total Amount</span>
+                <span class="order-card__detail-value">₹1,240.00</span>
+              </div>
+            </div>
+            <footer class="order-card__footer">
+              <div class="order-card__actions">
+                <button class="btn btn--link">View Details</button>
+              </div>
+            </footer>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+  
+  <div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "new-order"<h3>
+		<normal>Represents a new order that requires immediate action from the vendor. It is highlighted with a warning color and includes a countdown timer and accept/reject actions.</normal>
+		<article class="order-card order-card--new-order">
+            <header class="order-card__header">
+              <div class="order-card__header-main">
+                <span class="order-card__id">Order #8B54C2A1</span>
+                <span class="order-card__timestamp">Placed at 10:32 AM</span>
+              </div>
+              <span class="badge badge--warning">New Order</span>
+            </header>
+            <div class="order-card__body">
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Customer</span>
+                <span class="order-card__detail-value">Rohan Sharma</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Items</span>
+                <span class="order-card__detail-value">3 items</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Total Amount</span>
+                <span class="order-card__detail-value">₹850.50</span>
+              </div>
+               <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Payment</span>
+                <span class="order-card__detail-value">Prepaid</span>
+              </div>
+            </div>
+            <footer class="order-card__footer">
+              <div class="order-card__countdown-timer">
+                <svg class="icon" aria-hidden="true"><use href="#icon-timer"></use></svg>
+                <span>4:15 remaining</span>
+              </div>
+              <div class="order-card__actions">
+                <button class="btn btn--secondary">Reject</button>
+                <button class="btn btn--primary">Accept</button>
+              </div>
+            </footer>
+          </article>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "in-progress"<h3>
+		<normal>Represents an order that has been accepted and is currently being prepared. It uses an informational color and shows the next action in the workflow (e.g., 'Mark as Ready').</normal>
+		<article class="order-card order-card--in-progress">
+            <header class="order-card__header">
+              <div class="order-card__header-main">
+                <span class="order-card__id">Order #7D9F1B3C</span>
+                <span class="order-card__timestamp">Accepted at 10:33 AM</span>
+              </div>
+              <span class="badge badge--info">Preparing</span>
+            </header>
+            <div class="order-card__body">
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Customer</span>
+                <span class="order-card__detail-value">Priya Patel</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Items</span>
+                <span class="order-card__detail-value">1 item</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Total Amount</span>
+                <span class="order-card__detail-value">₹275.00</span>
+              </div>
+            </div>
+            <footer class="order-card__footer">
+              <div class="order-card__actions">
+                <button class="btn btn--primary">Mark as Ready</button>
+              </div>
+            </footer>
+          </article>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "history"<h3>
+		<normal>Represents a completed or cancelled order. It has a more subdued, neutral appearance and typically contains only a link to view the full order details for archival purposes.</normal>
+		<article class="order-card order-card--history">
+            <header class="order-card__header">
+              <div class="order-card__header-main">
+                <span class="order-card__id">Order #A4E0C5F8</span>
+                <span class="order-card__timestamp">Delivered on Oct 26, 2024</span>
+              </div>
+              <span class="badge badge--success">Delivered</span>
+            </header>
+            <div class="order-card__body">
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Customer</span>
+                <span class="order-card__detail-value">Anjali Singh</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Items</span>
+                <span class="order-card__detail-value">5 items</span>
+              </div>
+              <div class="order-card__detail-group">
+                <span class="order-card__detail-label">Total Amount</span>
+                <span class="order-card__detail-value">₹1,240.00</span>
+              </div>
+            </div>
+            <footer class="order-card__footer">
+              <div class="order-card__actions">
+                <button class="btn btn--link">View Details</button>
+              </div>
+            </footer>
+          </article>     
+		
+      <div>
+	 </div>    
+	
+	</div>
+</body>
+</html>

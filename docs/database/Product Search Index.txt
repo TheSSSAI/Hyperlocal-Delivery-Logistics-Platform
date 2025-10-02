@@ -1,0 +1,41 @@
+PUT /product_search_index
+{
+  "mappings": {
+    "properties": {
+      "productId": {
+        "type": "keyword"
+      },
+      "productName": {
+        "type": "text",
+        "analyzer": "standard"
+      },
+      "productDescription": {
+        "type": "text"
+      },
+      "price": {
+        "type": "float"
+      },
+      "categoryName": {
+        "type": "keyword"
+      },
+      "vendorId": {
+        "type": "keyword"
+      },
+      "vendorStoreName": {
+        "type": "text"
+      },
+      "vendorRating": {
+        "type": "float"
+      },
+      "isAvailable": {
+        "type": "boolean"
+      },
+      "isVendorOnline": {
+        "type": "boolean"
+      },
+      "location": {
+        "type": "geo_point"
+      }
+    }
+  }
+}

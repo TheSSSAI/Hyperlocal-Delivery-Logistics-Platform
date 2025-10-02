@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: SidebarNav</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================== */
+    /* 1. Design System Tokens & Base Styles           */
+    /* =============================================== */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', sans-serif;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      --font-weight-regular: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+
+      /* Colors */
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-200: #D3D9E1;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-400: #A5B0BD;
+      --color-neutrals-gray-500: #8E9BAA;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-800: #383E44;
+      --color-neutrals-gray-900: #1C1F22;
+
+      /* Spacing */
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+      /* Transitions */
+      --transition-fast: 200ms ease-in-out;
+      --transition-normal: 300ms ease-in-out;
+      
+      /* Component Specific */
+      --sidebar-expanded-width: 260px;
+      --sidebar-collapsed-width: 80px;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-900);
+    }
+    
+    .page-wrapper {
+        display: flex;
+    }
+    
+    .main-content {
+        flex-grow: 1;
+        padding: var(--space-32);
+        transition: margin-left var(--transition-normal);
+        margin-left: var(--sidebar-expanded-width);
+    }
+    
+    .main-content.is-collapsed {
+        margin-left: var(--sidebar-collapsed-width);
+    }
+
+    @media (max-width: 1024px) {
+        .main-content {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .main-content, .main-content.is-collapsed {
+            margin-left: 0;
+        }
+    }
+
+    /* =============================================== */
+    /* 2. Organism Component: SidebarNav               */
+    /* =============================================== */
+    .sidebar-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100dvh;
+      width: var(--sidebar-expanded-width);
+      background-color: var(--color-neutrals-gray-900);
+      color: var(--color-neutrals-gray-300);
+      display: flex;
+      flex-direction: column;
+      transition: width var(--transition-normal), transform var(--transition-normal);
+      z-index: 1000;
+      border-right: 1px solid var(--color-neutrals-gray-800);
+    }
+
+    .sidebar-nav__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-16) var(--space-24);
+      height: 64px;
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--color-neutrals-gray-800);
+    }
+
+    .sidebar-nav__logo {
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+        text-decoration: none;
+        color: var(--color-neutrals-white);
+        font-weight: 600;
+        font-size: 20px;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+    
+    .sidebar-nav__logo-icon {
+        flex-shrink: 0;
+    }
+    
+    .sidebar-nav__toggle {
+        background-color: transparent;
+        border: none;
+        color: var(--color-neutrals-gray-400);
+        padding: var(--space-8);
+        border-radius: var(--border-radius-md);
+        cursor: pointer;
+        transition: background-color var(--transition-fast), color var(--transition-fast);
+        display: none; /* Hidden by default, shown on desktop */
+    }
+    
+    .sidebar-nav__toggle:hover {
+        background-color: var(--color-neutrals-gray-800);
+        color: var(--color-neutrals-white);
+    }
+    
+    .sidebar-nav__toggle:focus-visible {
+        outline: 2px solid var(--color-primary-300);
+        outline-offset: 2px;
+    }
+
+    .sidebar-nav__nav {
+      flex-grow: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: var(--space-16) 0;
+    }
+
+    .sidebar-nav__list {
+      list-style: none;
+      padding: 0 var(--space-16);
+      margin: 0;
+    }
+
+    .sidebar-nav__item {
+        margin-bottom: var(--space-4);
+    }
+
+    .sidebar-nav__link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      padding: var(--space-12);
+      border-radius: var(--border-radius-md);
+      text-decoration: none;
+      color: var(--color-neutrals-gray-300);
+      transition: all var(--transition-fast);
+      white-space: nowrap;
+      overflow: hidden;
+      font-weight: var(--font-weight-medium);
+    }
+
+    .sidebar-nav__link:hover {
+      background-color: var(--color-neutrals-gray-800);
+      color: var(--color-neutrals-white);
+    }
+    
+    .sidebar-nav__link:focus-visible {
+        outline: 2px solid var(--color-primary-300);
+        outline-offset: -2px;
+    }
+    
+    .sidebar-nav__item--active .sidebar-nav__link {
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .sidebar-nav__icon {
+      flex-shrink: 0;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .sidebar-nav__text {
+      opacity: 1;
+      transition: opacity 0.1s ease-in-out;
+    }
+
+    .sidebar-nav__footer {
+      padding: var(--space-16);
+      border-top: 1px solid var(--color-neutrals-gray-800);
+      flex-shrink: 0;
+    }
+    
+    .sidebar-nav__user-profile {
+        display: flex;
+        align-items: center;
+        gap: var(--space-12);
+        padding: var(--space-8);
+        border-radius: var(--border-radius-md);
+        background-color: transparent;
+        width: 100%;
+        border: none;
+        color: var(--color-neutrals-gray-300);
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-align: left;
+    }
+    
+    .sidebar-nav__user-profile:hover {
+        background-color: var(--color-neutrals-gray-800);
+    }
+    
+    .sidebar-nav__user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: var(--color-primary-700);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--color-neutrals-white);
+        flex-shrink: 0;
+    }
+    
+    .sidebar-nav__user-details {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    .sidebar-nav__user-name {
+        font-weight: 600;
+        color: var(--color-neutrals-white);
+        font-size: var(--font-size-caption);
+    }
+    .sidebar-nav__user-role {
+        font-size: 12px;
+        color: var(--color-neutrals-gray-400);
+    }
+
+    /* Collapsed State */
+    .sidebar-nav[data-state="collapsed"] {
+      width: var(--sidebar-collapsed-width);
+    }
+
+    .sidebar-nav[data-state="collapsed"] .sidebar-nav__logo span,
+    .sidebar-nav[data-state="collapsed"] .sidebar-nav__text,
+    .sidebar-nav[data-state="collapsed"] .sidebar-nav__user-details {
+      opacity: 0;
+      width: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+    
+    .sidebar-nav[data-state="collapsed"] .sidebar-nav__link {
+        justify-content: center;
+    }
+
+    /* Responsive Adaptations */
+    @media (min-width: 1025px) {
+        .sidebar-nav__toggle {
+            display: flex;
+        }
+    }
+    
+    @media (max-width: 1024px) {
+      .sidebar-nav {
+        width: var(--sidebar-collapsed-width);
+      }
+      .sidebar-nav .sidebar-nav__logo span,
+      .sidebar-nav .sidebar-nav__text,
+      .sidebar-nav .sidebar-nav__user-details {
+        display: none;
+      }
+      .sidebar-nav .sidebar-nav__link {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar-nav {
+        transform: translateX(-100%);
+        box-shadow: var(--shadow-lg);
+        width: var(--sidebar-expanded-width); /* Expanded on mobile when open */
+      }
+      .sidebar-nav.is-mobile-open {
+        transform: translateX(0);
+      }
+      .sidebar-nav .sidebar-nav__logo span,
+      .sidebar-nav .sidebar-nav__text,
+      .sidebar-nav .sidebar-nav__user-details {
+        display: block; /* Re-display text on mobile */
+        opacity: 1;
+        width: auto;
+        visibility: visible;
+        pointer-events: auto;
+      }
+      .sidebar-nav .sidebar-nav__link {
+          justify-content: flex-start;
+      }
+    }
+
+    .backdrop {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .backdrop.is-visible {
+        display: block;
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+    }
+    
+    /* Utility button for showcase */
+    .mobile-menu-toggle {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 1001;
+        background-color: var(--color-primary-500);
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 50%;
+        box-shadow: var(--shadow-lg);
+    }
+    
+    @media (max-width: 768px) {
+        .mobile-menu-toggle {
+            display: block;
+        }
+    }
+    
+  </style>
+</head>
+<body>
+
+  <div class="page-wrapper">
+    
+    <button class="mobile-menu-toggle" aria-controls="main-nav" aria-expanded="false" aria-label="Open navigation menu">
+        <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"></path></svg>
+    </button>
+    
+    <div class="backdrop"></div>
+
+    <nav class="sidebar-nav" data-state="expanded" id="main-nav" aria-label="Main Navigation">
+      <header class="sidebar-nav__header">
+        <a href="#" class="sidebar-nav__logo">
+          <svg class="sidebar-nav__logo-icon" width="32" height="32" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5L12 2zm0 18.5L4 16v-5.5l8 4 8-4V16l-8 4.5z"></path></svg>
+          <span>Hyperlocal</span>
+        </a>
+        <button class="sidebar-nav__toggle" aria-controls="main-nav" aria-expanded="true" aria-label="Collapse navigation">
+            <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"></path></svg>
+        </button>
+      </header>
+      
+      <div class="sidebar-nav__nav">
+        <ul class="sidebar-nav__list">
+          <li class="sidebar-nav__item">
+            <a href="#" class="sidebar-nav__link">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"></path></svg>
+              <span class="sidebar-nav__text">Dashboard</span>
+            </a>
+          </li>
+          <li class="sidebar-nav__item sidebar-nav__item--active">
+            <a href="#" class="sidebar-nav__link" aria-current="page">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5.17l2 2H20v10z"></path></svg>
+              <span class="sidebar-nav__text">Orders</span>
+            </a>
+          </li>
+          <li class="sidebar-nav__item">
+            <a href="#" class="sidebar-nav__link">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg>
+              <span class="sidebar-nav__text">Users</span>
+            </a>
+          </li>
+          <li class="sidebar-nav__item">
+            <a href="#" class="sidebar-nav__link">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="currentColor"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18zM18 14H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"></path></svg>
+              <span class="sidebar-nav__text">Reports</span>
+            </a>
+          </li>
+          <li class="sidebar-nav__item">
+            <a href="#" class="sidebar-nav__link">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"></path></svg>
+              <span class="sidebar-nav__text">Settings</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+      
+      <footer class="sidebar-nav__footer">
+        <button class="sidebar-nav__user-profile" aria-label="User menu">
+          <div class="sidebar-nav__user-avatar">AD</div>
+          <div class="sidebar-nav__user-details">
+            <span class="sidebar-nav__user-name">Admin User</span>
+            <span class="sidebar-nav__user-role">Administrator</span>
+          </div>
+        </button>
+      </footer>
+    </nav>
+
+    <main class="main-content" id="main-content-area">
+      <h1>Dashboard Content</h1>
+      <p>This is the main content area of the application. The sidebar navigation on the left controls what is displayed here.</p>
+      <p>Use the toggle buttons (top left on mobile, top right in the sidebar on desktop) to see the different states of the navigation component.</p>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebar = document.getElementById('main-nav');
+      const mainContent = document.getElementById('main-content-area');
+      const desktopToggle = document.querySelector('.sidebar-nav__toggle');
+      const mobileToggle = document.querySelector('.mobile-menu-toggle');
+      const backdrop = document.querySelector('.backdrop');
+
+      // Desktop Toggle
+      if (desktopToggle) {
+        desktopToggle.addEventListener('click', () => {
+          const isCollapsed = sidebar.dataset.state === 'collapsed';
+          sidebar.dataset.state = isCollapsed ? 'expanded' : 'collapsed';
+          mainContent.classList.toggle('is-collapsed', !isCollapsed);
+          desktopToggle.setAttribute('aria-expanded', isCollapsed);
+        });
+      }
+
+      // Mobile Toggle
+      if (mobileToggle) {
+        mobileToggle.addEventListener('click', () => {
+          const isOpen = sidebar.classList.contains('is-mobile-open');
+          sidebar.classList.toggle('is-mobile-open', !isOpen);
+          backdrop.classList.toggle('is-visible', !isOpen);
+          mobileToggle.setAttribute('aria-expanded', !isOpen);
+        });
+      }
+      
+      // Backdrop click to close
+      if (backdrop) {
+          backdrop.addEventListener('click', () => {
+              sidebar.classList.remove('is-mobile-open');
+              backdrop.classList.remove('is-visible');
+              mobileToggle.setAttribute('aria-expanded', 'false');
+          });
+      }
+
+    });
+  </script>
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "vendor"<h3>
+		<!--description--><normal> The sidebar variant for the Vendor dashboard, containing links relevant to store and product management. </normal>
+		<!-- vrient 1 html -->
+        "     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "admin"<h3>
+		<!--description--><normal> The sidebar variant for the Admin dashboard, providing access to platform-wide management tools like user management, settings, and reports. </normal>
+		<!-- vrient 1 html -->
+        "     
+		
+      <div>
+	 </div>    
+	
+	</body>
+</html>

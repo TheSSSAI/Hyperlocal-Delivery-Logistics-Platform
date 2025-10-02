@@ -1,0 +1,2 @@
+"total_stories","total_story_points","must_have_stories","should_have_stories","could_have_stories","epics_identified","estimated_sprints","key_dependencies"
+"8","47","7","1","0","[""Core Order Lifecycle Management""]","3","[""Vendor & Catalog Service API"",""Payments & Settlements Service API"",""Rider Logistics Service API""]"

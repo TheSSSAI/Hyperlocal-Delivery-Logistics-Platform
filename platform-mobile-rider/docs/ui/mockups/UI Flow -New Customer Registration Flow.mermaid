@@ -1,0 +1,52 @@
+sequenceDiagram
+    actor CustomerMobileApp as "Customer Mobile App"
+    participant IdentityAccessService as "Identity & Access Service"
+    participant RedisCache as "Redis Cache"
+    participant AWSSNS as "AWS SNS"
+    participant PostgreSQLDatabase as "PostgreSQL Database"
+
+    CustomerMobileApp->>CustomerMobileApp: 1. User enters mobile number in RegistrationScreen and taps 'Send OTP'
+    CustomerMobileApp->>CustomerMobileApp: 2. Update UI State: Show loading spinner, disable button
+    activate IdentityAccessService
+    CustomerMobileApp->>IdentityAccessService: 3. POST /api/v1/auth/register/otp
+    note right of IdentityAccessService: Validate mobile format and check for duplicates (REQ-FUN-001)
+    IdentityAccessService->>PostgreSQLDatabase: 3.1. SELECT 1 FROM users WHERE mobileNumber = $1
+    PostgreSQLDatabase-->>IdentityAccessService: Row count (0 or 1)
+    alt Mobile number is unique
+        IdentityAccessService->>IdentityAccessService: 3.2. Generate 6-digit OTP and hash it
+        IdentityAccessService->>RedisCache: 3.3. SETEX otp:${mobileNumber} 300 ${otpHash}
+        RedisCache-->>IdentityAccessService: OK
+        IdentityAccessService->>AWSSNS: 3.4. publish(PhoneNumber, Message)
+        AWSSNS-->>IdentityAccessService: messageId
+        IdentityAccessService-->>CustomerMobileApp: 200 OK
+    else Mobile number already exists
+        IdentityAccessService-->>CustomerMobileApp: 409 Conflict with error message
+    end
+    deactivate IdentityAccessService
+
+    alt On 200 OK
+        CustomerMobileApp->>CustomerMobileApp: 4. Update UI: Show OTP input, start timer
+        CustomerMobileApp->>CustomerMobileApp: 5. User enters OTP and taps 'Verify & Register'
+        activate IdentityAccessService
+        CustomerMobileApp->>IdentityAccessService: 6. POST /api/v1/auth/register/verify
+        IdentityAccessService->>RedisCache: 6.1. GET otp:${mobileNumber}
+        RedisCache-->>IdentityAccessService: otpHash or null
+        alt OTP is valid and not expired
+            IdentityAccessService->>IdentityAccessService: 6.2. Compare submitted OTP with stored hash
+            IdentityAccessService->>PostgreSQLDatabase: 6.3. BEGIN; INSERT User; INSERT CustomerProfile; COMMIT;
+            PostgreSQLDatabase-->>IdentityAccessService: New User object
+            IdentityAccessService->>RedisCache: 6.4. DEL otp:${mobileNumber}
+            RedisCache-->>IdentityAccessService: OK
+            note right of IdentityAccessService: Generate JWT access and refresh tokens (REQ-FUN-002)
+            IdentityAccessService->>IdentityAccessService: 6.5. Generate JWTs for the new user
+            IdentityAccessService-->>CustomerMobileApp: 201 Created with { accessToken, refreshToken }
+        else OTP is invalid or expired
+            IdentityAccessService-->>CustomerMobileApp: 400 Bad Request with error message
+        end
+        deactivate IdentityAccessService
+
+        CustomerMobileApp->>CustomerMobileApp: 7. On 201 Created, securely store tokens (Keychain/Keystore)
+        CustomerMobileApp->>CustomerMobileApp: 8. Update global state and navigate to HomeScreen
+    else On 409 Conflict
+        CustomerMobileApp->>CustomerMobileApp: 9. Display 'Mobile number already registered' error
+    end

@@ -1,0 +1,389 @@
+# 1 Story Metadata
+
+| Property | Value |
+|----------|-------|
+| Story Id | CUS-041 |
+| Elaboration Date | 2024-10-27 |
+| Development Readiness | Complete |
+
+# 2 Story Narrative
+
+| Property | Value |
+|----------|-------|
+| Title | Customer Raises a Support Ticket |
+| As A User Story | As a customer, I want to create and submit a suppo... |
+| User Persona | A registered customer using the mobile application... |
+| Business Value | Provides a structured and trackable channel for cu... |
+| Functional Area | User Support & Communication |
+| Story Theme | Customer Self-Service and Support |
+
+# 3 Acceptance Criteria
+
+## 3.1 Criteria Id
+
+### 3.1.1 Criteria Id
+
+AC-001
+
+### 3.1.2 Scenario
+
+Happy Path: Submit a ticket with all required information
+
+### 3.1.3 Scenario Type
+
+Happy_Path
+
+### 3.1.4 Given
+
+I am a logged-in customer and have navigated to the 'Create Support Ticket' screen
+
+### 3.1.5 When
+
+I select a 'Ticket Category', enter a 'Subject', provide a detailed 'Description', and tap the 'Submit' button
+
+### 3.1.6 Then
+
+The system validates the input, a loading indicator is shown, a new support ticket is created in the backend, and I am shown a success confirmation screen with a unique Ticket ID (e.g., 'Your ticket #TKT-12345 has been submitted').
+
+### 3.1.7 Validation Notes
+
+Verify the new ticket record exists in the 'tickets' database table, associated with the correct customer ID and contains all the submitted data.
+
+## 3.2.0 Criteria Id
+
+### 3.2.1 Criteria Id
+
+AC-002
+
+### 3.2.2 Scenario
+
+Submit a ticket linked to a specific order
+
+### 3.2.3 Scenario Type
+
+Alternative_Flow
+
+### 3.2.4 Given
+
+I am on the 'Create Support Ticket' screen
+
+### 3.2.5 When
+
+I choose to link the ticket to an order, select a recent order from the provided list, fill in all required fields, and tap 'Submit'
+
+### 3.2.6 Then
+
+The system creates the ticket and the record in the database includes a reference to the selected order ID.
+
+### 3.2.7 Validation Notes
+
+Check the 'order_id' column in the new ticket record to ensure it matches the selected order.
+
+## 3.3.0 Criteria Id
+
+### 3.3.1 Criteria Id
+
+AC-003
+
+### 3.3.2 Scenario
+
+Error: Attempt to submit a ticket with missing required fields
+
+### 3.3.3 Scenario Type
+
+Error_Condition
+
+### 3.3.4 Given
+
+I am on the 'Create Support Ticket' screen
+
+### 3.3.5 When
+
+I leave the 'Description' field empty but fill in other fields and tap 'Submit'
+
+### 3.3.6 Then
+
+The form submission is prevented, and a clear, inline error message (e.g., 'Description is required') is displayed next to the 'Description' field.
+
+### 3.3.7 Validation Notes
+
+Test for each required field (Category, Subject, Description) individually and in combination.
+
+## 3.4.0 Criteria Id
+
+### 3.4.1 Criteria Id
+
+AC-004
+
+### 3.4.2 Scenario
+
+Error: Network failure during ticket submission
+
+### 3.4.3 Scenario Type
+
+Error_Condition
+
+### 3.4.4 Given
+
+I have filled out the support ticket form correctly and my device has lost its internet connection
+
+### 3.4.5 When
+
+I tap the 'Submit' button
+
+### 3.4.6 Then
+
+A non-intrusive error message is displayed (e.g., 'Submission failed. Please check your connection and try again.'), the loading indicator disappears, and all the data I entered in the form is preserved.
+
+### 3.4.7 Validation Notes
+
+Simulate network failure using device settings or a proxy tool. Verify form data is not cleared.
+
+## 3.5.0 Criteria Id
+
+### 3.5.1 Criteria Id
+
+AC-005
+
+### 3.5.2 Scenario
+
+Navigate to the support ticket creation form
+
+### 3.5.3 Scenario Type
+
+Happy_Path
+
+### 3.5.4 Given
+
+I am a logged-in customer anywhere in the app
+
+### 3.5.5 When
+
+I navigate to the main menu or my profile screen and tap on the 'Help & Support' option
+
+### 3.5.6 Then
+
+I am taken to a support screen which has a clear option or button to 'Create a New Ticket', which leads to the form.
+
+### 3.5.7 Validation Notes
+
+Verify the navigation path is intuitive and accessible from a primary navigation point.
+
+# 4.0.0 User Interface Requirements
+
+## 4.1.0 Ui Elements
+
+- A 'Help & Support' entry point in the main app navigation (e.g., side menu or profile tab).
+- A 'Create New Ticket' button/link.
+- A form with the following fields: Dropdown for 'Ticket Category', Text input for 'Subject', Multi-line text area for 'Description'.
+- An optional helper to select a recent 'Order ID'.
+- A 'Submit Ticket' button.
+- Loading indicator for submission in progress.
+- Success/Error message display area.
+
+## 4.2.0 User Interactions
+
+- Tapping 'Help & Support' navigates to the support section.
+- Form fields should show appropriate keyboards (e.g., default text).
+- The 'Submit' button should be disabled until all required fields are filled.
+- After submission, the user is navigated to a confirmation screen and then can navigate back to the main support screen.
+
+## 4.3.0 Display Requirements
+
+- The list of ticket categories must be dynamically fetched from the backend.
+- The confirmation screen must display the unique ticket ID generated by the system.
+- Validation errors must be displayed inline, close to the relevant form field.
+
+## 4.4.0 Accessibility Needs
+
+- All form fields must have associated labels for screen readers.
+- Touch targets for buttons and interactive elements must meet WCAG 2.1 AA guidelines.
+- Color contrast for text and UI elements must be sufficient.
+
+# 5.0.0 Business Rules
+
+## 5.1.0 Rule Id
+
+### 5.1.1 Rule Id
+
+BR-TKT-001
+
+### 5.1.2 Rule Description
+
+A ticket must be associated with one of the predefined categories (e.g., 'Order Issue', 'Payment Problem', 'App Bug', 'General Question').
+
+### 5.1.3 Enforcement Point
+
+Frontend form validation and backend API validation.
+
+### 5.1.4 Violation Handling
+
+The submission is rejected with a '400 Bad Request' error if the category is invalid or missing.
+
+## 5.2.0 Rule Id
+
+### 5.2.1 Rule Id
+
+BR-TKT-002
+
+### 5.2.2 Rule Description
+
+If an Order ID is provided, it must be a valid order ID belonging to the customer raising the ticket.
+
+### 5.2.3 Enforcement Point
+
+Backend API validation upon submission.
+
+### 5.2.4 Violation Handling
+
+The submission is rejected with an error indicating the order ID is invalid.
+
+# 6.0.0 Dependencies
+
+## 6.1.0 Prerequisite Stories
+
+### 6.1.1 Story Id
+
+#### 6.1.1.1 Story Id
+
+CUS-003
+
+#### 6.1.1.2 Dependency Reason
+
+User must be authenticated to create a ticket, as tickets are tied to a user account.
+
+### 6.1.2.0 Story Id
+
+#### 6.1.2.1 Story Id
+
+CUS-039
+
+#### 6.1.2.2 Dependency Reason
+
+Required to implement the 'select recent order' helper functionality. If not done, the user must enter the Order ID manually.
+
+## 6.2.0.0 Technical Dependencies
+
+- A backend 'Support' or 'Helpdesk' microservice must exist.
+- A database schema for storing tickets, including fields for customer_id, category, subject, description, status, order_id, created_at.
+- A REST API endpoint (e.g., POST /api/v1/support/tickets) for creating new tickets.
+
+## 6.3.0.0 Data Dependencies
+
+- A predefined list of 'Ticket Categories' must be available, likely managed by an administrator and served via an API.
+
+## 6.4.0.0 External Dependencies
+
+*No items available*
+
+# 7.0.0.0 Non Functional Requirements
+
+## 7.1.0.0 Performance
+
+- The API response time for ticket submission should be under 500ms (P95).
+- The UI for the form should load in under 1.5 seconds.
+
+## 7.2.0.0 Security
+
+- All user-submitted text must be sanitized on the backend to prevent XSS and other injection attacks.
+- The API endpoint for creating tickets must be protected and only accessible by authenticated users.
+- Rate limiting should be applied to the ticket creation endpoint to prevent spam/abuse.
+
+## 7.3.0.0 Usability
+
+- The process of finding the support section and creating a ticket should be achievable in 4 taps or less from the app's home screen.
+- Error messages must be user-friendly and clearly explain the required action.
+
+## 7.4.0.0 Accessibility
+
+- The feature must comply with WCAG 2.1 Level AA standards.
+
+## 7.5.0.0 Compatibility
+
+- The feature must function correctly on all supported iOS and Android versions.
+
+# 8.0.0.0 Implementation Considerations
+
+## 8.1.0.0 Complexity Assessment
+
+Medium
+
+## 8.2.0.0 Complexity Factors
+
+- Requires creation of a new data model and API endpoints in the backend.
+- Requires new UI screens and navigation flows in the mobile application.
+- Coordination with the operations team is needed to define the initial set of ticket categories.
+- The 'select recent order' helper adds frontend complexity to fetch and display user's order history.
+
+## 8.3.0.0 Technical Risks
+
+- Defining a scalable data model for tickets that can accommodate future features like replies and status changes.
+- Ensuring the ticket creation process is atomic and robust against failures.
+
+## 8.4.0.0 Integration Points
+
+- Integrates with the User Management service to associate tickets with a customer.
+- Integrates with the Order Management service to validate and link Order IDs.
+- The created ticket data will be consumed by the Admin Dashboard (related to story ADM-024).
+
+# 9.0.0.0 Testing Requirements
+
+## 9.1.0.0 Testing Types
+
+- Unit
+- Integration
+- E2E
+- Security
+- Accessibility
+
+## 9.2.0.0 Test Scenarios
+
+- Verify successful ticket creation with and without an associated order.
+- Verify form validation for all required fields.
+- Verify graceful handling of API errors and network failures.
+- Verify that the created ticket appears in the admin backend with the correct data.
+- E2E Test: Log in as a customer, navigate to support, create a ticket, log in as an admin, and verify the ticket is visible in the support queue.
+
+## 9.3.0.0 Test Data Needs
+
+- A test customer account with a history of at least 5 orders.
+- Invalid order IDs that do not belong to the test customer.
+
+## 9.4.0.0 Testing Tools
+
+- Jest/React Testing Library for frontend unit tests.
+- Cypress for E2E tests.
+- Postman or similar for API-level integration testing.
+
+# 10.0.0.0 Definition Of Done
+
+- All acceptance criteria validated and passing in the staging environment.
+- Code for both frontend and backend has been peer-reviewed and merged.
+- Unit and integration tests are written and achieve >80% code coverage.
+- E2E automated test for the happy path scenario is created and passing.
+- The feature has been reviewed and approved by the UX/UI designer.
+- Security checks, including input sanitization, have been implemented and verified.
+- API documentation (OpenAPI) for the new endpoint is created/updated.
+- The feature is verified to be accessible according to WCAG 2.1 AA standards.
+- Story deployed and verified in the staging environment by QA.
+
+# 11.0.0.0 Planning Information
+
+## 11.1.0.0 Story Points
+
+5
+
+## 11.2.0.0 Priority
+
+🟡 Medium
+
+## 11.3.0.0 Sprint Considerations
+
+- The backend API and database changes should be completed before or in parallel with the frontend development.
+- The list of ticket categories must be finalized with stakeholders before the sprint begins.
+- This story is a prerequisite for the admin-facing ticket management story (ADM-024).
+
+## 11.4.0.0 Release Impact
+
+This feature enhances customer support capabilities. It can be released in any post-MVP update. It does not block the core functionality of the platform.
+

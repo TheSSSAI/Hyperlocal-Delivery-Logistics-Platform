@@ -1,0 +1,31 @@
+# Build artifacts
+dist
+
+# Source code and development files
+src
+.storybook
+.github
+.vscode
+coverage
+node_modules
+
+# Config files
+.editorconfig
+.eslintrc.js
+.gitignore
+.npmrc
+.prettierrc
+babel.config.js
+jest.config.js
+jest.setup.js
+tsconfig.json
+tsconfig.build.json
+vite.config.ts
+
+# Documentation/Misc
+*.md
+!README.md
+!CHANGELOG.md
+
+# This .npmignore file ensures that only the compiled 'dist' folder and essential package files are published.
+# README.md and CHANGELOG.md are explicitly included.

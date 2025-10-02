@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Registration Form</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html {
+      font-size: 16px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--color-neutrals-gray_50);
+      color: var(--color-neutrals-gray_800);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    input, button, textarea, select {
+      font: inherit;
+    }
+    img, picture, video, canvas, svg {
+      display: block;
+      max-width: 100%;
+    }
+
+    /* Design System Tokens (Custom Properties) */
+    :root {
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray_50: #F7F9FC;
+      --color-neutrals-gray_100: #E9EDF2;
+      --color-neutrals-gray_200: #D3D9E1;
+      --color-neutrals-gray_300: #BCC4CF;
+      --color-neutrals-gray_500: #8E9BAA;
+      --color-neutrals-gray_700: #555D66;
+      --color-neutrals-gray_800: #383E44;
+      --color-neutrals-gray_900: #1C1F22;
+      --color-semantic-success: #00C875;
+      --color-semantic-error: #FF4D4D;
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+    }
+
+    /* Main Screen Layout */
+    .screen-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--spacing-xl);
+      min-height: 100vh;
+    }
+    .form-container {
+      width: 100%;
+      max-width: 800px;
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: 0px 4px 12px rgba(28, 31, 34, 0.08);
+      padding: var(--spacing-xl);
+      overflow: hidden;
+    }
+    .form-header {
+      text-align: center;
+      margin-bottom: var(--spacing-xl);
+    }
+    .form-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--color-neutrals-gray_900);
+    }
+    .form-header p {
+      color: var(--color-neutrals-gray_700);
+      margin-top: var(--spacing-sm);
+    }
+
+    /* Step Indicator */
+    .step-indicator {
+      display: flex;
+      justify-content: space-between;
+      list-style: none;
+      margin-bottom: var(--spacing-xl);
+      position: relative;
+    }
+    .step-indicator::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-color: var(--color-neutrals-gray_200);
+      transform: translateY(-50%);
+      z-index: 1;
+    }
+    .step {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      width: 33.33%;
+    }
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: var(--color-neutrals-white);
+      border: 2px solid var(--color-neutrals-gray_300);
+      color: var(--color-neutrals-gray_500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+    .step-label {
+      margin-top: var(--spacing-sm);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-neutrals-gray_500);
+      transition: color 0.3s ease;
+    }
+    .step.is-active .step-number,
+    .step.is-complete .step-number {
+      border-color: var(--color-primary-500);
+    }
+    .step.is-active .step-number {
+      background-color: var(--color-primary-50);
+      color: var(--color-primary-600);
+    }
+    .step.is-complete .step-number {
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+    }
+    .step.is-active .step-label {
+      color: var(--color-neutrals-gray_900);
+    }
+    .step.is-complete .step-label {
+      color: var(--color-neutrals-gray_700);
+    }
+    .step-progress-bar {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        height: 2px;
+        background-color: var(--color-primary-500);
+        transform: translateY(-50%);
+        z-index: 1;
+        width: 0%;
+        transition: width 0.4s ease-in-out;
+    }
+
+    /* Form Panels */
+    .form-step {
+      display: none;
+    }
+    .form-step.is-active {
+      display: block;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Form Group & Input Components */
+    .form-grid {
+      display: grid;
+      gap: var(--spacing-lg);
+    }
+    @media (min-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .grid-span-2 {
+        grid-column: span 2;
+      }
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-neutrals-gray_800);
+      margin-bottom: var(--spacing-sm);
+    }
+    .form-label.required::after {
+      content: ' *';
+      color: var(--color-semantic-error);
+    }
+    .text-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--color-neutrals-gray_300);
+      border-radius: var(--border-radius-md);
+      background-color: var(--color-neutrals-white);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .text-input:focus {
+      outline: none;
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+    }
+    .text-input.has-error {
+        border-color: var(--color-semantic-error);
+    }
+    .error-message {
+      font-size: 12px;
+      color: var(--color-semantic-error);
+      margin-top: var(--spacing-xs);
+      display: none;
+    }
+    .text-input.has-error + .error-message {
+        display: block;
+    }
+    textarea.text-input {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    /* File Upload Component */
+    .file-upload {
+        border: 2px dashed var(--color-neutrals-gray_300);
+        border-radius: var(--border-radius-md);
+        padding: var(--spacing-lg);
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, background-color 0.2s;
+    }
+    .file-upload:hover {
+        border-color: var(--color-primary-500);
+        background-color: var(--color-primary-50);
+    }
+    .file-upload-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto var(--spacing-md);
+        color: var(--color-primary-500);
+    }
+    .file-upload-text {
+        font-weight: 500;
+        color: var(--color-neutrals-gray_800);
+    }
+    .file-upload-hint {
+        font-size: 12px;
+        color: var(--color-neutrals-gray_500);
+    }
+    .file-upload-input {
+        display: none;
+    }
+    .file-preview {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: var(--spacing-md);
+        padding: var(--spacing-sm) var(--spacing-md);
+        background-color: var(--color-neutrals-gray_100);
+        border-radius: var(--border-radius-md);
+    }
+    .file-preview-name {
+        font-size: 14px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .file-preview-remove {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: var(--color-semantic-error);
+    }
+
+
+    /* Button Components */
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 24px;
+      border-radius: var(--border-radius-md);
+      font-weight: 600;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      text-decoration: none;
+    }
+    .button--primary {
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+    }
+    .button--primary:hover {
+      background-color: var(--color-primary-600);
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .button--secondary {
+      background-color: transparent;
+      color: var(--color-neutrals-gray_700);
+      border-color: var(--color-neutrals-gray_300);
+    }
+    .button--secondary:hover {
+      background-color: var(--color-neutrals-gray_100);
+    }
+    .button:disabled {
+      background-color: var(--color-neutrals-gray_200);
+      color: var(--color-neutrals-gray_500);
+      cursor: not-allowed;
+      border-color: var(--color-neutrals-gray_200);
+    }
+    .button:focus-visible {
+        outline: 3px solid var(--color-primary-300);
+        outline-offset: 2px;
+    }
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: var(--spacing-xl);
+    }
+
+    /* Alert Component */
+    .alert {
+        padding: var(--spacing-md);
+        border-radius: var(--border-radius-md);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        margin: var(--spacing-xl) 0;
+    }
+    .alert--success {
+        background-color: #E5F9F1;
+        color: #003D24;
+        border: 1px solid var(--color-semantic-success);
+    }
+    .alert--error {
+        background-color: #FFEBEB;
+        color: #8B0000;
+        border: 1px solid var(--color-semantic-error);
+    }
+    .alert-icon {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+
+    /* Checkbox */
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+    .checkbox-input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--color-primary-500);
+    }
+    .checkbox-label {
+        font-size: 14px;
+        color: var(--color-neutrals-gray_700);
+    }
+    .checkbox-label a {
+        color: var(--color-primary-500);
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .checkbox-label a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Success State Screen */
+    .success-screen {
+        text-align: center;
+        padding: var(--spacing-xl) 0;
+    }
+    .success-screen .icon {
+        width: 64px;
+        height: 64px;
+        color: var(--color-semantic-success);
+        margin: 0 auto var(--spacing-lg);
+    }
+    .success-screen h2 {
+        font-size: 24px;
+        color: var(--color-neutrals-gray_900);
+        margin-bottom: var(--spacing-sm);
+    }
+    .success-screen p {
+        color: var(--color-neutrals-gray_700);
+        margin-bottom: var(--spacing-xl);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 767px) {
+        .form-container {
+            padding: var(--spacing-lg);
+        }
+        .step-indicator {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--spacing-lg);
+        }
+        .step {
+            flex-direction: row;
+            gap: var(--spacing-md);
+            width: 100%;
+            text-align: left;
+        }
+        .step-indicator::before, .step-progress-bar {
+            left: 15px; /* Center of the number */
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            height: 100%;
+        }
+        .step-label {
+            margin-top: 0;
+        }
+    }
+  </style>
+</head>
+<body>
+  <div class="screen-container">
+    <div class="form-container">
+      <div class="form-header">
+        <h1>Become a Vendor</h1>
+        <p>Complete the steps below to start selling on our platform.</p>
+      </div>
+      
+      <div class="step-indicator-wrapper">
+        <div class="step-progress-bar" id="progress-bar"></div>
+        <ol class="step-indicator">
+          <li class="step is-active" data-step="1">
+            <div class="step-number">1</div>
+            <div class="step-label">Business Details</div>
+          </li>
+          <li class="step" data-step="2">
+            <div class="step-number">2</div>
+            <div class="step-label">Legal Documents</div>
+          </li>
+          <li class="step" data-step="3">
+            <div class="step-number">3</div>
+            <div class="step-label">Review & Submit</div>
+          </li>
+        </ol>
+      </div>
+
+      <form id="vendor-reg-form">
+        <!-- Step 1: Business Details -->
+        <section class="form-step is-active" data-step="1">
+          <div class="form-grid">
+            <div class="form-group grid-span-2">
+              <label for="business-name" class="form-label required">Business Name</label>
+              <input type="text" id="business-name" class="text-input" placeholder="e.g., Global Bites Kitchen" required>
+              <span class="error-message">This field is required.</span>
+            </div>
+            <div class="form-group grid-span-2">
+              <label for="business-address" class="form-label required">Business Address</label>
+              <textarea id="business-address" class="text-input" placeholder="Enter your full store address" required></textarea>
+              <span class="error-message">This field is required.</span>
+            </div>
+            <div class="form-group">
+              <label for="contact-phone" class="form-label required">Contact Phone Number</label>
+              <input type="tel" id="contact-phone" class="text-input" placeholder="9876543210" required>
+              <span class="error-message">Please enter a valid 10-digit number.</span>
+            </div>
+            <div class="form-group">
+              <label for="contact-email" class="form-label required">Contact Email</label>
+              <input type="email" id="contact-email" class="text-input" placeholder="you@example.com" required>
+              <span class="error-message">Please enter a valid email address.</span>
+            </div>
+          </div>
+          <div class="button-group">
+            <div></div> <!-- Spacer -->
+            <button type="button" class="button button--primary" data-action="next">Next</button>
+          </div>
+        </section>
+
+        <!-- Step 2: Legal Documents -->
+        <section class="form-step" data-step="2">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="gst-number" class="form-label required">GST Number</label>
+              <input type="text" id="gst-number" class="text-input" placeholder="e.g., 29ABCDE1234F1Z5" required>
+              <span class="error-message">This field is required.</span>
+            </div>
+            <div class="form-group">
+              <label for="fssai-number" class="form-label">FSSAI License Number (if applicable)</label>
+              <input type="text" id="fssai-number" class="text-input" placeholder="e.g., 10012345678901">
+            </div>
+            <div class="form-group grid-span-2">
+                <label class="form-label required">GST Certificate</label>
+                <label for="gst-upload" class="file-upload">
+                    <input type="file" id="gst-upload" class="file-upload-input" accept=".pdf,.jpg,.jpeg,.png">
+                    <svg class="file-upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3.75 3.75M12 9.75l3.75 3.75M3 17.25V6.75A2.25 2.25 0 015.25 4.5h13.5A2.25 2.25 0 0121 6.75v10.5A2.25 2.25 0 0118.75 19.5H5.25A2.25 2.25 0 013 17.25z" /></svg>
+                    <span class="file-upload-text">Click to upload or drag & drop</span>
+                    <span class="file-upload-hint">PDF, JPG, or PNG (Max 5MB)</span>
+                </label>
+                <div id="gst-preview" class="file-preview" style="display: none;"></div>
+            </div>
+          </div>
+          <div class="button-group">
+            <button type="button" class="button button--secondary" data-action="back">Back</button>
+            <button type="button" class="button button--primary" data-action="next">Next</button>
+          </div>
+        </section>
+
+        <!-- Step 3: Review & Submit -->
+        <section class="form-step" data-step="3">
+          <div id="review-summary">
+            <h4>Review Your Application</h4>
+            <p>Please confirm all details are correct before submitting.</p>
+            <!-- Summary will be populated by JS -->
+          </div>
+          <div class="checkbox-group" style="margin-top: var(--spacing-lg);">
+            <input type="checkbox" id="terms-consent" class="checkbox-input" required>
+            <label for="terms-consent" class="checkbox-label">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</label>
+          </div>
+          <div class="button-group">
+            <button type="button" class="button button--secondary" data-action="back">Back</button>
+            <button type="submit" class="button button--primary" id="submit-btn">Submit Application</button>
+          </div>
+        </section>
+
+        <!-- Success State -->
+        <section class="form-step" data-step="success">
+            <div class="success-screen">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h2>Application Submitted!</h2>
+                <p>Thank you for registering. Your application is now under review. We will notify you once it has been processed, typically within 2-3 business days.</p>
+                <button type="button" class="button button--primary" onclick="window.location.reload()">Back to Home</button>
+            </div>
+        </section>
+      </form>
+    </div>
+  </div>
+
+  <div class="screen-variations" style="display: none;">
+    <h2>Screen Variations (for demonstration)</h2>
+
+    <div class="variation-group" style="max-width: 800px; margin: 2rem auto; padding: 2rem; background: white; border-radius: 12px;">
+      <h3>Variant Name: "Error State"</h3>
+      <normal>Displays a global error message if submission fails for a server-side reason.</normal>
+      <div class="alert alert--error" role="alert">
+        <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" /></svg>
+        <div>
+          <strong>Submission Failed.</strong> An unexpected error occurred. Please try again later.
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('vendor-reg-form');
+      const steps = Array.from(document.querySelectorAll('.form-step'));
+      const stepIndicators = Array.from(document.querySelectorAll('.step'));
+      const progressBar = document.getElementById('progress-bar');
+      const nextButtons = document.querySelectorAll('[data-action="next"]');
+      const backButtons = document.querySelectorAll('[data-action="back"]');
+      const submitBtn = document.getElementById('submit-btn');
+
+      let currentStep = 1;
+
+      function updateStepUI() {
+        steps.forEach(step => {
+          step.classList.toggle('is-active', parseInt(step.dataset.step) === currentStep);
+        });
+
+        stepIndicators.forEach(indicator => {
+          const stepNum = parseInt(indicator.dataset.step);
+          indicator.classList.toggle('is-active', stepNum === currentStep);
+          indicator.classList.toggle('is-complete', stepNum < currentStep);
+        });
+        
+        const progressWidth = ((currentStep - 1) / (stepIndicators.length - 1)) * 100;
+        if(window.innerWidth > 767) {
+            progressBar.style.width = `${progressWidth}%`;
+        } else {
+            progressBar.style.height = `${progressWidth}%`;
+        }
+      }
+
+      function validateStep(stepNum) {
+          const stepElement = document.querySelector(`.form-step[data-step="${stepNum}"]`);
+          const inputs = stepElement.querySelectorAll('input[required], textarea[required]');
+          let isValid = true;
+          inputs.forEach(input => {
+              if (!input.value.trim()) {
+                  input.classList.add('has-error');
+                  isValid = false;
+              } else {
+                  // Basic format validation
+                  let fieldValid = true;
+                  if (input.type === 'email' && !/^\S+@\S+\.\S+$/.test(input.value)) fieldValid = false;
+                  if (input.id === 'contact-phone' && !/^\d{10}$/.test(input.value)) fieldValid = false;
+                  
+                  if (!fieldValid) {
+                      input.classList.add('has-error');
+                      isValid = false;
+                  } else {
+                      input.classList.remove('has-error');
+                  }
+              }
+          });
+          // File upload validation (simple existence check)
+          if(stepNum === 2) {
+              const gstUpload = document.getElementById('gst-upload');
+              if (gstUpload.files.length === 0) {
+                  gstUpload.parentElement.style.borderColor = 'var(--color-semantic-error)';
+                  isValid = false;
+              } else {
+                  gstUpload.parentElement.style.borderColor = '';
+              }
+          }
+          return isValid;
+      }
+      
+      function populateReview() {
+          const reviewSummary = document.getElementById('review-summary');
+          const name = document.getElementById('business-name').value;
+          const address = document.getElementById('business-address').value;
+          const phone = document.getElementById('contact-phone').value;
+          const email = document.getElementById('contact-email').value;
+          const gst = document.getElementById('gst-number').value;
+
+          reviewSummary.innerHTML = `
+            <h4>Review Your Application</h4>
+            <p style="margin-bottom: 1rem;">Please confirm all details are correct before submitting.</p>
+            <div style="text-align: left; background: #f7f9fc; padding: 1rem; border-radius: 8px;">
+                <p><strong>Business Name:</strong> ${name}</p>
+                <p><strong>Address:</strong> ${address}</p>
+                <p><strong>Contact:</strong> ${phone} | ${email}</p>
+                <p><strong>GST Number:</strong> ${gst}</p>
+            </div>
+          `;
+      }
+
+
+      nextButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          if (validateStep(currentStep)) {
+              if (currentStep < steps.length - 1) {
+                  currentStep++;
+                  if(currentStep === 3) {
+                      populateReview();
+                  }
+                  updateStepUI();
+              }
+          }
+        });
+      });
+
+      backButtons.forEach(button => {
+        button.addEventListener('click', () => {
+          if (currentStep > 1) {
+            currentStep--;
+            updateStepUI();
+          }
+        });
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const terms = document.getElementById('terms-consent');
+        if (!terms.checked) {
+            alert('You must agree to the Terms of Service and Privacy Policy.');
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `
+          <svg style="animation: spin 1s linear infinite; width: 20px; height: 20px; margin-right: 8px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" opacity="0.25"></circle><path d="M12 2a10 10 0 0110 10" stroke="currentColor" stroke-width="4" stroke-linecap="round"></path></svg>
+          Submitting...
+        `;
+        
+        // Simulate API call
+        setTimeout(() => {
+          currentStep = 'success';
+          updateStepUI();
+        }, 2000);
+      });
+      
+      // File Upload Handling
+      const fileInputs = document.querySelectorAll('.file-upload-input');
+      fileInputs.forEach(input => {
+          input.addEventListener('change', function() {
+              const previewContainer = document.getElementById(`${this.id.replace('-upload', '')}-preview`);
+              if (this.files && this.files.length > 0) {
+                  previewContainer.innerHTML = `
+                      <span class="file-preview-name">${this.files[0].name}</span>
+                      <button type="button" class="file-preview-remove">&times;</button>
+                  `;
+                  previewContainer.style.display = 'flex';
+                  previewContainer.querySelector('.file-preview-remove').addEventListener('click', () => {
+                      this.value = ''; // Clear the file input
+                      previewContainer.style.display = 'none';
+                      previewContainer.innerHTML = '';
+                  });
+                   this.parentElement.style.borderColor = '';
+              } else {
+                  previewContainer.style.display = 'none';
+              }
+          });
+      });
+
+
+      updateStepUI(); // Initial UI setup
+    });
+  </script>
+</body>
+</html>

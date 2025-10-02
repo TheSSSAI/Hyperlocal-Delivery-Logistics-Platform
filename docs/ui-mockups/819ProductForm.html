@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Form</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body { line-height: 1.6; font-family: 'Inter', sans-serif; background-color: var(--color-neutrals-gray_50); color: var(--color-text-primary); -webkit-font-smoothing: antialiased; }
+    img, picture, video, canvas, svg { display: block; max-width: 100%; }
+    input, button, textarea, select { font: inherit; }
+    p, h1, h2, h3, h4, h5, h6 { overflow-wrap: break-word; }
+
+    /* Design System Tokens */
+    :root {
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray_50: #F7F9FC;
+      --color-neutrals-gray_100: #E9EDF2;
+      --color-neutrals-gray_200: #D3D9E1;
+      --color-neutrals-gray_300: #BCC4CF;
+      --color-neutrals-gray_500: #8E9BAA;
+      --color-neutrals-gray_700: #555D66;
+      --color-neutrals-gray_900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      --color-text-primary: #1C1F22;
+      --color-text-secondary: #555D66;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+    }
+
+    /* Screen Container */
+    .screen-container {
+      padding: var(--spacing-lg);
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .screen-header {
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 1px solid var(--color-neutrals-gray_100);
+    }
+
+    .screen-header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--color-neutrals-gray_900);
+    }
+
+    /* Form Container (Card) */
+    .product-form-card {
+      background: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      padding: var(--spacing-lg);
+      box-shadow: 0px 4px 12px rgba(28, 31, 34, 0.06);
+      max-width: 700px;
+    }
+    
+    .product-form__header {
+        margin-bottom: var(--spacing-lg);
+    }
+    
+    .product-form__header h2 {
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--color-neutrals-gray_900);
+    }
+
+    /* Form Layout */
+    .product-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-lg);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--spacing-md);
+    }
+    
+    @media (min-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    /* FormGroup Component */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-sm);
+    }
+
+    /* Label Component */
+    .label {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--color-neutrals-gray_700);
+    }
+    .label--required::after {
+      content: ' *';
+      color: var(--color-semantic-error);
+    }
+
+    /* TextInput, Textarea, Select Components */
+    .input, .textarea, .select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--color-neutrals-gray_300);
+      border-radius: var(--border-radius-md);
+      background-color: var(--color-neutrals-white);
+      font-size: 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input:focus, .textarea:focus, .select:focus {
+      outline: none;
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+    }
+    .textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    /* Input with Error State */
+    .input.has-error, .textarea.has-error, .select.has-error {
+      border-color: var(--color-semantic-error);
+    }
+    .input.has-error:focus, .textarea.has-error:focus, .select.has-error:focus {
+      box-shadow: 0 0 0 3px rgba(255, 77, 77, 0.2);
+    }
+    .error-message {
+      font-size: 14px;
+      color: var(--color-semantic-error);
+      display: none; /* Hidden by default */
+    }
+    .has-error + .error-message {
+      display: block; /* Shown when input has error */
+    }
+
+    /* FileUpload Component */
+    .file-upload {
+      border: 2px dashed var(--color-neutrals-gray_200);
+      border-radius: var(--border-radius-md);
+      padding: var(--spacing-lg);
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background-color 0.2s;
+    }
+    .file-upload:hover {
+      border-color: var(--color-primary-300);
+      background-color: var(--color-primary-50);
+    }
+    .file-upload__input {
+      display: none; /* Hide the actual file input */
+    }
+    .file-upload__icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto var(--spacing-md);
+      color: var(--color-primary-500);
+    }
+    .file-upload__text {
+      font-weight: 500;
+      color: var(--color-primary-500);
+    }
+    .file-upload__hint {
+      font-size: 14px;
+      color: var(--color-text-secondary);
+      margin-top: var(--spacing-xs);
+    }
+    .file-upload__preview {
+      display: none; /* Hidden by default */
+      flex-direction: column;
+      align-items: center;
+      gap: var(--spacing-md);
+    }
+    .file-upload__preview-image {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-neutrals-gray_100);
+    }
+    .file-upload__preview-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+    }
+    .file-upload__preview-name {
+        font-size: 14px;
+        color: var(--color-text-secondary);
+    }
+
+    /* Form Actions */
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-lg);
+      border-top: 1px solid var(--color-neutrals-gray_100);
+      padding-top: var(--spacing-lg);
+    }
+
+    /* Button Component */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--spacing-sm);
+      padding: 12px 24px;
+      border-radius: var(--border-radius-md);
+      border: 1px solid transparent;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
+    }
+    .btn:focus-visible {
+        outline: 3px solid var(--color-primary-300);
+        outline-offset: 2px;
+    }
+
+    /* Primary Button */
+    .btn--primary {
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+    }
+    .btn--primary:hover {
+      background-color: var(--color-primary-600);
+    }
+    .btn--primary:active {
+      background-color: var(--color-primary-700);
+      transform: scale(0.98);
+    }
+
+    /* Secondary Button */
+    .btn--secondary {
+      background-color: var(--color-neutrals-white);
+      color: var(--color-neutrals-gray_700);
+      border-color: var(--color-neutrals-gray_300);
+    }
+    .btn--secondary:hover {
+      background-color: var(--color-neutrals-gray_50);
+    }
+    
+    /* Disabled & Loading Button */
+    .btn:disabled {
+      background-color: var(--color-neutrals-gray_200);
+      color: var(--color-neutrals-gray_500);
+      cursor: not-allowed;
+      border-color: var(--color-neutrals-gray_200);
+    }
+    
+    .btn--loading .btn__text {
+      visibility: hidden;
+    }
+    .btn--loading .spinner {
+      position: absolute;
+    }
+    
+    /* Spinner Component */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spinner-rotation 0.75s linear infinite;
+    }
+    @keyframes spinner-rotation {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Variants Section */
+    .screen-variations {
+      margin-top: var(--spacing-xl);
+    }
+    .variation-group {
+      margin-bottom: var(--spacing-xl);
+    }
+    .variation-group h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: var(--spacing-md);
+    }
+    .variation-group p {
+        color: var(--color-text-secondary);
+        margin-bottom: var(--spacing-lg);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-container">
+    <header class="screen-header">
+      <h1>Product Management</h1>
+    </header>
+    
+    <main class="screen-content">
+      <div class="screen-variations">
+        <!-- Add Product Variant -->
+        <div class="variation-group">
+          <h3>Variant Name: "Add Product"</h3>
+          <p>The default empty form for creating a new product. The save button is disabled until all required fields are validly filled.</p>
+          <div class="product-form-card">
+            <div class="product-form__header">
+              <h2>Add a New Product</h2>
+            </div>
+            <form class="product-form">
+              <div class="form-group">
+                <label for="add-product-name" class="label label--required">Product Name</label>
+                <input type="text" id="add-product-name" class="input" placeholder="e.g., Spicy Chicken Ramen" required>
+                <span class="error-message">Product name is required.</span>
+              </div>
+              <div class="form-group">
+                <label for="add-product-desc" class="label">Description</label>
+                <textarea id="add-product-desc" class="textarea" placeholder="Describe the product for your customers."></textarea>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="add-product-price" class="label label--required">Price (₹)</label>
+                  <input type="number" id="add-product-price" class="input" placeholder="e.g., 250.00" required min="0" step="0.01">
+                  <span class="error-message">Price must be a positive number.</span>
+                </div>
+                <div class="form-group">
+                  <label for="add-product-stock" class="label label--required">Stock Quantity</label>
+                  <input type="number" id="add-product-stock" class="input" placeholder="e.g., 50" required min="0" step="1">
+                  <span class="error-message">Stock must be a whole number.</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="add-product-category" class="label label--required">Category</label>
+                <select id="add-product-category" class="select" required>
+                  <option value="" disabled selected>Select a category</option>
+                  <option value="appetizers">Appetizers</option>
+                  <option value="main-course">Main Course</option>
+                  <option value="desserts">Desserts</option>
+                  <option value="beverages">Beverages</option>
+                </select>
+                <span class="error-message">Please select a category.</span>
+              </div>
+              <div class="form-group">
+                <label class="label label--required">Product Image</label>
+                <label for="add-file-upload" class="file-upload">
+                  <input type="file" id="add-file-upload" class="file-upload__input" accept="image/png, image/jpeg">
+                  <svg class="file-upload__icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                  <span class="file-upload__text">Click to upload or drag & drop</span>
+                  <p class="file-upload__hint">PNG or JPG (max. 5MB)</p>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn--secondary">Cancel</button>
+                <button type="submit" class="btn btn--primary" disabled>Save Product</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Edit Product Variant -->
+        <div class="variation-group">
+          <h3>Variant Name: "Edit Product"</h3>
+          <p>The form pre-filled with data for an existing product. It shows an image preview and allows for all fields to be modified.</p>
+          <div class="product-form-card">
+            <div class="product-form__header">
+              <h2>Edit Product</h2>
+            </div>
+            <form class="product-form">
+              <div class="form-group">
+                <label for="edit-product-name" class="label label--required">Product Name</label>
+                <input type="text" id="edit-product-name" class="input" value="Spicy Chicken Ramen" required>
+              </div>
+              <div class="form-group">
+                <label for="edit-product-desc" class="label">Description</label>
+                <textarea id="edit-product-desc" class="textarea">A rich and spicy chicken broth ramen, topped with a soft-boiled egg, nori, and fresh scallions.</textarea>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="edit-product-price" class="label label--required">Price (₹)</label>
+                  <input type="number" id="edit-product-price" class="input" value="320.00" required min="0" step="0.01">
+                </div>
+                <div class="form-group">
+                  <label for="edit-product-stock" class="label label--required">Stock Quantity</label>
+                  <input type="number" id="edit-product-stock" class="input" value="25" required min="0" step="1">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="edit-product-category" class="label label--required">Category</label>
+                <select id="edit-product-category" class="select" required>
+                  <option value="appetizers">Appetizers</option>
+                  <option value="main-course" selected>Main Course</option>
+                  <option value="desserts">Desserts</option>
+                  <option value="beverages">Beverages</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="label">Product Image</label>
+                <label for="edit-file-upload" class="file-upload">
+                  <input type="file" id="edit-file-upload" class="file-upload__input" accept="image/png, image/jpeg">
+                  <div class="file-upload__preview" style="display: flex;">
+                    <img src="https://images.unsplash.com/photo-1591814468924-caf88d1232e1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=200&q=80" alt="Spicy Chicken Ramen" class="file-upload__preview-image">
+                    <div class="file-upload__preview-info">
+                        <span class="file-upload__preview-name">ramen.jpg</span>
+                        <button type="button" class="btn btn--secondary" style="padding: 4px 8px; font-size: 14px;">Change</button>
+                    </div>
+                  </div>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn--secondary">Cancel</button>
+                <button type="submit" class="btn btn--primary">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Validation Error Variant -->
+        <div class="variation-group">
+          <h3>Variant Name: "Validation Errors"</h3>
+          <p>The form after a failed submission attempt. Invalid fields are highlighted, and specific error messages are displayed.</p>
+          <div class="product-form-card">
+            <div class="product-form__header">
+              <h2>Add a New Product</h2>
+            </div>
+            <form class="product-form">
+              <div class="form-group">
+                <label for="error-product-name" class="label label--required">Product Name</label>
+                <input type="text" id="error-product-name" class="input" value="Chocolate Lava Cake" required>
+              </div>
+              <div class="form-group">
+                <label for="error-product-desc" class="label">Description</label>
+                <textarea id="error-product-desc" class="textarea"></textarea>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="error-product-price" class="label label--required">Price (₹)</label>
+                  <input type="number" id="error-product-price" class="input has-error" value="-10" required min="0" step="0.01">
+                  <span class="error-message" style="display: block;">Price must be a positive number.</span>
+                </div>
+                <div class="form-group">
+                  <label for="error-product-stock" class="label label--required">Stock Quantity</label>
+                  <input type="number" id="error-product-stock" class="input" required min="0" step="1">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="error-product-category" class="label label--required">Category</label>
+                <select id="error-product-category" class="select has-error" required>
+                  <option value="" disabled selected>Select a category</option>
+                  <option value="appetizers">Appetizers</option>
+                  <option value="main-course">Main Course</option>
+                  <option value="desserts">Desserts</option>
+                  <option value="beverages">Beverages</option>
+                </select>
+                <span class="error-message" style="display: block;">Please select a category.</span>
+              </div>
+              <div class="form-actions">
+                <button type="button" class="btn btn--secondary">Cancel</button>
+                <button type="submit" class="btn btn--primary">Save Product</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Saving State Variant -->
+        <div class="variation-group">
+          <h3>Variant Name: "Saving State"</h3>
+          <p>The form after the user has clicked 'Save'. All inputs are disabled, and the save button shows a loading spinner to indicate processing.</p>
+          <div class="product-form-card">
+            <div class="product-form__header">
+              <h2>Edit Product</h2>
+            </div>
+            <form class="product-form">
+              <fieldset disabled>
+                <div class="form-group">
+                  <label for="saving-product-name" class="label label--required">Product Name</label>
+                  <input type="text" id="saving-product-name" class="input" value="Spicy Chicken Ramen" required>
+                </div>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="saving-product-price" class="label label--required">Price (₹)</label>
+                    <input type="number" id="saving-product-price" class="input" value="320.00" required min="0" step="0.01">
+                  </div>
+                  <div class="form-group">
+                    <label for="saving-product-stock" class="label label--required">Stock Quantity</label>
+                    <input type="number" id="saving-product-stock" class="input" value="25" required min="0" step="1">
+                  </div>
+                </div>
+              </fieldset>
+              <div class="form-actions">
+                <button type="button" class="btn btn--secondary" disabled>Cancel</button>
+                <button type="submit" class="btn btn--primary btn--loading" disabled>
+                  <span class="btn__text">Save Changes</span>
+                  <div class="spinner"></div>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+  
+</body>
+</html>

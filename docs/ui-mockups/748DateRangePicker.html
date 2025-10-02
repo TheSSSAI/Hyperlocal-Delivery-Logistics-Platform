@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DateRangePicker Component</title>
+  <style>
+    /* Design System Tokens */
+    :root {
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-100: #E9EDF2;
+      --color-gray-200: #D3D9E1;
+      --color-gray-300: #BCC4CF;
+      --color-gray-400: #A5B0BD;
+      --color-gray-500: #8E9BAA;
+      --color-gray-700: #555D66;
+      --color-gray-900: #1C1F22;
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+      --space-5: 24px; --space-6: 32px;
+      --radius-md: 8px; --radius-lg: 12px;
+      --shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.08), 0px 0px 1px rgba(0,0,0,0.1);
+    }
+
+    /* Base & Showcase Styles */
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-gray-50);
+      color: var(--color-gray-900);
+      margin: 0;
+      padding: var(--space-6);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+    .showcase {
+      width: 100%;
+      max-width: 1000px;
+    }
+    .showcase h2 {
+      margin-bottom: var(--space-4);
+    }
+    .showcase-section {
+      background-color: var(--color-white);
+      padding: var(--space-6);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-6);
+    }
+
+    /* Component: DateRangePicker CSS */
+    .date-range-picker {
+      position: relative;
+      display: inline-block;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .drp-trigger {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--radius-md);
+      background-color: var(--color-white);
+      cursor: pointer;
+      text-align: left;
+      font-family: var(--font-family-primary);
+      font-size: 16px;
+      color: var(--color-gray-900);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .drp-trigger:focus-visible,
+    .date-range-picker--active .drp-trigger {
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+      outline: none;
+    }
+
+    .drp-trigger__icon {
+      margin-right: var(--space-3);
+      color: var(--color-gray-500);
+    }
+
+    .drp-trigger__text {
+      flex-grow: 1;
+      color: var(--color-gray-900);
+    }
+    
+    .drp-trigger__text--placeholder {
+     color: var(--color-gray-500);
+    }
+
+    /* Popover */
+    .drp-popover {
+      position: absolute;
+      top: calc(100% + var(--space-2));
+      left: 0;
+      z-index: 100;
+      display: none;
+      background-color: var(--color-white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--color-gray-100);
+    }
+
+    .date-range-picker--active .drp-popover {
+      display: flex;
+    }
+    
+    .drp-popover__content {
+        display: flex;
+        padding: var(--space-4);
+    }
+    
+    .drp-popover__footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-top: 1px solid var(--color-gray-100);
+    }
+
+    /* Presets */
+    .drp-presets {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2);
+      padding-right: var(--space-4);
+      border-right: 1px solid var(--color-gray-100);
+      min-width: 140px;
+    }
+
+    .drp-presets__btn {
+      width: 100%;
+      justify-content: flex-start;
+      background: none;
+      border: none;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-md);
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      color: var(--color-gray-700);
+    }
+
+    .drp-presets__btn:hover {
+      background-color: var(--color-gray-50);
+    }
+
+    .drp-presets__btn--active {
+      background-color: var(--color-primary-50);
+      color: var(--color-primary-600);
+    }
+
+    /* Calendars */
+    .drp-calendars {
+      display: flex;
+      gap: var(--space-5);
+      padding-left: var(--space-4);
+    }
+
+    .calendar {
+      width: 280px;
+    }
+
+    .calendar__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-2) 0;
+      margin-bottom: var(--space-3);
+    }
+
+    .calendar__title {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .calendar__nav-btn {
+      background: none;
+      border: none;
+      padding: var(--space-2);
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .calendar__nav-btn:hover {
+      background-color: var(--color-gray-100);
+    }
+    .calendar__nav-btn:focus-visible {
+        outline: 2px solid var(--color-primary-300);
+        outline-offset: 1px;
+    }
+
+    .calendar__weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--color-gray-500);
+      padding-bottom: var(--space-2);
+    }
+
+    .calendar__days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+    }
+
+    .calendar__day {
+      border: none;
+      background-color: transparent;
+      height: 40px;
+      width: 40px;
+      border-radius: 50%;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.15s ease-out, color 0.15s ease-out;
+    }
+
+    .calendar__day:not(:disabled):hover {
+      background-color: var(--color-gray-100);
+    }
+    .calendar__day:focus-visible {
+        outline: 2px solid var(--color-primary-300);
+        outline-offset: 1px;
+    }
+
+    .calendar__day--today:not(.calendar__day--start-date):not(.calendar__day--end-date) {
+      font-weight: bold;
+      border: 1px solid var(--color-primary-300);
+      color: var(--color-primary-600);
+    }
+
+    .calendar__day--in-range {
+        background-color: var(--color-primary-50);
+        border-radius: 0;
+    }
+    
+    .calendar__day--in-range:hover {
+        background-color: var(--color-primary-100);
+    }
+    
+    .calendar__day--start-date,
+    .calendar__day--end-date {
+        background-color: var(--color-primary-500);
+        color: var(--color-white);
+    }
+    
+    .calendar__day--start-date:hover,
+    .calendar__day--end-date:hover {
+        background-color: var(--color-primary-600);
+    }
+    
+    .calendar__day--start-date {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    .calendar__day--end-date {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    .calendar__day--other-month {
+        color: var(--color-gray-400);
+    }
+
+    .calendar__day:disabled {
+        color: var(--color-gray-300);
+        cursor: not-allowed;
+        text-decoration: line-through;
+    }
+    
+    .drp-footer .btn {
+      padding: var(--space-2) var(--space-4);
+      min-height: auto;
+      font-size: 14px;
+    }
+    .btn--secondary { background-color: var(--color-white); color: var(--color-gray-700); border-color: var(--color-gray-300); }
+    .btn--secondary:hover { background-color: var(--color-gray-50); }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .drp-popover {
+        width: 320px;
+      }
+      .drp-popover__content {
+        flex-direction: column;
+      }
+      .drp-presets {
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding-right: 0;
+        padding-bottom: var(--space-4);
+        border-right: none;
+        border-bottom: 1px solid var(--color-gray-100);
+      }
+      .drp-calendars {
+        flex-direction: column;
+        padding-left: 0;
+        padding-top: var(--space-4);
+        gap: var(--space-4);
+      }
+      .drp-calendars .calendar:last-child {
+          display: none; /* Hide second calendar on mobile */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase">
+    <div class="showcase-section">
+      <h2>DateRangePicker</h2>
+      <p>A composite component for selecting date ranges with preset options and a calendar view.</p>
+      
+      <h3>States</h3>
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <div>
+            <h4>Default (Closed)</h4>
+            <div class="date-range-picker">
+                <button class="drp-trigger" aria-haspopup="true">
+                    <svg class="drp-trigger__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span class="drp-trigger__text drp-trigger__text--placeholder">Select Date Range</span>
+                </button>
+            </div>
+        </div>
+        
+        <div style="min-height: 500px;">
+            <h4>Active (Open)</h4>
+            <div class="date-range-picker date-range-picker--active">
+                <button class="drp-trigger" aria-haspopup="true" aria-expanded="true">
+                    <svg class="drp-trigger__icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span class="drp-trigger__text">Jan 10, 2024 - Jan 24, 2024</span>
+                </button>
+                <div class="drp-popover" role="dialog" aria-modal="true" aria-label="Date Range Picker">
+                    <div class="drp-popover__content">
+                        <div class="drp-presets">
+                          <button class="drp-presets__btn">Today</button>
+                          <button class="drp-presets__btn">Last 7 Days</button>
+                          <button class="drp-presets__btn drp-presets__btn--active">Last 30 Days</button>
+                          <button class="drp-presets__btn">This Month</button>
+                          <button class="drp-presets__btn">Last Month</button>
+                        </div>
+                        <div class="drp-calendars">
+                            <div class="calendar">
+                                <div class="calendar__header">
+                                    <button class="calendar__nav-btn" aria-label="Previous month">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                    </button>
+                                    <div class="calendar__title">January 2024</div>
+                                    <button class="calendar__nav-btn" aria-label="Next month">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                    </button>
+                                </div>
+                                <div class="calendar__weekdays">
+                                    <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                                </div>
+                                <div class="calendar__days">
+                                    <button class="calendar__day calendar__day--other-month" disabled>31</button>
+                                    <button class="calendar__day">1</button>
+                                    <button class="calendar__day">2</button>
+                                    <button class="calendar__day">3</button>
+                                    <button class="calendar__day">4</button>
+                                    <button class="calendar__day">5</button>
+                                    <button class="calendar__day">6</button>
+                                    <button class="calendar__day">7</button>
+                                    <button class="calendar__day">8</button>
+                                    <button class="calendar__day">9</button>
+                                    <button class="calendar__day calendar__day--start-date">10</button>
+                                    <button class="calendar__day calendar__day--in-range">11</button>
+                                    <button class="calendar__day calendar__day--in-range">12</button>
+                                    <button class="calendar__day calendar__day--in-range">13</button>
+                                    <button class="calendar__day calendar__day--in-range">14</button>
+                                    <button class="calendar__day calendar__day--in-range">15</button>
+                                    <button class="calendar__day calendar__day--in-range">16</button>
+                                    <button class="calendar__day calendar__day--in-range">17</button>
+                                    <button class="calendar__day calendar__day--in-range">18</button>
+                                    <button class="calendar__day calendar__day--in-range">19</button>
+                                    <button class="calendar__day calendar__day--in-range">20</button>
+                                    <button class="calendar__day calendar__day--in-range">21</button>
+                                    <button class="calendar__day calendar__day--in-range">22</button>
+                                    <button class="calendar__day calendar__day--in-range calendar__day--today">23</button>
+                                    <button class="calendar__day calendar__day--end-date">24</button>
+                                    <button class="calendar__day">25</button>
+                                    <button class="calendar__day">26</button>
+                                    <button class="calendar__day">27</button>
+                                    <button class="calendar__day">28</button>
+                                    <button class="calendar__day">29</button>
+                                    <button class="calendar__day" disabled>30</button>
+                                    <button class="calendar__day" disabled>31</button>
+                                </div>
+                            </div>
+                            <div class="calendar">
+                              <div class="calendar__header">
+                                  <button class="calendar__nav-btn" aria-label="Previous month">
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                  </button>
+                                  <div class="calendar__title">February 2024</div>
+                                  <button class="calendar__nav-btn" aria-label="Next month">
+                                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                  </button>
+                              </div>
+                              <div class="calendar__weekdays">
+                                  <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                              </div>
+                              <div class="calendar__days">
+                                <button class="calendar__day calendar__day--other-month" disabled>28</button>
+                                <button class="calendar__day calendar__day--other-month" disabled>29</button>
+                                <button class="calendar__day calendar__day--other-month" disabled>30</button>
+                                <button class="calendar__day calendar__day--other-month" disabled>31</button>
+                                <button class="calendar__day" disabled>1</button>
+                                <button class="calendar__day" disabled>2</button>
+                                <button class="calendar__day" disabled>3</button>
+                                <button class="calendar__day" disabled>4</button>
+                                <button class="calendar__day" disabled>5</button>
+                                <button class="calendar__day" disabled>6</button>
+                                <button class="calendar__day" disabled>7</button>
+                                <button class="calendar__day" disabled>8</button>
+                                <button class="calendar__day" disabled>9</button>
+                                <button class="calendar__day" disabled>10</button>
+                                <button class="calendar__day" disabled>11</button>
+                                <button class="calendar__day" disabled>12</button>
+                                <button class="calendar__day" disabled>13</button>
+                                <button class="calendar__day" disabled>14</button>
+                                <button class="calendar__day" disabled>15</button>
+                                <button class="calendar__day" disabled>16</button>
+                                <button class="calendar__day" disabled>17</button>
+                                <button class="calendar__day" disabled>18</button>
+                                <button class="calendar__day" disabled>19</button>
+                                <button class="calendar__day" disabled>20</button>
+                                <button class="calendar__day" disabled>21</button>
+                                <button class="calendar__day" disabled>22</button>
+                                <button class="calendar__day" disabled>23</button>
+                                <button class="calendar__day" disabled>24</button>
+                                <button class="calendar__day" disabled>25</button>
+                                <button class="calendar__day" disabled>26</button>
+                                <button class="calendar__day" disabled>27</button>
+                                <button class="calendar__day" disabled>28</button>
+                                <button class="calendar__day" disabled>29</button>
+                              </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div class="drp-popover__footer">
+                        <button class="btn btn--secondary">Cancel</button>
+                        <button class="btn btn--primary">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+    
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : with-presets<h3>
+		<!--description--><normal> The component includes a column of preset date ranges, such as 'Today', 'Last 7 Days', and 'This Month', for quick selection. </normal>
+		<!-- vrient 1 html -->
+        <div class="drp-presets">
+  <button class="drp-presets__btn">Today</button>
+  <button class="drp-presets__btn drp-presets__btn--active">Last 7 Days</button>
+  <button class="drp-presets__btn">Last 30 Days</button>
+  <button class="drp-presets__btn">This Month</button>
+</div>     
+		
+      <div>
+	 </div>
+	
+	</body>
+</html>

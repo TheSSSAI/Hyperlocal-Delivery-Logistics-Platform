@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: StarRating</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    body, h1, h2, h3, p, fieldset { margin: 0; }
+    fieldset { border: 0; padding: 0; }
+
+    /* Design System Tokens */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --fs-h3: 28px;
+      --fs-h4: 20px;
+      --fs-body: 16px;
+      --fs-caption: 14px;
+      
+      /* Colors */
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-200: #D3D9E1;
+      --color-gray-300: #BCC4CF;
+      --color-gray-600: #717C88;
+      --color-gray-800: #383E44;
+      --color-gray-900: #1C1F22;
+      --color-warning: #FFB800;
+
+      /* Spacing */
+      --space-1: 4px; --space-2: 8px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+      
+      /* Borders & Shadows */
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* Base & Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-gray-50);
+      color: var(--color-gray-800);
+      padding: var(--space-6);
+    }
+    .showcase {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: var(--color-white);
+      padding: var(--space-6);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    .showcase h1 {
+      font-size: var(--fs-h3);
+      color: var(--color-gray-900);
+      margin-bottom: var(--space-5);
+    }
+    .variant-section {
+      margin-bottom: var(--space-6);
+    }
+    .variant-section h2 {
+      font-size: var(--fs-h4);
+      margin-bottom: var(--space-2);
+      border-bottom: 1px solid var(--color-gray-200);
+      padding-bottom: var(--space-2);
+    }
+    .variant-section p {
+      font-size: var(--fs-caption);
+      color: var(--color-gray-600);
+      margin-bottom: var(--space-4);
+      max-width: 60ch;
+    }
+    .example-group {
+        padding: var(--space-4);
+        border: 1px dashed var(--color-gray-200);
+        border-radius: 8px;
+    }
+    .example-group > legend, .example-group > .legend-label {
+        font-size: var(--fs-body);
+        font-weight: var(--font-weight-semibold);
+        color: var(--color-gray-900);
+        margin-bottom: var(--space-4);
+    }
+
+    /* SVG Icon Definitions */
+    .icon {
+      display: inline-block;
+      width: 1em;
+      height: 1em;
+      stroke-width: 0;
+      stroke: currentColor;
+      fill: currentColor;
+    }
+    
+    /* Component CSS: StarRating */
+    
+    /* Base styles for all rating components */
+    .star-rating {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+    }
+    
+    .star-rating__icon {
+      width: 1em;
+      height: 1em;
+      stroke-width: 0;
+      stroke: currentColor;
+      fill: currentColor;
+    }
+    
+    /* Interactive Variant */
+    .star-rating--interactive {
+      font-size: 1.5rem;
+      flex-direction: row-reverse; /* Crucial for CSS sibling selector trick */
+      justify-content: flex-end;
+    }
+    
+    .star-rating--interactive .star-rating__label {
+      cursor: pointer;
+      color: var(--color-gray-300);
+      transition: color 0.2s ease-out;
+    }
+    
+    .star-rating--interactive .star-rating__input {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      clip: rect(0 0 0 0);
+    }
+    
+    /* Hover effect: color stars up to the one being hovered */
+    .star-rating--interactive:hover .star-rating__label:hover ~ .star-rating__label,
+    .star-rating--interactive:hover .star-rating__label:hover {
+      color: var(--color-warning);
+    }
+    
+    /* Selected state: keep stars colored up to the checked one */
+    .star-rating--interactive .star-rating__input:checked ~ .star-rating__label {
+      color: var(--color-warning);
+    }
+    
+    /* Focus state: apply outline to the label of the focused input */
+    .star-rating--interactive .star-rating__input:focus-visible + .star-rating__label {
+      outline: 3px solid var(--color-primary-300);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+    
+    
+    /* Read-Only Variant */
+    .star-rating--read-only {
+      position: relative;
+      color: var(--color-gray-200);
+      font-size: 1.25rem;
+    }
+    
+    .star-rating--read-only .star-rating__filled {
+      position: absolute;
+      top: 0;
+      left: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      color: var(--color-warning);
+      width: var(--rating-percent, 0%);
+    }
+
+    .star-rating--read-only .star-rating__background,
+    .star-rating--read-only .star-rating__filled {
+      display: flex;
+      gap: var(--space-1);
+    }
+    
+    /* Responsive Adaptations: Larger touch targets for mobile */
+    @media (max-width: 768px) {
+      .star-rating--interactive {
+        font-size: 2rem; /* Increases icon size and touch target */
+      }
+      .star-rating--interactive .star-rating__label {
+        padding: var(--space-2); /* Adds spacing around icon */
+        margin: -8px; /* Negative margin to keep visual alignment tight */
+      }
+      .star-rating--read-only {
+         font-size: 1.5rem;
+      }
+    }
+
+  </style>
+</head>
+<body>
+  
+  <!-- SVG Icon Definition -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="icon-star" viewBox="0 0 24 24">
+        <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+      </symbol>
+    </defs>
+  </svg>
+
+  <main class="showcase">
+    <h1>Molecular Component: StarRating</h1>
+
+    <div>
+      <h2>Component Variations</h2>
+
+      <div class="variant-section">
+        <h3>Variant Name: "interactive"</h3>
+        <p>Used in forms to allow users to select a rating from 1 to 5. It is built on top of radio inputs for native accessibility and keyboard support.</p>
+        <fieldset class="example-group">
+          <legend>How was your experience?</legend>
+          <div class="star-rating star-rating--interactive">
+            <input class="star-rating__input" type="radio" id="rating-5" name="rating-group-1" value="5"><label class="star-rating__label" for="rating-5" title="5 stars"><svg class="star-rating__icon"><use href="#icon-star" /></svg></label>
+            <input class="star-rating__input" type="radio" id="rating-4" name="rating-group-1" value="4"><label class="star-rating__label" for="rating-4" title="4 stars"><svg class="star-rating__icon"><use href="#icon-star" /></svg></label>
+            <input class="star-rating__input" type="radio" id="rating-3" name="rating-group-1" value="3"><label class="star-rating__label" for="rating-3" title="3 stars"><svg class="star-rating__icon"><use href="#icon-star" /></svg></label>
+            <input class="star-rating__input" type="radio" id="rating-2" name="rating-group-1" value="2"><label class="star-rating__label" for="rating-2" title="2 stars"><svg class="star-rating__icon"><use href="#icon-star" /></svg></label>
+            <input class="star-rating__input" type="radio" id="rating-1" name="rating-group-1" value="1"><label class="star-rating__label" for="rating-1" title="1 star"><svg class="star-rating__icon"><use href="#icon-star" /></svg></label>
+          </div>
+        </fieldset>
+        
+        <fieldset class="example-group" style="margin-top: 16px;">
+          <legend>Example with pre-selected value:</legend>
+          <div class="star-rating star-rating--interactive">
+            <input class="star-rating__input" type="radio" id="rating-p-5" name="rating-group-2" value="5"><label class="star-rating__label" for="rating-p-5" title="5 stars"><svg class="star-rating__icon"><use href="#icon-star" /></svg></label>
+            <input class="star-rating__input" type="radio" id="rating-p-4" name="rating-group-2" value="4"><label class="star-rating__label" for="rating-p-4" title="4 stars"><svg class="star-rating__icon"><use href="#icon-star" /></svg></label>
+            <input class="star-rating__input" type="radio" id="rating-p-3" name="rating-group-2" value="3" checked><label class="star-rating__label" for="rating-p-3" title="3 stars"><svg class="star-rating__icon"><use href="#icon-star" /></svg></label>
+            <input class="star-rating__input" type="radio" id="rating-p-2" name="rating-group-2" value="2"><label class="star-rating__label" for="rating-p-2" title="2 stars"><svg class="star-rating__icon"><use href="#icon-star" /></svg></label>
+            <input class="star-rating__input" type="radio" id="rating-p-1" name="rating-group-2" value="1"><label class="star-rating__label" for="rating-p-1" title="1 star"><svg class="star-rating__icon"><use href="#icon-star" /></svg></label>
+          </div>
+        </fieldset>
+      </div>
+      
+      <div class="variant-section">
+        <h3>Variant Name: "read-only"</h3>
+        <p>Used to display an average rating. Supports decimal values by setting the `--rating-percent` CSS custom property. It includes an `aria-label` for screen reader accessibility.</p>
+        <div class="example-group">
+            <div class="legend-label">Vendor Rating (4 / 5):</div>
+            <div class="star-rating star-rating--read-only" style="--rating-percent: 80%;" aria-label="Rated 4 out of 5 stars">
+                <div class="star-rating__background" aria-hidden="true">
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                </div>
+                <div class="star-rating__filled" aria-hidden="true">
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                </div>
+            </div>
+        </div>
+        
+        <div class="example-group" style="margin-top: 16px;">
+            <div class="legend-label">Product Rating (3.5 / 5):</div>
+            <div class="star-rating star-rating--read-only" style="--rating-percent: 70%;" aria-label="Rated 3.5 out of 5 stars">
+                <div class="star-rating__background" aria-hidden="true">
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                </div>
+                <div class="star-rating__filled" aria-hidden="true">
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                </div>
+            </div>
+        </div>
+
+        <div class="example-group" style="margin-top: 16px;">
+            <div class="legend-label">No ratings yet (0 / 5):</div>
+            <div class="star-rating star-rating--read-only" style="--rating-percent: 0%;" aria-label="Rated 0 out of 5 stars">
+                <div class="star-rating__background" aria-hidden="true">
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                </div>
+                <div class="star-rating__filled" aria-hidden="true">
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                    <svg class="star-rating__icon"><use href="#icon-star" /></svg>
+                </div>
+            </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</body>
+</html>

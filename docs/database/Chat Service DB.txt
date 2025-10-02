@@ -1,0 +1,13 @@
+/* Switch to the chat_db database. It will be created if it doesn't exist upon first data insertion. */
+use chat_db;
+
+/* Create the ChatMessage collection. In MongoDB/DocumentDB, collections are often created implicitly 
+   when the first document is inserted. However, explicit creation allows for setting specific options if needed. */
+db.createCollection("ChatMessage");
+
+/* Create a compound index on conversationId and createdAt to optimize queries for fetching chat history.
+   This index supports fetching all messages for a specific conversation, sorted by the time they were created. */
+db.ChatMessage.createIndex(
+   { "conversationId": 1, "createdAt": 1 },
+   { "name": "IX_ChatMessage_Conversation_CreatedAt" }
+);

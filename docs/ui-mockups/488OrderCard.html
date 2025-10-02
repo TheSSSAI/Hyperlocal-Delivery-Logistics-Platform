@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: Order Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* ---------------------------------- */
+    /* --- 1. DESIGN SYSTEM FOUNDATION -- */
+    /* ---------------------------------- */
+    :root {
+      /* Colors */
+      --color-primary-500: #2563eb;
+      --color-primary-600: #1d4ed8;
+      --color-secondary-600: #4b5563;
+      --color-danger-500: #dc2626;
+      --color-danger-600: #b91c1c;
+      --color-success-500: #16a34a;
+      --color-success-100: #dcfce7;
+      --color-warning-500: #f59e0b;
+      --color-warning-100: #fef3c7;
+      --color-info-500: #3b82f6;
+      --color-info-100: #dbeafe;
+      --color-neutral-50: #f8f9fa;
+      --color-neutral-100: #f1f3f5;
+      --color-neutral-200: #e9ecef;
+      --color-neutral-400: #ced4da;
+      --color-neutral-600: #6c757d;
+      --color-neutral-800: #343a40;
+      --color-neutral-900: #212529;
+      --color-white: #ffffff;
+      /* Typography */
+      --font-family-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-size-sm: 0.875rem;
+      --font-size-base: 1rem;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      /* Spacing */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+      /* Borders & Shadows */
+      --border-radius-sm: 0.25rem;
+      --border-radius-md: 0.5rem;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+
+    /* ---------------------------------- */
+    /* -------- 2. BASE & LAYOUT -------- */
+    /* ---------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-family-sans);
+      background-color: var(--color-neutral-100);
+      margin: 0;
+      padding: var(--space-xl);
+    }
+    .showcase-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .showcase-header {
+      margin-bottom: var(--space-xl);
+      padding-bottom: var(--space-md);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+    h1 {
+      font-size: 1.5rem;
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutral-900);
+      margin: 0 0 var(--space-xs);
+    }
+    h2 {
+      font-size: 1.25rem;
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutral-800);
+      margin: var(--space-xl) 0 var(--space-md);
+    }
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: var(--space-lg);
+    }
+
+    /* --------------------------------------- */
+    /* --- 3. ATOMIC COMPONENT STUBS --------- */
+    /* --------------------------------------- */
+    .badge { display: inline-flex; align-items: center; gap: var(--space-xs); padding: var(--space-xs) var(--space-sm); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); line-height: 1; border-radius: 9999px; }
+    .badge--success { color: var(--color-success-500); background-color: var(--color-success-100); }
+    .badge--warning { color: var(--color-warning-500); background-color: var(--color-warning-100); }
+    .badge--error { color: var(--color-danger-500); background-color: #fee2e2; }
+    .badge--info { color: var(--color-info-500); background-color: var(--color-info-100); }
+    
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-sm); font-weight: var(--font-weight-medium); text-decoration: none; cursor: pointer; border: 1px solid transparent; border-radius: var(--border-radius-sm); transition: all var(--transition-fast); font-size: var(--font-size-sm); padding: 0.5rem 1rem; min-height: 38px; }
+    .btn:disabled { opacity: 0.65; cursor: not-allowed; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-white); }
+    .btn--primary:hover:not(:disabled) { background-color: var(--color-primary-600); }
+    .btn--secondary { background-color: var(--color-white); color: var(--color-secondary-600); border-color: var(--color-neutral-400); }
+    .btn--secondary:hover:not(:disabled) { background-color: var(--color-neutral-100); }
+    .btn--danger { background-color: transparent; color: var(--color-danger-500); }
+    .btn--danger:hover:not(:disabled) { background-color: #fee2e2; }
+
+    .countdown-timer { display: flex; align-items: center; gap: var(--space-xs); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); color: var(--color-danger-500); }
+    .countdown-timer svg { width: 1em; height: 1em; }
+
+    /* --------------------------------------- */
+    /* --- 4. MOLECULAR: ORDER CARD ---------- */
+    /* --------------------------------------- */
+    .order-card {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-neutral-200);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition-fast);
+      text-decoration: none;
+      color: inherit;
+    }
+    a.order-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md);
+    }
+    .order-card__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-sm) var(--space-md);
+      background-color: var(--color-neutral-50);
+      border-bottom: 1px solid var(--color-neutral-200);
+    }
+    .order-card__title {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutral-800);
+    }
+    .order-card__content {
+      padding: var(--space-md);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+    }
+    .order-card__detail {
+      display: flex;
+      flex-direction: column;
+    }
+    .order-card__detail-label {
+      font-size: var(--font-size-sm);
+      color: var(--color-neutral-600);
+      margin-bottom: var(--space-xs);
+    }
+    .order-card__detail-value {
+      font-size: var(--font-size-base);
+      font-weight: var(--font-weight-medium);
+      color: var(--color-neutral-900);
+    }
+    .order-card__footer {
+      padding: var(--space-md);
+      border-top: 1px solid var(--color-neutral-200);
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--space-sm);
+      background-color: var(--color-neutral-50);
+      margin-top: auto; /* Push footer to the bottom */
+    }
+
+    /* --- Variants --- */
+    .order-card--new {
+        border-left: 4px solid var(--color-info-500);
+    }
+    .order-card--in-progress {
+        border-left: 4px solid var(--color-warning-500);
+    }
+    .order-card--history {
+        border-left: 4px solid var(--color-neutral-400);
+    }
+    .order-card--history .order-card__header,
+    .order-card--history .order-card__content,
+    .order-card--history .order-card__footer {
+        opacity: 0.85;
+    }
+
+    /* --------------------------------------- */
+    /* --- 5. RESPONSIVE ADAPTATIONS --------- */
+    /* --------------------------------------- */
+    @media (max-width: 768px) {
+      body {
+        padding: var(--space-md);
+      }
+      .order-card__content {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
+      }
+      .order-card__footer {
+        flex-direction: column;
+      }
+      .btn {
+          width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase-container">
+    <header class="showcase-header">
+      <h1>Order Card</h1>
+      <p>A molecular component for displaying order summaries and actions.</p>
+    </header>
+
+    <main>
+      <!-- New Order Variant -->
+      <h2>New Order (Vendor Dashboard)</h2>
+      <div class="card-grid">
+        <article class="order-card order-card--new">
+          <div class="order-card__header">
+            <h3 class="order-card__title">Order #CUS-8462A</h3>
+            <div class="countdown-timer">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clip-rule="evenodd" /></svg>
+              <span>4:32 remaining</span>
+            </div>
+          </div>
+          <div class="order-card__content">
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Customer Name</span>
+              <strong class="order-card__detail-value">Anjali Sharma</strong>
+            </div>
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Total Amount</span>
+              <strong class="order-card__detail-value">₹450.00</strong>
+            </div>
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Item Count</span>
+              <strong class="order-card__detail-value">3 items</strong>
+            </div>
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Payment</span>
+              <strong class="order-card__detail-value">Prepaid</strong>
+            </div>
+          </div>
+          <div class="order-card__footer">
+            <button type="button" class="btn btn--secondary">Reject</button>
+            <button type="button" class="btn btn--primary">Accept Order</button>
+          </div>
+        </article>
+      </div>
+
+      <!-- In-Progress Order Variant -->
+      <h2>In-Progress Order (Vendor Dashboard)</h2>
+      <div class="card-grid">
+        <article class="order-card order-card--in-progress">
+          <div class="order-card__header">
+            <h3 class="order-card__title">Order #CUS-8461B</h3>
+            <span class="badge badge--warning">Preparing</span>
+          </div>
+          <div class="order-card__content">
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Customer Name</span>
+              <strong class="order-card__detail-value">Rohan Verma</strong>
+            </div>
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Total Amount</span>
+              <strong class="order-card__detail-value">₹890.50</strong>
+            </div>
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Est. Prep Time</span>
+              <strong class="order-card__detail-value">15-20 min</strong>
+            </div>
+             <div class="order-card__detail">
+              <span class="order-card__detail-label">Item Count</span>
+              <strong class="order-card__detail-value">5 items</strong>
+            </div>
+          </div>
+          <div class="order-card__footer">
+            <button type="button" class="btn btn--primary">Mark as Ready for Pickup</button>
+          </div>
+        </article>
+      </div>
+
+      <!-- Order History Variant -->
+      <h2>Order History (Vendor/Admin Dashboard)</h2>
+      <div class="card-grid">
+        <a href="#" class="order-card order-card--history">
+          <div class="order-card__header">
+            <h3 class="order-card__title">Order #CUS-8459D</h3>
+            <span class="badge badge--success">Delivered</span>
+          </div>
+          <div class="order-card__content">
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Customer Name</span>
+              <strong class="order-card__detail-value">Priya Singh</strong>
+            </div>
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Date</span>
+              <strong class="order-card__detail-value">24 Jan 2025</strong>
+            </div>
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Total Amount</span>
+              <strong class="order-card__detail-value">₹1,250.00</strong>
+            </div>
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Rider</span>
+              <strong class="order-card__detail-value">Suresh Kumar</strong>
+            </div>
+          </div>
+          <div class="order-card__footer">
+            <button type="button" class="btn btn--secondary" onclick="event.preventDefault(); alert('Viewing details...');">View Details</button>
+          </div>
+        </a>
+        <a href="#" class="order-card order-card--history">
+          <div class="order-card__header">
+            <h3 class="order-card__title">Order #CUS-8458C</h3>
+            <span class="badge badge--error">Cancelled</span>
+          </div>
+          <div class="order-card__content">
+             <div class="order-card__detail">
+              <span class="order-card__detail-label">Customer Name</span>
+              <strong class="order-card__detail-value">Vikram Rathod</strong>
+            </div>
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Date</span>
+              <strong class="order-card__detail-value">23 Jan 2025</strong>
+            </div>
+             <div class="order-card__detail">
+              <span class="order-card__detail-label">Reason</span>
+              <strong class="order-card__detail-value">Vendor Timeout</strong>
+            </div>
+            <div class="order-card__detail">
+              <span class="order-card__detail-label">Total Amount</span>
+              <strong class="order-card__detail-value">₹320.00</strong>
+            </div>
+          </div>
+           <div class="order-card__footer">
+            <button type="button" class="btn btn--secondary" onclick="event.preventDefault(); alert('Viewing details...');">View Details</button>
+          </div>
+        </a>
+      </div>
+    </main>
+    
+    <div style="margin-top: 48px;">
+        <h2>Component Variations</h2>
+        <div style="display: grid; gap: 24px; margin-top: 16px;">
+            <div>
+                <h3>Variant Name: "new-order"</h3>
+                <normal style="font-size: 14px; color: #6c757d;">Represents a newly placed order awaiting vendor action. It features a prominent countdown timer and primary 'Accept'/'Reject' actions.</normal>
+                <!-- vrient html -->
+                <article class="order-card order-card--new" style="margin-top: 8px;">
+                    <div class="order-card__header">
+                        <h3 class="order-card__title">Order #CUS-8462A</h3>
+                        <div class="countdown-timer">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-13a.75.75 0 00-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 000-1.5h-3.25V5z" clip-rule="evenodd" /></svg>
+                            <span>4:32 remaining</span>
+                        </div>
+                    </div>
+                    <div class="order-card__footer">
+                        <button type="button" class="btn btn--secondary">Reject</button>
+                        <button type="button" class="btn btn--primary">Accept Order</button>
+                    </div>
+                </article>
+            </div>
+            <div>
+                <h3>Variant Name: "in-progress"</h3>
+                <normal style="font-size: 14px; color: #6c757d;">Represents an order that has been accepted and is being prepared. It shows the current status and the next logical action for the vendor.</normal>
+                <!-- vrient html -->
+                <article class="order-card order-card--in-progress" style="margin-top: 8px;">
+                    <div class="order-card__header">
+                        <h3 class="order-card__title">Order #CUS-8461B</h3>
+                        <span class="badge badge--warning">Preparing</span>
+                    </div>
+                    <div class="order-card__footer">
+                        <button type="button" class="btn btn--primary">Mark as Ready for Pickup</button>
+                    </div>
+                </article>
+            </div>
+            <div>
+                <h3>Variant Name: "history"</h3>
+                <normal style="font-size: 14px; color: #6c757d;">Represents a completed or terminated order (e.g., Delivered, Cancelled). It is less prominent and provides access to historical details.</normal>
+                <!-- vrient html -->
+                <a href="#" class="order-card order-card--history" style="margin-top: 8px;">
+                    <div class="order-card__header">
+                        <h3 class="order-card__title">Order #CUS-8459D</h3>
+                        <span class="badge badge--success">Delivered</span>
+                    </div>
+                    <div class="order-card__footer">
+                        <button type="button" class="btn btn--secondary" onclick="event.preventDefault();">View Details</button>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+  </div>
+</body>
+</html>

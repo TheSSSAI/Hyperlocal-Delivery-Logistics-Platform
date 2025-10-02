@@ -1,0 +1,2 @@
+"total_stories","total_story_points","must_have_stories","should_have_stories","could_have_stories","epics_identified","estimated_sprints","key_dependencies"
+"17","76","10","5","2","[""Vendor Profile & Compliance Management"",""Vendor Catalog & Inventory Management""]","4","[""PostgreSQL Database Setup"",""AWS S3 & SQS Infrastructure"",""Order Management Service Integration Points""]"

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: DashboardWidget</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    body, h1, h2, h3, p, figure, ul { margin: 0; }
+    button { font: inherit; }
+
+    /* Design System Tokens */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --fs-h1: 48px; --lh-h1: 1.1;
+      --fs-h2: 36px; --lh-h2: 1.25;
+      --fs-h3: 28px; --lh-h3: 1.3;
+      --fs-body: 16px; --lh-body: 1.6;
+      --fs-caption: 14px; --lh-caption: 1.5;
+
+      /* Colors */
+      --color-primary-500: #0068FF;
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-100: #E9EDF2;
+      --color-gray-500: #8E9BAA;
+      --color-gray-700: #555D66;
+      --color-gray-800: #383E44;
+      --color-gray-900: #1C1F22;
+      --color-success: #00C875;
+      --color-error: #FF4D4D;
+      --color-secondary-900: #003D24;
+      --color-secondary-50: #E5F9F1;
+      --color-secondary-500: #00C875;
+
+
+      /* Spacing */
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-sm: 4px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* Showcase Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-gray-50);
+      color: var(--color-gray-800);
+      padding: var(--space-6);
+    }
+    .showcase-container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .showcase-header {
+      margin-bottom: var(--space-6);
+      text-align: center;
+    }
+    .showcase-header h1 {
+      font-size: var(--fs-h2);
+      color: var(--color-gray-900);
+    }
+    .showcase-section {
+      margin-bottom: var(--space-6);
+    }
+    .showcase-section h2 {
+      font-size: var(--fs-h3);
+      margin-bottom: var(--space-5);
+    }
+    .widget-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: var(--space-5);
+    }
+
+    /* --- Atomic Dependencies --- */
+    .spinner {
+      animation: spin 1s linear infinite;
+      border: 3px solid var(--color-primary-500);
+      border-right-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      width: 32px;
+      height: 32px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .alert {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4);
+      border-radius: var(--border-radius-md);
+      border: 1px solid;
+      font-size: var(--fs-caption);
+    }
+    .alert__icon { font-size: 1.5em; line-height: 1; }
+    .alert--error {
+      background-color: #FFEBEB;
+      color: #8B0000;
+      border-color: var(--color-error);
+    }
+    .icon {
+      width: 1em;
+      height: 1em;
+      fill: currentColor;
+    }
+
+    /* --- Organism: DashboardWidget --- */
+    .widget {
+      background-color: var(--color-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--color-gray-100);
+      padding: var(--space-5);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      min-height: 220px; /* Consistent height */
+    }
+
+    .widget__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-4);
+    }
+
+    .widget__title {
+      font-size: var(--fs-body);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-700);
+    }
+    
+    .widget__actions a {
+        font-size: var(--fs-caption);
+        color: var(--color-primary-500);
+        text-decoration: none;
+        font-weight: var(--font-weight-semibold);
+    }
+
+    .widget__body {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    /* KPI Card Variant */
+    .widget--kpi .widget__body {
+      justify-content: space-between;
+    }
+
+    .kpi__value {
+      font-size: var(--fs-h1);
+      font-weight: var(--font-weight-bold);
+      color: var(--color-gray-900);
+      line-height: 1.1;
+    }
+
+    .kpi__trend {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: var(--fs-caption);
+      font-weight: var(--font-weight-semibold);
+    }
+
+    .kpi__trend--positive { color: var(--color-success); }
+    .kpi__trend--negative { color: var(--color-error); }
+
+    /* Line Chart Variant */
+    .widget--chart .widget__body {
+      justify-content: flex-end;
+    }
+    .chart__svg { width: 100%; height: 100%; min-height: 120px; }
+
+    /* List Widget Variant */
+    .list-widget__list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+    .list-widget__item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: var(--fs-caption);
+    }
+    .list-widget__item-rank {
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-500);
+      width: 20px;
+    }
+    .list-widget__item-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .list-widget__item-info { flex-grow: 1; }
+    .list-widget__item-name {
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-800);
+    }
+    .list-widget__item-value {
+      font-weight: var(--font-weight-bold);
+      color: var(--color-gray-900);
+      margin-left: auto;
+    }
+
+    /* State: Loading */
+    .widget--loading .widget__body {
+      visibility: hidden;
+    }
+    .widget__loader {
+      position: absolute;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    .widget--loading .widget__loader {
+      display: flex;
+    }
+    .skeleton-loader {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--space-4);
+      padding: var(--space-5);
+      position: absolute;
+      inset: 0;
+    }
+    .skeleton-line {
+      background-color: var(--color-gray-100);
+      border-radius: var(--border-radius-sm);
+      animation: shimmer 1.5s infinite linear;
+    }
+    .skeleton-line--h1 { height: 48px; width: 60%; margin-top: 40px; }
+    .skeleton-line--text { height: 16px; }
+    .skeleton-line--text-sm { height: 12px; width: 40%; }
+    .skeleton-line--list-item { height: 32px; }
+    @keyframes shimmer {
+      0% { background-position: -468px 0; }
+      100% { background-position: 468px 0; }
+    }
+    .skeleton-line {
+      background-image: linear-gradient(to right, #f0f2f5 0%, #e4e7eb 20%, #f0f2f5 40%, #f0f2f5 100%);
+      background-repeat: no-repeat;
+      background-size: 800px 104px;
+    }
+
+    /* State: Error */
+    .widget--error .widget__body {
+      justify-content: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .widget-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="icon-arrow-up" viewBox="0 0 24 24"><path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/></symbol>
+      <symbol id="icon-arrow-down" viewBox="0 0 24 24"><path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/></symbol>
+      <symbol id="icon-error-circle" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></symbol>
+    </defs>
+  </svg>
+
+  <div class="showcase-container">
+    <header class="showcase-header">
+      <h1>DashboardWidget Organism</h1>
+    </header>
+
+    <section class="showcase-section">
+      <h2>KPI Card Variant</h2>
+      <div class="widget-grid">
+        <!-- KPI: With Data -->
+        <article class="widget widget--kpi" aria-labelledby="kpi-title-1">
+          <header class="widget__header">
+            <h3 class="widget__title" id="kpi-title-1">Total Orders (Today)</h3>
+          </header>
+          <div class="widget__body">
+            <div class="kpi__value">1,256</div>
+            <div class="kpi__trend kpi__trend--positive">
+              <svg class="icon"><use href="#icon-arrow-up"></use></svg>
+              <span>5.2% vs yesterday</span>
+            </div>
+          </div>
+        </article>
+        <!-- KPI: Loading -->
+        <article class="widget widget--kpi widget--loading" aria-busy="true" aria-labelledby="kpi-title-2">
+           <div class="skeleton-loader">
+                <div class="skeleton-line skeleton-line--text" style="width: 50%;"></div>
+                <div class="skeleton-line skeleton-line--h1"></div>
+                <div class="skeleton-line skeleton-line--text-sm"></div>
+            </div>
+          <header class="widget__header">
+            <h3 class="widget__title" id="kpi-title-2">Total GMV (Today)</h3>
+          </header>
+          <div class="widget__body"></div>
+        </article>
+        <!-- KPI: Error -->
+        <article class="widget widget--kpi widget--error" aria-labelledby="kpi-title-3">
+          <header class="widget__header">
+            <h3 class="widget__title" id="kpi-title-3">Active Riders</h3>
+          </header>
+          <div class="widget__body">
+            <div class="alert alert--error" role="alert">
+              <svg class="icon alert__icon"><use href="#icon-error-circle"></use></svg>
+              <span>Data unavailable</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="showcase-section">
+      <h2>Line Chart Variant</h2>
+      <div class="widget-grid">
+        <!-- Chart: With Data -->
+        <article class="widget widget--chart" aria-labelledby="chart-title-1">
+          <header class="widget__header">
+            <h3 class="widget__title" id="chart-title-1">Orders per Minute</h3>
+            <div class="widget__actions"><a href="#">View Report</a></div>
+          </header>
+          <div class="widget__body">
+            <svg class="chart__svg" viewBox="0 0 300 150" preserveAspectRatio="none" aria-label="A line chart showing an upward trend in orders.">
+              <polyline fill="none" stroke="var(--color-primary-500)" stroke-width="2" points="0,120 50,100 100,110 150,80 200,60 250,70 300,40" />
+            </svg>
+          </div>
+        </article>
+        <!-- Chart: Loading -->
+        <article class="widget widget--chart widget--loading" aria-busy="true" aria-labelledby="chart-title-2">
+          <div class="skeleton-loader">
+            <div class="skeleton-line skeleton-line--text" style="width: 60%;"></div>
+            <div class="skeleton-line" style="flex-grow: 1;"></div>
+          </div>
+          <header class="widget__header">
+            <h3 class="widget__title" id="chart-title-2">Avg. Delivery Time</h3>
+          </header>
+          <div class="widget__body"></div>
+        </article>
+        <!-- Chart: Error -->
+        <article class="widget widget--chart widget--error" aria-labelledby="chart-title-3">
+          <header class="widget__header">
+            <h3 class="widget__title" id="chart-title-3">Payment Success Rate</h3>
+          </header>
+          <div class="widget__body">
+            <div class="alert alert--error" role="alert">
+              <svg class="icon alert__icon"><use href="#icon-error-circle"></use></svg>
+              <span>Failed to load chart data.</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="showcase-section">
+      <h2>List Widget Variant</h2>
+      <div class="widget-grid">
+        <!-- List: With Data -->
+        <article class="widget widget--list" aria-labelledby="list-title-1">
+          <header class="widget__header">
+            <h3 class="widget__title" id="list-title-1">Top Performing Riders</h3>
+            <div class="widget__actions"><a href="#">View All</a></div>
+          </header>
+          <div class="widget__body">
+            <ul class="list-widget__list">
+              <li class="list-widget__item">
+                <span class="list-widget__item-rank">1.</span>
+                <img class="list-widget__item-avatar" src="https://i.pravatar.cc/32?u=rider1" alt="Avatar of Raj Kumar">
+                <div class="list-widget__item-info"><span class="list-widget__item-name">Raj Kumar</span></div>
+                <span class="list-widget__item-value">42</span>
+              </li>
+              <li class="list-widget__item">
+                <span class="list-widget__item-rank">2.</span>
+                <img class="list-widget__item-avatar" src="https://i.pravatar.cc/32?u=rider2" alt="Avatar of Sameer Ali">
+                <div class="list-widget__item-info"><span class="list-widget__item-name">Sameer Ali</span></div>
+                <span class="list-widget__item-value">38</span>
+              </li>
+               <li class="list-widget__item">
+                <span class="list-widget__item-rank">3.</span>
+                <img class="list-widget__item-avatar" src="https://i.pravatar.cc/32?u=rider3" alt="Avatar of Priya Naik">
+                <div class="list-widget__item-info"><span class="list-widget__item-name">Priya Naik</span></div>
+                <span class="list-widget__item-value">35</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+        <!-- List: Loading -->
+        <article class="widget widget--list widget--loading" aria-busy="true" aria-labelledby="list-title-2">
+           <div class="skeleton-loader">
+            <div class="skeleton-line skeleton-line--text" style="width: 70%;"></div>
+            <div style="display: flex; flex-direction: column; gap: var(--space-4); margin-top: var(--space-4);">
+              <div class="skeleton-line skeleton-line--list-item"></div>
+              <div class="skeleton-line skeleton-line--list-item"></div>
+              <div class="skeleton-line skeleton-line--list-item"></div>
+            </div>
+          </div>
+          <header class="widget__header">
+            <h3 class="widget__title" id="list-title-2">Top Selling Items</h3>
+          </header>
+          <div class="widget__body"></div>
+        </article>
+        <!-- List: Error -->
+        <article class="widget widget--list widget--error" aria-labelledby="list-title-3">
+          <header class="widget__header">
+            <h3 class="widget__title" id="list-title-3">Top Vendors</h3>
+          </header>
+          <div class="widget__body">
+            <div class="alert alert--error" role="alert">
+              <svg class="icon alert__icon"><use href="#icon-error-circle"></use></svg>
+              <span>Could not load data.</span>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+
+
+  <div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : kpi-card</h3>
+		<normal> A card for displaying a single, prominent Key Performance Indicator (KPI), such as a total count or a monetary value, along with a trend indicator. </normal>
+		<article class="widget widget--kpi" aria-labelledby="kpi-title-1" style="margin-top: 16px;">
+          <header class="widget__header">
+            <h3 class="widget__title" id="kpi-title-1">Total Orders (Today)</h3>
+          </header>
+          <div class="widget__body">
+            <div class="kpi__value">1,256</div>
+            <div class="kpi__trend kpi__trend--positive">
+              <svg class="icon"><use href="#icon-arrow-up"></use></svg>
+              <span>5.2% vs yesterday</span>
+            </div>
+          </div>
+        </article>
+      </div>
+	  <div>
+        <h3>Variant Name : line-chart</h3>
+		<normal> A card for visualizing time-series data, such as orders over time. It typically includes a title and a link to a more detailed report. The body is dedicated to the chart visualization. </normal>
+		<article class="widget widget--chart" aria-labelledby="chart-title-1" style="margin-top: 16px;">
+          <header class="widget__header">
+            <h3 class="widget__title" id="chart-title-1">Orders per Minute</h3>
+            <div class="widget__actions"><a href="#">View Report</a></div>
+          </header>
+          <div class="widget__body">
+            <svg class="chart__svg" viewBox="0 0 300 150" preserveAspectRatio="none" aria-label="A line chart showing an upward trend in orders.">
+              <polyline fill="none" stroke="var(--color-primary-500)" stroke-width="2" points="0,120 50,100 100,110 150,80 200,60 250,70 300,40"></polyline>
+            </svg>
+          </div>
+        </article>
+      </div>
+      <div>
+        <h3>Variant Name : list-widget</h3>
+		<normal> A card for displaying a ranked list of items, such as top-performing riders, vendors, or products. It shows items in a scannable, ordered format. </normal>
+		<article class="widget widget--list" aria-labelledby="list-title-1" style="margin-top: 16px;">
+          <header class="widget__header">
+            <h3 class="widget__title" id="list-title-1">Top Performing Riders</h3>
+            <div class="widget__actions"><a href="#">View All</a></div>
+          </header>
+          <div class="widget__body">
+            <ul class="list-widget__list">
+              <li class="list-widget__item">
+                <span class="list-widget__item-rank">1.</span>
+                <img class="list-widget__item-avatar" src="https://i.pravatar.cc/32?u=rider1" alt="Avatar of Raj Kumar">
+                <div class="list-widget__item-info"><span class="list-widget__item-name">Raj Kumar</span></div>
+                <span class="list-widget__item-value">42</span>
+              </li>
+              <li class="list-widget__item">
+                <span class="list-widget__item-rank">2.</span>
+                <img class="list-widget__item-avatar" src="https://i.pravatar.cc/32?u=rider2" alt="Avatar of Sameer Ali">
+                <div class="list-widget__item-info"><span class="list-widget__item-name">Sameer Ali</span></div>
+                <span class="list-widget__item-value">38</span>
+              </li>
+               <li class="list-widget__item">
+                <span class="list-widget__item-rank">3.</span>
+                <img class="list-widget__item-avatar" src="https://i.pravatar.cc/32?u=rider3" alt="Avatar of Priya Naik">
+                <div class="list-widget__item-info"><span class="list-widget__item-name">Priya Naik</span></div>
+                <span class="list-widget__item-value">35</span>
+              </li>
+            </ul>
+          </div>
+        </article>
+      </div>
+	 </div>
+</body>
+</html>

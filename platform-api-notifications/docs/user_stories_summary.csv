@@ -1,0 +1,2 @@
+"total_stories","total_story_points","must_have_stories","should_have_stories","could_have_stories","epics_identified","estimated_sprints","key_dependencies"
+"6","45","4","2","0","[""Core Order Lifecycle Management"",""Service Integration and Event Handling"",""Operational Readiness""]","3","[""The Order Placement story (OMS-002) is dependent on the core State Machine (OMS-001)."",""Cancellation stories are dependent on Order Placement.""]"

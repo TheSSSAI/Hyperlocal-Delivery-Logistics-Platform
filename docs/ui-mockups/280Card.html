@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: Card</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    /* -------------------------------------------------------------------------- */
+    /*                                Design Tokens                               */
+    /* -------------------------------------------------------------------------- */
+    :root {
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F8F9FA;
+      --color-neutrals-gray-100: #F1F3F5;
+      --color-neutrals-gray-500: #868E96;
+      --color-neutrals-gray-900: #212529;
+
+      --color-semantic-success: #28A745;
+      --color-semantic-warning: #FFC107;
+      --color-semantic-error: #DC3545;
+
+      --color-semantic-success-bg: #EAF6EC;
+      --color-semantic-warning-bg: #FFF8E1;
+      --color-semantic-error-bg: #FBEBEB;
+
+      /* Typography */
+      --font-family-primary: 'Poppins', sans-serif;
+      --font-family-secondary: 'Inter', sans-serif;
+      --font-size-h3: 28px;
+      --font-weight-h3: 600;
+      --font-size-h4: 20px;
+      --font-weight-h4: 600;
+      --font-size-body: 16px;
+      --font-weight-body: 400;
+      --font-size-caption: 14px;
+      --font-weight-semibold: 600;
+
+      /* Spacing */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+
+      /* Borders & Shadows */
+      --border-radius-sm: 4px;
+      --border-radius-md: 8px;
+      --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.1);
+      --focus-outline: 2px solid #5C9EFF;
+      --focus-outline-offset: 2px;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                                 Base Styles                                */
+    /* -------------------------------------------------------------------------- */
+    body {
+      font-family: var(--font-family-secondary);
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-900);
+      margin: 0;
+      padding: var(--spacing-lg);
+    }
+
+    .showcase {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .showcase__header {
+      text-align: center;
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .showcase__header h1 {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-h3);
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+
+    .showcase__header p {
+      color: var(--color-neutrals-gray-500);
+      margin: 0;
+    }
+
+    .showcase__section {
+      margin-bottom: calc(var(--spacing-lg) * 2);
+    }
+    
+    .showcase__section h2 {
+      font-family: var(--font-family-primary);
+      border-bottom: 1px solid var(--color-neutrals-gray-100);
+      padding-bottom: var(--spacing-sm);
+      margin-bottom: var(--spacing-lg);
+    }
+
+    .showcase__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: var(--spacing-lg);
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                           Fake Atomic Components                           */
+    /* -------------------------------------------------------------------------- */
+    .badge {
+      display: inline-block;
+      padding: var(--spacing-xs) var(--spacing-sm);
+      font-size: 12px;
+      font-weight: var(--font-weight-semibold);
+      border-radius: var(--border-radius-sm);
+      line-height: 1.2;
+    }
+
+    .badge--success {
+      background-color: var(--color-semantic-success-bg);
+      color: var(--color-semantic-success);
+    }
+
+    .badge--warning {
+      background-color: var(--color-semantic-warning-bg);
+      color: #7F6004;
+    }
+    
+    .badge--error {
+      background-color: var(--color-semantic-error-bg);
+      color: var(--color-semantic-error);
+    }
+
+    .icon-svg {
+      width: 1em;
+      height: 1em;
+      vertical-align: -0.125em;
+    }
+
+    /* -------------------------------------------------------------------------- */
+    /*                               Card Component                               */
+    /* -------------------------------------------------------------------------- */
+    .card {
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--color-neutrals-gray-100);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* States */
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .card.is-selected {
+      border: 2px solid var(--color-primary-500);
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
+    .card:focus-visible {
+      outline: var(--focus-outline);
+      outline-offset: var(--focus-outline-offset);
+    }
+    
+    /* Base Content Elements */
+    .card__content {
+        padding: var(--spacing-md);
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .card__title {
+        font-family: var(--font-family-primary);
+        font-size: var(--font-size-h4);
+        font-weight: var(--font-weight-h4);
+        color: var(--color-neutrals-gray-900);
+        margin: 0;
+    }
+    .card__media {
+        width: 100%;
+        object-fit: cover;
+    }
+
+    /* Variant: Vendor Card */
+    .card--vendor .card__media {
+      height: 150px;
+    }
+    .card--vendor .card__header {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+    }
+    .card--vendor .card__avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--color-neutrals-white);
+      margin-top: -32px;
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
+    }
+    .card--vendor .card__meta {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-caption);
+      color: var(--color-neutrals-gray-500);
+      margin-top: var(--spacing-sm);
+    }
+    .card--vendor .card__rating {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Variant: Product Card */
+    .card--product {
+      flex-direction: column; /* Mobile-first */
+    }
+    .card--product .card__media {
+      height: 150px;
+    }
+    .card--product .card__content {
+      gap: var(--spacing-sm);
+    }
+    .card--product .card__title {
+      font-size: 18px;
+      font-weight: var(--font-weight-semibold);
+    }
+    .card--product .card__description {
+      font-size: var(--font-size-caption);
+      color: var(--color-neutrals-gray-500);
+      flex-grow: 1;
+      margin: 0;
+    }
+    .card--product .card__footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: var(--spacing-md);
+    }
+    .card--product .card__price {
+      font-size: var(--font-size-body);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-primary-700);
+    }
+
+    /* Variant: Order Card */
+    .card--order .card__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md);
+      background-color: var(--color-neutrals-gray-50);
+      border-bottom: 1px solid var(--color-neutrals-gray-100);
+    }
+    .card--order .card__title {
+      font-size: 18px;
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutrals-gray-900);
+      margin: 0;
+    }
+    .card--order .card__content {
+      padding: var(--spacing-md);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--spacing-md);
+    }
+    .card--order .card__detail-item > span {
+      display: block;
+      font-size: var(--font-size-caption);
+      color: var(--color-neutrals-gray-500);
+    }
+    .card--order .card__detail-item > strong {
+      font-size: var(--font-size-body);
+      color: var(--color-neutrals-gray-900);
+    }
+    
+    /* Variant: KPI Card */
+    .card--kpi .card__content {
+      padding: var(--spacing-lg);
+      text-align: center;
+      justify-content: center;
+    }
+    .card--kpi .card__title {
+      font-size: var(--font-size-caption);
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutrals-gray-500);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0 0 var(--spacing-sm) 0;
+    }
+    .card--kpi .card__value {
+      font-family: var(--font-family-primary);
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--color-neutrals-gray-900);
+      margin: 0;
+      line-height: 1.2;
+    }
+
+    /* Responsive Adaptations */
+    @media (min-width: 768px) {
+      .card--product {
+        flex-direction: row;
+      }
+      .card--product .card__media {
+        width: 120px;
+        height: 100%;
+        flex-shrink: 0;
+      }
+    }
+    
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      .card, .card:hover {
+        transition: none;
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="showcase">
+    <header class="showcase__header">
+      <h1>Card Component</h1>
+      <p>A versatile container for displaying grouped content and actions across various contexts.</p>
+    </header>
+
+    <main>
+      <section class="showcase__section">
+        <h2>Vendor Card</h2>
+        <div class="showcase__grid">
+          
+          <a href="#" class="card card--vendor" tabindex="0">
+            <img class="card__media" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" alt="Restaurant interior">
+            <div class="card__content">
+              <div class="card__header">
+                <img class="card__avatar" src="https://images.unsplash.com/photo-1628157588553-5ee30acfb024?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1780&q=80" alt="Vendor logo">
+                <h3 class="card__title">Global Bites Kitchen</h3>
+              </div>
+              <div class="card__meta">
+                <span class="card__rating">
+                  <svg class="icon-svg" style="color: var(--color-semantic-warning);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.868 2.884c.321-.662 1.134-.662 1.456 0l1.96 4.022c.23.472.694.792 1.21.86l4.43.644c.725.105 1.018.99.493 1.485l-3.21 3.128c-.378.368-.552.922-.472 1.464l.76 4.41c.123.715-.63 1.258-1.274.918L10.72 16.3c-.463-.242-1.007-.242-1.47 0l-3.956 2.078c-.644.34-1.397-.203-1.274-.918l.76-4.41c.08-.542-.094-1.096-.472-1.464l-3.21-3.128c-.525-.495-.232-1.38.493-1.485l4.43.644c.516.075.98-.39 1.21-.86l1.96-4.022z" clip-rule="evenodd" /></svg>
+                  <strong>4.7</strong> (1.2k+ ratings)
+                </span>
+                <span>Indian Cuisine</span>
+              </div>
+            </div>
+          </a>
+          
+          <a href="#" class="card card--vendor is-selected" tabindex="0" aria-label="Global Bites Kitchen (Selected)">
+            <img class="card__media" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" alt="Restaurant interior">
+            <div class="card__content">
+              <div class="card__header">
+                <img class="card__avatar" src="https://images.unsplash.com/photo-1628157588553-5ee30acfb024?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1780&q=80" alt="Vendor logo">
+                <h3 class="card__title">Selected State</h3>
+              </div>
+              <div class="card__meta">
+                <span class="card__rating">
+                  <svg class="icon-svg" style="color: var(--color-semantic-warning);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.868 2.884c.321-.662 1.134-.662 1.456 0l1.96 4.022c.23.472.694.792 1.21.86l4.43.644c.725.105 1.018.99.493 1.485l-3.21 3.128c-.378.368-.552.922-.472 1.464l.76 4.41c.123.715-.63 1.258-1.274.918L10.72 16.3c-.463-.242-1.007-.242-1.47 0l-3.956 2.078c-.644.34-1.397-.203-1.274-.918l.76-4.41c.08-.542-.094-1.096-.472-1.464l-3.21-3.128c-.525-.495-.232-1.38.493-1.485l4.43.644c.516.075.98-.39 1.21-.86l1.96-4.022z" clip-rule="evenodd" /></svg>
+                  <strong>4.7</strong> (1.2k+ ratings)
+                </span>
+                <span>Indian Cuisine</span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </section>
+
+      <section class="showcase__section">
+        <h2>Product Card</h2>
+        <div class="showcase__grid">
+          
+          <a href="#" class="card card--product" tabindex="0">
+            <img class="card__media" src="https://images.unsplash.com/photo-1563379926898-05f4575a457f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Spicy Ramen">
+            <div class="card__content">
+              <span class="badge badge--success">Available</span>
+              <h4 class="card__title">Spicy Chicken Ramen</h4>
+              <p class="card__description">A rich and flavorful broth with tender chicken, noodles, and a soft-boiled egg.</p>
+              <div class="card__footer">
+                  <span class="card__price">₹350.00</span>
+              </div>
+            </div>
+          </a>
+          
+          <a href="#" class="card card--product" tabindex="0">
+            <img class="card__media" src="https://images.unsplash.com/photo-1625944230942-7809a423753b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1780&q=80" alt="Paneer Butter Masala">
+            <div class="card__content">
+              <span class="badge badge--warning">Limited Stock</span>
+              <h4 class="card__title">Paneer Butter Masala</h4>
+              <p class="card__description">Creamy and rich tomato-based curry with soft paneer cubes.</p>
+               <div class="card__footer">
+                  <span class="card__price">₹280.00</span>
+              </div>
+            </div>
+          </a>
+          
+          <a href="#" class="card card--product" tabindex="0">
+            <img class="card__media" style="filter: grayscale(1);" src="https://images.unsplash.com/photo-1585032226651-759b368d7246?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1892&q=80" alt="Margherita Pizza">
+            <div class="card__content">
+              <span class="badge badge--error">Out of Stock</span>
+              <h4 class="card__title">Margherita Pizza</h4>
+              <p class="card__description">Classic pizza with fresh tomatoes, mozzarella, and basil.</p>
+              <div class="card__footer">
+                  <span class="card__price">₹450.00</span>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </section>
+      
+      <section class="showcase__section">
+        <h2>Order Card</h2>
+        <div class="showcase__grid">
+
+          <a href="#" class="card card--order" tabindex="0">
+            <div class="card__header">
+              <h3 class="card__title">Order #HYP12345</h3>
+              <span class="badge badge--success">Delivered</span>
+            </div>
+            <div class="card__content">
+              <div class="card__detail-item">
+                <span>Date</span>
+                <strong>25 Jan 2025</strong>
+              </div>
+              <div class="card__detail-item">
+                <span>Total</span>
+                <strong>₹630.00</strong>
+              </div>
+              <div class="card__detail-item">
+                <span>Items</span>
+                <strong>2</strong>
+              </div>
+               <div class="card__detail-item">
+                <span>Vendor</span>
+                <strong>Global Bites</strong>
+              </div>
+            </div>
+          </a>
+          
+          <a href="#" class="card card--order" tabindex="0">
+            <div class="card__header">
+              <h3 class="card__title">Order #HYP12344</h3>
+              <span class="badge badge--error">Cancelled</span>
+            </div>
+            <div class="card__content">
+              <div class="card__detail-item">
+                <span>Date</span>
+                <strong>24 Jan 2025</strong>
+              </div>
+              <div class="card__detail-item">
+                <span>Total</span>
+                <strong>₹280.00</strong>
+              </div>
+               <div class="card__detail-item">
+                <span>Items</span>
+                <strong>1</strong>
+              </div>
+               <div class="card__detail-item">
+                <span>Vendor</span>
+                <strong>Global Bites</strong>
+              </div>
+            </div>
+          </a>
+
+        </div>
+      </section>
+      
+      <section class="showcase__section">
+        <h2>KPI Card</h2>
+        <div class="showcase__grid">
+          
+          <div class="card card--kpi">
+            <div class="card__content">
+              <h4 class="card__title">Total Sales (Today)</h4>
+              <p class="card__value">₹1,25,430</p>
+            </div>
+          </div>
+          
+          <div class="card card--kpi">
+            <div class="card__content">
+              <h4 class="card__title">Total Orders</h4>
+              <p class="card__value">342</p>
+            </div>
+          </div>
+          
+          <div class="card card--kpi">
+            <div class="card__content">
+              <h4 class="card__title">Avg. Delivery Time</h4>
+              <p class="card__value">28 min</p>
+            </div>
+          </div>
+          
+          <div class="card card--kpi">
+            <div class="card__content">
+              <h4 class="card__title">Active Riders</h4>
+              <p class="card__value">78</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </main>
+  </div>
+    
+  <div class="showcase__section"> <h2> Component Variations</h2>
+      <div class="showcase__grid">
+        <div>
+        <h3>Variant Name : "Vendor Card"<h3>
+		<!--description--><normal> Displays summary information about a vendor, typically used in a discovery list. It features a banner image and a logo that overlays it. </normal>
+		<!-- vrient 1 html -->
+          <a href="#" class="card card--vendor" tabindex="0">
+            <img class="card__media" src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" alt="Restaurant interior">
+            <div class="card__content">
+              <div class="card__header">
+                <img class="card__avatar" src="https://images.unsplash.com/photo-1628157588553-5ee30acfb024?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1780&q=80" alt="Vendor logo">
+                <h3 class="card__title">Global Bites Kitchen</h3>
+              </div>
+              <div class="card__meta">
+                <span class="card__rating">
+                  <svg class="icon-svg" style="color: var(--color-semantic-warning);" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.868 2.884c.321-.662 1.134-.662 1.456 0l1.96 4.022c.23.472.694.792 1.21.86l4.43.644c.725.105 1.018.99.493 1.485l-3.21 3.128c-.378.368-.552.922-.472 1.464l.76 4.41c.123.715-.63 1.258-1.274.918L10.72 16.3c-.463-.242-1.007-.242-1.47 0l-3.956 2.078c-.644.34-1.397-.203-1.274-.918l.76-4.41c.08-.542-.094-1.096-.472-1.464l-3.21-3.128c-.525-.495-.232-1.38.493-1.485l4.43.644c.516.075.98-.39 1.21-.86l1.96-4.022z" clip-rule="evenodd" /></svg>
+                  <strong>4.7</strong> (1.2k+ ratings)
+                </span>
+                <span>Indian Cuisine</span>
+              </div>
+            </div>
+          </a>
+		
+      </div>
+	 </div>
+      <div class="showcase__grid">
+        <div>
+        <h3>Variant Name : "Product Card"<h3>
+		<!--description--><normal> Displays a single product with an image, title, description, price, and status. Adapts from a horizontal layout on desktop to a vertical layout on mobile. </normal>
+		<!-- vrient 1 html -->
+          <a href="#" class="card card--product" tabindex="0">
+            <img class="card__media" src="https://images.unsplash.com/photo-1563379926898-05f4575a457f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Spicy Ramen">
+            <div class="card__content">
+              <span class="badge badge--success">Available</span>
+              <h4 class="card__title">Spicy Chicken Ramen</h4>
+              <p class="card__description">A rich and flavorful broth with tender chicken, noodles, and a soft-boiled egg.</p>
+              <div class="card__footer">
+                  <span class="card__price">₹350.00</span>
+              </div>
+            </div>
+          </a>
+		
+      </div>
+	 </div>
+      <div class="showcase__grid">
+        <div>
+        <h3>Variant Name : "Order Card"<h3>
+		<!--description--><normal> Provides a compact summary of a past or active order. It includes a header with the order ID and status, and a content area with key details. </normal>
+		<!-- vrient 1 html -->
+          <a href="#" class="card card--order" tabindex="0">
+            <div class="card__header">
+              <h3 class="card__title">Order #HYP12345</h3>
+              <span class="badge badge--success">Delivered</span>
+            </div>
+            <div class="card__content">
+              <div class="card__detail-item">
+                <span>Date</span>
+                <strong>25 Jan 2025</strong>
+              </div>
+              <div class="card__detail-item">
+                <span>Total</span>
+                <strong>₹630.00</strong>
+              </div>
+              <div class="card__detail-item">
+                <span>Items</span>
+                <strong>2</strong>
+              </div>
+               <div class="card__detail-item">
+                <span>Vendor</span>
+                <strong>Global Bites</strong>
+              </div>
+            </div>
+          </a>
+		
+      </div>
+	 </div>
+      <div class="showcase__grid">
+        <div>
+        <h3>Variant Name : "KPI Card"<h3>
+		<!--description--><normal> A simple card used on dashboards to display a single Key Performance Indicator (KPI), such as total sales or active users. </normal>
+		<!-- vrient 1 html -->
+          <div class="card card--kpi">
+            <div class="card__content">
+              <h4 class="card__title">Total Sales (Today)</h4>
+              <p class="card__value">₹1,25,430</p>
+            </div>
+          </div>
+		
+      </div>
+	 </div>    
+    </div>
+</body>
+</html>

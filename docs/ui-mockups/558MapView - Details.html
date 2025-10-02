@@ -1,0 +1,575 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapView - Component Specifications</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        
+        .component-type-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .section h2 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4f46e5;
+            display: inline-block;
+        }
+        
+        .section h3 {
+            color: #4f46e5;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 20px 0 12px 0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .info-card h4 {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        
+        .info-card p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .variations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        
+        .variation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .variation-name {
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 8px;
+        }
+        
+        .variation-code {
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            color: #1e293b;
+            overflow-x: auto;
+            margin: 8px 0;
+            border-left: 4px solid #4f46e5;
+        }
+        
+        .variation-description {
+            font-size: 13px;
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .feature-category {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .feature-category h4 {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .feature-category ul {
+            list-style: none;
+        }
+        
+        .feature-category li {
+            padding: 6px 0;
+            color: #4b5563;
+            font-size: 14px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .feature-category li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .tokens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        
+        .token {
+            background: #f0f9ff;
+            color: #0369a1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            border: 1px solid #bae6fd;
+            text-align: center;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 16px 0;
+            line-height: 1.4;
+        }
+        
+        .stats-bar {
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .stat {
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>MapView</h1>
+            <div class="component-type-badge">organism Component</div>
+        </div>
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-number">0</span>
+                <span class="stat-label">Variations</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">16</span>
+                <span class="stat-label">Design Tokens</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Breakpoints</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">5</span>
+                <span class="stat-label">A11y Features</span>
+            </div>
+        </div><div class="content">
+        <div class="section">
+            <h2>Component Information</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Component Id</h4>
+                    <p>MU-475-011</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Name</h4>
+                    <p>MapView</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Type</h4>
+                    <p>organism</p>
+                </div>
+                <div class="info-card">
+                    <h4>Description</h4>
+                    <p>A specialized organism component for displaying interactive maps. It includes variants for live order tracking, address selection with a pin, and a geofencing tool for administrative use. The component is designed to be responsive and touch-friendly, with various states for loading and interactivity.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Design System Alignment</h4>
+                    <p>This component uses the design system's color palette, spacing, typography, and shadow tokens for its UI overlays (panels, buttons). It composes atomic components like Icon and Spinner for its functionality.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Design Tokens Used</h2>
+            <div class="tokens-grid"><div class="token">--color-gray-200</div><div class="token">--color-gray-600</div><div class="token">--color-gray-800</div><div class="token">--color-gray-900</div><div class="token">--color-white</div><div class="token">--color-primary-500</div><div class="token">--color-success</div><div class="token">--color-danger</div><div class="token">--space-3</div><div class="token">--space-4</div><div class="token">--border-radius-lg</div><div class="token">--shadow-md</div><div class="token">--fs-h4</div><div class="token">--fs-caption</div><div class="token">--font-weight-bold</div><div class="token">--font-weight-semibold</div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Responsive Specifications</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Mobile Adaptations</h4>
+                    <ul><li>Map aspect ratio changes to 1:1 to better fit vertical screens.</li><li>UI overlays and controls are designed with large touch targets (min 44x44px).</li><li>For the geofencing tool, the side panel transforms into a bottom sheet overlay to work on smaller screens.</li>
+                    </ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Tablet Adaptations</h4>
+                    <ul><li>Maintains the desktop layout but ensures that touch targets for controls remain large and easy to use.</li>
+                    </ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Desktop Enhancements</h4>
+                    <ul><li>Utilizes wider aspect ratios (16:9).</li><li>The geofencing tool variant uses a side-panel layout for controls and information, taking advantage of the available horizontal space.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Accessibility Features</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Keyboard Support</h4><p>All interactive UI overlay elements (buttons, form fields) are fully keyboard-navigable and operable.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Screen Reader Support</h4><p>Buttons have descriptive `aria-label`s (e.g., 'Recenter map'). The map itself is a visual element; therefore, critical information like ETA or addresses displayed in info panels is accessible as standard text.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Focus Management</h4><p>A visible focus outline is applied to all interactive controls, inherited from the atomic button styles.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Aria Attributes</h4><ul><li>aria-label for icon buttons</li><li>aria-busy='true' on the map container during loading state</li></ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Color Contrast</h4><p>All text and interactive elements within the UI overlays meet WCAG 2.1 AA contrast requirements.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>CSS Implementation</h2>
+            <div class="code-block">/* MapView Component CSS */
+.map-view {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: var(--color-gray-200);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  color: var(--color-gray-900);
+}
+
+.map-view__background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* States */
+.map-view__loading-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.map-view[data-state=&#039;loading&#039;] .map-view__loading-overlay {
+  display: flex;
+}
+
+/* Common Elements */
+.map-view__controls {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  z-index: 5;
+}
+
+.map-view__info-panel {
+  position: absolute;
+  bottom: var(--space-4);
+  left: var(--space-4);
+  right: var(--space-4);
+  background-color: var(--color-white);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-4);
+  z-index: 5;
+  transform: translateY(0);
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Live Tracking Variant */
+.map-view__marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 32px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.map-view__marker--rider {
+  font-size: 40px;
+  color: var(--color-primary-500);
+  z-index: 4;
+}
+
+.map-view__marker--vendor { color: var(--color-gray-800); z-index: 3; }
+.map-view__marker--customer { color: var(--color-success); z-index: 3; }
+
+.map-view--live-tracking .map-view__info-panel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.live-tracking-info__details { flex-grow: 1; }
+.live-tracking-info__eta { font-size: var(--fs-h4); font-weight: var(--font-weight-bold); }
+.live-tracking-info__status { font-size: var(--fs-caption); color: var(--color-gray-600); }
+.live-tracking-info__avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; }
+
+/* Address Picker Variant */
+.map-view__center-pin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -100%); /* Pin point at center */
+  font-size: 48px;
+  color: var(--color-danger);
+  z-index: 5;
+}
+
+.map-view--address-picker .map-view__info-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.address-picker-info__text { font-weight: var(--font-weight-semibold); }
+
+/* Geofencing Tool Variant */
+.map-view__geofence-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.map-view__geofence-polygon {
+  fill: rgba(0, 104, 255, 0.2);
+  stroke: var(--color-primary-500);
+  stroke-width: 2;
+}
+
+.map-view--geofencing-tool {
+  display: flex;
+  align-items: stretch;
+}
+
+.geofencing-tool__map-area { flex-grow: 1; position: relative; height: 100%; }
+.geofencing-tool__sidebar {
+  width: 320px;
+  flex-shrink: 0;
+  background-color: var(--color-white);
+  padding: var(--space-5);
+  border-left: 1px solid var(--color-gray-200);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .map-view { aspect-ratio: 1 / 1; }
+  .geofencing-tool__sidebar { position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 40%; border-top: 1px solid var(--color-gray-200); transform: translateY(0); }
+}</div>
+        </div>
+        <div class="section">
+            <h2>Implementation Notes</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Embedded Css Architecture</h4>
+                    <p>All styles are embedded in a single `<style>` tag, using design system tokens as CSS custom properties. A BEM naming convention is used for clarity.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Organization</h4>
+                    <p>The HTML showcases each major variant of the MapView. States like 'loading' are demonstrated using a `data-state` attribute. The map background is simulated with a static image, as a live map requires JavaScript integration.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Responsive Design</h4>
+                    <p>A mobile-first approach is used, with media queries adapting layouts for larger screens, particularly for the complex 'geofencing-tool' variant.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Accessibility Compliance</h4>
+                    <p>Accessibility is focused on the interactive UI overlays rather than the map canvas itself, which is treated as a decorative or illustrative element for screen reader users.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Browser Support</h4>
+                    <p>Uses modern CSS like aspect-ratio, flexbox, and grid, ensuring compatibility with all evergreen browsers.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Usage Guidelines</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>When To Use</h4><p>Use for any feature requiring a geographical map display. 'live-tracking' is for customer/rider order tracking. 'address-picker' is for forms where a user needs to pinpoint a location. 'geofencing-tool' is for the admin dashboard to define operational zones.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Content Guidelines</h4><p>Info panels should be concise. Marker icons should be visually distinct and use tooltips for identification on hover/focus where appropriate.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Placement Rules</h4><p>Typically a primary content element, occupying a large portion of the screen.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Customization Options</h4><ul><li style="list-style: disc; margin-left: 16px; padding-left: 0;">Use modifier classes like `.map-view--live-tracking` to apply variant-specific styles.</li><li style="list-style: disc; margin-left: 16px; padding-left: 0;">Control the state with `data-state='loading'`. Markers and overlays are dynamically added and positioned with JavaScript in a real application.</li></ul>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Testing Recommendations</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Browser Testing</h4><p>Test in Chrome, Firefox, Safari, Edge.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Device Testing</h4><p>Crucially test on mobile devices (iOS/Android) to verify touch interactions, gestures, and responsive layouts of UI overlays.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Accessibility Testing</h4><ul><li>Verify keyboard navigation of all controls on the map overlays.</li><li>Use screen readers to ensure info panels and control labels are announced correctly.</li></ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Performance Testing</h4><p>In a real implementation, monitor the performance of the mapping library (Mapbox GL JS) for smooth rendering, panning, and zooming. The static mockup has no performance issues.</p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

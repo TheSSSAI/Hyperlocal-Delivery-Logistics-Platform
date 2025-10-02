@@ -1,0 +1,100 @@
+-- Enable necessary extensions for UUID generation and spatial queries
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS "postgis";
+
+-- Table: VendorProfile
+-- Stores profile and operational information specific to Vendors.
+CREATE TABLE VendorProfile (
+    vendorProfileId UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    userId UUID NOT NULL,
+    storeName VARCHAR(255) NOT NULL,
+    description TEXT,
+    addressId UUID NOT NULL,
+    latitude DECIMAL(9, 6) NOT NULL,
+    longitude DECIMAL(9, 6) NOT NULL,
+    averageRating DECIMAL(3, 2) NOT NULL DEFAULT 0.0 CHECK (averageRating >= 0 AND averageRating <= 5),
+    commissionRate DECIMAL(5, 2) NOT NULL DEFAULT 15.00 CHECK (commissionRate >= 0 AND commissionRate <= 100),
+    isOnline BOOLEAN NOT NULL DEFAULT false,
+    documentUrls JSONB DEFAULT '{}'::jsonb,
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT UC_VendorProfile_UserId UNIQUE (userId)
+);
+
+-- Table: VendorBusinessHour
+-- Stores the daily opening and closing times for a vendor.
+CREATE TABLE VendorBusinessHour (
+    businessHourId UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vendorProfileId UUID NOT NULL,
+    dayOfWeek INT NOT NULL CHECK (dayOfWeek >= 0 AND dayOfWeek <= 6),
+    openTime TIME,
+    closeTime TIME,
+    isClosed BOOLEAN NOT NULL DEFAULT false,
+    CONSTRAINT UC_VendorBusinessHour_Vendor_Day UNIQUE (vendorProfileId, dayOfWeek)
+);
+
+-- Table: VendorLicense
+-- Stores mandatory license information for vendors in regulated categories.
+CREATE TABLE VendorLicense (
+    licenseId UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vendorProfileId UUID NOT NULL,
+    licenseNumber VARCHAR(100) NOT NULL,
+    expiryDate DATE NOT NULL,
+    licenseType VARCHAR(50) NOT NULL,
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: ProductCategory
+-- Represents categories for organizing a vendor's products.
+CREATE TABLE ProductCategory (
+    productCategoryId UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vendorProfileId UUID NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    isDeleted BOOLEAN NOT NULL DEFAULT false,
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT UC_ProductCategory_Vendor_Name UNIQUE (vendorProfileId, name)
+);
+
+-- Table: Product
+-- Represents an individual item sold by a vendor.
+CREATE TABLE Product (
+    productId UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    vendorProfileId UUID NOT NULL,
+    productCategoryId UUID NOT NULL,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL CHECK (price > 0),
+    imageUrl VARCHAR(2048),
+    stockQuantity INT NOT NULL DEFAULT 0 CHECK (stockQuantity >= 0),
+    limitedStockThreshold INT DEFAULT 5 CHECK (limitedStockThreshold >= 0),
+    isAvailable BOOLEAN NOT NULL DEFAULT true,
+    isDeleted BOOLEAN NOT NULL DEFAULT false,
+    createdAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updatedAt TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- --- Foreign Key Constraints ---
+
+ALTER TABLE VendorBusinessHour ADD CONSTRAINT FK_VendorBusinessHour_VendorProfile FOREIGN KEY (vendorProfileId) REFERENCES VendorProfile(vendorProfileId) ON DELETE CASCADE;
+ALTER TABLE VendorLicense ADD CONSTRAINT FK_VendorLicense_VendorProfile FOREIGN KEY (vendorProfileId) REFERENCES VendorProfile(vendorProfileId) ON DELETE CASCADE;
+ALTER TABLE ProductCategory ADD CONSTRAINT FK_ProductCategory_VendorProfile FOREIGN KEY (vendorProfileId) REFERENCES VendorProfile(vendorProfileId) ON DELETE CASCADE;
+ALTER TABLE Product ADD CONSTRAINT FK_Product_VendorProfile FOREIGN KEY (vendorProfileId) REFERENCES VendorProfile(vendorProfileId) ON DELETE CASCADE;
+ALTER TABLE Product ADD CONSTRAINT FK_Product_ProductCategory FOREIGN KEY (productCategoryId) REFERENCES ProductCategory(productCategoryId) ON DELETE CASCADE;
+
+-- --- Indexes ---
+
+-- Indexes for VendorProfile
+CREATE INDEX IX_VendorProfile_StoreName ON VendorProfile USING btree (storeName);
+CREATE INDEX FT_VendorProfile_Description ON VendorProfile USING gin (to_tsvector('english', description));
+CREATE INDEX IX_VendorProfile_Online_RatingDesc ON VendorProfile USING btree (isOnline, averageRating);
+CREATE INDEX IX_VendorProfile_Location_Spatial ON VendorProfile USING gist (ST_MakePoint(longitude, latitude));
+
+-- Index for VendorLicense
+CREATE INDEX IX_VendorLicense_VendorProfileId_Expiry ON VendorLicense USING btree (vendorProfileId, expiryDate);
+
+-- Indexes for Product
+CREATE INDEX IX_Product_Vendor_Availability ON Product USING btree (vendorProfileId, isAvailable, isDeleted);
+CREATE INDEX FT_Product_Name_Description ON Product USING gin (to_tsvector('english', name || ' ' || description));

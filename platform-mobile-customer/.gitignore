@@ -1,0 +1,45 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Environment
+.env
+.env.*
+
+# React Native
+ios/build/
+android/build/
+android/app/build/
+android/.gradle/
+android/gradle/
+android/app/src/main/assets/index.android.bundle
+android/app/src/main/res/drawable-*/
+android/app/src/main/res/raw/
+*.js.map
+
+# Jest
+coverage/
+/jest.config.js.old
+
+# Metro Bundler
+.metro-cache/
+
+# IDE files
+.idea/
+*.iml
+*.vscode/
+.DS_Store
+
+# Build artifacts
+dist/
+build/
+
+# Pods
+ios/Pods/
+
+# Temporary files
+*.tmp
+*.bak
+*.swp

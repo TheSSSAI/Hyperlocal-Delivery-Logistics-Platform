@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat Interface</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    html, body {
+      height: 100%;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: #F7F9FC; /* gray_50 */
+    }
+
+    /* Design System Tokens */
+    :root {
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray_50: #F7F9FC;
+      --color-neutrals-gray_100: #E9EDF2;
+      --color-neutrals-gray_400: #A5B0BD;
+      --color-neutrals-gray_500: #8E9BAA;
+      --color-neutrals-gray_600: #717C88;
+      --color-neutrals-gray_800: #383E44;
+      --color-neutrals-gray_900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      --color-semantic-success: #00C875;
+
+      /* Spacing */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+
+      /* Typography */
+      --font-body: 16px;
+      --font-caption: 14px;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+
+      /* Borders */
+      --border-radius-sm: 4px;
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --border-radius-pill: 9999px;
+
+      /* Shadows */
+      --shadow-sm: 0px 1px 2px rgba(28, 31, 34, 0.05);
+      --shadow-md: 0px 4px 8px -2px rgba(28, 31, 34, 0.1), 0px 2px 4px -2px rgba(28, 31, 34, 0.06);
+    }
+
+    /* Main Screen & Component Styles */
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: var(--space-16);
+        gap: var(--space-24);
+    }
+
+    .chat-interface-wrapper {
+      width: 100%;
+      max-width: 420px;
+      height: 80vh;
+      min-height: 500px;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      padding: var(--space-16);
+      border-bottom: 1px solid var(--color-neutrals-gray_100);
+      background-color: var(--color-neutrals-white);
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .chat-header h2 {
+      font-size: 18px;
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-neutrals-gray_900);
+    }
+    .chat-header p {
+        font-size: var(--font-caption);
+        color: var(--color-neutrals-gray_600);
+    }
+
+    .chat-history {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: var(--space-16);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-16);
+      background-color: var(--color-neutrals-gray_50);
+    }
+
+    .message-bubble {
+      max-width: 80%;
+      padding: var(--space-12) var(--space-16);
+      border-radius: var(--border-radius-lg);
+      font-size: var(--font-body);
+      line-height: 1.5;
+    }
+    .message-bubble .text {
+        word-wrap: break-word;
+    }
+    .message-bubble .timestamp {
+      display: block;
+      font-size: 12px;
+      margin-top: var(--space-4);
+      text-align: right;
+      opacity: 0.7;
+    }
+
+    .message-bubble--receiver {
+      background-color: var(--color-neutrals-gray_100);
+      color: var(--color-neutrals-gray_900);
+      align-self: flex-start;
+      border-bottom-left-radius: var(--border-radius-sm);
+    }
+    .message-bubble--receiver .timestamp {
+        color: var(--color-neutrals-gray_600);
+    }
+
+    .message-bubble--sender {
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+      align-self: flex-end;
+      border-bottom-right-radius: var(--border-radius-sm);
+    }
+    .message-bubble--sender .timestamp {
+        color: var(--color-primary-50);
+    }
+
+    .system-message {
+      align-self: center;
+      background-color: var(--color-neutrals-gray_200);
+      color: var(--color-neutrals-gray_700);
+      font-size: var(--font-caption);
+      padding: var(--space-4) var(--space-12);
+      border-radius: var(--border-radius-pill);
+    }
+
+    .chat-input-area {
+      flex-shrink: 0;
+      border-top: 1px solid var(--color-neutrals-gray_100);
+      background-color: var(--color-neutrals-white);
+    }
+
+    .quick-replies {
+      display: flex;
+      gap: var(--space-8);
+      overflow-x: auto;
+      padding: var(--space-12);
+      scrollbar-width: none; /* Firefox */
+    }
+    .quick-replies::-webkit-scrollbar {
+      display: none; /* Safari and Chrome */
+    }
+    .quick-reply-btn {
+      flex-shrink: 0;
+      padding: var(--space-8) var(--space-16);
+      background-color: var(--color-primary-50);
+      color: var(--color-primary-600);
+      border: 1px solid var(--color-primary-100);
+      border-radius: var(--border-radius-pill);
+      font-size: var(--font-caption);
+      font-weight: var(--font-weight-semibold);
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .quick-reply-btn:hover {
+        background-color: var(--color-primary-100);
+    }
+
+    .text-input-group {
+      display: flex;
+      align-items: center;
+      gap: var(--space-8);
+      padding: var(--space-12);
+    }
+    .text-input-group textarea {
+      flex-grow: 1;
+      padding: var(--space-12);
+      border: 1px solid var(--color-neutrals-gray_300);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-body);
+      font-family: inherit;
+      resize: none;
+      min-height: 48px;
+    }
+    .text-input-group textarea:focus {
+        border-color: var(--color-primary-500);
+        outline: 2px solid var(--color-primary-100);
+    }
+
+    .send-btn {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .send-btn:hover {
+        background-color: var(--color-primary-600);
+    }
+    .send-btn:disabled {
+        background-color: var(--color-neutrals-gray_200);
+        cursor: not-allowed;
+    }
+    .send-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* State Variations */
+    .state-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .spinner {
+      border: 4px solid var(--color-neutrals-gray_100);
+      border-top: 4px solid var(--color-primary-500);
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .alert {
+      padding: var(--space-16);
+      border: 1px solid var(--color-semantic-error);
+      background-color: #FFEBEB;
+      color: #8B0000;
+      border-radius: var(--border-radius-md);
+      text-align: center;
+    }
+
+    .readonly-overlay {
+      background-color: var(--color-neutrals-gray_100);
+      color: var(--color-neutrals-gray_600);
+      padding: var(--space-16);
+      text-align: center;
+      font-size: var(--font-caption);
+      font-style: italic;
+    }
+    
+    /* For demonstration */
+    .screen-variations { width: 100%; margin-top: 48px; }
+    .variation-group { margin-bottom: 48px; }
+    h1, h3 { color: var(--color-neutrals-gray_800); margin-bottom: 16px; }
+    h1 { text-align: center; }
+    h3 { border-bottom: 1px solid var(--color-neutrals-gray_200); padding-bottom: 8px; }
+    normal { color: var(--color-neutrals-gray_700); font-style: italic; display: block; margin-bottom: 16px; }
+
+  </style>
+</head>
+<body>
+  <h1>Chat Interface Component</h1>
+  
+  <div class="chat-interface-wrapper">
+    <header class="chat-header">
+      <h2>Chat with Anand K.</h2>
+      <p>Order #HYP-12345</p>
+    </header>
+    <main class="chat-history" aria-live="polite">
+      <div class="message-bubble message-bubble--receiver">
+        <span class="text">Hi, I'm having trouble finding your address. Is the landmark 'Apollo Pharmacy' correct?</span>
+        <span class="timestamp">10:32 AM</span>
+      </div>
+      <div class="message-bubble message-bubble--sender">
+        <span class="text">Yes, it's the building right next to it. I'm in flat 301.</span>
+        <span class="timestamp">10:33 AM</span>
+      </div>
+       <div class="message-bubble message-bubble--receiver">
+        <span class="text">Got it, thanks! I'm just 2 minutes away.</span>
+        <span class="timestamp">10:33 AM</span>
+      </div>
+    </main>
+    <footer class="chat-input-area">
+      <div class="quick-replies">
+        <button class="quick-reply-btn">OK</button>
+        <button class="quick-reply-btn">I'm on my way</button>
+        <button class="quick-reply-btn">Please leave it at the door</button>
+        <button class="quick-reply-btn">I'm at the location</button>
+      </div>
+      <div class="text-input-group">
+        <textarea placeholder="Type your message..." rows="1"></textarea>
+        <button class="send-btn" aria-label="Send message">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z"/></svg>
+        </button>
+      </div>
+    </footer>
+  </div>
+  
+  <div class="screen-variations">
+    <h2>Screen Variations</h2>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Active State"</h3>
+      <!--description--><normal>This is the standard, fully functional chat interface. The user can scroll the history, use quick replies, and type and send new messages.</normal>
+      <!-- The main component above demonstrates the active state. -->
+    </div>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Loading State"</h3>
+      <!--description--><normal>Shown when the chat is first opened and the message history is being fetched from the server.</normal>
+      <div class="chat-interface-wrapper">
+        <header class="chat-header">
+          <h2>Chat with Anand K.</h2>
+          <p>Order #HYP-12345</p>
+        </header>
+        <main class="chat-history">
+          <div class="state-wrapper">
+            <div class="spinner" role="status" aria-label="Loading chat history"></div>
+          </div>
+        </main>
+        <footer class="chat-input-area">
+          <div class="text-input-group">
+            <textarea placeholder="Loading..." rows="1" disabled></textarea>
+            <button class="send-btn" aria-label="Send message" disabled>
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z"/></svg>
+            </button>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <div class="variation-group">
+      <h3>Variant Name: "Read-Only State"</h3>
+      <!--description--><normal>The state after an order is completed or cancelled. The user can view the history, but cannot send new messages.</normal>
+      <div class="chat-interface-wrapper">
+        <header class="chat-header">
+          <h2>Chat with Anand K.</h2>
+          <p>Order #HYP-12345 (Completed)</p>
+        </header>
+        <main class="chat-history">
+          <div class="message-bubble message-bubble--receiver">
+            <span class="text">Hi, I'm having trouble finding your address. Is the landmark 'Apollo Pharmacy' correct?</span>
+            <span class="timestamp">10:32 AM</span>
+          </div>
+          <div class="message-bubble message-bubble--sender">
+            <span class="text">Yes, it's the building right next to it. I'm in flat 301.</span>
+            <span class="timestamp">10:33 AM</span>
+          </div>
+          <div class="system-message">Order Delivered</div>
+        </main>
+        <footer class="chat-input-area">
+          <div class="readonly-overlay">
+            This chat is now closed as the order has been completed.
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <div class="variation-group">
+      <h3>Variant Name: "Error State"</h3>
+      <!--description--><normal>Shown if the chat service fails to connect or load the history due to a server or network error.</normal>
+      <div class="chat-interface-wrapper">
+        <header class="chat-header">
+          <h2>Chat with Anand K.</h2>
+          <p>Order #HYP-12345</p>
+        </header>
+        <main class="chat-history">
+          <div class="state-wrapper">
+            <div class="alert" role="alert">
+              Failed to connect to chat service. Please check your connection and try again.
+            </div>
+          </div>
+        </main>
+        <footer class="chat-input-area">
+            <div class="text-input-group">
+              <textarea placeholder="Chat unavailable" rows="1" disabled></textarea>
+              <button class="send-btn" aria-label="Send message" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z"/></svg>
+              </button>
+            </div>
+        </footer>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

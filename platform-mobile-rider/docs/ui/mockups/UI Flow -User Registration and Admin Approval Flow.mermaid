@@ -1,0 +1,46 @@
+flowchart TD
+    subgraph User Registration Flow
+        A[New User starts registration on Client App/Web]
+        A --> B[User enters mobile number & PII]
+        B --> C{Backend: Mobile number already registered?}
+        C -->|Yes| D["Show 'User Exists, Please Log In' error"]
+        C -->|No| E[Backend sends OTP via SMS]
+        E --> F[User enters received OTP]
+        F --> G{Backend: Is OTP correct?}
+        G -->|No| H["Show 'Invalid OTP' error"]
+        G -->|Yes| I[Backend creates User Account with status 'pending_verification']
+        I --> J[User is shown 'Pending Review' screen on Client]
+    end
+
+    subgraph Admin Verification Flow
+        K[Application appears in Admin 'Pending Registrations' queue]
+        K --> L[Admin selects and reviews the application details and documents]
+        L --> M{Admin decision}
+        M -- Approve --> N[Admin clicks 'Approve']
+        M -- Reject --> O[Admin clicks 'Reject' and provides a reason]
+        
+        subgraph Approval Path
+            N --> P[Backend updates User status to 'active']
+            P --> Q[Notification Service sends 'Approved' SMS/Push notification to User]
+            Q --> R((User can now log in to the full platform))
+        end
+        
+        subgraph Rejection Path
+            O --> S[Backend updates User status to 'rejected']
+            S --> T[Notification Service sends 'Rejected' SMS/Push notification to User]
+            T --> U((User is informed of rejection))
+        end
+    end
+
+    J --> K
+
+    %% Styling
+    classDef process fill:#e3f2fd,stroke:#2196f3,color:#000
+    classDef success fill:#e8f5e9,stroke:#4caf50,color:#000
+    classDef failure fill:#ffebee,stroke:#d32f2f,color:#000
+    classDef admin fill:#fff8e1,stroke:#fbc02d,color:#000
+
+    class A,B,E,F,I,J,P,S process
+    class Q,R,U success
+    class D,H failure
+    class K,L,M,N,O admin

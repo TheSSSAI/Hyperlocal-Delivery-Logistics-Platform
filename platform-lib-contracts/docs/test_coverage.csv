@@ -1,0 +1,6 @@
+"component_name","business_criticality","technical_complexity","change_frequency","test_types_required","unit_test_coverage","integration_test_coverage","e2e_test_coverage","automation_percentage","manual_test_effort","automated_test_effort","total_test_cases","risk_mitigation_score","quality_confidence","maintenance_overhead","tool_compatibility","team_skill_alignment"
+"Identity & Access Service","Critical","High","Low","[""Unit"",""Integration"",""Security"",""Performance""]","92","95","90","95","8","60","150","0.98","High","Low","Excellent","Good"
+"Order Management Service","Critical","High","High","[""Unit"",""Integration"",""System/E2E"",""Performance""]","95","90","85","90","40","250","400","0.95","High","Medium","Excellent","Good"
+"Payments & Settlements Service","Critical","High","Medium","[""Unit"",""Integration"",""Security"",""E2E""]","98","95","80","92","20","180","250","0.97","High","Medium","Excellent","Good"
+"Rider Logistics Service","High","High","Medium","[""Unit"",""Integration"",""System/E2E"",""Performance""]","90","85","80","85","30","200","300","0.9","Medium","Medium","Excellent","Good"
+"Customer Mobile App (React Native)","High","Medium","High","[""Unit"",""Component"",""E2E"",""Accessibility"",""Compatibility""]","75","70","60","70","100","150","350","0.85","Medium","High","Good","Medium"

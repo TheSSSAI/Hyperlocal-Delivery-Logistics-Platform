@@ -1,0 +1,2 @@
+"total_stories","total_story_points","must_have_stories","should_have_stories","could_have_stories","epics_identified","estimated_sprints","key_dependencies"
+"13","88","10","3","0","[""Foundational Service Setup & Deployment"",""User Authentication & Session Management"",""User Profile & Data Management"",""Administrator Capabilities"",""Compliance & Data Governance"",""Observability and Monitoring""]","5","[""AWS EKS Cluster Setup"",""AWS RDS with PostGIS Setup"",""AWS ElastiCache for Redis Setup"",""AWS Cognito User Pool Configuration""]"

@@ -1,0 +1,114 @@
+flowchart TD
+    %% Define Styles
+    classDef actor fill:#fff2cc,stroke:#d6b656,color:#000
+    classDef clientApp fill:#dae8fc,stroke:#6c8ebf,color:#000
+    classDef systemBoundary stroke:#333,stroke-width:2px,fill:#f9f9f9
+    classDef microservice fill:#d5e8d4,stroke:#82b366,color:#000
+    classDef dataStore fill:#f8cecc,stroke:#b85450,color:#000
+    classDef externalSvc fill:#e1d5e7,stroke:#9673a6,color:#000
+    classDef bus fill:#f5f5f5,stroke:#666,stroke-dasharray:5 5
+
+    %% Actors
+    subgraph "1. Users"
+        direction LR
+        Customer("fa:fa-user Customer"):::actor
+        Vendor("fa:fa-store Vendor"):::actor
+        Rider("fa:fa-motorcycle Rider"):::actor
+        Admin("fa:fa-user-shield Admin"):::actor
+    end
+
+    %% Client Apps
+    subgraph "2. Client Applications"
+        direction LR
+        CustomerApp["Customer App<br/>(React Native)"]:::clientApp
+        VendorDashboard["Vendor Dashboard<br/>(React.js)"]:::clientApp
+        RiderApp["Rider App<br/>(React Native)"]:::clientApp
+        AdminDashboard["Admin Dashboard<br/>(React.js)"]:::clientApp
+    end
+
+    %% Platform Boundary
+    subgraph "3. Hyperlocal Delivery Platform (AWS)"
+        classDef systemBoundary
+        APIGateway["fa:fa-door-open API Gateway"]
+
+        subgraph "4. Core Microservices (EKS)"
+            direction LR
+            Identity["fa:fa-id-card Identity & Access"]:::microservice
+            VendorCatalog["fa:fa-book Vendor & Catalog"]:::microservice
+            OrderMgmt["fa:fa-receipt Order Management"]:::microservice
+            RiderLogistics["fa:fa-route Rider Logistics"]:::microservice
+            Payments["fa:fa-credit-card Payments & Settlements"]:::microservice
+            Notifications["fa:fa-bell Notifications"]:::microservice
+            ChatService["fa:fa-comments Chat Service"]:::microservice
+        end
+
+        MessageBus["fa:fa-exchange-alt Message Bus<br/>(SQS/SNS)"]:::bus
+
+        subgraph "5. Data Stores"
+            direction LR
+            PostgresDB["fa:fa-database PostgreSQL<br/>(RDS)"]:::dataStore
+            DocumentDB["fa:fa-file-alt DocumentDB<br/>(Chat Logs)"]:::dataStore
+            S3Storage["fa:fa-archive Object Storage<br/>(S3)"]:::dataStore
+            OpenSearch["fa:fa-search OpenSearch"]:::dataStore
+            RedisCache["fa:fa-bolt Redis<br/>(ElastiCache)"]:::dataStore
+        end
+    end
+
+    %% External Dependencies
+    subgraph "6. External Services"
+        direction LR
+        Razorpay["fa:fa-money-bill-wave Razorpay"]:::externalSvc
+        Mapbox["fa:fa-map-marked-alt Mapbox"]:::externalSvc
+        FCM["fa:fa-comment-dots Firebase (FCM)"]:::externalSvc
+        AWSSNS["fa:fa-sms AWS SNS (SMS)"]:::externalSvc
+    end
+
+    %% User to App Connections
+    Customer --> CustomerApp
+    Vendor --> VendorDashboard
+    Rider --> RiderApp
+    Admin --> AdminDashboard
+
+    %% App to System Connections
+    CustomerApp -- "HTTPS/WSS" --> APIGateway
+    VendorDashboard -- "HTTPS/WSS" --> APIGateway
+    RiderApp -- "HTTPS/WSS" --> APIGateway
+    AdminDashboard -- "HTTPS/WSS" --> APIGateway
+
+    %% API Gateway to Microservices (Synchronous)
+    APIGateway -- "REST/GraphQL" --> Identity
+    APIGateway --> VendorCatalog
+    APIGateway --> OrderMgmt
+    APIGateway --> RiderLogistics
+    APIGateway --> Payments
+    APIGateway --> ChatService
+
+    %% Microservice to Data Store Connections
+    Identity --> PostgresDB
+    VendorCatalog --> PostgresDB
+    OrderMgmt --> PostgresDB
+    RiderLogistics --> PostgresDB
+    Payments --> PostgresDB
+    ChatService --> DocumentDB
+    VendorCatalog -- "Indexes Data" --> OpenSearch
+    RiderLogistics --> RedisCache
+    Identity --> RedisCache
+    VendorCatalog -- "Images/Docs" --> S3Storage
+    RiderLogistics -- "POD Photos" --> S3Storage
+
+    %% Inter-service Communication (Asynchronous)
+    OrderMgmt -- "Publishes Events" --> MessageBus
+    VendorCatalog -- "Publishes Events" --> MessageBus
+    RiderLogistics -- "Publishes Events" --> MessageBus
+    Payments -- "Publishes Events" --> MessageBus
+    MessageBus -- "Subscribes to Events" --> Notifications
+    MessageBus --> RiderLogistics
+    MessageBus --> OrderMgmt
+    MessageBus --> Payments
+
+    %% External Service Integrations
+    Payments -- "Payouts & Transactions" --> Razorpay
+    RiderLogistics -- "Routing & Geocoding" --> Mapbox
+    Notifications -- "Push Notifications" --> FCM
+    Notifications -- "SMS Notifications" --> AWSSNS
+    Identity -- "OTP SMS" --> AWSSNS

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organism: RegistrationForm</title>
+    <style>
+        /* CSS Reset */
+        *, *::before, *::after { box-sizing: border-box; }
+        body, h1, h2, h3, h4, p, figure, fieldset { margin: 0; }
+        input, button, textarea, select { font: inherit; }
+        form, fieldset { padding: 0; border: 0; }
+
+        /* Design System Tokens */
+        :root {
+            /* Typography */
+            --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-weight-regular: 400; --font-weight-semibold: 600; --font-weight-bold: 700;
+            --fs-h2: 36px; --fs-h3: 28px; --fs-h4: 20px; --fs-body: 16px; --fs-caption: 14px;
+            /* Colors */
+            --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-300: #5C9EFF; --color-primary-400: #2E83FF; --color-primary-500: #0068FF; --color-primary-600: #0053CC; --color-primary-700: #003E99;
+            --color-white: #FFFFFF; --color-gray-50: #F7F9FC; --color-gray-100: #E9EDF2; --color-gray-200: #D3D9E1; --color-gray-300: #BCC4CF; --color-gray-400: #A5B0BD; --color-gray-500: #8E9BAA; --color-gray-600: #717C88; --color-gray-700: #555D66; --color-gray-800: #383E44; --color-gray-900: #1C1F22;
+            --color-success: #00C875; --color-error: #FF4D4D; --color-danger: var(--color-error);
+            /* Spacing */
+            --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+            /* Borders & Shadows */
+            --border-radius-md: 8px; --border-radius-lg: 12px; --border-radius-full: 9999px;
+            --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+            --shadow-md: 0px 4px 8px rgba(28, 31, 34, 0.1);
+        }
+
+        /* Base & Layout Styles */
+        body {
+            font-family: var(--font-family-primary);
+            font-size: var(--fs-body);
+            background-color: var(--color-gray-50);
+            color: var(--color-gray-800);
+            padding: var(--space-6);
+        }
+        .showcase { max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: var(--space-6); }
+        .showcase__header h1 { font-size: var(--fs-h2); color: var(--color-gray-900); text-align: center; }
+        .showcase__header p { color: var(--color-gray-600); text-align: center; margin-top: var(--space-2); }
+        .sr-only { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; width: 1px; }
+        .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; }
+        
+        /* Tab System for Variants */
+        .tabs { display: flex; justify-content: center; margin-bottom: -1px; }
+        .tab { position: relative; }
+        .tab__label { cursor: pointer; padding: var(--space-3) var(--space-5); font-weight: var(--font-weight-semibold); color: var(--color-gray-500); border-bottom: 2px solid transparent; display: block; }
+        .tab__input { position: absolute; opacity: 0; }
+        .tab__content { display: none; }
+        .tab__input:checked + .tab__label { color: var(--color-primary-500); border-bottom-color: var(--color-primary-500); }
+        #tab-customer:checked ~ .tab-panels #panel-customer,
+        #tab-vendor:checked ~ .tab-panels #panel-vendor,
+        #tab-rider:checked ~ .tab-panels #panel-rider { display: block; }
+
+        /* ---- DEPENDENT COMPONENT STYLES ---- */
+        
+        /* Button */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-3) var(--space-5); font-weight: var(--font-weight-semibold); text-decoration: none; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; min-height: 44px; }
+        .btn:focus-visible { outline: 3px solid var(--color-primary-100); outline-offset: 2px; }
+        .btn--primary { background-color: var(--color-primary-500); color: var(--color-white); }
+        .btn--primary:hover:not(:disabled) { background-color: var(--color-primary-600); }
+        .btn--primary:disabled { background-color: var(--color-gray-200); cursor: not-allowed; }
+        .btn--full { width: 100%; }
+        
+        /* Spinner */
+        .spinner { animation: spin 1s linear infinite; border: 3px solid var(--color-primary-100); border-right-color: var(--color-primary-500); border-radius: 50%; display: inline-block; width: 40px; height: 40px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* FormGroup */
+        .form-group { display: flex; flex-direction: column; margin-bottom: var(--space-4); }
+        .label { display: block; font-weight: var(--font-weight-semibold); margin-bottom: var(--space-2); color: var(--color-gray-700); font-size: 14px; }
+        .label--required::after { content: '*'; color: var(--color-danger); margin-left: 4px; }
+        .input { width: 100%; padding: var(--space-3) var(--space-4); border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-md); background-color: white; font-size: var(--fs-body); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+        .input:focus-visible { border: 2px solid var(--color-primary-500); padding: calc(var(--space-3) - 1px) calc(var(--space-4) - 1px); outline: none; box-shadow: 0 0 0 3px var(--color-primary-100); }
+        .input--error { border-color: var(--color-error); border-width: 2px; padding: calc(var(--space-3) - 1px) calc(var(--space-4) - 1px); }
+        .error-message { font-size: var(--fs-caption); color: var(--color-error); margin-top: var(--space-2); }
+        
+        /* OTPInput */
+        .otp-input { display: flex; gap: var(--space-3); justify-content: center; }
+        .otp-input__digit { width: 48px; height: 56px; border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-md); font-size: var(--fs-h3); text-align: center; color: var(--color-gray-900); }
+        .otp-input__digit:focus { outline: none; border: 2px solid var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-100); }
+        
+        /* FileUpload */
+        .file-upload { position: relative; width: 100%; border-radius: var(--border-radius-md); border: 2px dashed var(--color-gray-300); transition: all 0.2s ease; }
+        .file-upload:hover { border-color: var(--color-primary-400); background-color: var(--color-primary-50); }
+        .file-upload__input { position: absolute; width: 1px; height: 1px; clip: rect(0, 0, 0, 0); }
+        .file-upload__dropzone { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--space-5); cursor: pointer; text-align: center; }
+        .file-upload__icon { font-size: 32px; color: var(--color-gray-500); margin-bottom: var(--space-3); }
+        .file-upload__prompt-title { font-weight: var(--font-weight-semibold); color: var(--color-primary-600); }
+        .file-upload__prompt-text { font-size: var(--fs-caption); color: var(--color-gray-600); }
+        
+        /* ---- ORGANISM: RegistrationForm ---- */
+        .registration-form {
+            background-color: var(--color-white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-gray-200);
+            padding: var(--space-6);
+            position: relative;
+        }
+        .registration-form__header { text-align: center; margin-bottom: var(--space-6); }
+        .registration-form__title { font-size: var(--fs-h3); font-weight: var(--font-weight-bold); color: var(--color-gray-900); margin-bottom: var(--space-2); }
+        .registration-form__subtitle { font-size: var(--fs-body); color: var(--color-gray-600); }
+        
+        .form-section { margin-bottom: var(--space-6); }
+        .form-section__title { font-size: var(--fs-h4); font-weight: var(--font-weight-semibold); color: var(--color-gray-800); margin-bottom: var(--space-4); padding-bottom: var(--space-2); border-bottom: 1px solid var(--color-gray-200); }
+        
+        .form-footer { margin-top: var(--space-5); text-align: center; }
+        .form-footer__terms { font-size: var(--fs-caption); color: var(--color-gray-500); margin-top: var(--space-4); }
+        .form-footer__terms a { color: var(--color-primary-500); text-decoration: none; font-weight: var(--font-weight-semibold); }
+        .form-footer__terms a:hover { text-decoration: underline; }
+
+        /* Submitting State */
+        .registration-form[data-state='submitting'] .form-content { filter: blur(4px); pointer-events: none; }
+        .registration-form__overlay {
+            position: absolute; inset: 0; background-color: rgba(255, 255, 255, 0.8);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 10; border-radius: var(--border-radius-lg); opacity: 0; visibility: hidden; transition: all 0.3s ease;
+        }
+        .registration-form[data-state='submitting'] .registration-form__overlay { opacity: 1; visibility: visible; }
+        .registration-form__overlay p { margin-top: var(--space-4); font-weight: var(--font-weight-semibold); color: var(--color-gray-700); }
+
+        /* Success State */
+        .registration-form__success-message {
+            text-align: center; padding: var(--space-8) var(--space-5);
+            display: none; /* Hidden by default */
+        }
+        .registration-form[data-state='success'] .registration-form__success-message { display: block; }
+        .registration-form[data-state='success'] .form-content { display: none; }
+        .registration-form__success-message .icon { font-size: 64px; color: var(--color-success); margin-bottom: var(--space-4); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { padding: var(--space-4); }
+            .registration-form { padding: var(--space-5); }
+        }
+    </style>
+</head>
+<body>
+
+    <svg width="0" height="0" style="position:absolute">
+        <defs>
+            <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></symbol>
+            <symbol id="icon-check-circle" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></symbol>
+        </defs>
+    </svg>
+
+    <div class="showcase">
+        <header class="showcase__header">
+            <h1>Registration Form</h1>
+            <p>A multi-step form for user registration with variants for each user type.</p>
+        </header>
+
+        <nav class="tabs" aria-label="Registration Form Variants">
+            <div class="tab">
+                <input type="radio" name="reg-form-tabs" id="tab-customer" class="tab__input" checked>
+                <label for="tab-customer" class="tab__label">Customer</label>
+            </div>
+            <div class="tab">
+                <input type="radio" name="reg-form-tabs" id="tab-vendor" class="tab__input">
+                <label for="tab-vendor" class="tab__label">Vendor</label>
+            </div>
+            <div class="tab">
+                <input type="radio" name="reg-form-tabs" id="tab-rider" class="tab__input">
+                <label for="tab-rider" class="tab__label">Rider</label>
+            </div>
+        </nav>
+
+        <div class="tab-panels">
+            <!-- Customer Registration Form -->
+            <div id="panel-customer" class="tab__content">
+                <form class="registration-form" data-state="default">
+                    <div class="form-content">
+                        <header class="registration-form__header">
+                            <h2 class="registration-form__title">Create Customer Account</h2>
+                            <p class="registration-form__subtitle">Sign up to start ordering from local stores.</p>
+                        </header>
+                        <fieldset class="form-section">
+                            <div class="form-group">
+                                <label class="label label--required" for="customer-mobile">Mobile Number</label>
+                                <input class="input" type="tel" id="customer-mobile" placeholder="+91 98765 43210">
+                            </div>
+                            <div class="form-group">
+                                <label class="label label--required" for="customer-otp">Enter OTP</label>
+                                <div class="otp-input" data-otp-container>
+                                    <input type="text" maxlength="1" class="otp-input__digit" inputmode="numeric">
+                                    <input type="text" maxlength="1" class="otp-input__digit" inputmode="numeric">
+                                    <input type="text" maxlength="1" class="otp-input__digit" inputmode="numeric">
+                                    <input type="text" maxlength="1" class="otp-input__digit" inputmode="numeric">
+                                    <input type="text" maxlength="1" class="otp-input__digit" inputmode="numeric">
+                                    <input type="text" maxlength="1" class="otp-input__digit" inputmode="numeric">
+                                </div>
+                            </div>
+                        </fieldset>
+                        <footer class="form-footer">
+                            <button type="submit" class="btn btn--primary btn--full">Verify & Create Account</button>
+                            <p class="form-footer__terms">By continuing, you agree to our <a href="#">Terms of Service</a>.</p>
+                        </footer>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Vendor Registration Form -->
+            <div id="panel-vendor" class="tab__content">
+                <form class="registration-form" data-state="default">
+                    <div class="form-content">
+                        <header class="registration-form__header">
+                            <h2 class="registration-form__title">Become a Vendor</h2>
+                            <p class="registration-form__subtitle">Join our network and reach more customers.</p>
+                        </header>
+
+                        <fieldset class="form-section">
+                            <legend class="form-section__title">Business Details</legend>
+                            <div class="form-group">
+                                <label class="label label--required" for="vendor-name">Business Name</label>
+                                <input class="input" type="text" id="vendor-name" placeholder="e.g., Global Bites Kitchen">
+                            </div>
+                            <div class="form-group">
+                                <label class="label label--required" for="vendor-address">Business Address</label>
+                                <textarea class="input" id="vendor-address" placeholder="123 Main Street, Mumbai, 400001" rows="3"></textarea>
+                            </div>
+                             <div class="form-group">
+                                <label class="label label--required" for="vendor-mobile">Contact Mobile Number</label>
+                                <input class="input" type="tel" id="vendor-mobile" placeholder="+91 98765 43210">
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="form-section">
+                            <legend class="form-section__title">Legal Documents</legend>
+                            <div class="form-group">
+                                <label class="label label--required" for="vendor-gst-cert">GST Certificate</label>
+                                <div class="file-upload">
+                                    <label for="vendor-gst-cert" class="file-upload__dropzone">
+                                        <span class="file-upload__icon"><svg class="icon"><use href="#icon-upload"/></svg></span>
+                                        <span class="file-upload__prompt-title">Upload GST Document</span>
+                                        <p class="file-upload__prompt-text">PDF, PNG, or JPG (max. 5MB)</p>
+                                    </label>
+                                    <input type="file" id="vendor-gst-cert" class="file-upload__input" aria-label="Upload GST Certificate">
+                                </div>
+                            </div>
+                             <div class="form-group">
+                                <label class="label" for="vendor-fssai-cert">FSSAI License (if applicable)</label>
+                                <div class="file-upload">
+                                    <label for="vendor-fssai-cert" class="file-upload__dropzone">
+                                        <span class="file-upload__icon"><svg class="icon"><use href="#icon-upload"/></svg></span>
+                                        <span class="file-upload__prompt-title">Upload FSSAI License</span>
+                                        <p class="file-upload__prompt-text">PDF, PNG, or JPG (max. 5MB)</p>
+                                    </label>
+                                    <input type="file" id="vendor-fssai-cert" class="file-upload__input" aria-label="Upload FSSAI License">
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <footer class="form-footer">
+                            <button type="submit" class="btn btn--primary btn--full">Submit for Verification</button>
+                        </footer>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Rider Registration Form -->
+            <div id="panel-rider" class="tab__content">
+                <form class="registration-form" data-state="default">
+                    <div class="form-content">
+                        <header class="registration-form__header">
+                            <h2 class="registration-form__title">Become a Rider</h2>
+                            <p class="registration-form__subtitle">Join our delivery fleet and start earning.</p>
+                        </header>
+                        
+                        <fieldset class="form-section">
+                            <legend class="form-section__title">Personal & Bank Details</legend>
+                             <div class="form-group">
+                                <label class="label label--required" for="rider-name">Full Name</label>
+                                <input class="input" type="text" id="rider-name" placeholder="Enter your full name">
+                            </div>
+                            <div class="form-group">
+                                <label class="label label--required" for="rider-mobile">Mobile Number</label>
+                                <input class="input" type="tel" id="rider-mobile" placeholder="+91 98765 43210">
+                            </div>
+                            <div class="form-group">
+                                <label class="label label--required" for="rider-bank">Bank Account Number</label>
+                                <input class="input" type="text" id="rider-bank" placeholder="Enter account number for payouts">
+                            </div>
+                        </fieldset>
+
+                        <fieldset class="form-section">
+                            <legend class="form-section__title">Vehicle & Legal Documents</legend>
+                            <div class="form-group">
+                                <label class="label label--required" for="rider-license">Driver's License</label>
+                                <div class="file-upload">
+                                    <label for="rider-license" class="file-upload__dropzone">
+                                        <span class="file-upload__prompt-title">Upload Driver's License</span>
+                                    </label>
+                                    <input type="file" id="rider-license" class="file-upload__input">
+                                </div>
+                            </div>
+                             <div class="form-group">
+                                <label class="label label--required" for="rider-aadhaar">Aadhaar Card</label>
+                                <div class="file-upload">
+                                    <label for="rider-aadhaar" class="file-upload__dropzone">
+                                        <span class="file-upload__prompt-title">Upload Aadhaar Card</span>
+                                    </label>
+                                    <input type="file" id="rider-aadhaar" class="file-upload__input">
+                                </div>
+                            </div>
+                        </fieldset>
+                        
+                        <footer class="form-footer">
+                            <button type="submit" class="btn btn--primary btn--full">Submit for Verification</button>
+                        </footer>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- States Showcase -->
+        <h2 style="text-align: center; margin-top: var(--space-7);">Form States</h2>
+        
+        <!-- Submitting State -->
+        <div class="registration-form" data-state="submitting">
+            <div class="registration-form__overlay">
+                <div class="spinner"></div>
+                <p>Submitting your application...</p>
+            </div>
+            <div class="form-content">
+                <header class="registration-form__header">
+                    <h2 class="registration-form__title">Become a Vendor</h2>
+                </header>
+                <div class="form-group">
+                    <label class="label">Business Name</label>
+                    <input class="input" type="text" disabled>
+                </div>
+                <button type="submit" class="btn btn--primary btn--full" disabled>Submit for Verification</button>
+            </div>
+        </div>
+
+        <!-- Success State -->
+        <div class="registration-form" data-state="success">
+            <div class="registration-form__success-message">
+                <div class="icon"><svg class="icon"><use href="#icon-check-circle"/></svg></div>
+                <h2 class="registration-form__title">Application Submitted!</h2>
+                <p class="registration-form__subtitle">Thank you for registering. We will review your application and notify you within 2-3 business days.</p>
+            </div>
+        </div>
+    </div>
+        <div> <h2> Component Variations</h2>
+            <div>
+                <h3>Variant Name : "customer"</h3>
+                <normal> Simplified registration form for customers, focusing on mobile number and OTP verification for quick account creation. </normal>
+            <div>
+            </div>
+            <div>
+                <h3>Variant Name : "vendor"</h3>
+                <normal> A more detailed, multi-section form for vendors, capturing business details and requiring legal document uploads like GST and FSSAI certificates. </normal>
+            <div>
+            </div>
+            <div>
+                <h3>Variant Name : "rider"</h3>
+                <normal> A comprehensive form for delivery riders, collecting personal, bank, vehicle, and legal document information necessary for verification and payouts. </normal>
+            <div>
+        </div>
+    <script>
+        // JS for OTP input interactivity from molecular component
+        document.addEventListener('DOMContentLoaded', () => {
+            const otpContainers = document.querySelectorAll('[data-otp-container]');
+            otpContainers.forEach(container => {
+                const inputs = [...container.querySelectorAll('.otp-input__digit')];
+                inputs.forEach((input, index) => {
+                    input.addEventListener('input', (e) => {
+                        if (e.target.value.length === 1 && index < inputs.length - 1) {
+                            inputs[index + 1].focus();
+                        }
+                    });
+                    input.addEventListener('keydown', (e) => {
+                        if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                            e.preventDefault();
+                            inputs[index - 1].focus();
+                            inputs[index - 1].select();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

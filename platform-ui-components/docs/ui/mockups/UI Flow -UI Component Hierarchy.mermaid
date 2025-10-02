@@ -1,0 +1,68 @@
+graph TD
+    %% Define subgraphs for each level of the hierarchy
+    subgraph "Organism Components"
+        direction LR
+        O_RegistrationForm["RegistrationForm"]:::organism
+        O_AppHeader["AppHeader"]:::organism
+        O_ModalDialog["ModalDialog"]:::organism
+        O_DashboardWidget["DashboardWidget"]:::organism
+    end
+
+    subgraph "Molecular Components"
+        direction LR
+        M_FormGroup["FormGroup"]:::molecule
+        M_SearchBar["SearchBar"]:::molecule
+        M_OTPInput["OTPInput"]:::molecule
+        M_ProductCard["ProductCard"]:::molecule
+        M_DataTable["DataTable"]:::molecule
+        M_Pagination["Pagination"]:::molecule
+    end
+
+    subgraph "Atomic Components"
+        direction LR
+        A_Button["Button"]:::atom
+        A_TextInput["TextInput"]:::atom
+        A_Label["Label"]:::atom
+        A_Icon["Icon"]:::atom
+        A_Spinner["Spinner"]:::atom
+        A_Alert["Alert"]:::atom
+        A_FileUpload["FileUpload"]:::atom
+    end
+
+    %% Define dependencies from Organisms to Molecules & Atoms
+    O_RegistrationForm --> M_FormGroup
+    O_RegistrationForm --> A_Button
+    O_RegistrationForm --> A_FileUpload
+    O_RegistrationForm --> M_OTPInput
+
+    O_AppHeader --> M_SearchBar
+    O_AppHeader --> A_Icon
+    O_AppHeader --> A_Button
+    
+    O_ModalDialog --> A_Button
+    O_ModalDialog --> A_Icon
+
+    O_DashboardWidget --> A_Spinner
+    O_DashboardWidget --> A_Alert
+
+    %% Define dependencies from Molecules to Atoms
+    M_FormGroup --> A_Label
+    M_FormGroup --> A_TextInput
+
+    M_SearchBar --> A_TextInput
+    M_SearchBar --> A_Button
+
+    M_OTPInput --> A_TextInput
+
+    M_ProductCard --> A_Button
+    M_ProductCard --> A_Icon
+
+    M_DataTable --> A_Spinner
+    M_DataTable --> M_Pagination
+    
+    M_Pagination --> A_Button
+
+    %% Styling definitions for each component type
+    classDef atom fill:#E6F0FF,stroke:#0068FF,color:#002A66
+    classDef molecule fill:#E5F9F1,stroke:#00C875,color:#003D24
+    classDef organism fill:#FFF9E6,stroke:#FFB800,color:#332400

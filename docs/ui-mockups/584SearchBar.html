@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molecular Component: SearchBar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* =============================================== */
+        /* Phase 1: Design System Tokens & Base Styles     */
+        /* =============================================== */
+        :root {
+            /* Typography */
+            --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-size-body: 16px;
+            --font-size-caption: 14px;
+
+            /* Colors */
+            --color-primary-100: #B8D4FF;
+            --color-primary-500: #0068FF;
+            --color-neutrals-white: #FFFFFF;
+            --color-neutrals-gray-50: #F7F9FC;
+            --color-neutrals-gray-200: #D3D9E1;
+            --color-neutrals-gray-300: #BCC4CF;
+            --color-neutrals-gray-500: #8E9BAA;
+            --color-neutrals-gray-700: #555D66;
+            --color-neutrals-gray-900: #1C1F22;
+            
+            /* Spacing */
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-24: 24px;
+            --space-32: 32px;
+
+            /* Borders & Shadows */
+            --border-radius-md: 8px;
+            --border-radius-full: 9999px;
+            --shadow-md: 0px 6px 12px rgba(28, 31, 34, 0.1);
+
+            /* Transitions */
+            --transition-fast: 200ms ease-in-out;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: var(--font-family-primary);
+            font-size: var(--font-size-body);
+            line-height: 1.6;
+            color: var(--color-neutrals-gray-900);
+            background-color: var(--color-neutrals-gray-50);
+            padding: var(--space-32);
+        }
+
+        .showcase {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .showcase__header {
+            margin-bottom: var(--space-32);
+            text-align: center;
+        }
+        .showcase__header h1 { font-size: 36px; margin: 0; }
+        .showcase__header p { font-size: 18px; color: var(--color-neutrals-gray-700); margin-top: var(--space-8); }
+
+        .component-section {
+            background-color: var(--color-neutrals-white);
+            padding: var(--space-32);
+            margin-bottom: var(--space-32);
+            border-radius: var(--border-radius-md);
+        }
+        .component-section h2 { font-size: 28px; border-bottom: 1px solid var(--color-neutrals-gray-200); padding-bottom: var(--space-16); margin: 0 0 var(--space-24) 0; }
+        .component-section h3 { font-size: 20px; margin: var(--space-24) 0 var(--space-12) 0; }
+        .component-section p { color: var(--color-neutrals-gray-700); font-size: var(--font-size-caption); margin: 0 0 var(--space-16) 0; }
+
+        .state-group {
+            padding: var(--space-24);
+            border: 1px dashed var(--color-neutrals-gray-200);
+            border-radius: var(--border-radius-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-24);
+        }
+
+        /* Basic styles for dependencies */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-8); font-weight: 600; padding: 8px 16px; border: 1px solid var(--color-neutrals-gray-300); border-radius: var(--border-radius-md); background-color: var(--color-neutrals-gray-50); cursor: pointer; transition: all var(--transition-fast); }
+        .btn:hover { background-color: var(--color-neutrals-gray-200); }
+        .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .spinner { animation: spin 0.8s linear infinite; border-radius: 50%; border: 3px solid var(--color-primary-500); border-right-color: transparent; }
+        .btn--icon-only { padding: 8px; width: 40px; height: 40px; }
+
+
+        /* =============================================== */
+        /* Phase 2: SearchBar Component CSS              */
+        /* =============================================== */
+        
+        .search-bar-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            position: relative;
+            background-color: var(--color-neutrals-white);
+            border: 1px solid var(--color-neutrals-gray-300);
+            border-radius: var(--border-radius-md);
+            transition: all var(--transition-fast);
+        }
+
+        .search-bar:focus-within {
+            border-color: var(--color-primary-500);
+            box-shadow: 0 0 0 3px var(--color-primary-100);
+        }
+
+        .search-bar__icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-neutrals-gray-500);
+            pointer-events: none;
+            z-index: 1;
+            font-size: 24px;
+        }
+
+        .search-bar__input {
+            flex-grow: 1;
+            width: 100%;
+            padding: 12px 16px 12px 48px; /* Padding for icon */
+            border: none;
+            background: transparent;
+            font-size: var(--font-size-body);
+            color: var(--color-neutrals-gray-900);
+            transition: all var(--transition-fast);
+        }
+
+        .search-bar__input:focus {
+            outline: none;
+        }
+
+        .search-bar__input::placeholder {
+            color: var(--color-neutrals-gray-500);
+        }
+
+        /* States */
+        .search-bar.is-loading .search-bar__icon {
+            opacity: 0;
+        }
+
+        .search-bar .search-bar__spinner {
+            display: none;
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+        }
+
+        .search-bar.is-loading .search-bar__spinner {
+            display: block;
+        }
+
+        .search-bar .search-bar__clear-btn {
+            display: none;
+            margin-right: 8px;
+            border: none;
+            background: none;
+            font-size: 20px;
+            color: var(--color-neutrals-gray-500);
+        }
+
+        .search-bar.has-value .search-bar__clear-btn {
+            display: inline-flex;
+        }
+
+        /* Variants */
+        .search-bar--with-filters .search-bar__filter-btn {
+            flex-shrink: 0;
+            border-left: 1px solid var(--color-neutrals-gray-200);
+            margin: 8px;
+            padding-left: 12px;
+            margin-left: 8px;
+            background: transparent;
+            border-radius: 0;
+            border-top: 0;
+            border-bottom: 0;
+            border-right: 0;
+        }
+
+        /* With-Results State */
+        .search-results-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            right: 0;
+            background-color: var(--color-neutrals-white);
+            border-radius: var(--border-radius-md);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--color-neutrals-gray-200);
+            z-index: 10;
+            padding: var(--space-8) 0;
+            max-height: 300px;
+            overflow-y: auto;
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+            transition: opacity 150ms ease-in-out, transform 150ms ease-in-out;
+        }
+
+        .search-bar-wrapper.has-results .search-results-dropdown {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .search-result-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-12);
+            padding: var(--space-12) var(--space-16);
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .search-result-item:hover,
+        .search-result-item:focus {
+            background-color: var(--color-neutrals-gray-50);
+            outline: none;
+        }
+
+        .search-result-item__icon {
+            font-size: 20px;
+            color: var(--color-neutrals-gray-500);
+        }
+
+        .search-result-item__text-primary {
+            font-weight: 600;
+            color: var(--color-neutrals-gray-900);
+        }
+
+        .search-result-item__text-secondary {
+            font-size: var(--font-size-caption);
+            color: var(--color-neutrals-gray-700);
+        }
+
+        /* Responsive Behavior: Collapses to an icon */
+        @media (max-width: 768px) {
+             .responsive-demo {
+                display: flex;
+                justify-content: flex-end; /* Align to right for header simulation */
+                width: 100%;
+                background: #e9edf2;
+                padding: 16px;
+                border-radius: 8px;
+            }
+
+            .search-bar-wrapper--collapsible {
+                max-width: none;
+            }
+
+            .search-bar-wrapper--collapsible .search-bar {
+                width: 44px;
+                border-radius: var(--border-radius-full);
+                cursor: pointer;
+                border-color: transparent;
+                background-color: transparent;
+            }
+
+            .search-bar-wrapper--collapsible .search-bar:focus-within {
+                 width: 100%;
+                 border-radius: var(--border-radius-md);
+                 cursor: text;
+                 border-color: var(--color-primary-500);
+                 background-color: var(--color-neutrals-white);
+            }
+
+            .search-bar-wrapper--collapsible .search-bar__input {
+                width: 0;
+                padding: 12px 0;
+                opacity: 0;
+                pointer-events: none;
+            }
+            
+            .search-bar-wrapper--collapsible .search-bar:focus-within .search-bar__input {
+                width: 100%;
+                padding: 12px 16px 12px 48px;
+                opacity: 1;
+                pointer-events: auto;
+            }
+            
+            .search-bar-wrapper--collapsible .search-bar__icon-wrapper {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 44px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 2;
+                border: none;
+                background: none;
+                padding: 0;
+                cursor: pointer;
+            }
+            
+             .search-bar-wrapper--collapsible .search-bar:focus-within .search-bar__icon-wrapper {
+                pointer-events: none;
+            }
+
+            .search-bar-wrapper--collapsible .search-bar__icon {
+                position: static;
+                transform: none;
+                font-size: 24px;
+            }
+            
+            .search-bar-wrapper--collapsible .search-bar--with-filters .search-bar__filter-btn,
+            .search-bar-wrapper--collapsible .search-bar.has-value .search-bar__clear-btn {
+                display: none;
+            }
+            
+            .search-bar-wrapper--collapsible .search-bar:focus-within .search-bar__filter-btn,
+            .search-bar-wrapper--collapsible .search-bar:focus-within .search-bar.has-value .search-bar__clear-btn {
+                display: inline-flex;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="showcase">
+        <header class="showcase__header">
+            <h1>Molecular Component: SearchBar</h1>
+            <p>Composes a text input, icon, and optional buttons for search functionality.</p>
+        </header>
+
+        <section class="component-section">
+            <h2>Variants & States</h2>
+            
+            <h3>Simple Search Bar</h3>
+            <p>The default variant used for basic search functionality.</p>
+            <div class="state-group">
+                <div>
+                    <h4>Default State</h4>
+                    <div class="search-bar-wrapper">
+                        <div class="search-bar">
+                            <svg class="icon search-bar__icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                            <input type="search" class="search-bar__input" placeholder="Search for stores or items...">
+                        </div>
+                    </div>
+                </div>
+                 <div>
+                    <h4>Focus State</h4>
+                    <div class="search-bar-wrapper">
+                        <div class="search-bar" style="border-color: var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-100);">
+                            <svg class="icon search-bar__icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                            <input type="search" class="search-bar__input" placeholder="Search for stores or items...">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4>Loading State</h4>
+                    <div class="search-bar-wrapper">
+                        <div class="search-bar is-loading">
+                            <svg class="icon search-bar__icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                            <div class="spinner search-bar__spinner"></div>
+                            <input type="search" class="search-bar__input" placeholder="Searching...">
+                        </div>
+                    </div>
+                </div>
+                 <div>
+                    <h4>With Input Value</h4>
+                     <p>A clear button appears when the input has text. (Simulated with `has-value` class).</p>
+                    <div class="search-bar-wrapper">
+                        <div class="search-bar has-value">
+                            <svg class="icon search-bar__icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                            <input type="search" class="search-bar__input" value="Ramen">
+                            <button class="btn btn--icon-only search-bar__clear-btn" aria-label="Clear search">
+                                <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Search Bar with Filters</h3>
+            <p>A variant that includes a filter button for more advanced search interfaces.</p>
+            <div class="state-group">
+                 <div class="search-bar-wrapper">
+                    <div class="search-bar search-bar--with-filters">
+                        <svg class="icon search-bar__icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                        <input type="search" class="search-bar__input" placeholder="Search...">
+                        <button class="btn search-bar__filter-btn">
+                             <svg class="icon" style="font-size: 20px;" viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"></path></svg>
+                            <span>Filters</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <h3>With Search Results</h3>
+            <p>Demonstrates the dropdown that appears when search results are available. (Simulated with `has-results` class).</p>
+            <div class="state-group">
+                <div class="search-bar-wrapper has-results">
+                    <div class="search-bar">
+                         <svg class="icon search-bar__icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                        <input type="search" class="search-bar__input" value="Burger">
+                    </div>
+                    <div class="search-results-dropdown">
+                        <a href="#" class="search-result-item" tabindex="0">
+                            <svg class="icon search-result-item__icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"></path></svg>
+                            <div>
+                                <div class="search-result-item__text-primary">Burger King</div>
+                                <div class="search-result-item__text-secondary">Vendor</div>
+                            </div>
+                        </a>
+                        <a href="#" class="search-result-item" tabindex="0">
+                            <svg class="icon search-result-item__icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                            <div>
+                                <div class="search-result-item__text-primary">Classic Cheese Burger</div>
+                                <div class="search-result-item__text-secondary">Item from McDonald's</div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <h3>Responsive Behavior</h3>
+            <p>On mobile viewports (resize your browser to less than 768px), the search bar collapses to an icon. Tapping or focusing it expands the input. This is demonstrated using `:focus-within` for this pure CSS mockup.</p>
+            <div class="responsive-demo">
+                <div class="search-bar-wrapper search-bar-wrapper--collapsible">
+                    <div class="search-bar">
+                        <button class="search-bar__icon-wrapper" aria-label="Open search">
+                             <svg class="icon search-bar__icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+                        </button>
+                        <input type="search" class="search-bar__input" placeholder="Search on mobile...">
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+
+	<div>
+		<h2>Component Variations</h2>
+		
+		<div>
+			<h3>Variant Name: "simple"</h3>
+			<p>A basic search bar with an icon and input field.</p>
+			<!-- HTML for simple variant -->
+			<div class="search-bar-wrapper">
+				<div class="search-bar">
+					<svg class="icon search-bar__icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+					<input type="search" class="search-bar__input" placeholder="Search for stores or items...">
+				</div>
+			</div>
+		</div>
+		
+		<div>
+			<h3>Variant Name: "with-filters"</h3>
+			<p>A search bar that includes an additional button to open a filter menu.</p>
+			<!-- HTML for with-filters variant -->
+			<div class="search-bar-wrapper">
+				<div class="search-bar search-bar--with-filters">
+					<svg class="icon search-bar__icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path></svg>
+					<input type="search" class="search-bar__input" placeholder="Search...">
+					<button class="btn search-bar__filter-btn">
+						<svg class="icon" style="font-size: 20px;" viewBox="0 0 24 24"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"></path></svg>
+						<span>Filters</span>
+					</button>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+</body>
+</html>

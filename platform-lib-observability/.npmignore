@@ -1,0 +1,33 @@
+# IDE files
+.idea/
+.vscode/
+
+# Build artifacts
+dist/
+coverage/
+*.tsbuildinfo
+
+# Source and test files
+src/
+test/
+
+# Config files
+.eslintrc.js
+.gitignore
+.npmrc
+.nvmrc
+.prettierrc
+jest.config.js
+tsconfig.json
+tsconfig.build.json
+
+# Dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Other
+.DS_Store

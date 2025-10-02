@@ -1,0 +1,56 @@
+flowchart TD
+    A[User starts Registration] --> B{Select User Role}
+
+    B -->|Customer| C_Flow
+    B -->|Vendor| V_Flow
+    B -->|Rider| R_Flow
+
+    subgraph C_Flow [Customer Registration - Automated]
+        direction LR
+        C1[Enter Mobile Number] --> C2[Request & Verify OTP]
+        C2 --> C3{OTP Valid?}
+        C3 -->|Yes| C4[Account Created: Active]
+        C3 -->|No| C5[Show OTP Error]
+        C5 --> C2
+        C4 --> C6[Redirect to Customer App]
+    end
+
+    subgraph V_Flow [Vendor Registration - Manual Verification]
+        direction LR
+        V1[Fill Business Details] --> V2[Upload Documents<br/>(GST, FSSAI, etc.)]
+        V2 --> V3[Submit Application]
+        V3 --> V4[Account Created:<br/>Pending Verification]
+    end
+
+    subgraph R_Flow [Rider Registration - Manual Verification]
+        direction LR
+        R1[Fill Personal Details] --> R2[Upload Documents<br/>(License, PAN, etc.)]
+        R2 --> R3[Submit Application]
+        R3 --> R4[Account Created:<br/>Pending Verification]
+    end
+
+    V4 --> Admin_Queue
+    R4 --> Admin_Queue
+
+    subgraph Admin_Queue [Administrator Review]
+        direction TD
+        AQ1(Pending Registrations Queue) --> AQ2[Admin Reviews Application]
+        AQ2 --> AQ3{Approve or Reject?}
+        AQ3 -- Approve --> AQ4[Status: Active]
+        AQ3 -- Reject --> AQ5[Status: Rejected]
+        AQ4 --> AQ6[Send Approval Notification]
+        AQ5 --> AQ7[Send Rejection Notification]
+    end
+
+    %% Styling
+    classDef processNode fill:#e3f2fd,stroke:#2196f3,color:#000
+    classDef decisionNode fill:#fff8e1,stroke:#fbc02d,color:#000
+    classDef successNode fill:#e8f5e9,stroke:#4caf50,color:#000
+    classDef errorNode fill:#ffebee,stroke:#d32f2f,color:#000
+    classDef queueNode fill:#f3e5f5,stroke:#8e24aa,color:#000,stroke-width:2px,stroke-dasharray: 5 5
+
+    class B,C3,AQ3 decisionNode
+    class A,C1,C2,V1,V2,V3,R1,R2,R3,AQ2 processNode
+    class C4,C6,AQ4,AQ6 successNode
+    class C5,AQ5,AQ7 errorNode
+    class V4,R4,AQ1 queueNode

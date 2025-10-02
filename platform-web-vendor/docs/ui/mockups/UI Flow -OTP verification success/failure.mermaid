@@ -1,0 +1,45 @@
+sequenceDiagram
+    actor "Client App" as Client
+    participant "Identity & Access Service" as Service
+    participant "Redis Cache" as Cache
+
+    Client->>Client: 1. User enters OTP and taps 'Verify'
+    activate Service
+    Client->>Service: 2. POST /api/v1/auth/verify (mobileNumber, otp)
+
+    Service->>Cache: 3. GET otp_lock:{mobileNumber}
+    Cache-->>Service: Returns "locked" or null
+
+    alt Account is Locked
+        Service-->>Client: 4. 429 Too Many Requests (Account locked. Try again in X minutes.)
+    else Account is NOT Locked
+        Service->>Cache: 5. GET otp_hash:{mobileNumber}
+        Cache-->>Service: Returns stored OTP hash or null
+
+        alt OTP Hash Found (Not Expired)
+            Service->>Service: 6. Compare submitted OTP with stored hash (e.g., bcrypt.compare)
+
+            alt OTP is Correct (Success Path)
+                Service->>Cache: 7. DEL otp_attempts:{mobileNumber}
+                Cache-->>Service: OK
+                Service->>Cache: 8. DEL otp_hash:{mobileNumber}
+                Cache-->>Service: OK
+                Service->>Service: 9. Generate JWT Access & Refresh Tokens
+                Service-->>Client: 10. 200 OK with { accessToken, refreshToken }
+            else OTP is Incorrect (Failure Path)
+                Service->>Cache: 11. INCR otp_attempts:{mobileNumber}
+                Cache-->>Service: New attempt count (e.g., 3)
+                Service->>Service: 12. Check if new attempt count >= 5
+                opt Lockout Triggered (REQ-FUN-002)
+                    Service->>Cache: 12.1. SETEX otp_lock:{mobileNumber} 900 "locked"
+                    Cache-->>Service: OK
+                    Service-->>Client: 12.2. 429 Too Many Requests (Account locked for 15 minutes)
+                end
+                Service-->>Client: 13. 400 Bad Request (Invalid OTP)
+            end
+
+        else OTP Hash Not Found (Expired Path)
+            Service-->>Client: 14. 400 Bad Request (OTP has expired. Please request a new one.)
+        end
+    end
+    deactivate Service

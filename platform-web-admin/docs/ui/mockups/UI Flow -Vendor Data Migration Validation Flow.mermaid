@@ -1,0 +1,46 @@
+flowchart TD
+    subgraph Admin Dashboard
+        A[Start: Admin navigates to 'Migration Validation' view for a vendor] --> B{Fetch Migration Batch Details}
+        B --> C[System displays Vendor Profile, Product Sample, and links to Source/Error files]
+        C --> D{Initial import had errors? (AC-006)}
+        D -- Yes --> E[Display prominent warning: 'Import completed with X errors']
+        D -- No --> F[Specialist reviews data & compares with source file]
+        E --> F
+        F --> G{Is data accurate?}
+
+        G -- Yes --> H[Approve Path: Click 'Approve Migration']
+        G -- No --> M[Reject Path: Click 'Reject Migration']
+    end
+
+    subgraph Approve Workflow
+        H --> I[System: Update batch status to 'Approved']
+        I --> J[System: Record approval in immutable Audit Trail (REQ-NFR-008)]
+        J --> K[System: Enable Vendor to be made 'Active' (BR-TRN-001)]
+        K --> L[UI: Show 'Migration Approved' success notification]
+        L --> Z[End]
+    end
+
+    subgraph Reject Workflow
+        M --> N[UI: Show modal prompting for mandatory rejection reason (AC-003)]
+        N --> O[Specialist enters reason and submits]
+        O --> P[System: Update batch status to 'Rejected' and store reason]
+        P --> Q[System: Record rejection in immutable Audit Trail (REQ-NFR-008)]
+        Q --> R[UI: Show 'Migration Rejected' success notification]
+        R --> Z
+    end
+
+    %% Styling
+    classDef startNode fill:#E6F0FF,stroke:#0068FF,color:#002A66
+    classDef processNode fill:#F7F9FC,stroke:#8E9BAA,color:#1C1F22
+    classDef decisionNode fill:#FFF,stroke:#717C88,color:#1C1F22,stroke-width:2px,stroke-dasharray: 5 5
+    classDef successNode fill:#E5F9F1,stroke:#00C875,color:#003D24
+    classDef rejectNode fill:#FFEBEB,stroke:#FF4D4D,color:#8B0000
+    classDef endNode fill:#E9EDF2,stroke:#555D66,color:#383E44
+
+    class A startNode
+    class C,F,O processNode
+    class B,D,G decisionNode
+    class I,J,K,L successNode
+    class M,N,P,Q,R rejectNode
+    class E rejectNode
+    class Z endNode

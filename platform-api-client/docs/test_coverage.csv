@@ -1,0 +1,5 @@
+"component_name","business_criticality","technical_complexity","change_frequency","test_types_required","unit_test_coverage","integration_test_coverage","e2e_test_coverage","automation_percentage","manual_test_effort","automated_test_effort","total_test_cases","risk_mitigation_score","quality_confidence","maintenance_overhead","tool_compatibility","team_skill_alignment"
+"Identity & Access Service","Critical","High","Medium","[""Unit"",""Integration"",""Security"",""Performance""]","92","95","85","90","10","80","75","0.98","High","Medium","Excellent","Good"
+"Vendor & Catalog Service","Critical","High","High","[""Unit"",""Integration"",""Performance"",""Security"",""E2E""]","88","90","75","85","20","120","150","0.95","High","High","Excellent","Excellent"
+"Order Management Service","Critical","High","High","[""Unit"",""Integration"",""E2E"",""Performance""]","90","92","90","90","15","100","120","0.97","High","Medium","Excellent","Good"
+"Payments & Settlements Service","Critical","High","Medium","[""Unit"",""Integration"",""E2E"",""Security""]","95","98","95","95","5","90","60","0.99","Very High","Medium","Excellent","Excellent"

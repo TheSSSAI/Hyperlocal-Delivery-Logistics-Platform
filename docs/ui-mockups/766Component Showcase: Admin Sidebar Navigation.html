@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Sidebar Navigation</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      height: 100%;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--color-neutrals-gray_50);
+      color: var(--color-neutrals-gray_900);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    ul {
+      list-style: none;
+    }
+    button {
+      font-family: inherit;
+      border: none;
+      background: none;
+      cursor: pointer;
+    }
+
+    /* 1. Design System Tokens (Custom Properties) */
+    :root {
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-100: #B8D4FF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray_50: #F7F9FC;
+      --color-neutrals-gray_100: #E9EDF2;
+      --color-neutrals-gray_400: #A5B0BD;
+      --color-neutrals-gray_600: #717C88;
+      --color-neutrals-gray_800: #383E44;
+      --color-neutrals-gray_900: #1C1F22;
+      
+      /* Spacing */
+      --space-4: 4px; --space-8: 8px; --space-12: 12px; --space-16: 16px;
+      --space-24: 24px; --space-32: 32px; --space-48: 48px;
+
+      /* Typography */
+      --font-weight-regular: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      
+      /* Borders */
+      --border-radius-md: 8px;
+
+      /* Transitions */
+      --transition-fast: 200ms ease-in-out;
+      
+      /* Sidebar Specific Variables */
+      --sidebar-width-expanded: 260px;
+      --sidebar-width-collapsed: 80px;
+    }
+
+    /* 2. Page Layout */
+    .app-layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-width-expanded) 1fr;
+      grid-template-rows: auto 1fr;
+      grid-template-areas:
+        "sidebar header"
+        "sidebar main";
+      height: 100vh;
+      transition: grid-template-columns var(--transition-fast);
+    }
+    
+    .app-layout.is-collapsed {
+      grid-template-columns: var(--sidebar-width-collapsed) 1fr;
+    }
+    
+    .main-header {
+        grid-area: header;
+        background-color: var(--color-neutrals-white);
+        border-bottom: 1px solid var(--color-neutrals-gray_100);
+        padding: 0 var(--space-24);
+        display: flex;
+        align-items: center;
+        height: 64px;
+    }
+    
+    .main-content {
+      grid-area: main;
+      padding: var(--space-32);
+      overflow-y: auto;
+    }
+    
+    .hamburger-menu, .desktop-toggle {
+        display: none; /* Hidden by default, shown via media queries */
+        background-color: var(--color-primary-500);
+        color: white;
+        padding: var(--space-8) var(--space-12);
+        border-radius: var(--border-radius-md);
+    }
+    
+    /* 3. SidebarNav Component Styles */
+    .sidebar-nav {
+      grid-area: sidebar;
+      background-color: var(--color-neutrals-gray_900);
+      color: var(--color-neutrals-gray_400);
+      padding: var(--space-24) var(--space-16);
+      display: flex;
+      flex-direction: column;
+      transition: width var(--transition-fast);
+      overflow: hidden;
+    }
+
+    .sidebar-nav__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      padding: 0 var(--space-8) var(--space-24) var(--space-8);
+      color: var(--color-neutrals-white);
+      white-space: nowrap;
+    }
+    
+    .sidebar-nav__logo {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+    }
+    
+    .sidebar-nav__title {
+      font-size: 20px;
+      font-weight: var(--font-weight-semibold);
+      opacity: 1;
+      transition: opacity 150ms ease-in-out;
+    }
+    
+    .app-layout.is-collapsed .sidebar-nav__title {
+        opacity: 0;
+    }
+
+    .sidebar-nav__list {
+      flex-grow: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar-nav__link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+      padding: var(--space-12) var(--space-16);
+      border-radius: var(--border-radius-md);
+      margin-bottom: var(--space-4);
+      white-space: nowrap;
+      transition: background-color var(--transition-fast), color var(--transition-fast);
+    }
+
+    .sidebar-nav__link:hover {
+      background-color: var(--color-neutrals-gray_800);
+      color: var(--color-neutrals-white);
+    }
+    
+    .sidebar-nav__link:focus-visible {
+        outline: 2px solid var(--color-primary-500);
+        outline-offset: -2px;
+    }
+
+    .sidebar-nav__link.is-active {
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+      font-weight: var(--font-weight-medium);
+    }
+
+    .sidebar-nav__icon {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+    }
+
+    .sidebar-nav__label {
+      font-size: var(--font-size-body);
+      opacity: 1;
+      transition: opacity 150ms ease-in-out;
+    }
+    
+    .app-layout.is-collapsed .sidebar-nav__label {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .sidebar-nav__footer {
+        padding-top: var(--space-24);
+        border-top: 1px solid var(--color-neutrals-gray_800);
+    }
+
+    /* 4. Responsive Styles */
+    
+    /* Tablet */
+    @media (max-width: 1024px) {
+        .app-layout {
+            grid-template-columns: var(--sidebar-width-collapsed) 1fr;
+        }
+        .sidebar-nav__title, .sidebar-nav__label {
+            opacity: 0;
+            display: none; /* Hide for layout reflow */
+        }
+        .desktop-toggle {
+            display: none;
+        }
+    }
+    
+    /* Mobile */
+    @media (max-width: 768px) {
+        .app-layout {
+            grid-template-columns: 1fr;
+            grid-template-areas: 
+                "header"
+                "main";
+        }
+        .sidebar-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            z-index: 1000;
+            transform: translateX(-100%);
+            width: var(--sidebar-width-expanded);
+            transition: transform var(--transition-fast);
+        }
+        .sidebar-nav__title, .sidebar-nav__label {
+            opacity: 1;
+            display: block;
+        }
+        .app-layout.is-mobile-menu-open .sidebar-nav {
+            transform: translateX(0);
+            box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+        }
+        .hamburger-menu {
+            display: block;
+            z-index: 1001;
+        }
+        .mobile-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-fast);
+        }
+        .app-layout.is-mobile-menu-open .mobile-overlay {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
+
+    /* Demo-specific styles */
+    .demo-controls {
+        margin-left: auto;
+    }
+    @media (max-width: 1024px) {
+        .desktop-toggle { display: none; }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="app-layout" id="appLayout">
+    
+    <aside class="sidebar-nav">
+      <header class="sidebar-nav__header">
+          <svg class="sidebar-nav__logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        <h1 class="sidebar-nav__title">Admin Panel</h1>
+      </header>
+
+      <nav class="sidebar-nav__list" aria-label="Main Navigation">
+        <ul>
+          <li>
+            <a href="#" class="sidebar-nav__link is-active" aria-current="page">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="sidebar-nav__label">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="sidebar-nav__link">
+                <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 21V19C22.9992 18.1137 22.7094 17.2613 22.1818 16.5583C21.6543 15.8552 20.9248 15.3453 20.09 15.11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3.13C16.5993 3.32189 17.1477 3.6151 17.62 3.99" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="sidebar-nav__label">Users</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="sidebar-nav__link">
+                <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 12H18L15 21L9 3L6 12H2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="sidebar-nav__label">Analytics</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="sidebar-nav__link">
+                <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M13 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V9L13 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13 2V9H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="sidebar-nav__label">Reports</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      
+      <footer class="sidebar-nav__footer">
+        <ul>
+          <li>
+            <a href="#" class="sidebar-nav__link">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 22.0001 12 22.0001C11.6496 22.0001 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="sidebar-nav__label">Notifications</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="sidebar-nav__link">
+              <svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12.89 21.41C12.56 21.74 12.04 21.92 11.5 21.92C10.96 21.92 10.44 21.74 10.11 21.41L3.11 14.41C2.78 14.08 2.59 13.56 2.59 13.02C2.59 12.48 2.78 11.96 3.11 11.63L10.11 4.63C10.44 4.3 10.96 4.12 11.5 4.12C12.04 4.12 12.56 4.3 12.89 4.63L19.89 11.63C20.22 11.96 20.41 12.48 20.41 13.02C20.41 13.56 20.22 14.08 19.89 14.41L12.89 21.41Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              <span class="sidebar-nav__label">Settings</span>
+            </a>
+          </li>
+        </ul>
+      </footer>
+    </aside>
+
+    <header class="main-header">
+        <button class="hamburger-menu" id="hamburgerMenu" aria-label="Open menu" aria-expanded="false" aria-controls="sidebarNav">
+            <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <div class="demo-controls">
+            <button class="desktop-toggle" id="desktopToggle">Toggle Sidebar</button>
+        </div>
+    </header>
+    
+    <main class="main-content">
+      <h1>Dashboard Content</h1>
+      <p>This is the main content area. The sidebar provides navigation for the application.</p>
+    </main>
+
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  </div>
+
+  <div class="screen-variations" style="padding: 40px; background: #eee;">
+    <h2 style="margin-bottom: 20px;">Component Variations</h2>
+    <div class="variation-group" style="margin-bottom: 40px;">
+        <h3>Variant Name: "Expanded State (Default Desktop)"</h3>
+        <p style="margin-bottom: 10px;"><normal>The standard, fully visible navigation with icons and text labels. Used on larger desktop screens.</normal></p>
+        <div style="position: relative; height: 600px; width: 260px; overflow: hidden;">
+            <aside class="sidebar-nav" style="position: absolute; top:0; left:0; height:100%; width:100%;">
+                <header class="sidebar-nav__header">
+                    <svg class="sidebar-nav__logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <h1 class="sidebar-nav__title" style="opacity: 1;">Admin Panel</h1>
+                </header>
+                <nav class="sidebar-nav__list">
+                    <ul><li><a href="#" class="sidebar-nav__link is-active"><svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sidebar-nav__label" style="opacity: 1;">Dashboard</span></a></li><li><a href="#" class="sidebar-nav__link"><svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 21V19C22.9992 18.1137 22.7094 17.2613 22.1818 16.5583C21.6543 15.8552 20.9248 15.3453 20.09 15.11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3.13C16.5993 3.32189 17.1477 3.6151 17.62 3.99" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="sidebar-nav__label" style="opacity: 1;">Users</span></a></li></ul>
+                </nav>
+            </aside>
+        </div>
+    </div>
+    
+    <div class="variation-group">
+        <h3>Variant Name: "Collapsed State (Tablet/Small Desktop)"</h3>
+        <p style="margin-bottom: 10px;"><normal>A compact, icon-only version of the navigation used to save horizontal space on smaller screens like tablets.</normal></p>
+        <div style="position: relative; height: 600px; width: 80px; overflow: hidden;">
+            <aside class="sidebar-nav" style="position: absolute; top:0; left:0; height:100%; width:100%;">
+                <header class="sidebar-nav__header" style="padding-bottom: 24px;">
+                    <svg class="sidebar-nav__logo" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </header>
+                 <nav class="sidebar-nav__list">
+                    <ul><li><a href="#" class="sidebar-nav__link is-active"><svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 22V12H15V22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li><li><a href="#" class="sidebar-nav__link"><svg class="sidebar-nav__icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 21V19C22.9992 18.1137 22.7094 17.2613 22.1818 16.5583C21.6543 15.8552 20.9248 15.3453 20.09 15.11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3.13C16.5993 3.32189 17.1477 3.6151 17.62 3.99" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a></li></ul>
+                </nav>
+            </aside>
+        </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const appLayout = document.getElementById('appLayout');
+      const desktopToggleBtn = document.getElementById('desktopToggle');
+      const hamburgerMenuBtn = document.getElementById('hamburgerMenu');
+      const mobileOverlay = document.getElementById('mobileOverlay');
+
+      if (desktopToggleBtn) {
+        desktopToggleBtn.addEventListener('click', () => {
+          appLayout.classList.toggle('is-collapsed');
+        });
+      }
+
+      if (hamburgerMenuBtn) {
+        hamburgerMenuBtn.addEventListener('click', () => {
+          const isExpanded = appLayout.classList.toggle('is-mobile-menu-open');
+          hamburgerMenuBtn.setAttribute('aria-expanded', isExpanded);
+        });
+      }
+
+      if (mobileOverlay) {
+        mobileOverlay.addEventListener('click', () => {
+          appLayout.classList.remove('is-mobile-menu-open');
+          hamburgerMenuBtn.setAttribute('aria-expanded', 'false');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

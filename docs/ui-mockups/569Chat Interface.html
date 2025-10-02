@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Interface</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Reset */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Design System Tokens */
+        :root {
+            /* Colors */
+            --color-primary-50: #E6F0FF;
+            --color-primary-100: #B8D4FF;
+            --color-primary-500: #0068FF;
+            --color-primary-600: #0053CC;
+            --color-white: #FFFFFF;
+            --color-gray-50: #F7F9FC;
+            --color-gray-100: #E9EDF2;
+            --color-gray-200: #D3D9E1;
+            --color-gray-400: #A5B0BD;
+            --color-gray-500: #8E9BAA;
+            --color-gray-600: #717C88;
+            --color-gray-900: #1C1F22;
+            --color-error: #FF4D4D;
+
+            /* Typography */
+            --font-family-primary: 'Inter', sans-serif;
+            --font-size-body: 16px;
+            --font-size-caption: 14px;
+            --font-weight-regular: 400;
+            --font-weight-semibold: 600;
+
+            /* Spacing */
+            --spacing-4: 4px;
+            --spacing-8: 8px;
+            --spacing-12: 12px;
+            --spacing-16: 16px;
+            --spacing-24: 24px;
+
+            /* Borders */
+            --border-radius-sm: 4px;
+            --border-radius-md: 8px;
+            --border-radius-lg: 20px;
+            --border-radius-full: 9999px;
+
+            /* Shadows */
+            --shadow-sm: 0px 1px 2px rgba(28, 31, 34, 0.05);
+            --shadow-md: 0px 4px 8px -2px rgba(28, 31, 34, 0.1), 0px 2px 4px -2px rgba(28, 31, 34, 0.06);
+        }
+
+        html, body {
+            height: 100%;
+            font-family: var(--font-family-primary);
+            background-color: var(--color-gray-100);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding-top: var(--spacing-24);
+            gap: 48px;
+        }
+        
+        .screen-container, .variation-group .screen-container {
+             width: 100%;
+             max-width: 420px;
+             height: 800px;
+             background-color: var(--color-white);
+             box-shadow: var(--shadow-md);
+             border-radius: 24px;
+             overflow: hidden;
+             display: flex;
+             flex-direction: column;
+             position: relative;
+        }
+
+        /* Screen Header */
+        .screen-header {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-12) var(--spacing-16);
+            border-bottom: 1px solid var(--color-gray-100);
+            background-color: var(--color-white);
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .back-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: var(--spacing-8);
+            margin-right: var(--spacing-8);
+            display: grid;
+            place-items: center;
+        }
+
+        .back-button svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--color-gray-900);
+        }
+
+        .header-content {
+            flex-grow: 1;
+        }
+
+        .header-title {
+            font-size: var(--font-size-body);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-gray-900);
+        }
+        
+        .header-subtitle {
+            font-size: var(--font-size-caption);
+            color: var(--color-gray-600);
+        }
+
+        /* Chat History */
+        .chat-history {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: var(--spacing-16);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-16);
+            background-color: var(--color-gray-50);
+        }
+
+        .message-bubble {
+            display: flex;
+            align-items: flex-end;
+            gap: var(--spacing-8);
+            max-width: 80%;
+        }
+
+        .message-content {
+            padding: var(--spacing-12);
+            border-radius: var(--border-radius-lg);
+            font-size: var(--font-size-body);
+            line-height: 1.5;
+        }
+        
+        .message-timestamp {
+            font-size: 12px;
+            color: var(--color-gray-500);
+            margin-top: var(--spacing-4);
+        }
+
+        .message-bubble--received {
+            align-self: flex-start;
+        }
+
+        .message-bubble--received .message-content {
+            background-color: var(--color-white);
+            color: var(--color-gray-900);
+            border-bottom-left-radius: var(--border-radius-sm);
+        }
+        
+        .message-bubble--received .message-timestamp {
+             text-align: left;
+        }
+
+        .message-bubble--sent {
+            align-self: flex-end;
+        }
+
+        .message-bubble--sent .message-content {
+            background-color: var(--color-primary-500);
+            color: var(--color-white);
+            border-bottom-right-radius: var(--border-radius-sm);
+        }
+        
+        .message-bubble--sent .message-timestamp {
+            text-align: right;
+        }
+        
+        .system-message {
+            align-self: center;
+            background-color: var(--color-gray-100);
+            color: var(--color-gray-600);
+            padding: var(--spacing-4) var(--spacing-12);
+            border-radius: var(--border-radius-full);
+            font-size: var(--font-size-caption);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        /* Chat Input Area */
+        .chat-input-area {
+            flex-shrink: 0;
+            background-color: var(--color-white);
+            border-top: 1px solid var(--color-gray-100);
+            padding: var(--spacing-8) 0;
+        }
+
+        .quick-replies {
+            display: flex;
+            overflow-x: auto;
+            gap: var(--spacing-8);
+            padding: 0 var(--spacing-16) var(--spacing-8);
+            scrollbar-width: none; /* Firefox */
+        }
+
+        .quick-replies::-webkit-scrollbar {
+            display: none; /* Safari and Chrome */
+        }
+
+        .quick-reply-chip {
+            background-color: var(--color-primary-50);
+            color: var(--color-primary-600);
+            border: 1px solid var(--color-primary-100);
+            padding: var(--spacing-8) var(--spacing-12);
+            border-radius: var(--border-radius-full);
+            font-size: var(--font-size-caption);
+            font-weight: var(--font-weight-semibold);
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .quick-reply-chip:hover {
+            background-color: var(--color-primary-100);
+        }
+
+        .input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-12);
+            padding: 0 var(--spacing-16);
+        }
+
+        .text-input {
+            flex-grow: 1;
+            border: 1px solid var(--color-gray-200);
+            background-color: var(--color-gray-50);
+            border-radius: var(--border-radius-full);
+            padding: var(--spacing-12) var(--spacing-16);
+            font-size: var(--font-size-body);
+            font-family: var(--font-family-primary);
+        }
+        
+        .text-input:focus {
+            outline: none;
+            border-color: var(--color-primary-500);
+            box-shadow: 0 0 0 3px var(--color-primary-100);
+        }
+
+        .send-button {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            border-radius: var(--border-radius-full);
+            background-color: var(--color-primary-500);
+            border: none;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: background-color 0.2s;
+        }
+        
+        .send-button:hover {
+            background-color: var(--color-primary-600);
+        }
+
+        .send-button svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--color-white);
+            transform: rotate(45deg) translateY(-1px) translateX(1px);
+        }
+
+        /* States */
+        .screen-container--loading .chat-history,
+        .screen-container--error .chat-history {
+            display: grid;
+            place-items: center;
+        }
+        
+        .screen-container--read-only .chat-input-area {
+            display: none;
+        }
+
+        /* Helper components for states */
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--color-gray-200);
+            border-top-color: var(--color-primary-500);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            text-align: center;
+            padding: var(--spacing-24);
+            color: var(--color-gray-600);
+        }
+        .error-message h3 {
+             font-size: 18px;
+             font-weight: var(--font-weight-semibold);
+             color: var(--color-gray-900);
+             margin-bottom: var(--spacing-8);
+        }
+        .error-message p {
+            margin-bottom: var(--spacing-16);
+        }
+        .retry-button {
+            background-color: var(--color-primary-500);
+            color: var(--color-white);
+            border: none;
+            padding: var(--spacing-12) var(--spacing-24);
+            border-radius: var(--border-radius-full);
+            font-size: var(--font-size-body);
+            font-weight: var(--font-weight-semibold);
+            cursor: pointer;
+        }
+        
+        /* Variations styling */
+        .screen-variations {
+            width: 100%;
+            padding: 0 var(--spacing-24) 48px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            align-items: center;
+        }
+        .screen-variations h2 { font-size: 28px; color: var(--color-gray-900); }
+        .variation-group { 
+            width: 100%;
+            max-width: 420px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        .variation-group h3 { font-size: 20px; color: var(--color-gray-700); }
+        .variation-group normal { font-size: var(--font-size-body); color: var(--color-gray-600); text-align: center; }
+
+    </style>
+</head>
+<body>
+
+  <div class="screen-container">
+    <header class="screen-header">
+      <button class="back-button" aria-label="Go back">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+      </button>
+      <div class="header-content">
+        <div class="header-title">Rider: Suresh K.</div>
+        <div class="header-subtitle">Order #HYP-8215-3211</div>
+      </div>
+    </header>
+    
+    <main class="chat-history">
+      <div class="system-message">Chat started - 10:42 AM</div>
+      <div class="message-bubble message-bubble--received">
+        <div class="message-content">
+            Hello! I'm having trouble finding your building. Is there a landmark nearby?
+            <div class="message-timestamp">10:43 AM</div>
+        </div>
+      </div>
+      <div class="message-bubble message-bubble--sent">
+        <div class="message-content">
+            Hi, yes. It's the large blue building right next to the Apollo Pharmacy.
+            <div class="message-timestamp">10:44 AM</div>
+        </div>
+      </div>
+      <div class="message-bubble message-bubble--received">
+        <div class="message-content">
+            Got it, thanks! I'm on my way.
+            <div class="message-timestamp">10:44 AM</div>
+        </div>
+      </div>
+      <div class="message-bubble message-bubble--sent">
+        <div class="message-content">
+            Great, I am at the door.
+            <div class="message-timestamp">10:48 AM</div>
+        </div>
+      </div>
+    </main>
+    
+    <footer class="chat-input-area">
+        <div class="quick-replies">
+            <button class="quick-reply-chip">Okay, thanks!</button>
+            <button class="quick-reply-chip">I am at the door</button>
+            <button class="quick-reply-chip">Please leave it with the guard</button>
+            <button class="quick-reply-chip">I'm coming down</button>
+        </div>
+        <div class="input-wrapper">
+            <input type="text" class="text-input" placeholder="Type a message...">
+            <button class="send-button" aria-label="Send message">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+        </div>
+    </footer>
+  </div>
+  
+  <div class="screen-variations">
+    <h2>Screen Variations</h2>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Read-Only State"</h3>
+      <normal>After an order is completed, the chat becomes read-only and the input area is hidden.</normal>
+      <div class="screen-container screen-container--read-only">
+        <header class="screen-header">
+          <button class="back-button" aria-label="Go back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="header-content">
+            <div class="header-title">Rider: Suresh K.</div>
+            <div class="header-subtitle">Order #HYP-8215-3211</div>
+          </div>
+        </header>
+        <main class="chat-history">
+          <div class="message-bubble message-bubble--received">
+            <div class="message-content">
+                Got it, thanks! I'm on my way.
+                <div class="message-timestamp">10:44 AM</div>
+            </div>
+          </div>
+          <div class="message-bubble message-bubble--sent">
+            <div class="message-content">
+                Great, I am at the door.
+                <div class="message-timestamp">10:48 AM</div>
+            </div>
+          </div>
+          <div class="system-message">Order delivered. This chat is now closed.</div>
+        </main>
+        <footer class="chat-input-area">
+            <!-- This area is hidden by the --read-only class -->
+        </footer>
+      </div>
+    </div>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Loading State"</h3>
+      <normal>When opening the chat for the first time or fetching history.</normal>
+       <div class="screen-container screen-container--loading">
+        <header class="screen-header">
+          <button class="back-button" aria-label="Go back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="header-content">
+            <div class="header-title">Rider: Suresh K.</div>
+            <div class="header-subtitle">Order #HYP-8215-3211</div>
+          </div>
+        </header>
+        <main class="chat-history">
+            <div class="spinner"></div>
+        </main>
+        <footer class="chat-input-area">
+             <div class="input-wrapper">
+                <input type="text" class="text-input" placeholder="Loading chat..." disabled>
+                <button class="send-button" aria-label="Send message" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </footer>
+      </div>
+    </div>
+
+     <div class="variation-group">
+      <h3>Variant Name: "Error State"</h3>
+      <normal>When the chat history fails to load due to a network or server error.</normal>
+       <div class="screen-container screen-container--error">
+        <header class="screen-header">
+          <button class="back-button" aria-label="Go back">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          </button>
+          <div class="header-content">
+            <div class="header-title">Rider: Suresh K.</div>
+            <div class="header-subtitle">Order #HYP-8215-3211</div>
+          </div>
+        </header>
+        <main class="chat-history">
+            <div class="error-message">
+                <h3>Could not load chat</h3>
+                <p>Please check your connection and try again.</p>
+                <button class="retry-button">Retry</button>
+            </div>
+        </main>
+        <footer class="chat-input-area">
+             <div class="input-wrapper">
+                <input type="text" class="text-input" placeholder="Chat unavailable" disabled>
+                <button class="send-button" aria-label="Send message" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                </button>
+            </div>
+        </footer>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

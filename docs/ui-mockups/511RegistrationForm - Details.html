@@ -1,0 +1,556 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RegistrationForm - Component Specifications</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            line-height: 1.6;
+            color: #2d3748;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+        
+        .component-type-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 8px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 30px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .section h2 {
+            color: #1e293b;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4f46e5;
+            display: inline-block;
+        }
+        
+        .section h3 {
+            color: #4f46e5;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 20px 0 12px 0;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .info-card {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .info-card h4 {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 1rem;
+        }
+        
+        .info-card p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .variations-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+        
+        .variation-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .variation-name {
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 8px;
+        }
+        
+        .variation-code {
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            color: #1e293b;
+            overflow-x: auto;
+            margin: 8px 0;
+            border-left: 4px solid #4f46e5;
+        }
+        
+        .variation-description {
+            font-size: 13px;
+            color: #64748b;
+            font-style: italic;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .feature-category {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .feature-category h4 {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+        
+        .feature-category ul {
+            list-style: none;
+        }
+        
+        .feature-category li {
+            padding: 6px 0;
+            color: #4b5563;
+            font-size: 14px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .feature-category li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .tokens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 8px;
+        }
+        
+        .token {
+            background: #f0f9ff;
+            color: #0369a1;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            border: 1px solid #bae6fd;
+            text-align: center;
+        }
+        
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 16px 0;
+            line-height: 1.4;
+        }
+        
+        .stats-bar {
+            background: linear-gradient(90deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .stat {
+            flex: 1;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+            
+            .stats-bar {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>RegistrationForm</h1>
+            <div class="component-type-badge">organism Component</div>
+        </div>
+        <div class="stats-bar">
+            <div class="stat">
+                <span class="stat-number">0</span>
+                <span class="stat-label">Variations</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">16</span>
+                <span class="stat-label">Design Tokens</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Breakpoints</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number">5</span>
+                <span class="stat-label">A11y Features</span>
+            </div>
+        </div><div class="content">
+        <div class="section">
+            <h2>Component Information</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Component Id</h4>
+                    <p>ORGA-FORM-001</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Name</h4>
+                    <p>RegistrationForm</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Type</h4>
+                    <p>organism</p>
+                </div>
+                <div class="info-card">
+                    <h4>Description</h4>
+                    <p>A comprehensive, multi-step or single-page form for onboarding different user types (Customer, Vendor, Rider). It combines various molecular components like FormGroup, FileUpload, and OTPInput to capture all necessary information.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Design System Alignment</h4>
+                    <p>This organism is a composition of molecular and atomic components from the design system. It uses FormGroup for structure, Button for actions, and FileUpload for document submission, all inheriting the foundational styles and tokens.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Design Tokens Used</h2>
+            <div class="tokens-grid"><div class="token">--color-primary-500</div><div class="token">--color-neutral-white</div><div class="token">--color-neutral-50</div><div class="token">--color-neutral-100</div><div class="token">--color-neutral-500</div><div class="token">--color-neutral-900</div><div class="token">--font-family-primary</div><div class="token">--font-family-secondary</div><div class="token">--fs-h3</div><div class="token">--fs-body</div><div class="token">--space-sm</div><div class="token">--space-md</div><div class="token">--space-lg</div><div class="token">--space-xl</div><div class="token">--radius-lg</div><div class="token">--shadow-md</div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Responsive Specifications</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Mobile Adaptations</h4>
+                    <ul><li>The form maintains a single-column layout for all fields, ensuring a clear and simple flow on narrow screens.</li><li>Padding is slightly reduced to maximize content space on smaller devices.</li>
+                    </ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Tablet Adaptations</h4>
+                    <ul><li>Maintains the single-column layout, which is robust and easy to use on touch devices.</li>
+                    </ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Desktop Enhancements</h4>
+                    <ul><li>The form is centered with a max-width for optimal readability on larger screens.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Accessibility Features</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Keyboard Support</h4><p>All interactive elements (inputs, buttons, file uploads) are keyboard-focusable and follow a logical tab order.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Screen Reader Support</h4><p>Uses semantic `<form>`, `<fieldset>`, and `<legend>` tags to structure the form. Each input is correctly associated with its `<label>` via `for` and `id` attributes.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Focus Management</h4><p>Focus indicators from atomic components are inherited, ensuring a clear and consistent focus state throughout the form.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Aria Attributes</h4><ul><li>aria-describedby is used to link error messages to inputs.</li><li>aria-invalid='true' is applied to inputs in an error state.</li></ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Color Contrast</h4><p>All text and UI elements meet WCAG 2.1 AA contrast requirements.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>CSS Implementation</h2>
+            <div class="code-block">/* Registration Form Organism CSS */
+
+/* Design System Tokens (Subset) */
+:root {
+  --color-primary-500: #0068FF;
+  --color-primary-700: #003E99;
+  --color-neutral-white: #FFFFFF;
+  --color-neutral-50: #F8F9FA;
+  --color-neutral-100: #F1F3F5;
+  --color-neutral-200: #e9ecef;
+  --color-neutral-900: #212529;
+  --color-semantic-success: #28A745;
+  --color-semantic-success-bg: #EAF6EC;
+  --font-family-primary: &#039;Poppins&#039;, sans-serif;
+  --font-family-secondary: &#039;Inter&#039;, sans-serif;
+  --fs-h2: 36px;
+  --fs-h3: 28px;
+  --fs-body: 16px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --radius-lg: 16px;
+  --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Organism Base */
+.registration-form {
+  background-color: var(--color-neutral-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-xl);
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Internal Structure */
+.registration-form__header {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--color-neutral-100);
+}
+
+.registration-form__title {
+  font-family: var(--font-family-primary);
+  font-size: var(--fs-h3);
+  color: var(--color-neutral-900);
+  margin: 0;
+}
+
+.registration-form__subtitle {
+  font-size: var(--fs-body);
+  color: var(--color-neutral-500);
+  margin-top: var(--space-sm);
+}
+
+.registration-form__section {
+  border: none;
+  padding: 0;
+  margin: 0 0 var(--space-xl) 0;
+}
+
+.registration-form__section-title {
+  font-family: var(--font-family-primary);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-primary-700);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-sm);
+  border-bottom: 2px solid var(--color-primary-50);
+}
+
+.registration-form__footer {
+  margin-top: var(--space-xl);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--color-neutral-100);
+}
+
+/* States */
+.registration-form--submitting fieldset {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.registration-form__success {
+  text-align: center;
+  padding: var(--space-xl);
+  background-color: var(--color-semantic-success-bg);
+  border-radius: var(--radius-lg);
+  color: var(--color-semantic-success);
+}
+
+.registration-form__success .icon {
+  font-size: 64px;
+  margin-bottom: var(--space-md);
+}
+
+.registration-form__success-title {
+  font-family: var(--font-family-primary);
+  font-size: var(--fs-h3);
+  color: var(--color-semantic-success);
+}
+
+.registration-form__success-message {
+  font-size: var(--fs-body);
+  color: #165926;
+  max-width: 45ch;
+  margin: var(--space-md) auto 0;
+}
+
+/* Responsive Adaptations */
+@media (max-width: 768px) {
+  .registration-form {
+    padding: var(--space-lg);
+  }
+  .registration-form__title {
+    font-size: 24px;
+  }
+}
+</div>
+        </div>
+        <div class="section">
+            <h2>Implementation Notes</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Embedded Css Architecture</h4>
+                    <p>All CSS is embedded in a single `<style>` tag. It begins with design tokens, followed by the CSS for all dependent atomic and molecular components, and concludes with the organism-specific styles for the registration form itself.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Component Organization</h4>
+                    <p>The organism is constructed by composing molecular components like `FormGroup`, `OTPInput`, and `FileUpload`. Fieldsets are used to group related information, improving both visual organization and accessibility.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Responsive Design</h4>
+                    <p>A mobile-first, single-column layout is used for simplicity and robustness across all screen sizes.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Accessibility Compliance</h4>
+                    <p>WCAG 2.1 AA compliance is achieved through semantic HTML structure, proper labeling, and accessible states for all composed components.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Browser Support</h4>
+                    <p>Designed for modern evergreen browsers, leveraging Flexbox for layout.</p>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Usage Guidelines</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>When To Use</h4><p>As the primary mechanism for user onboarding for any of the three user classes: Customer, Vendor, or Rider.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Content Guidelines</h4><p>Labels should be concise. Help text should clarify any ambiguous requirements (e.g., 'As it appears on your PAN card').</p>
+                </div>
+                <div class="info-card">
+                    <h4>Placement Rules</h4><p>This is a primary workflow and should typically be a dedicated screen or a prominent modal.</p>
+                </div>
+                <div class="info-card">
+                    <h4>Customization Options</h4><ul><li style="list-style: disc; margin-left: 16px; padding-left: 0;">The form's content (fields and sections) is determined by the `customer`, `vendor`, or `rider` variant.</li><li style="list-style: disc; margin-left: 16px; padding-left: 0;">Apply the `.registration-form--submitting` class to the main form element to show the submitting state (disables inputs and shows a spinner on the button).</li></ul>
+                </div>
+            </div>
+        </div>
+        <div class="section">
+            <h2>Testing Recommendations</h2>
+            <div class="feature-list">
+                <div class="feature-category">
+                    <h4>Browser Testing</h4><p>Test in Chrome, Firefox, Safari, Edge.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Device Testing</h4><p>Verify the single-column layout and touch targets on various mobile and tablet viewports.</p>
+                </div>
+                <div class="feature-category">
+                    <h4>Accessibility Testing</h4><ul><li>Perform a full keyboard navigation test of the entire form.</li><li>Test with a screen reader (VoiceOver, NVDA) to ensure sections, labels, and error messages are announced correctly.</li><li>Validate color contrast ratios.</li></ul>
+                </div>
+                <div class="feature-category">
+                    <h4>Performance Testing</h4><p>The form submission API call should be performance tested. The frontend component itself is lightweight.</p>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+</body>
+</html>

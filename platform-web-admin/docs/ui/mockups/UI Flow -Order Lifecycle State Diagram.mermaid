@@ -1,0 +1,47 @@
+stateDiagram-v2
+    direction LR
+
+    [*] --> InitialState
+    state "Order Placement" as InitialState {
+        direction LR
+        [*] --> PaymentPending : Online payment initiated
+        PaymentPending --> PendingVendorAcceptance : [Success] Payment Confirmed
+        PaymentPending --> Cancelled : [Failure] Payment Failed
+        [*] --> PendingVendorAcceptance : COD or Instant Payment
+    }
+
+    PendingVendorAcceptance --> Accepted : Vendor accepts order
+    PendingVendorAcceptance --> Cancelled : Vendor rejects / Timeout / Customer cancels
+
+    Accepted --> Preparing : Vendor sets prep time
+    Preparing --> ReadyForPickup : Vendor marks as ready
+
+    state "Pre-Delivery" as PreDelivery {
+        direction TB
+        Accepted
+        Preparing
+    }
+
+    PreDelivery --> Cancelled : Vendor or Customer cancels
+
+    ReadyForPickup --> InTransit : Rider picks up order
+    ReadyForPickup --> AllocationFailed : No rider accepts task
+
+    AllocationFailed --> ReadyForPickup : Admin re-assigns task
+    AllocationFailed --> Cancelled : Admin cancels order
+
+    InTransit --> Delivered : Rider confirms delivery (POD)
+    InTransit --> Cancelled : Support/Admin cancels
+
+    Delivered --> [*]
+    Cancelled --> [*]
+
+    note right of ReadyForPickup
+        Rider allocation process is
+        triggered in this state as per REQ-1-078.
+    end note
+
+    note left of InTransit
+        Live tracking is active
+        for the customer here as per REQ-1-059.
+    end note

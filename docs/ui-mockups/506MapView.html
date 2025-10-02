@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism: MapView</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ---------------------------------- */
+    /* --- 1. DESIGN SYSTEM FOUNDATION -- */
+    /* ---------------------------------- */
+    :root {
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F8F9FA;
+      --color-neutrals-gray-100: #F1F3F5;
+      --color-neutrals-gray-200: #E9EDF2;
+      --color-neutrals-gray-500: #868E96;
+      --color-neutrals-gray-800: #383E44;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-success: #28A745;
+      --color-semantic-error: #DC3545;
+      /* Typography */
+      --font-family-primary: 'Poppins', sans-serif;
+      --font-family-secondary: 'Inter', sans-serif;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      --font-weight-semibold: 600;
+      /* Spacing */
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 16px;
+      --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.1);
+      /* Form Inputs (Stub) */
+      --input-padding: 12px 16px;
+      --color-focus-border: var(--color-primary-500);
+      --color-focus-shadow: rgba(0, 104, 255, 0.2);
+    }
+    /* ---------------------------------- */
+    /* -------- 2. BASE & LAYOUT -------- */
+    /* ---------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-family-secondary);
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-900);
+      margin: 0;
+      padding: var(--spacing-lg);
+    }
+    .showcase {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      gap: var(--spacing-lg);
+    }
+    .showcase-section {
+      margin-bottom: var(--spacing-lg);
+    }
+    .showcase-section h2 {
+      font-family: var(--font-family-primary);
+      margin-bottom: var(--spacing-md);
+      border-bottom: 1px solid var(--color-neutrals-gray-200);
+      padding-bottom: var(--spacing-sm);
+    }
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: var(--spacing-lg);
+    }
+    /* ---------------------------------- */
+    /* ----- 3. ATOMIC COMPONENT STUBS -- */
+    /* ---------------------------------- */
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    .spinner { display: inline-block; width: 48px; height: 48px; border-radius: 50%; border: 4px solid var(--color-neutrals-gray-200); border-top-color: var(--color-primary-500); animation: spin 0.8s linear infinite; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-sm); font-weight: 600; text-decoration: none; border: 1px solid transparent; border-radius: var(--border-radius-md); cursor: pointer; transition: all 0.15s ease-in-out; font-size: var(--font-size-body); padding: 11px 24px; min-height: 44px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutrals-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .form-group { margin-bottom: var(--spacing-md); }
+    .form-group__label { font-size: var(--font-size-caption); font-weight: 600; margin-bottom: var(--spacing-sm); display: block; }
+    .form-group__control { font-size: var(--font-size-body); padding: var(--input-padding); border-radius: var(--border-radius-md); border: 1px solid var(--color-neutrals-gray-500); width: 100%; }
+    /* ---------------------------------- */
+    /* ----- 4. MAPVIEW COMPONENT ------- */
+    /* ---------------------------------- */
+    .map-view {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      background-color: #e5e7eb;
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--color-neutrals-gray-200);
+      background-image:
+        linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+      background-size: 25px 25px;
+    }
+    /* --- LOADER --- */
+    .map-view__loader {
+      position: absolute;
+      inset: 0;
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(4px);
+      display: none; /* Hidden by default */
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .map-view--loading .map-view__loader {
+      display: flex;
+    }
+    /* --- MARKERS --- */
+    .map-marker {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 40px;
+      z-index: 20;
+    }
+    .map-marker__icon {
+      width: 1em;
+      height: 1em;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
+    }
+    .map-marker__label {
+      background-color: rgba(0,0,0,0.7);
+      color: var(--color-neutrals-white);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-family: var(--font-family-secondary);
+      font-weight: 600;
+      margin-top: 4px;
+      white-space: nowrap;
+    }
+    .map-marker--rider .map-marker__icon { color: var(--color-primary-500); }
+    .map-marker--vendor .map-marker__icon { color: var(--color-semantic-success); }
+    .map-marker--customer .map-marker__icon { color: var(--color-neutrals-gray-800); }
+    /* --- LIVE TRACKING OVERLAY --- */
+    .map-view__live-tracking-overlay {
+      position: absolute;
+      bottom: var(--spacing-md);
+      left: var(--spacing-md);
+      right: var(--spacing-md);
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: var(--spacing-md);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .live-tracking-info__eta {
+      font-size: 20px;
+      font-weight: 700;
+      font-family: var(--font-family-primary);
+    }
+    .live-tracking-info__distance {
+      font-size: var(--font-size-caption);
+      color: var(--color-neutrals-gray-500);
+    }
+    .live-tracking-info__last-seen {
+        font-size: 12px;
+        color: var(--color-semantic-error);
+        font-weight: 600;
+    }
+    /* --- ADDRESS PICKER OVERLAY --- */
+    .map-view__center-pin {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -100%);
+      font-size: 48px;
+      color: var(--color-semantic-error);
+      z-index: 40;
+    }
+    .map-view__address-picker-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(255,255,255,1) 70%, rgba(255,255,255,0));
+      padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md);
+      z-index: 50;
+      text-align: center;
+    }
+    .address-picker__address-text {
+      background: var(--color-neutrals-white);
+      padding: var(--spacing-md);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-md);
+      margin-bottom: var(--spacing-md);
+      font-weight: 600;
+    }
+    /* --- GEOFENCING OVERLAY --- */
+    .map-view__geofencing-controls {
+      position: absolute;
+      top: var(--spacing-md);
+      right: var(--spacing-md);
+      width: 300px;
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-md);
+      box-shadow: var(--shadow-lg);
+      padding: var(--spacing-md);
+      z-index: 50;
+    }
+    .map-view__polygon {
+      stroke: var(--color-primary-500);
+      stroke-width: 3;
+      fill: rgba(0, 104, 255, 0.2);
+      stroke-linejoin: round;
+      stroke-linecap: round;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="showcase">
+    <!-- SVG Icon Definitions -->
+    <svg style="display: none;">
+      <symbol id="icon-map-pin" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M9.69 18.933l.003.001C9.89 19.02 10 19 10 19s.11.02.308-.066l.002-.001.006-.003.018-.008a5.741 5.741 0 00.281-.14c.186-.1.4-.27.662-.47.262-.2.555-.453.865-.734.31-.28.65-.603.998-1.002a18.45 18.45 0 002.831-3.794c.596-1.046.996-2.23.996-3.417a6 6 0 10-12 0c0 1.187.4 2.37.996 3.417a18.45 18.45 0 002.83 3.794.998 1.002c.348.399.686.724.998 1.002.31.28.603.534.865.734.263.2.477.369.662.47a5.741 5.741 0 00.281.14l.018.008.006.003zM10 11.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" clip-rule="evenodd" />
+      </symbol>
+    </svg>
+
+    <section class="showcase-section">
+      <h2>Live Tracking Map</h2>
+      <div class="map-view map-view--live-tracking" role="application" aria-label="Live order tracking map">
+        <!-- Markers -->
+        <div class="map-marker map-marker--vendor" style="top: 20%; left: 15%;">
+          <svg class="map-marker__icon" viewBox="0 0 20 20" fill="currentColor"><use href="#icon-map-pin"></use></svg>
+          <span class="map-marker__label">Vendor</span>
+        </div>
+        <div class="map-marker map-marker--rider" style="top: 45%; left: 55%;">
+          <svg class="map-marker__icon" viewBox="0 0 20 20" fill="currentColor"><use href="#icon-map-pin"></use></svg>
+          <span class="map-marker__label">Rider</span>
+        </div>
+        <div class="map-marker map-marker--customer" style="top: 80%; left: 85%;">
+          <svg class="map-marker__icon" viewBox="0 0 20 20" fill="currentColor"><use href="#icon-map-pin"></use></svg>
+          <span class="map-marker__label">You</span>
+        </div>
+        <!-- Live Tracking Overlay -->
+        <div class="map-view__live-tracking-overlay">
+          <div class="live-tracking-info">
+            <div class="live-tracking-info__eta">Arriving in 12 min</div>
+            <div class="live-tracking-info__distance">2.1 km away</div>
+          </div>
+          <div class="live-tracking-info__last-seen">Last seen: 2 min ago</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="showcase-section">
+        <h2>Address Picker Map</h2>
+        <div class="showcase-grid">
+            <div>
+                <h3>Interactive State</h3>
+                <div class="map-view map-view--address-picker" role="application" aria-label="Map to select delivery address">
+                    <div class="map-view__center-pin">
+                        <svg class="map-marker__icon" viewBox="0 0 20 20" fill="currentColor"><use href="#icon-map-pin"></use></svg>
+                    </div>
+                    <div class="map-view__address-picker-overlay">
+                        <div class="address-picker__address-text">
+                            A-123, Marine Drive, Mumbai, Maharashtra 400020
+                        </div>
+                        <button class="btn btn--primary">Confirm Location</button>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3>Loading State</h3>
+                <div class="map-view map-view--loading" role="status" aria-label="Map is loading">
+                    <div class="map-view__loader">
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="showcase-section">
+      <h2>Geofencing Tool Map</h2>
+      <div class="map-view map-view--geofencing" role="application" aria-label="Tool for drawing operational zones">
+        <!-- Polygon -->
+        <svg width="100%" height="100%" style="position: absolute; z-index: 10;">
+          <polygon class="map-view__polygon" points="100,100 400,120 500,400 200,450 50,300"></polygon>
+        </svg>
+        <!-- Controls -->
+        <div class="map-view__geofencing-controls">
+          <h3>Edit Operational Zone</h3>
+          <div class="form-group">
+            <label for="zone-name" class="form-group__label">Zone Name</label>
+            <input type="text" id="zone-name" class="form-group__control" value="Mumbai South">
+          </div>
+          <button class="btn btn--primary" style="width: 100%;">Save Changes</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+  
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : live-tracking<h3>
+		<!--description--><normal> Displays the real-time location of a delivery rider, along with static markers for the vendor and customer. Includes an overlay with ETA and distance. </normal>
+		<!-- vrient 1 html -->
+        <div class="map-view map-view--live-tracking" role="application" aria-label="Live order tracking map">
+            <div class="map-marker map-marker--vendor" style="top: 20%; left: 15%;"><svg class="map-marker__icon" viewBox="0 0 20 20" fill="currentColor"><use href="#icon-map-pin"></use></svg></div>
+            <div class="map-marker map-marker--rider" style="top: 45%; left: 55%;"><svg class="map-marker__icon" viewBox="0 0 20 20" fill="currentColor"><use href="#icon-map-pin"></use></svg></div>
+            <div class="map-marker map-marker--customer" style="top: 80%; left: 85%;"><svg class="map-marker__icon" viewBox="0 0 20 20" fill="currentColor"><use href="#icon-map-pin"></use></svg></div>
+            <div class="map-view__live-tracking-overlay">
+              <div class="live-tracking-info"><div class="live-tracking-info__eta">Arriving in 12 min</div></div>
+            </div>
+        </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : address-picker<h3>
+		<!--description--><normal> An interactive map used for selecting or confirming a precise address. It features a static pin in the center of the viewport and an overlay to display the geocoded address. </normal>
+		<!-- vrient 1 html -->
+        <div class="map-view map-view--address-picker" role="application" aria-label="Map to select delivery address">
+            <div class="map-view__center-pin"><svg class="map-marker__icon" viewBox="0 0 20 20" fill="currentColor"><use href="#icon-map-pin"></use></svg></div>
+            <div class="map-view__address-picker-overlay">
+                <div class="address-picker__address-text">A-123, Marine Drive, Mumbai...</div>
+                <button class="btn btn--primary">Confirm Location</button>
+            </div>
+        </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : geofencing-tool<h3>
+		<!--description--><normal> A specialized variant for administrators to draw and manage polygonal service areas (geofences). It includes drawing tools and a control panel for saving the zone. </normal>
+		<!-- vrient 1 html -->
+        <div class="map-view map-view--geofencing" role="application" aria-label="Tool for drawing operational zones">
+            <svg width="100%" height="100%" style="position: absolute; z-index: 10;"><polygon class="map-view__polygon" points="100,100 400,120 500,400 200,450 50,300"></polygon></svg>
+            <div class="map-view__geofencing-controls">
+                <h3>Edit Zone</h3>
+                <button class="btn btn--primary" style="width: 100%;">Save Changes</button>
+            </div>
+        </div>     
+		
+      <div>
+	 </div>
+</body>
+</html>

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sidebar Navigation</title>
+  <style>
+    /* CSS Reset & Font Import */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Design System Tokens */
+    :root {
+      /* Colors */
+      --color-primary: #4F46E5;
+      --color-primary-hover: #4338CA;
+      --color-background: #F3F4F6; /* Main content background */
+      --color-surface-nav: #111827; /* Sidebar background */
+      --color-text-nav: #9CA3AF;
+      --color-text-nav-hover: #FFFFFF;
+      --color-text-nav-active: #FFFFFF;
+      --color-text-nav-icon: #9CA3AF;
+      --color-text-nav-icon-hover: #FFFFFF;
+      --color-text-nav-icon-active: #FFFFFF;
+      --color-nav-active-bg: #1F2937;
+      --color-border: #374151;
+
+      /* Spacing */
+      --space-xs: 4px;
+      --space-sm: 8px;
+      --space-md: 16px;
+      --space-lg: 24px;
+      --space-xl: 32px;
+
+      /* Sizing */
+      --sidebar-width-expanded: 256px;
+      --sidebar-width-collapsed: 80px;
+
+      /* Typography */
+      --font-size-sm: 14px;
+      --font-size-base: 16px;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+
+      /* Borders */
+      --border-radius-md: 6px;
+
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+      --transition-base: 300ms ease-in-out;
+    }
+
+    body {
+        background-color: var(--color-background);
+        color: #1F2937;
+    }
+    
+    .dashboard-layout {
+        display: flex;
+        height: 100vh;
+    }
+    
+    .dashboard-content {
+        flex-grow: 1;
+        padding: var(--space-xl);
+        overflow-y: auto;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      width: var(--sidebar-width-expanded);
+      height: 100%;
+      background-color: var(--color-surface-nav);
+      border-right: 1px solid var(--color-border);
+      transition: width var(--transition-base);
+      overflow-x: hidden;
+    }
+
+    .sidebar--collapsed {
+      width: var(--sidebar-width-collapsed);
+    }
+    
+    .sidebar__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-lg);
+      flex-shrink: 0;
+    }
+
+    .sidebar__logo {
+        display: flex;
+        align-items: center;
+        gap: var(--space-sm);
+        color: var(--color-text-nav-hover);
+        text-decoration: none;
+        font-size: 20px;
+        font-weight: var(--font-weight-semibold);
+        white-space: nowrap;
+    }
+    
+    .sidebar__logo-icon {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+    }
+
+    .sidebar__toggle {
+      background: none;
+      border: none;
+      color: var(--color-text-nav);
+      cursor: pointer;
+      padding: var(--space-sm);
+      border-radius: var(--border-radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color var(--transition-fast), color var(--transition-fast);
+    }
+    
+    .sidebar__toggle:hover {
+      background-color: var(--color-nav-active-bg);
+      color: var(--color-text-nav-hover);
+    }
+
+    .sidebar__toggle .icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    .sidebar__nav {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: 0 var(--space-md);
+    }
+
+    .sidebar__nav-list {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+
+    .sidebar__nav-link {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+      padding: 12px var(--space-md);
+      border-radius: var(--border-radius-md);
+      text-decoration: none;
+      color: var(--color-text-nav);
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-medium);
+      white-space: nowrap;
+      transition: background-color var(--transition-fast), color var(--transition-fast);
+    }
+    
+    .sidebar__nav-link .icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      color: var(--color-text-nav-icon);
+      transition: color var(--transition-fast);
+    }
+    
+    .sidebar__nav-link .nav-text {
+      opacity: 1;
+      transition: opacity var(--transition-fast);
+    }
+
+    .sidebar__nav-link:hover {
+      background-color: var(--color-nav-active-bg);
+      color: var(--color-text-nav-hover);
+    }
+    
+    .sidebar__nav-link:hover .icon {
+      color: var(--color-text-nav-icon-hover);
+    }
+    
+    .sidebar__nav-link--active {
+      background-color: var(--color-primary);
+      color: var(--color-text-nav-active);
+    }
+
+    .sidebar__nav-link--active .icon {
+      color: var(--color-text-nav-icon-active);
+    }
+
+    /* Collapsed State Styles */
+    .sidebar--collapsed .sidebar__logo-text {
+        display: none;
+    }
+
+    .sidebar--collapsed .sidebar__toggle {
+        margin-left: auto;
+    }
+
+    .sidebar--collapsed .nav-text {
+      opacity: 0;
+      pointer-events: none;
+      width: 0;
+      margin-left: -10px; /* To prevent text from showing during transition */
+    }
+    
+    .sidebar--collapsed .sidebar__nav-link {
+      justify-content: center;
+      padding: 12px;
+    }
+    
+    .sidebar__footer {
+      padding: var(--space-lg);
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* Placeholder for mobile hamburger */
+    .mobile-nav-trigger {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        padding: 8px;
+        z-index: 1000;
+        cursor: pointer;
+    }
+
+
+    /* Responsive Adaptations */
+    @media (max-width: 1024px) {
+        .sidebar {
+            width: var(--sidebar-width-collapsed);
+        }
+        .sidebar:not(.sidebar--manual-expand) .nav-text {
+            opacity: 0;
+            pointer-events: none;
+            width: 0;
+        }
+        .sidebar:not(.sidebar--manual-expand) .sidebar__nav-link {
+            justify-content: center;
+            padding: 12px;
+        }
+        .sidebar:not(.sidebar--manual-expand) .sidebar__logo-text {
+            display: none;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .sidebar {
+            position: fixed;
+            left: calc(-1 * var(--sidebar-width-expanded));
+            top: 0;
+            z-index: 999;
+            transition: left var(--transition-base);
+        }
+        .sidebar--mobile-visible {
+            left: 0;
+            width: var(--sidebar-width-expanded);
+        }
+        .sidebar--mobile-visible .nav-text {
+            opacity: 1;
+        }
+        .mobile-nav-trigger {
+            display: block;
+        }
+    }
+
+  </style>
+</head>
+<body>
+  <div class="dashboard-layout">
+    <!-- MAIN DEMO: Vendor Sidebar (Default Expanded) -->
+    <nav class="sidebar" id="main-sidebar">
+      <div class="sidebar__header">
+        <a href="#" class="sidebar__logo">
+            <svg class="sidebar__logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.0006 18.26L4.94715 22.2082L6.52248 14.2799L0.587891 8.7918L8.614D44 7.84006L12.0006 0.5L15.3872 7.84006L23.4143 8.7918L17.4797 14.2799L19.055 22.2082L12.0006 18.26Z"></path></svg>
+            <span class="sidebar__logo-text">Vendor Portal</span>
+        </a>
+        <button class="sidebar__toggle" id="sidebar-toggle-btn" aria-label="Toggle sidebar">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M10.8284 12.0007L15.7782 16.9504L14.364 18.3646L8 12.0007L14.364 5.63672L15.7782 7.05093L10.8284 12.0007Z"></path></svg>
+        </button>
+      </div>
+      <nav class="sidebar__nav">
+        <ul class="sidebar__nav-list">
+          <li>
+            <a href="#" class="sidebar__nav-link sidebar__nav-link--active" aria-current="page">
+              <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13H5V11H3V13ZM3 17H5V15H3V17ZM3 9H5V7H3V9ZM7 13H21V11H7V13ZM7 17H21V15H7V17ZM7 9H21V7H7V9Z"></path></svg>
+              <span class="nav-text">Dashboard</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="sidebar__nav-link">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 3C21.5523 3 22 3.44772 22 4V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H21ZM12 15.7639L19.315 20.2111L17.2062 12.05L24 7.21114L15.6329 6.60228L12 0L8.36706 6.60228L0 7.21114L6.79383 12.05L4.68496 20.2111L12 15.7639Z"></path></svg>
+                <span class="nav-text">Orders</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="sidebar__nav-link">
+              <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3V12C5 12.5523 5.44772 13 6 13H15C15.5523 13 16 12.5523 16 12V3H5ZM18 17H21C21.5523 17 22 16.5523 22 16V4C22 3.44772 21.5523 3 21 3H18V17ZM4 15H17V17H4C3.44772 17 3 16.5523 3 16V6H1V16C1 18.7614 3.23858 21 6 21H19V19H6C4.34315 19 3 17.6569 3 16V6H4V15Z"></path></svg>
+              <span class="nav-text">Products</span>
+            </a>
+          </li>
+          <li>
+            <a href="#" class="sidebar__nav-link">
+              <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 11C9.24 11 7 8.76 7 6C7 3.24 9.24 1 12 1C14.76 1 17 3.24 17 6C17 8.76 14.76 11 12 11ZM12 14C8.67 14 2 15.79 2 19V20H22V19C22 15.79 15.33 14 12 14Z"></path></svg>
+              <span class="nav-text">Profile</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <div class="sidebar__footer">
+        <a href="#" class="sidebar__nav-link">
+          <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M16 17V15H8V17H16ZM12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13ZM12 3C7.58172 3 4 6.58172 4 11V21L6 20L8 21L10 20L12 21L14 20L16 21L18 20L20 21V11C20 6.58172 16.4183 3 12 3Z"></path></svg>
+          <span class="nav-text">Logout</span>
+        </a>
+      </div>
+    </nav>
+    <main class="dashboard-content">
+      <h1>Main Content Area</h1>
+      <p>This area would be replaced by the content of the selected navigation item.</p>
+    </main>
+    <button class="mobile-nav-trigger" id="mobile-nav-trigger-btn">
+        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4H21V6H3V4ZM3 11H21V13H3V11ZM3 18H21V20H3V18Z"></path></svg>
+    </button>
+  </div>
+
+  <div class="screen-variations" style="display:none; padding: 20px;">
+    <h2 style="margin-bottom: 20px;">Screen Variations</h2>
+    
+    <div class="variation-group" style="margin-bottom: 40px;">
+      <h3>Variant Name: "Admin Sidebar (Expanded)"</h3>
+      <p style="margin-bottom:10px; color: #666;">Shows the navigation links available to an Administrator user.</p>
+      <div class="dashboard-layout" style="height: 600px; border: 1px solid #ccc;">
+        <nav class="sidebar">
+          <div class="sidebar__header">
+            <a href="#" class="sidebar__logo">
+              <svg class="sidebar__logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L21.5 6.5V17.5L12 23L2.5 17.5V6.5L12 1ZM12 3.311L4.5 7.653V16.347L12 20.689L19.5 16.347V7.653L12 3.311ZM12 16C9.79086 16 8 14.2091 8 12C8 9.79086 9.79086 8 12 8C14.2091 8 16 9.79086 16 12C16 14.2091 14.2091 16 12 16Z"></path></svg>
+              <span class="sidebar__logo-text">Admin Panel</span>
+            </a>
+          </div>
+          <nav class="sidebar__nav">
+            <ul class="sidebar__nav-list">
+              <li><a href="#" class="sidebar__nav-link"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C17.52 2 22 6.48 22 12C22 17.52 17.52 22 12 22C6.48 22 2 17.52 2 12C2 6.48 6.48 2 12 2ZM12 11C9.24 11 7 8.76 7 6C7 3.24 9.24 1 12 1C14.76 1 17 3.24 17 6C17 8.76 14.76 11 12 11ZM12 14C8.67 14 2 15.79 2 19V20H22V19C22 15.79 15.33 14 12 14Z"></path></svg><span class="nav-text">User Management</span></a></li>
+              <li><a href="#" class="sidebar__nav-link"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.0006 18.26L4.94715 22.2082L6.52248 14.2799L0.587891 8.7918L8.61444 7.84006L12.0006 0.5L15.3872 7.84006L23.4143 8.7918L17.4797 14.2799L19.055 22.2082L12.0006 18.26Z"></path></svg><span class="nav-text">Vendor Approvals</span></a></li>
+              <li><a href="#" class="sidebar__nav-link"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M20 22H4C3.44772 22 3 21.5523 3 21V3C3 2.44772 3.44772 2 4 2H20C20.5523 2 21 2.44772 21 3V21C21 21.5523 20.5523 22 20 22ZM12 13.5L16 10.5L12 7.5L8 10.5L12 13.5ZM12 15.825L18.75 11.4375L20 12.2625L12 17.5L4 12.2625L5.25 11.4375L12 15.825Z"></path></svg><span class="nav-text">Order Management</span></a></li>
+              <li><a href="#" class="sidebar__nav-link"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11 2.05005V8.05005H21V10.05H11V16.05H21V18.05H11V22.05H9V18.05H4C3.44772 18.05 3 17.6023 3 17.05V11.05C3 10.4977 3.44772 10.05 4 10.05H9V8.05005H4C3.44772 8.05005 3 7.60233 3 7.05005V4.05005C3 3.49776 3.44772 3.05005 4 3.05005H9V2.05005H11Z"></path></svg><span class="nav-text">Financials</span></a></li>
+              <li><a href="#" class="sidebar__nav-link"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.9439 18.0163L11.0747 13.5222L13.5222 11.0747L18.0163 12.9439L19.497 5.01196L5.01196 19.497L12.9439 18.0163ZM11.3129 10.8306L7.33237 12.339L12.339 7.33237L10.8306 11.3129L11.3129 10.8306ZM21 21H3V3H21V21Z"></path></svg><span class="nav-text">Operational Zones</span></a></li>
+              <li><a href="#" class="sidebar__nav-link"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L21.5 6.5V17.5L12 23L2.5 17.5V6.5L12 1ZM12 3.311L4.5 7.653V16.347L12 20.689L19.5 16.347V7.653L12 3.311Z"></path></svg><span class="nav-text">System Settings</span></a></li>
+            </ul>
+          </nav>
+        </nav>
+        <main class="dashboard-content">
+          <h1>Admin Content Area</h1>
+        </main>
+      </div>
+    </div>
+    <div class="variation-group" style="margin-bottom: 40px;">
+        <h3>Variant Name: "Collapsed State"</h3>
+        <p style="margin-bottom:10px; color: #666;">Shows the sidebar in its icon-only, collapsed state to save space. Navigation text is hidden.</p>
+        <div class="dashboard-layout" style="height: 600px; border: 1px solid #ccc;">
+            <nav class="sidebar sidebar--collapsed">
+              <div class="sidebar__header">
+                <a href="#" class="sidebar__logo">
+                    <svg class="sidebar__logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12.0006 18.26L4.94715 22.2082L6.52248 14.2799L0.587891 8.7918L8.61444 7.84006L12.0006 0.5L15.3872 7.84006L23.4143 8.7918L17.4797 14.2799L19.055 22.2082L12.0006 18.26Z"></path></svg>
+                </a>
+              </div>
+              <nav class="sidebar__nav">
+                <ul class="sidebar__nav-list">
+                  <li>
+                    <a href="#" class="sidebar__nav-link sidebar__nav-link--active" aria-current="page" aria-label="Dashboard">
+                      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 13H5V11H3V13ZM3 17H5V15H3V17ZM3 9H5V7H3V9ZM7 13H21V11H7V13ZM7 17H21V15H7V17ZM7 9H21V7H7V9Z"></path></svg>
+                      <span class="nav-text">Dashboard</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" class="sidebar__nav-link" aria-label="Orders">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 3C21.5523 3 22 3.44772 22 4V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H21ZM12 15.7639L19.315 20.2111L17.2062 12.05L24 7.21114L15.6329 6.60228L12 0L8.36706 6.60228L0 7.21114L6.79383 12.05L4.68496 20.2111L12 15.7639Z"></path></svg>
+                        <span class="nav-text">Orders</span>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="#" class="sidebar__nav-link" aria-label="Products">
+                      <svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3V12C5 12.5523 5.44772 13 6 13H15C15.5523 13 16 12.5523 16 12V3H5ZM18 17H21C21.5523 17 22 16.5523 22 16V4C22 3.44772 21.5523 3 21 3H18V17ZM4 15H17V17H4C3.44772 17 3 16.5523 3 16V6H1V16C1 18.7614 3.23858 21 6 21H19V19H6C4.34315 19 3 17.6569 3 16V6H4V15Z"></path></svg>
+                      <span class="nav-text">Products</span>
+                    </a>
+                  </li>
+                </ul>
+              </nav>
+            </nav>
+            <main class="dashboard-content">
+              <h1>Content (Collapsed)</h1>
+            </main>
+          </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const sidebar = document.getElementById('main-sidebar');
+      const toggleBtn = document.getElementById('sidebar-toggle-btn');
+      const mobileTrigger = document.getElementById('mobile-nav-trigger-btn');
+      
+      if (toggleBtn && sidebar) {
+        toggleBtn.addEventListener('click', () => {
+          sidebar.classList.toggle('sidebar--collapsed');
+          sidebar.classList.add('sidebar--manual-expand');
+        });
+      }
+
+      if(mobileTrigger && sidebar) {
+        mobileTrigger.addEventListener('click', () => {
+          sidebar.classList.toggle('sidebar--mobile-visible');
+        });
+      }
+
+      // Hide the variations wrapper in the main demo
+      const mainDemoLayout = document.querySelector('.dashboard-layout');
+      if (mainDemoLayout && !mainDemoLayout.closest('.variation-group')) {
+        document.querySelector('.screen-variations').style.display = 'none';
+      }
+      
+      // But show it if we are looking at the file directly
+      if (window.self === window.top) {
+          const mainDemo = document.querySelector('.dashboard-layout');
+          mainDemo.style.height = '600px';
+          mainDemo.style.border = '2px solid var(--color-primary)';
+          mainDemo.style.marginBottom = '40px';
+          
+          const variations = document.querySelector('.screen-variations');
+          variations.style.display = 'block';
+          
+          const title = document.createElement('h2');
+          title.textContent = 'Main Demo: Vendor Sidebar';
+          title.style.marginBottom = '10px';
+          mainDemo.parentNode.insertBefore(title, mainDemo);
+      }
+    });
+  </script>
+</body>
+</html>

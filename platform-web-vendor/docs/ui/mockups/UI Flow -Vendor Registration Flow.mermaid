@@ -1,0 +1,33 @@
+flowchart TD
+    A[Prospective Vendor opens Registration Page] --> B[Fills Business Details & Contact Info];
+    B --> C{Enters Mobile Number & Requests OTP};
+    C --> D[API: Validate Number Format & Uniqueness];
+    
+    subgraph Validation
+        D -->|Invalid or Duplicate| E[Show Error: 'Invalid or existing number'];
+        E --> C;
+        D -->|Valid| F[API: Send OTP via SMS Gateway];
+    end
+    
+    F --> G[User Enters OTP];
+    G --> H{API: Verify OTP};
+    H -->|Incorrect| I[Show Error: 'Invalid OTP'];
+    I --> G;
+    H -->|Correct| J[Mobile Number Verified ✔];
+    
+    J --> K[Completes Document Uploads & Final Fields];
+    K --> L[Clicks 'Submit Application'];
+    L --> M{API: Final Validation of All Data};
+    M -->|Data Invalid| N[Show Form Errors];
+    N --> K;
+    M -->|Data Valid| O[Create Vendor Account with status 'pending_verification'];
+    O --> P[Redirect to 'Pending Verification' Screen];
+
+    %% Styling
+    classDef errorNode fill:#ffebee,stroke:#d32f2f,color:#000;
+    classDef successNode fill:#e8f5e9,stroke:#4caf50,color:#000;
+    classDef processNode fill:#e3f2fd,stroke:#2196f3,color:#000;
+
+    class E,I,N errorNode;
+    class J,O,P successNode;
+    class A,B,C,G,K,L processNode;

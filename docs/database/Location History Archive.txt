@@ -1,0 +1,44 @@
+#!/bin/bash
+
+# This script uses the AWS CLI to create an Amazon Timestream database and table.
+# Ensure you have the AWS CLI installed and configured with appropriate permissions.
+
+# Define variables
+DATABASE_NAME="location_archive_db"
+TABLE_NAME="RiderLocationEvent"
+MEMORY_STORE_RETENTION_HOURS=24
+MAGNETIC_STORE_RETENTION_DAYS=365
+
+# 1. Create the Timestream Database
+echo "Attempting to create Timestream database: $DATABASE_NAME"
+
+aws timestream-write create-database --database-name "$DATABASE_NAME"
+
+if [ $? -eq 0 ]; then
+    echo "Database '$DATABASE_NAME' created successfully."
+else
+    echo "Database '$DATABASE_NAME' may already exist or an error occurred."
+fi
+
+# 2. Create the Timestream Table
+echo "Attempting to create Timestream table: $TABLE_NAME in database: $DATABASE_NAME"
+
+aws timestream-write create-table \
+    --database-name "$DATABASE_NAME" \
+    --table-name "$TABLE_NAME" \
+    --retention-properties "{\"MemoryStoreRetentionPeriodInHours\": $MEMORY_STORE_RETENTION_HOURS, \"MagneticStoreRetentionPeriodInDays\": $MAGNETIC_STORE_RETENTION_DAYS}"
+
+if [ $? -eq 0 ]; then
+    echo "Table '$TABLE_NAME' created successfully."
+else
+    echo "Table '$TABLE_NAME' may already exist or an error occurred."
+fi
+
+echo "
+--- Schema Definition Summary ---"
+echo "Database: $DATABASE_NAME"
+echo "Table: $TABLE_NAME"
+echo "Time Column: 'time' (Implicitly handled by Timestream)"
+echo "Dimensions: 'riderId' (VARCHAR)"
+echo "Measures: 'latitude' (DOUBLE), 'longitude' (DOUBLE), 'accuracy' (DOUBLE)"
+echo "-------------------------------"

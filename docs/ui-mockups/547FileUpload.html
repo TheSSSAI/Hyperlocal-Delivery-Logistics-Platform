@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: FileUpload</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    body, h1, h2, h3, h4, p, figure, blockquote, dl, dd { margin: 0; }
+    input, button, textarea, select { font: inherit; }
+
+    /* Design System Tokens */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --font-weight-bold: 700;
+      --fs-body: 16px; --lh-body: 1.6;
+      --fs-caption: 14px; --lh-caption: 1.5;
+
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-400: #2E83FF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-white: #FFFFFF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-100: #E9EDF2;
+      --color-gray-200: #D3D9E1;
+      --color-gray-300: #BCC4CF;
+      --color-gray-400: #A5B0BD;
+      --color-gray-500: #8E9BAA;
+      --color-gray-600: #717C88;
+      --color-gray-700: #555D66;
+      --color-gray-800: #383E44;
+      --color-gray-900: #1C1F22;
+      --color-success: #00C875;
+      --color-error: #FF4D4D;
+      --color-info: #0068FF;
+      --color-danger: var(--color-error);
+      --color-secondary-50: #E5F9F1;
+      --color-secondary-900: #003D24;
+      --color-secondary-500: #00C875;
+
+      /* Spacing */
+      --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --border-radius-full: 9999px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* Base & Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+      background-color: var(--color-gray-50);
+      color: var(--color-gray-800);
+      padding: var(--space-6);
+    }
+    .showcase { max-width: 900px; margin: 0 auto; display: grid; gap: var(--space-6); }
+    .component-section { background-color: var(--color-white); padding: var(--space-5); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
+    .component-section > h2 { font-size: 24px; margin-bottom: var(--space-5); color: var(--color-gray-900); }
+    .state-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-5); }
+    .state-container > h3 { font-size: 18px; margin-bottom: var(--space-2); }
+    .state-container > p { font-size: var(--fs-caption); color: var(--color-gray-600); margin-bottom: var(--space-4); }
+
+    /* Dependent Atomic Component Styles */
+    .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-weight: var(--font-weight-semibold); text-decoration: none; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition: background-color 0.2s ease; }
+    .btn--secondary { background-color: var(--color-white); color: var(--color-gray-700); border-color: var(--color-gray-300); }
+    .btn--secondary:hover { background-color: var(--color-gray-100); }
+    .btn--icon-only { padding: var(--space-2); line-height: 1; }
+    .btn--danger { background-color: var(--color-error); color: var(--color-white); border-color: var(--color-error); }
+    .btn--danger:hover { background-color: #d94040; }
+    .spinner { animation: spin 1s linear infinite; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; display: inline-block; width: var(--fs-body); height: var(--fs-body); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .alert { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3); border-radius: var(--border-radius-md); border: 1px solid; }
+    .alert__icon { font-size: 1.25em; line-height: 1; flex-shrink: 0; }
+    .alert--error { background-color: #FFEBEB; color: #8B0000; border-color: var(--color-error); }
+    .alert__title { font-weight: var(--font-weight-bold); margin-bottom: var(--space-1); }
+    .alert__content { font-size: var(--fs-caption); }
+
+    /* FileUpload Component CSS */
+    .file-upload {
+      --file-upload-border-color: var(--color-gray-300);
+      --file-upload-bg-color: var(--color-white);
+      --file-upload-icon-color: var(--color-gray-500);
+      --file-upload-text-color: var(--color-gray-600);
+      position: relative;
+      width: 100%;
+      background-color: var(--file-upload-bg-color);
+      border-radius: var(--border-radius-md);
+      border: 2px dashed var(--file-upload-border-color);
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    .file-upload__input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .file-upload__dropzone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-6);
+      cursor: pointer;
+      text-align: center;
+    }
+    .file-upload:hover .file-upload__dropzone {
+      border-color: var(--color-primary-400);
+      background-color: var(--color-primary-50);
+    }
+    .file-upload__icon {
+      font-size: 48px;
+      color: var(--file-upload-icon-color);
+      margin-bottom: var(--space-4);
+    }
+    .file-upload__prompt-title {
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-primary-600);
+      margin-bottom: var(--space-1);
+    }
+    .file-upload__prompt-text {
+      font-size: var(--fs-caption);
+      color: var(--file-upload-text-color);
+    }
+    .file-upload__status {
+      display: none;
+      padding: var(--space-4);
+    }
+    .file-upload__preview-img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: var(--border-radius-md);
+      border: 1px solid var(--color-gray-200);
+    }
+    .file-upload__meta {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .file-upload__filename {
+      font-weight: var(--font-weight-semibold);
+      color: var(--color-gray-800);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+    .file-upload__progress-bar {
+      width: 100%;
+      height: 8px;
+      background-color: var(--color-gray-200);
+      border-radius: var(--border-radius-full);
+      margin-top: var(--space-2);
+      overflow: hidden;
+    }
+    .file-upload__progress-fill {
+      width: 50%;
+      height: 100%;
+      background-color: var(--color-primary-500);
+      border-radius: var(--border-radius-full);
+      transition: width 0.3s ease;
+      animation: progress-indeterminate 1.5s ease-in-out infinite;
+    }
+    @keyframes progress-indeterminate {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+    .file-upload__actions { margin-left: var(--space-4); }
+
+    /* State Management */
+    .file-upload[data-state='idle'] .file-upload__dropzone { display: flex; }
+    .file-upload[data-state='idle'] .file-upload__status { display: none; }
+
+    .file-upload[data-state='uploading'] .file-upload__dropzone,
+    .file-upload[data-state='success'] .file-upload__dropzone,
+    .file-upload[data-state='error'] .file-upload__dropzone { display: none; }
+
+    .file-upload[data-state='uploading'] .file-upload__status,
+    .file-upload[data-state='success'] .file-upload__status,
+    .file-upload[data-state='error'] .file-upload__status { display: flex; align-items: center; gap: var(--space-4); }
+
+    .file-upload[data-state='uploading'] .file-upload__progress-bar { display: block; }
+    .file-upload[data-state='success'] .file-upload__progress-bar,
+    .file-upload[data-state='error'] .file-upload__progress-bar { display: none; }
+
+    /* Image Preview Variant States */
+    .file-upload--image-preview[data-state='uploading'] {
+      border-style: solid;
+      padding: var(--space-4);
+    }
+    .file-upload--image-preview[data-state='uploading'] .file-upload__status {
+      flex-direction: column;
+      text-align: center;
+    }
+    .file-upload--image-preview[data-state='uploading'] .file-upload__preview-wrapper {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: var(--space-3);
+    }
+    .file-upload--image-preview[data-state='uploading'] .file-upload__preview-img {
+      opacity: 0.5;
+    }
+    .file-upload--image-preview[data-state='uploading'] .spinner {
+      position: absolute;
+      color: var(--color-primary-500);
+    }
+    .file-upload--image-preview[data-state='success'] {
+      padding: var(--space-2);
+      border: 1px solid var(--color-gray-200);
+      border-style: solid;
+      width: fit-content;
+    }
+    .file-upload--image-preview[data-state='success'] .file-upload__preview-wrapper {
+      position: relative;
+    }
+    .file-upload--image-preview[data-state='success'] .file-upload__preview-img {
+      width: 120px;
+      height: 120px;
+    }
+    .file-upload--image-preview[data-state='success'] .file-upload__actions {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+    }
+    .file-upload--image-preview[data-state='error'] {
+      border-style: solid;
+    }
+
+    /* Responsive Adaptations */
+    @media (max-width: 768px) {
+      .file-upload { width: 100%; }
+      .state-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"/></symbol>
+      <symbol id="icon-check-circle" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></symbol>
+      <symbol id="icon-error-circle" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></symbol>
+      <symbol id="icon-remove" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></symbol>
+    </defs>
+  </svg>
+
+  <main class="showcase">
+    <section class="component-section">
+      <h2>FileUpload Component</h2>
+      <div id="variants">
+        <div>
+            <h3>Variant Name: Single File Upload</h3>
+            <p>For uploading generic documents like CSV, PDF, etc. Shows file metadata and progress.</p>
+        </div>
+        <div class="state-grid">
+            <div class="state-container">
+                <h3>Idle State</h3>
+                <p>The default state, prompting the user to select a file.</p>
+                <div class="file-upload" data-state="idle">
+                    <label for="file-input-1" class="file-upload__dropzone">
+                        <span class="file-upload__icon"><svg class="icon"><use href="#icon-upload"/></svg></span>
+                        <div>
+                            <span class="file-upload__prompt-title">Click to upload or drag and drop</span>
+                            <p class="file-upload__prompt-text">CSV or XLSX (max. 5MB)</p>
+                        </div>
+                    </label>
+                    <input type="file" id="file-input-1" class="file-upload__input" aria-label="Upload single file">
+                </div>
+            </div>
+            <div class="state-container">
+                <h3>Uploading State</h3>
+                <p>Shows an indeterminate progress bar while the file is being uploaded.</p>
+                <div class="file-upload" data-state="uploading">
+                    <div class="file-upload__status">
+                        <div class="file-upload__meta">
+                            <span class="file-upload__filename">vendor_catalog.csv</span>
+                            <div class="file-upload__progress-bar">
+                                <div class="file-upload__progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="state-container">
+                <h3>Success State</h3>
+                <p>Confirms the file has been uploaded successfully.</p>
+                <div class="file-upload" data-state="success">
+                    <div class="file-upload__status">
+                         <span style="font-size: 32px; color: var(--color-success);"><svg class="icon"><use href="#icon-check-circle"/></svg></span>
+                        <div class="file-upload__meta">
+                            <span class="file-upload__filename">vendor_catalog.csv</span>
+                            <span style="font-size: var(--fs-caption); color: var(--color-gray-500);">Upload complete</span>
+                        </div>
+                        <div class="file-upload__actions">
+                            <button class="btn btn--icon-only btn--secondary" aria-label="Remove file">
+                                <svg class="icon" style="font-size: 20px;"><use href="#icon-remove"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="state-container">
+                <h3>Error State</h3>
+                <p>Indicates that the upload failed and provides an error message.</p>
+                <div class="file-upload" data-state="error">
+                    <div class="file-upload__status" style="display: block;">
+                         <div class="alert alert--error" role="alert">
+                            <div class="alert__icon"><svg class="icon"><use href="#icon-error-circle"/></svg></div>
+                            <div class="alert__content">
+                                <div class="alert__title">Upload Failed</div>
+                                <span>Invalid file type.</span>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: var(--space-7);">
+             <h3>Variant Name: Image Upload with Preview</h3>
+             <p>A specialized uploader for images that displays a thumbnail preview during and after the upload process.</p>
+        </div>
+         <div class="state-grid">
+            <div class="state-container">
+                <h3>Idle State</h3>
+                <p>The default state for the image uploader.</p>
+                <div class="file-upload file-upload--image-preview" data-state="idle">
+                    <label for="file-input-2" class="file-upload__dropzone">
+                        <span class="file-upload__icon"><svg class="icon"><use href="#icon-upload"/></svg></span>
+                        <div>
+                            <span class="file-upload__prompt-title">Upload Image</span>
+                            <p class="file-upload__prompt-text">PNG or JPG (max. 5MB)</p>
+                        </div>
+                    </label>
+                    <input type="file" id="file-input-2" class="file-upload__input" accept="image/png, image/jpeg" aria-label="Upload image with preview">
+                </div>
+            </div>
+             <div class="state-container">
+                <h3>Uploading State</h3>
+                <p>Shows a dimmed preview of the image with a spinner overlay.</p>
+                <div class="file-upload file-upload--image-preview" data-state="uploading">
+                    <div class="file-upload__status">
+                        <div class="file-upload__preview-wrapper">
+                            <img src="https://via.placeholder.com/120x120.png/E9EDF2/BCC4CF?text=+" alt="Uploading preview" class="file-upload__preview-img">
+                            <div class="spinner"></div>
+                        </div>
+                        <span class="file-upload__filename">product-image.jpg</span>
+                    </div>
+                </div>
+            </div>
+            <div class="state-container">
+                <h3>Success State</h3>
+                <p>Shows the final image preview with an action to remove it.</p>
+                <div class="file-upload file-upload--image-preview" data-state="success">
+                    <div class="file-upload__status">
+                        <div class="file-upload__preview-wrapper">
+                           <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?ixlib=rb-4.0.3&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=200&fit=max" alt="Uploaded product image" class="file-upload__preview-img">
+                            <div class="file-upload__actions">
+                                <button class="btn btn--icon-only btn--danger" style="border-radius: 50%; padding: 4px;" aria-label="Remove image">
+                                    <svg class="icon" style="font-size: 16px;"><use href="#icon-remove"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="state-container">
+                <h3>Error State</h3>
+                <p>Indicates a failure and allows the user to retry.</p>
+                 <div class="file-upload file-upload--image-preview" data-state="error">
+                    <div class="file-upload__status">
+                         <div class="alert alert--error" role="alert">
+                            <div class="alert__icon"><svg class="icon"><use href="#icon-error-circle"/></svg></div>
+                            <div class="alert__content">
+                                <div class="alert__title">Upload Failed</div>
+                                <span>File is too large.</span>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </div>
+    </section>
+  </main>
+  
+  <div id="component-variations" style="display: none;">
+    <h2>Component Variations</h2>
+    <div>
+      <h3>Variant Name: single-file</h3>
+      <p>A simple file uploader for generic documents. Shows file name and status.</p>
+      <div class="file-upload" data-state="idle">
+          <label for="file-input-var-1" class="file-upload__dropzone">
+              <span class="file-upload__icon"><svg class="icon"><use href="#icon-upload"/></svg></span>
+              <div>
+                  <span class="file-upload__prompt-title">Click to upload</span>
+              </div>
+          </label>
+          <input type="file" id="file-input-var-1" class="file-upload__input" aria-label="Upload single file">
+      </div>
+    </div>
+    <div>
+      <h3>Variant Name: image-upload-with-preview</h3>
+      <p>A specialized uploader for images that shows a preview of the selected file.</p>
+      <div class="file-upload file-upload--image-preview" data-state="idle">
+          <label for="file-input-var-2" class="file-upload__dropzone">
+              <span class="file-upload__icon"><svg class="icon"><use href="#icon-upload"/></svg></span>
+              <div>
+                  <span class="file-upload__prompt-title">Upload Image</span>
+              </div>
+          </label>
+          <input type="file" id="file-input-var-2" class="file-upload__input" accept="image/png, image/jpeg" aria-label="Upload image with preview">
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

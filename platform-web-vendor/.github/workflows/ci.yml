@@ -1,0 +1,113 @@
+# This GitHub Actions workflow defines the Continuous Integration (CI) pipeline
+# for the Vendor Web Dashboard application.
+
+name: Vendor Dashboard CI
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This job runs linters and formatters to check code quality
+  quality_checks:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npm run lint
+
+  # This job runs all unit and integration tests
+  unit_tests:
+    name: Unit & Integration Tests
+    runs-on: ubuntu-latest
+    needs: quality_checks
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # Optional: for private repos
+
+  # This job builds the application to ensure it compiles successfully
+  build_app:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: unit_tests
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build production application
+        run: npm run build
+        env:
+          VITE_API_BASE_URL: https://api.staging.your-platform.com/api/v1
+          VITE_WEBSOCKET_URL: wss://api.staging.your-platform.com
+
+      - name: Archive production build
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+  # Optional: This job runs end-to-end tests using Cypress
+  e2e_tests:
+    name: End-to-End Tests
+    runs-on: ubuntu-latest
+    needs: build_app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+          
+      - name: Install dependencies
+        run: npm install
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm run dev
+          wait-on: 'http://localhost:5173'

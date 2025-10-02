@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FormGroup Component</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    body, h1, h2, p { margin: 0; }
+    input, button, textarea, select { font: inherit; }
+
+    /* Design System Tokens */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-weight-regular: 400;
+      --font-weight-semibold: 600;
+      --fs-body: 16px;
+      --lh-body: 1.6;
+      --fs-caption: 14px;
+      --lh-caption: 1.5;
+
+      /* Colors */
+      --color-primary-500: #0068FF;
+      --color-primary-100: #E6F0FF;
+      --color-gray-50: #F7F9FC;
+      --color-gray-100: #E9EDF2;
+      --color-gray-200: #D3D9E1;
+      --color-gray-300: #BCC4CF;
+      --color-gray-700: #555D66;
+      --color-gray-800: #383E44;
+      --color-error: #FF4D4D;
+
+      /* Spacing */
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+
+    /* Base & Layout Styles */
+    body {
+      font-family: var(--font-family-primary);
+      font-size: var(--fs-body);
+      line-height: var(--lh-body);
+      background-color: var(--color-gray-50);
+      color: var(--color-gray-800);
+      padding: var(--space-6);
+    }
+    .showcase {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: white;
+      padding: var(--space-6);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-sm);
+    }
+    h1 { font-size: 28px; margin-bottom: var(--space-2); }
+    p { color: var(--color-gray-700); margin-bottom: var(--space-5); }
+    .state-group { margin-bottom: var(--space-5); }
+    .state-group h2 { font-size: 20px; margin-bottom: var(--space-4); border-bottom: 1px solid var(--color-gray-100); padding-bottom: var(--space-2); }
+    
+    /* FormGroup Component CSS */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: var(--space-4); /* Vertical stacking space */
+    }
+
+    /* Dependent Atomic Component Styles */
+    .label {
+      display: block;
+      font-weight: var(--font-weight-semibold);
+      margin-bottom: var(--space-2);
+      color: var(--color-gray-700);
+      font-size: 14px;
+    }
+
+    .label--required::after {
+      content: '*';
+      color: var(--color-error);
+      margin-left: 4px;
+    }
+
+    .input {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      border: 1px solid var(--color-gray-300);
+      border-radius: var(--border-radius-md);
+      background-color: white;
+      font-size: var(--fs-body);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .input:focus-visible {
+      border: 2px solid var(--color-primary-500);
+      padding: calc(var(--space-3) - 1px) calc(var(--space-4) - 1px);
+      outline: none;
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+    }
+
+    .input:disabled {
+      background-color: var(--color-gray-100);
+      border-color: var(--color-gray-200);
+      cursor: not-allowed;
+    }
+
+    .input--error {
+      border-color: var(--color-error);
+      border-width: 2px;
+      padding: calc(var(--space-3) - 1px) calc(var(--space-4) - 1px);
+    }
+
+    .input--error:focus-visible {
+      border-color: var(--color-error);
+      box-shadow: 0 0 0 3px #FFEBEB;
+    }
+
+    textarea.input {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .error-message {
+      font-size: var(--fs-caption);
+      line-height: var(--lh-caption);
+      color: var(--color-error);
+      margin-top: var(--space-2);
+    }
+
+  </style>
+</head>
+<body>
+  <main class="showcase">
+    <h1>FormGroup Component</h1>
+    <p>The FormGroup component orchestrates the relationship between a label, an input, and an optional error message, ensuring consistent spacing and accessibility.</p>
+
+    <div class="state-group">
+        <h2>Default State</h2>
+        <!-- 
+          - The <label> `for` attribute must match the <input> `id`.
+          - This programmatically links them for accessibility.
+        -->
+        <div class="form-group">
+            <label class="label" for="full-name">Full Name</label>
+            <input class="input" type="text" id="full-name" placeholder="Enter your full name">
+        </div>
+    </div>
+
+    <div class="state-group">
+        <h2>Required State</h2>
+        <div class="form-group">
+            <label class="label label--required" for="business-name">Business Name</label>
+            <input class="input" type="text" id="business-name" placeholder="e.g., Global Bites Kitchen">
+        </div>
+    </div>
+    
+    <div class="state-group">
+        <h2>Error State</h2>
+        <!--
+          - The <input> gets `aria-invalid="true"`.
+          - The `error-message` div is added with an `id`.
+          - The <input> `aria-describedby` attribute must match the `error-message` id.
+          - This tells screen readers to announce the error message when the input is focused.
+        -->
+        <div class="form-group form-group--error">
+            <label class="label label--required" for="email-address">Email Address</label>
+            <input class="input input--error" type="email" id="email-address" value="invalid-email" aria-invalid="true" aria-describedby="email-error">
+            <div class="error-message" id="email-error">
+                Please enter a valid email address.
+            </div>
+        </div>
+    </div>
+
+    <div class="state-group">
+        <h2>Disabled State</h2>
+        <div class="form-group">
+            <label class="label">Mobile Number (Non-editable)</label>
+            <input class="input" type="text" value="+91 98765 43210" disabled>
+        </div>
+    </div>
+
+    <div class="state-group">
+      <h2>With Textarea</h2>
+      <div class="form-group">
+          <label class="label" for="description">Product Description</label>
+          <textarea class="input" id="description" placeholder="Describe the product..."></textarea>
+      </div>
+  </div>
+
+  </main>
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Default<h3>
+		<normal> Standard grouping of a label and an input field. Used for most simple data entry tasks. Provides vertical spacing and accessibility linkage. </normal>
+		<div class="form-group">
+            <label class="label" for="default-input">Default Field</label>
+            <input class="input" type="text" id="default-input" placeholder="Enter text...">
+        </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Error<h3>
+		<normal> Used when form validation fails for a specific field. It includes a visible error message linked to the input via ARIA attributes, and the input field is styled to indicate an error. </normal>
+		<div class="form-group form-group--error">
+            <label class="label label--required" for="error-input">Field with Error</label>
+            <input class="input input--error" type="text" id="error-input" value="Invalid input" aria-invalid="true" aria-describedby="field-error-msg">
+            <div class="error-message" id="field-error-msg">
+                This field has an error.
+            </div>
+        </div>     
+		
+      <div>
+	 </div>    
+	
+	</body>
+</html>

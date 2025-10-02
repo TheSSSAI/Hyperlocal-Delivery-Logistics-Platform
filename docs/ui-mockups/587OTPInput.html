@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OTPInput Component</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Mono:wght@600&display=swap" rel="stylesheet">
+  <style>
+    /* Design System Tokens & Base Styles */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', sans-serif;
+      --font-family-monospace: 'Roboto Mono', monospace;
+      --font-size-h3: 28px;
+      --font-size-h4: 20px;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      --font-weight-body: 400;
+      --font-weight-h3: 600;
+
+      /* Colors */
+      --color-primary-100: #B8D4FF;
+      --color-primary-500: #0068FF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-500: #8E9BAA;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      
+      /* Spacing */
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+      --space-48: 48px;
+
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-900);
+      margin: 0;
+      padding: var(--space-32);
+    }
+    
+    .showcase {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .component-section {
+        background-color: white;
+        padding: var(--space-32);
+        margin-bottom: var(--space-32);
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-sm);
+    }
+
+    h2 {
+        font-size: var(--font-size-h3);
+        margin: 0 0 var(--space-24) 0;
+    }
+
+    h3 {
+        font-size: var(--font-size-h4);
+        margin: var(--space-32) 0 var(--space-16) 0;
+        border-top: 1px solid #eee;
+        padding-top: var(--space-24);
+    }
+
+    .form-group {
+        text-align: center;
+    }
+
+    .label {
+      display: block;
+      font-size: var(--font-size-body);
+      font-weight: 600;
+      color: var(--color-neutrals-gray-700);
+      margin-bottom: var(--space-8);
+    }
+
+    .instructions, .error-message {
+      font-size: var(--font-size-caption);
+      color: var(--color-neutrals-gray-500);
+      margin-top: var(--space-16);
+      min-height: 20px;
+    }
+
+    .error-message {
+        color: var(--color-semantic-error);
+    }
+    
+    /* OTPInput Component CSS */
+    .otp-input {
+      display: flex;
+      gap: var(--space-12);
+      justify-content: center;
+    }
+    
+    .otp-input__field {
+      width: 48px;
+      height: 56px;
+      border: 1px solid var(--color-neutrals-gray-300);
+      border-radius: var(--border-radius-md);
+      font-family: var(--font-family-monospace);
+      font-size: var(--font-size-h3);
+      font-weight: var(--font-weight-h3);
+      text-align: center;
+      color: var(--color-neutrals-gray-900);
+      caret-color: var(--color-primary-500);
+      transition: all var(--transition-fast);
+      /* Remove spinners from number input */
+      -moz-appearance: textfield;
+    }
+    
+    .otp-input__field::-webkit-outer-spin-button,
+    .otp-input__field::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    
+    /* States */
+    .otp-input__field:focus {
+      outline: none;
+      border: 2px solid var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+      /* Adjust padding to keep size consistent with border change */
+      padding: 0; 
+      margin: -1px;
+    }
+    
+    .otp-input.is-error .otp-input__field {
+      border-color: var(--color-semantic-error);
+    }
+    
+    .otp-input.is-error .otp-input__field:focus {
+      box-shadow: 0 0 0 3px #ffdddd;
+      border-color: var(--color-semantic-error);
+    }
+        
+    .otp-input__field:not(:placeholder-shown) {
+      border-color: var(--color-neutrals-gray-500);
+    }
+
+    /* Responsive Adaptations */
+    @media (max-width: 480px) {
+      .otp-input {
+        gap: var(--space-8);
+      }
+      .otp-input__field {
+        width: 40px;
+        height: 48px;
+        font-size: var(--font-size-h4);
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="showcase">
+    <div class="component-section">
+      <h2>OTPInput Component</h2>
+      <p style="text-align: center; color: var(--color-neutrals-gray-700);">A molecular component for entering One-Time Passwords. It handles focus management and pasting automatically. Try typing, backspacing, and pasting a code.</p>
+
+      <div>
+        <h3>Default (4-digit)</h3>
+        <div class="form-group">
+          <label for="otp1-1" class="label">Enter Verification Code</label>
+          <div class="otp-input" id="otp1" data-digits="4">
+            <input type="text" inputmode="numeric" maxlength="1" id="otp1-1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 1">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 2">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 3">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 4">
+          </div>
+          <p class="instructions" id="otp1-instructions">A 4-digit code was sent to your mobile.</p>
+        </div>
+      </div>
+      
+      <div>
+        <h3>Focus State (6-digit)</h3>
+        <div class="form-group">
+          <label for="otp2-1" class="label">Enter 6-Digit Code</label>
+          <div class="otp-input" id="otp2" data-digits="6">
+            <input type="text" inputmode="numeric" maxlength="1" id="otp2-1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 1">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 2">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 3">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 4">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 5">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 6">
+          </div>
+           <p class="instructions">This example is auto-focused for demonstration.</p>
+        </div>
+      </div>
+
+      <div>
+        <h3>Filled State (4-digit)</h3>
+        <div class="form-group">
+          <label for="otp3-1" class="label">Previously Entered Code</label>
+          <div class="otp-input" id="otp3" data-digits="4">
+            <input type="text" inputmode="numeric" maxlength="1" id="otp3-1" class="otp-input__field" value="1" aria-label="OTP Digit 1">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" value="2" aria-label="OTP Digit 2">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" value="3" aria-label="OTP Digit 3">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" value="4" aria-label="OTP Digit 4">
+          </div>
+           <p class="instructions">Shows how the component looks when filled.</p>
+        </div>
+      </div>
+
+      <div>
+        <h3>Error State (6-digit)</h3>
+        <div class="form-group">
+          <label for="otp4-1" class="label">Re-enter your code</label>
+          <div class="otp-input is-error" id="otp4" data-digits="6" aria-describedby="otp4-error">
+            <input type="text" inputmode="numeric" maxlength="1" id="otp4-1" class="otp-input__field" value="9" aria-label="OTP Digit 1">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" value="8" aria-label="OTP Digit 2">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" value="7" aria-label="OTP Digit 3">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" value="6" aria-label="OTP Digit 4">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" value="5" aria-label="OTP Digit 5">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" value="4" aria-label="OTP Digit 6">
+          </div>
+           <p class="error-message" id="otp4-error" role="alert">Invalid OTP. Please try again.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const otpContainers = document.querySelectorAll('.otp-input');
+
+        otpContainers.forEach(container => {
+            const inputs = [...container.children];
+            const numDigits = parseInt(container.dataset.digits, 10);
+
+            inputs.forEach((input, index) => {
+                input.addEventListener('input', (e) => {
+                    // On input, if a value is entered and it's not the last input, focus the next one.
+                    if (input.value && index < numDigits - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener('keydown', (e) => {
+                    // On backspace, if the input is empty, move focus to the previous input.
+                    if (e.key === 'Backspace' && !input.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+
+                input.addEventListener('paste', (e) => {
+                    e.preventDefault();
+                    const pasteData = e.clipboardData.getData('text').trim();
+                    if (!/^\d+$/.test(pasteData)) return; // Only allow numeric pastes
+
+                    const pasteChars = pasteData.split('');
+                    for (let i = 0; i < Math.min(pasteChars.length, numDigits - index); i++) {
+                        inputs[index + i].value = pasteChars[i];
+                    }
+
+                    // Focus the next available empty input or the last input
+                    const nextFocusIndex = Math.min(index + pasteChars.length, numDigits - 1);
+                    inputs[nextFocusIndex].focus();
+                });
+            });
+        });
+        
+        // Auto-focus the first input of the "Focus State" example
+        const focusExampleInput = document.querySelector('#otp2-1');
+        if(focusExampleInput) {
+            focusExampleInput.focus();
+        }
+    });
+  </script>
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "4-digit"<h3>
+		<normal> Standard 4-digit OTP input for quick verification. </normal>
+		<div class="form-group">
+          <div class="otp-input" data-digits="4">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 1">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 2">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 3">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 4">
+          </div>
+        </div>
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "6-digit"<h3>
+		<normal> Extended 6-digit OTP input for higher security requirements. </normal>
+		<div class="form-group">
+          <div class="otp-input" data-digits="6">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 1">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 2">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 3">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 4">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 5">
+            <input type="text" inputmode="numeric" maxlength="1" class="otp-input__field" placeholder="-" aria-label="OTP Digit 6">
+          </div>
+        </div>
+      <div>
+	 </div>    
+</body>
+</html>

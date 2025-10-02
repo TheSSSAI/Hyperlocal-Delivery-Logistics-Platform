@@ -1,0 +1,62 @@
+flowchart TD
+    subgraph Customer Actions
+        A[Customer Places Order] --> B{Payment Success?}
+        B -->|No| C[Order Fails]
+        B -->|Yes| D(Order Created<br>Status: Pending Vendor Acceptance)
+
+        subgraph "Cancellation Paths"
+            D -.-> E{Cancel within 60s?}
+            E -->|Yes| F[Order Cancelled<br>Full Refund Processed]
+            E -->|No| G{Cancel after<br>Rider Assigned?}
+            G -->|Yes| H[Order Cancelled<br>Fee Applied & Partial Refund]
+        end
+
+        I[Customer Receives 'Delivered' Notification] --> J[Customer Rates<br>Vendor & Rider]
+    end
+
+    subgraph Vendor Actions
+        D --> K[Vendor Receives New Order<br>with 5-min timer]
+        K --> L{Vendor Action?}
+        L -->|Accepts| M[Vendor Selects Prep Time] --> N(Status: Preparing)
+        L -->|Rejects| O[Vendor Rejects Order]
+        L -- Timeout --> P[System Auto-Rejects Order]
+        N --> Q[Vendor Marks 'Ready for Pickup'] --> R(Status: Ready for Pickup)
+    end
+
+    subgraph System Logistics
+        R --> S[Rider Allocation Triggered]
+        S --> T{Find Rider in 3 attempts?}
+        T -->|No| U(Status: Allocation Failed) --> V[Alerts Admin]
+        T -->|Yes| W(Rider Assigned)
+    end
+
+    subgraph Rider Actions
+        W --> X[Rider Accepts Task]
+        X --> Y[Rider Navigates to Vendor] --> Z[Rider Arrives at Store]
+        Z --> AA[Rider Marks 'Picked Up'] --> BB(Status: In Transit)
+        BB --> CC[Rider Navigates to Customer<br>Live Tracking Starts]
+        CC --> DD[Rider Arrives at Destination]
+        DD --> EE[Rider Completes POD] --> FF[Rider Marks 'Delivered']
+        FF --> GG(Status: Delivered)
+    end
+
+    %% Flow Connections
+    GG --> I
+
+    %% Shared Final States
+    F --> FinalCancelled([Cancelled])
+    H --> FinalCancelled
+    O --> FinalCancelled
+    P --> FinalCancelled
+    V -.-> FinalFailed([Failed])
+
+    %% Styling
+    classDef stateNode fill:#e3f2fd,stroke:#2196f3,color:#000
+    classDef actionNode fill:#fff,stroke:#444
+    classDef successNode fill:#e8f5e9,stroke:#4caf50,color:#000
+    classDef failureNode fill:#ffebee,stroke:#d32f2f,color:#000
+
+    class D,N,R,W,BB,GG,U stateNode
+    class A,M,Q,X,Y,Z,AA,CC,DD,EE,FF,J actionNode
+    class J,GG,I successNode
+    class C,O,P,F,H,FinalCancelled,V,FinalFailed failureNode

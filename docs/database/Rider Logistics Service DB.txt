@@ -1,0 +1,97 @@
+-- Enable necessary extensions for UUID generation and Geospatial data types
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+-- Table to store profile, vehicle, and operational information for Riders
+CREATE TABLE "RiderProfile" (
+    "riderProfileId" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "userId" UUID NOT NULL,
+    "firstName" VARCHAR(100) NOT NULL,
+    "lastName" VARCHAR(100) NOT NULL,
+    "vehicleDetails" JSONB DEFAULT '{}',
+    -- NOTE: bankAccountDetails should be encrypted at the application layer before storing.
+    "bankAccountDetails" TEXT,
+    "documentUrls" JSONB DEFAULT '{}',
+    "averageRating" DECIMAL(3, 2) NOT NULL DEFAULT 0.0 CHECK ("averageRating" >= 0 AND "averageRating" <= 5),
+    "cashInHand" DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    "isOnline" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "UC_RiderProfile_UserId" UNIQUE ("userId")
+);
+
+-- Indexes for RiderProfile
+CREATE INDEX "IX_RiderProfile_FullName" ON "RiderProfile" ("firstName", "lastName");
+CREATE INDEX "IX_RiderProfile_Online_Rating" ON "RiderProfile" ("isOnline", "averageRating");
+
+-- Table for the logistics task of delivering an order, assigned to a rider
+CREATE TABLE "DeliveryTask" (
+    "deliveryTaskId" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "orderId" UUID NOT NULL,
+    "riderId" UUID,
+    "status" VARCHAR(30) NOT NULL DEFAULT 'PENDING_ALLOCATION' CHECK ("status" IN ('PENDING_ALLOCATION', 'OFFERED', 'ACCEPTED', 'AT_STORE', 'PICKED_UP', 'AT_DESTINATION', 'DELIVERED', 'FAILED')),
+    "earnings" DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    "tip" DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+    "pickedUpAt" TIMESTAMPTZ,
+    "deliveredAt" TIMESTAMPTZ,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "UC_DeliveryTask_OrderId" UNIQUE ("orderId")
+);
+
+-- Indexes for DeliveryTask
+CREATE INDEX "IX_DeliveryTask_RiderId_Status" ON "DeliveryTask" ("riderId", "status");
+CREATE INDEX "IX_DeliveryTask_Status_CreatedAt" ON "DeliveryTask" ("status", "createdAt");
+
+-- Table to store evidence of a completed delivery, such as a photo or OTP
+CREATE TABLE "ProofOfDelivery" (
+    "podId" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "deliveryTaskId" UUID NOT NULL,
+    "podType" VARCHAR(10) NOT NULL CHECK ("podType" IN ('PHOTO', 'OTP')),
+    "podData" VARCHAR(2048) NOT NULL,
+    "latitude" DECIMAL(9, 6) NOT NULL,
+    "longitude" DECIMAL(9, 6) NOT NULL,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "UC_ProofOfDelivery_DeliveryTaskId" UNIQUE ("deliveryTaskId")
+);
+
+-- Table to define geofenced areas where the service is available
+CREATE TABLE "OperationalZone" (
+    "zoneId" UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    "name" VARCHAR(100) NOT NULL,
+    "geoPolygon" GEOMETRY(Polygon, 4326) NOT NULL, -- Using SRID 4326 for WGS 84
+    "deliveryRadiusKm" DECIMAL(5, 2) NOT NULL DEFAULT 7.0,
+    "isActive" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "UC_OperationalZone_Name" UNIQUE ("name")
+);
+
+-- Spatial index for OperationalZone
+CREATE INDEX "IX_OperationalZone_GeoPolygon" ON "OperationalZone" USING GIST ("geoPolygon");
+
+-- Source-of-truth table for a rider's GPS location
+CREATE TABLE "RiderLocationHistory" (
+    "locationId" BIGSERIAL PRIMARY KEY,
+    "riderId" UUID NOT NULL,
+    "latitude" DECIMAL(9, 6) NOT NULL,
+    "longitude" DECIMAL(9, 6) NOT NULL,
+    "accuracy" FLOAT,
+    "timestamp" TIMESTAMPTZ NOT NULL
+);
+
+-- Index for RiderLocationHistory
+CREATE INDEX "IX_RiderLocationHistory_Rider_Timestamp" ON "RiderLocationHistory" ("riderId", "timestamp");
+
+-- Foreign Key Constraints
+ALTER TABLE "DeliveryTask"
+ADD CONSTRAINT "FK_DeliveryTask_RiderProfile"
+FOREIGN KEY ("riderId") REFERENCES "RiderProfile"("riderProfileId");
+
+ALTER TABLE "ProofOfDelivery"
+ADD CONSTRAINT "FK_ProofOfDelivery_DeliveryTask"
+FOREIGN KEY ("deliveryTaskId") REFERENCES "DeliveryTask"("deliveryTaskId");
+
+ALTER TABLE "RiderLocationHistory"
+ADD CONSTRAINT "FK_RiderLocationHistory_RiderProfile"
+FOREIGN KEY ("riderId") REFERENCES "RiderProfile"("riderProfileId");

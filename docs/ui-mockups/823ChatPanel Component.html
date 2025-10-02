@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChatPanel Component</title>
+  <style>
+    /* CSS Reset */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+   
+    /* Design System Tokens */
+    :root {
+      /* Typography */
+      --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+      --font-weight-regular: 400;
+      --font-weight-medium: 500;
+      --font-weight-semibold: 600;
+
+      /* Colors */
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-50: #E6F0FF;
+      
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-200: #D3D9E1;
+      --color-neutrals-gray-500: #8E9BAA;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-info: #0068FF;
+      
+      /* Spacing */
+      --space-4: 4px;
+      --space-8: 8px;
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      
+      /* Borders */
+      --border-radius-sm: 4px;
+      --border-radius-md: 8px;
+      --border-radius-lg: 16px;
+      --border-radius-full: 9999px;
+      
+      /* Shadows */
+      --shadow-md: 0px 4px 8px -2px rgba(28, 31, 34, 0.1), 0px 2px 4px -2px rgba(28, 31, 34, 0.06);
+    }
+
+    body {
+      font-family: var(--font-primary);
+      background-color: var(--color-neutrals-gray-100);
+      color: var(--color-neutrals-gray-900);
+      padding: var(--space-24);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 48px;
+    }
+
+    /* Screen Container for Demo */
+    .screen-container {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    /* ChatPanel Component */
+    .chat-panel {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 700px;
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .chat-panel__header {
+      padding: var(--space-16);
+      border-bottom: 1px solid var(--color-neutrals-gray-100);
+      text-align: center;
+      font-weight: var(--font-weight-semibold);
+      flex-shrink: 0;
+    }
+
+    .chat-panel__messages {
+      flex-grow: 1;
+      overflow-y: auto;
+      padding: var(--space-16);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-12);
+    }
+    
+    .chat-panel__input-area {
+      flex-shrink: 0;
+      border-top: 1px solid var(--color-neutrals-gray-100);
+      background-color: var(--color-neutrals-gray-50);
+    }
+    
+    /* Quick Replies */
+    .quick-replies {
+      display: flex;
+      gap: var(--space-8);
+      padding: var(--space-12) var(--space-16);
+      overflow-x: auto;
+      -ms-overflow-style: none; /* IE and Edge */
+      scrollbar-width: none; /* Firefox */
+    }
+    .quick-replies::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
+    
+    .quick-reply-chip {
+      background-color: var(--color-neutrals-white);
+      border: 1px solid var(--color-neutrals-gray-200);
+      padding: var(--space-8) var(--space-12);
+      border-radius: var(--border-radius-full);
+      font-size: var(--font-size-caption);
+      color: var(--color-primary-600);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background-color 0.2s ease;
+    }
+    
+    .quick-reply-chip:hover {
+        background-color: var(--color-primary-50);
+    }
+
+    /* Message Composer */
+    .chat-panel__composer {
+      display: flex;
+      align-items: center;
+      gap: var(--space-12);
+      padding: var(--space-12) var(--space-16);
+    }
+    
+    .chat-panel__text-input {
+      flex-grow: 1;
+      border: 1px solid var(--color-neutrals-gray-200);
+      border-radius: var(--border-radius-full);
+      padding: var(--space-12) var(--space-16);
+      font-size: var(--font-size-body);
+      background-color: var(--color-neutrals-white);
+    }
+    
+    .chat-panel__text-input:focus {
+      outline: none;
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-50);
+    }
+
+    .chat-panel__send-btn {
+      flex-shrink: 0;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    .chat-panel__send-btn:hover {
+      background-color: var(--color-primary-600);
+    }
+    .chat-panel__send-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* Message Bubble Component */
+    .message-bubble {
+      max-width: 80%;
+      padding: var(--space-12) var(--space-16);
+      border-radius: var(--border-radius-lg);
+      line-height: 1.5;
+    }
+    
+    .message-bubble--sent {
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+      border-bottom-right-radius: var(--border-radius-sm);
+      align-self: flex-end;
+    }
+
+    .message-bubble--received {
+      background-color: var(--color-neutrals-gray-100);
+      color: var(--color-neutrals-gray-900);
+      border-bottom-left-radius: var(--border-radius-sm);
+      align-self: flex-start;
+    }
+
+    .message-meta {
+      font-size: 12px;
+      color: var(--color-neutrals-gray-500);
+      margin-top: var(--space-4);
+    }
+
+    .message-bubble--received + .message-meta {
+      text-align: left;
+    }
+    .message-bubble--sent + .message-meta {
+      text-align: right;
+    }
+
+
+    /* Loading State */
+    .chat-panel.is-loading .chat-panel__messages {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .skeleton-bubble {
+      height: 48px;
+      width: 60%;
+      border-radius: var(--border-radius-lg);
+      background: linear-gradient(90deg, var(--color-neutrals-gray-100) 25%, var(--color-neutrals-gray-200) 50%, var(--color-neutrals-gray-100) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    .skeleton-bubble.sent {
+      align-self: flex-end;
+      width: 70%;
+    }
+    .skeleton-bubble.received {
+      align-self: flex-start;
+    }
+    .skeleton-bubble.short {
+        width: 40%;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: 200% 0;
+      }
+      100% {
+        background-position: -200% 0;
+      }
+    }
+    
+    .chat-panel.is-loading .chat-panel__input-area {
+        filter: blur(4px);
+        pointer-events: none;
+    }
+
+    /* Read-Only State */
+    .chat-panel.is-readonly .chat-panel__input-area {
+      display: none;
+    }
+    .chat-panel__readonly-overlay {
+      display: none;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: var(--space-16);
+      background: linear-gradient(to top, var(--color-neutrals-white) 50%, transparent);
+      text-align: center;
+    }
+    .chat-panel.is-readonly .chat-panel__readonly-overlay {
+      display: block;
+    }
+    .readonly-message {
+      background-color: var(--color-neutrals-gray-100);
+      padding: var(--space-8) var(--space-16);
+      border-radius: var(--border-radius-full);
+      color: var(--color-neutrals-gray-700);
+      font-size: var(--font-size-caption);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-8);
+    }
+    
+    /* Variations Demo Styling */
+    .screen-variations {
+        margin-top: 48px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        align-items: center;
+    }
+    .variation-group {
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+    }
+    .variation-group h3 {
+        margin-bottom: 16px;
+        font-weight: 600;
+        color: var(--color-neutrals-gray-700);
+    }
+    .variation-group p {
+        margin-bottom: 24px;
+        color: var(--color-neutrals-gray-500);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="screen-container">
+    <div class="chat-panel">
+      <header class="chat-panel__header">
+        Chat with Priya S. (Order #ABC-123)
+      </header>
+      <main class="chat-panel__messages">
+        <div class="message-bubble message-bubble--sent">
+          Hi Priya, I'm at the main gate. Can you let me know the flat number?
+        </div>
+        <div class="message-meta">You • 10:32 AM</div>
+        
+        <div class="message-bubble message-bubble--received">
+          Sure! It's B-402, on the 4th floor.
+        </div>
+        <div class="message-meta">Priya S. • 10:31 AM</div>
+        
+        <div class="message-bubble message-bubble--received">
+          I'm on my way, will reach in 5 minutes.
+        </div>
+        <div class="message-meta">Priya S. • 10:25 AM</div>
+      </main>
+      <footer class="chat-panel__input-area">
+        <div class="quick-replies">
+          <button class="quick-reply-chip" type="button">I'm on my way</button>
+          <button class="quick-reply-chip" type="button">I've arrived</button>
+          <button class="quick-reply-chip" type="button">Can you share the location?</button>
+          <button class="quick-reply-chip" type="button">Thanks!</button>
+        </div>
+        <div class="chat-panel__composer">
+          <input type="text" class="chat-panel__text-input" placeholder="Type a message...">
+          <button class="chat-panel__send-btn" aria-label="Send message">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z"></path></svg>
+          </button>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <div class="screen-variations">
+    <h2>Component States</h2>
+    
+    <div class="variation-group">
+      <h3>Active State</h3>
+      <p>The default, fully interactive state of the chat panel, as shown above.</p>
+    </div>
+    
+    <div class="variation-group">
+      <h3>Loading State</h3>
+      <p>Shown when the chat history is being fetched. Uses skeleton loaders to indicate content shape.</p>
+      <div class="chat-panel is-loading">
+        <header class="chat-panel__header">
+          Chat with Priya S. (Order #ABC-123)
+        </header>
+        <main class="chat-panel__messages">
+          <div class="skeleton-bubble sent"></div>
+          <div class="skeleton-bubble received short"></div>
+          <div class="skeleton-bubble received"></div>
+        </main>
+        <footer class="chat-panel__input-area">
+            <div class="quick-replies">
+              <button class="quick-reply-chip" type="button">I'm on my way</button>
+              <button class="quick-reply-chip" type="button">I've arrived</button>
+              <button class="quick-reply-chip" type="button">Can you share the location?</button>
+            </div>
+            <div class="chat-panel__composer">
+              <input type="text" class="chat-panel__text-input" placeholder="Type a message...">
+              <button class="chat-panel__send-btn" aria-label="Send message">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3.478 2.405a.75.75 0 00-.926.94l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.405z"></path></svg>
+              </button>
+            </div>
+          </footer>
+      </div>
+    </div>
+    
+    <div class="variation-group">
+      <h3>Read-Only State</h3>
+      <p>Shown after an order is completed or cancelled. The input area is hidden and a message indicates the chat is closed.</p>
+      <div class="chat-panel is-readonly">
+        <header class="chat-panel__header">
+          Chat with Priya S. (Order #ABC-123)
+        </header>
+        <main class="chat-panel__messages">
+          <div class="message-bubble message-bubble--sent">
+            Thanks! I've left the order at your door as requested.
+          </div>
+          <div class="message-meta">You • 10:35 AM</div>
+          
+          <div class="message-bubble message-bubble--received">
+            Great, thank you!
+          </div>
+          <div class="message-meta">Priya S. • 10:34 AM</div>
+        </main>
+        <div class="chat-panel__readonly-overlay">
+          <div class="readonly-message">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"></path></svg>
+            This chat is closed.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  
+</body>
+</html>

@@ -1,0 +1,30 @@
+flowchart TD
+    subgraph User Action
+        Start[User attempts to access '/admin/users' page] --> AuthCheck{Is user role 'Administrator'?}
+    end
+
+    subgraph Authorization Flow
+        AuthCheck -->|No| PermissionDenied["Display '403 Permission Denied' Page"]
+        AuthCheck -->|Yes| LoadOrFilter[Admin loads page or applies filters]
+    end
+
+    subgraph Data Fetching Flow
+        LoadOrFilter --> APICall[Frontend requests data from GET /api/v1/admin/users]
+        APICall --> APIResponse{API call successful?}
+        APIResponse -->|No| APIError["Display 'Action failed due to API error' message"]
+        APIResponse -->|Yes| CheckResults{API returned one or more users?}
+    end
+
+    subgraph Result Display Flow
+        CheckResults -->|No| NoResultsFound["Display 'No users found' message"]
+        CheckResults -->|Yes| DisplayTable[Display user data in table]
+    end
+
+    %% Styling
+    classDef errorState fill:#ffebee,stroke:#c62828,color:#c62828,stroke-width:2px
+    classDef emptyState fill:#f5f5f5,stroke:#757575,color:#333,stroke-width:2px
+    classDef successState fill:#e8f5e9,stroke:#388e3c,color:#388e3c,stroke-width:2px
+
+    class PermissionDenied,APIError errorState
+    class NoResultsFound emptyState
+    class DisplayTable successState

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Molecular Component: Quantity Stepper</title>
+    <style>
+        /* ---------------------------------- */
+        /* --- PHASE 1: SETUP & TOKENS ------ */
+        /* ---------------------------------- */
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f8f9fa;
+            color: #212529;
+            padding: 2rem;
+        }
+        .showcase { max-width: 800px; margin: 0 auto; }
+        .component-section { margin-bottom: 2rem; padding: 1.5rem; background-color: #ffffff; border-radius: 0.75rem; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+        .component-section h2 { margin-top:0; margin-bottom: 1.5rem; }
+        .component-group { margin-bottom: 1.5rem; }
+        .component-group h3 { margin-bottom: 0.25rem; }
+        .component-group p { font-size: 0.875rem; color: #6c757d; margin-top: 0; margin-bottom: 1rem; }
+        .component-variants { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+
+        :root {
+            /* Colors */
+            --color-primary-500: #2563eb; --color-primary-600: #1d4ed8;
+            --color-neutral-50: #f8f9fa; --color-neutral-100: #f1f3f5; --color-neutral-200: #e9ecef;
+            --color-neutral-400: #ced4da; --color-neutral-600: #6c757d; --color-neutral-900: #212529;
+            --color-white: #ffffff;
+            /* Typography */
+            --font-weight-semibold: 600;
+            /* Spacing */
+            --space-xs: 0.25rem; --space-sm: 0.5rem;
+            /* Borders */
+            --border-radius-md: 0.5rem;
+            /* Transitions */
+            --transition-fast: 150ms ease-in-out;
+        }
+
+        /* ---------------------------------- */
+        /* --- Quantity Stepper Component --- */
+        /* ---------------------------------- */
+        .quantity-stepper {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid var(--color-neutral-400);
+            border-radius: var(--border-radius-md);
+            overflow: hidden; /* Clips child borders */
+        }
+
+        .quantity-stepper__btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border: none;
+            background-color: var(--color-white);
+            color: var(--color-primary-500);
+            cursor: pointer;
+            transition: background-color var(--transition-fast);
+            padding: 0;
+        }
+
+        .quantity-stepper__btn .icon {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .quantity-stepper__btn:hover:not(:disabled) {
+            background-color: var(--color-neutral-100);
+        }
+
+        .quantity-stepper__btn:focus-visible {
+            outline: 2px solid var(--color-primary-500);
+            outline-offset: -2px;
+            z-index: 1;
+        }
+
+        .quantity-stepper__btn:disabled {
+            color: var(--color-neutral-400);
+            cursor: not-allowed;
+            background-color: var(--color-neutral-50);
+        }
+
+        .quantity-stepper__input {
+            width: 50px;
+            height: 44px;
+            text-align: center;
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutral-900);
+            border: none;
+            border-left: 1px solid var(--color-neutral-400);
+            border-right: 1px solid var(--color-neutral-400);
+            padding: 0 var(--space-xs);
+            background-color: var(--color-white);
+            font-size: 1rem;
+            -moz-appearance: textfield; /* Firefox */
+        }
+
+        .quantity-stepper__input::-webkit-outer-spin-button,
+        .quantity-stepper__input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .quantity-stepper__input:focus,
+        .quantity-stepper__input:focus-visible {
+            outline: none;
+        }
+        
+        /* Fully disabled state */
+        .quantity-stepper--disabled {
+            background-color: var(--color-neutral-100);
+            cursor: not-allowed;
+            border-color: var(--color-neutral-200);
+        }
+
+        .quantity-stepper--disabled .quantity-stepper__btn {
+            background-color: var(--color-neutral-100);
+            color: var(--color-neutral-400);
+            cursor: not-allowed;
+        }
+
+        .quantity-stepper--disabled .quantity-stepper__input {
+            background-color: var(--color-neutral-100);
+            color: var(--color-neutral-600);
+            cursor: not-allowed;
+            border-color: var(--color-neutral-200);
+        }
+    </style>
+</head>
+<body>
+
+<main class="showcase">
+    <header style="text-align: center; margin-bottom: 2rem;">
+        <h1>Quantity Stepper</h1>
+    </header>
+
+    <section class="component-section">
+        <h2>States and Variations</h2>
+
+        <div class="component-group">
+            <h3>Default</h3>
+            <p>The standard interactive state where both increment and decrement are possible.</p>
+            <div class="component-variants">
+                <div role="group" aria-label="Quantity of Item 1" class="quantity-stepper">
+                    <button class="quantity-stepper__btn" aria-label="Decrease quantity">
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    <input class="quantity-stepper__input" type="text" value="5" readonly aria-live="polite" inputmode="numeric">
+                    <button class="quantity-stepper__btn" aria-label="Increase quantity">
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="component-group">
+            <h3>Minimum Value (Minus Disabled)</h3>
+            <p>When the quantity is at its minimum (e.g., 1), the decrement button is disabled.</p>
+            <div class="component-variants">
+                <div role="group" aria-label="Quantity of Item 2" class="quantity-stepper">
+                    <button class="quantity-stepper__btn" aria-label="Decrease quantity" disabled>
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    <input class="quantity-stepper__input" type="text" value="1" readonly aria-live="polite" inputmode="numeric">
+                    <button class="quantity-stepper__btn" aria-label="Increase quantity">
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="component-group">
+            <h3>Maximum Value (Plus Disabled)</h3>
+            <p>When the quantity reaches the maximum available stock, the increment button is disabled.</p>
+            <div class="component-variants">
+                <div role="group" aria-label="Quantity of Item 3" class="quantity-stepper">
+                    <button class="quantity-stepper__btn" aria-label="Decrease quantity">
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    <input class="quantity-stepper__input" type="text" value="10" readonly aria-live="polite" inputmode="numeric">
+                    <button class="quantity-stepper__btn" aria-label="Increase quantity" disabled>
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="component-group">
+            <h3>Fully Disabled</h3>
+            <p>The entire component can be disabled, for example, when an item is out of stock.</p>
+            <div class="component-variants">
+                <div role="group" aria-label="Quantity of Item 4" class="quantity-stepper quantity-stepper--disabled">
+                    <button class="quantity-stepper__btn" aria-label="Decrease quantity" disabled>
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    <input class="quantity-stepper__input" type="text" value="0" readonly aria-live="polite" inputmode="numeric" disabled>
+                    <button class="quantity-stepper__btn" aria-label="Increase quantity" disabled>
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</main>
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "default"<h3>
+		<!--description--><normal> The standard interactive state where both increment and decrement are possible. </normal>
+		<!-- vrient 1 html -->
+        <div role="group" aria-label="Quantity of Item 1" class="quantity-stepper">
+                    <button class="quantity-stepper__btn" aria-label="Decrease quantity">
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    <input class="quantity-stepper__input" type="text" value="5" readonly aria-live="polite" inputmode="numeric">
+                    <button class="quantity-stepper__btn" aria-label="Increase quantity">
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "disabled-minus"<h3>
+		<!--description--><normal> The minus button is disabled, typically when the quantity is at its minimum value (e.g., 1). </normal>
+		<!-- vrient 1 html -->
+        <div role="group" aria-label="Quantity of Item 2" class="quantity-stepper">
+                    <button class="quantity-stepper__btn" aria-label="Decrease quantity" disabled>
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    <input class="quantity-stepper__input" type="text" value="1" readonly aria-live="polite" inputmode="numeric">
+                    <button class="quantity-stepper__btn" aria-label="Increase quantity">
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>     
+		
+      <div>
+	 </div>
+      <div>
+        <h3>Variant Name : "disabled-plus"<h3>
+		<!--description--><normal> The plus button is disabled, typically when the quantity has reached the maximum available stock. </normal>
+		<!-- vrient 1 html -->
+        <div role="group" aria-label="Quantity of Item 3" class="quantity-stepper">
+                    <button class="quantity-stepper__btn" aria-label="Decrease quantity">
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    <input class="quantity-stepper__input" type="text" value="10" readonly aria-live="polite" inputmode="numeric">
+                    <button class="quantity-stepper__btn" aria-label="Increase quantity" disabled>
+                        <svg class="icon" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                </div>     
+		
+      <div>
+	 </div>    
+	
+	</body>
+</html>

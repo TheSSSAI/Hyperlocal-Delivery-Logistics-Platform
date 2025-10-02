@@ -1,0 +1,400 @@
+
+{
+  "component_inventory": {
+    "atomic_components": [
+      {
+        "component_name": "Button",
+        "category": "form_controls",
+        "variants": ["primary", "secondary", "danger", "link", "icon-only"],
+        "states": ["default", "hover", "active", "focus", "disabled", "loading"],
+        "responsive_needs": "Consistent sizing across devices, mobile may have full-width variants.",
+        "dependencies": ["Icon", "Spinner"],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "4 hours"
+      },
+      {
+        "component_name": "TextInput",
+        "category": "form_controls",
+        "variants": ["default", "with-icon-prefix", "textarea", "number-input"],
+        "states": ["default", "focus", "error", "disabled", "filled"],
+        "responsive_needs": "Full-width on mobile viewports.",
+        "dependencies": ["Icon", "Label", "ErrorMessage"],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "4 hours"
+      },
+      {
+        "component_name": "Label",
+        "category": "form_controls",
+        "variants": ["default", "required"],
+        "states": ["default", "disabled"],
+        "responsive_needs": "Adapts to typography scale.",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "1 hour"
+      },
+      {
+        "component_name": "Icon",
+        "category": "display",
+        "variants": ["small", "medium", "large"],
+        "states": ["default", "interactive"],
+        "responsive_needs": "N/A",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "2 hours"
+      },
+      {
+        "component_name": "Badge",
+        "category": "display",
+        "variants": ["success", "warning", "error", "info", "neutral", "pending"],
+        "states": ["default"],
+        "responsive_needs": "N/A",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "2 hours"
+      },
+      {
+        "component_name": "Spinner",
+        "category": "feedback",
+        "variants": ["small", "medium", "large", "inline"],
+        "states": ["loading"],
+        "responsive_needs": "N/A",
+        "dependencies": [],
+        "complexity_level": "low",
+        "implementation_priority": 1,
+        "estimated_effort": "1 hour"
+      },
+      {
+        "component_name": "Alert",
+        "category": "feedback",
+        "variants": ["success", "warning", "error", "info"],
+        "states": ["visible", "dismissible"],
+        "responsive_needs": "Full-width on mobile viewports.",
+        "dependencies": ["Icon", "Button"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "3 hours"
+      },
+      {
+        "component_name": "Checkbox",
+        "category": "form_controls",
+        "variants": [],
+        "states": ["checked", "unchecked", "disabled", "focus"],
+        "responsive_needs": "Standard sizing.",
+        "dependencies": ["Label"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "2 hours"
+      },
+      {
+        "component_name": "RadioButton",
+        "category": "form_controls",
+        "variants": [],
+        "states": ["selected", "unselected", "disabled", "focus"],
+        "responsive_needs": "Standard sizing.",
+        "dependencies": ["Label"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "2 hours"
+      },
+      {
+        "component_name": "ToggleSwitch",
+        "category": "form_controls",
+        "variants": [],
+        "states": ["on", "off", "disabled"],
+        "responsive_needs": "Standard sizing.",
+        "dependencies": ["Label"],
+        "complexity_level": "low",
+        "implementation_priority": 3,
+        "estimated_effort": "3 hours"
+      }
+    ],
+    "molecular_components": [
+      {
+        "component_name": "FormGroup",
+        "category": "forms",
+        "variants": [],
+        "states": ["default", "error"],
+        "responsive_needs": "Vertical stacking of elements.",
+        "dependencies": ["Label", "TextInput", "ErrorMessage"],
+        "complexity_level": "low",
+        "implementation_priority": 2,
+        "estimated_effort": "2 hours"
+      },
+      {
+        "component_name": "SearchBar",
+        "category": "forms",
+        "variants": ["simple"],
+        "states": ["default", "focus", "loading"],
+        "responsive_needs": "Full-width on mobile, fixed-width on desktop.",
+        "dependencies": ["TextInput", "Button", "Icon"],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "4 hours"
+      },
+      {
+        "component_name": "DataTable",
+        "category": "data_display",
+        "variants": ["sortable", "filterable"],
+        "states": ["loading", "empty", "with-data", "error"],
+        "responsive_needs": "Horizontal scroll on mobile or transform to a card list.",
+        "dependencies": ["Spinner", "Pagination", "TableHeader", "TableRow", "Checkbox"],
+        "complexity_level": "high",
+        "implementation_priority": 3,
+        "estimated_effort": "16 hours"
+      },
+      {
+        "component_name": "Pagination",
+        "category": "navigation",
+        "variants": [],
+        "states": ["default", "disabled-prev", "disabled-next"],
+        "responsive_needs": "Simplified view on mobile (e.g., just prev/next buttons).",
+        "dependencies": ["Button", "Icon"],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "4 hours"
+      },
+      {
+        "component_name": "DateRangePicker",
+        "category": "form_controls",
+        "variants": ["with-presets"],
+        "states": ["default", "active"],
+        "responsive_needs": "Mobile-friendly calendar view.",
+        "dependencies": ["TextInput", "Icon", "CalendarView"],
+        "complexity_level": "medium",
+        "implementation_priority": 4,
+        "estimated_effort": "8 hours"
+      },
+      {
+        "component_name": "Dropdown",
+        "category": "form_controls",
+        "variants": ["single-select", "multi-select"],
+        "states": ["default", "open", "disabled"],
+        "responsive_needs": "Uses native mobile select overlay if possible.",
+        "dependencies": ["TextInput", "Icon", "ListItem"],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "6 hours"
+      }
+    ],
+    "organism_components": [
+      {
+        "component_name": "AppHeader",
+        "category": "layout",
+        "variants": ["admin"],
+        "states": ["default", "notifications-active"],
+        "responsive_needs": "Integrates with SidebarNav for mobile hamburger menu.",
+        "dependencies": ["Button", "Icon", "Avatar", "Dropdown", "NotificationBell"],
+        "complexity_level": "medium",
+        "implementation_priority": 2,
+        "estimated_effort": "8 hours"
+      },
+      {
+        "component_name": "SidebarNav",
+        "category": "navigation",
+        "variants": ["admin"],
+        "states": ["expanded", "collapsed"],
+        "responsive_needs": "Collapses to icon-only on tablet, hides in off-canvas menu on mobile.",
+        "dependencies": ["Link", "Icon"],
+        "complexity_level": "medium",
+        "implementation_priority": 2,
+        "estimated_effort": "6 hours"
+      },
+      {
+        "component_name": "ModalDialog",
+        "category": "overlays",
+        "variants": ["confirmation", "form-modal", "critical-delete"],
+        "states": ["open", "closed"],
+        "responsive_needs": "Full-screen or larger on mobile.",
+        "dependencies": ["Button", "Icon", "TextInput"],
+        "complexity_level": "medium",
+        "implementation_priority": 3,
+        "estimated_effort": "6 hours"
+      },
+      {
+        "component_name": "DashboardWidget",
+        "category": "data_display",
+        "variants": ["kpi-card", "chart-widget", "list-widget"],
+        "states": ["loading", "with-data", "error"],
+        "responsive_needs": "Stack vertically on mobile.",
+        "dependencies": ["Spinner", "Alert", "Chart.js/D3.js Wrapper"],
+        "complexity_level": "high",
+        "implementation_priority": 4,
+        "estimated_effort": "12 hours"
+      },
+      {
+        "component_name": "GeofencingTool",
+        "category": "specialized",
+        "variants": [],
+        "states": ["viewing", "drawing", "editing"],
+        "responsive_needs": "Desktop-focused; may have limited functionality on mobile.",
+        "dependencies": ["MapView", "DataTable", "Button", "FormGroup"],
+        "complexity_level": "very high",
+        "implementation_priority": 5,
+        "estimated_effort": "32 hours"
+      },
+      {
+        "component_name": "ReadOnlyChatViewer",
+        "category": "communication",
+        "variants": [],
+        "states": ["loading", "with-messages", "empty"],
+        "responsive_needs": "Adapts to modal or panel view.",
+        "dependencies": ["MessageBubble", "Spinner"],
+        "complexity_level": "medium",
+        "implementation_priority": 5,
+        "estimated_effort": "8 hours"
+      }
+    ]
+  },
+  "screen_inventory": [
+    {
+      "screen_name": "Admin - Login",
+      "screen_type": "authentication",
+      "variants": ["web"],
+      "states": ["default", "loading", "error"],
+      "required_components": ["TextInput", "Button", "Alert"],
+      "platform_optimizations": "Standard web login form.",
+      "implementation_priority": 2,
+      "estimated_effort": "4 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Admin - Main Dashboard",
+      "screen_type": "dashboard",
+      "variants": ["desktop", "tablet", "mobile"],
+      "states": ["loading", "with-data", "error"],
+      "required_components": ["AppHeader", "SidebarNav", "DashboardWidget"],
+      "platform_optimizations": "Grid layout on desktop, stacking on mobile.",
+      "implementation_priority": 4,
+      "estimated_effort": "16 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Admin - User Management",
+      "screen_type": "management",
+      "variants": ["list-view", "detail-view"],
+      "states": ["loading", "with-data", "empty", "error"],
+      "required_components": ["DataTable", "SearchBar", "Pagination", "Dropdown", "ModalDialog", "Badge"],
+      "platform_optimizations": "Data-dense interface for desktop.",
+      "implementation_priority": 3,
+      "estimated_effort": "20 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Admin - Registration Approval Queue",
+      "screen_type": "workflow",
+      "variants": ["list-view", "detail-review"],
+      "states": ["loading", "with-data", "empty"],
+      "required_components": ["DataTable", "Dropdown", "ModalDialog", "Button"],
+      "platform_optimizations": "Efficient review flow for operators.",
+      "implementation_priority": 3,
+      "estimated_effort": "16 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Admin - System Settings",
+      "screen_type": "configuration",
+      "variants": ["financial-rules", "operational-rules"],
+      "states": ["loading", "default", "saving"],
+      "required_components": ["FormGroup", "Button", "Alert", "ToggleSwitch"],
+      "platform_optimizations": "Tabbed interface for different setting categories.",
+      "implementation_priority": 4,
+      "estimated_effort": "12 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Admin - Operational Zones (Geofencing)",
+      "screen_type": "specialized_tool",
+      "variants": [],
+      "states": ["loading", "viewing", "editing", "saving"],
+      "required_components": ["GeofencingTool"],
+      "platform_optimizations": "Desktop-focused interface for map precision.",
+      "implementation_priority": 5,
+      "estimated_effort": "32 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Admin - Support Ticket Management",
+      "screen_type": "helpdesk",
+      "variants": ["queue-view", "ticket-detail"],
+      "states": ["loading", "with-data", "empty"],
+      "required_components": ["DataTable", "SearchBar", "Dropdown", "ReadOnlyChatViewer", "FormGroup"],
+      "platform_optimizations": "Three-pane layout on desktop (list, detail, actions).",
+      "implementation_priority": 5,
+      "estimated_effort": "24 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Admin - Reporting Center",
+      "screen_type": "analytics",
+      "variants": ["sales-report", "delivery-report", "user-report"],
+      "states": ["loading", "with-data", "empty", "error"],
+      "required_components": ["DateRangePicker", "Dropdown", "DashboardWidget", "DataTable", "Button"],
+      "platform_optimizations": "Interactive charts using D3.js, data export functionality.",
+      "implementation_priority": 5,
+      "estimated_effort": "28 hours",
+      "user_flow_criticality": "high"
+    },
+    {
+      "screen_name": "Admin - Audit Trail",
+      "screen_type": "auditing",
+      "variants": [],
+      "states": ["loading", "with-data", "empty"],
+      "required_components": ["DataTable", "DateRangePicker", "SearchBar", "Pagination"],
+      "platform_optimizations": "Dense data table optimized for quick scanning.",
+      "implementation_priority": 4,
+      "estimated_effort": "12 hours",
+      "user_flow_criticality": "high"
+    }
+  ],
+  "implementation_plan": {
+    "phase_1_foundation": {
+      "components": ["Button", "TextInput", "Label", "Icon", "Spinner", "Alert"],
+      "rationale": "Core atomic components required by nearly all other UI elements. Establishes the visual baseline.",
+      "estimated_duration": "3 days"
+    },
+    "phase_2_layout_and_auth": {
+      "components": ["AppHeader", "SidebarNav", "FormGroup", "ModalDialog"],
+      "screens": ["Admin - Login"],
+      "rationale": "Build the main application shell and the critical entry point for all administrators.",
+      "estimated_duration": "5 days"
+    },
+    "phase_3_core_management": {
+      "components": ["DataTable", "Pagination", "SearchBar", "Dropdown", "Badge"],
+      "screens": ["Admin - User Management", "Admin - Registration Approval Queue"],
+      "rationale": "Implement the foundational user management and onboarding workflows, which are central to the admin's role.",
+      "estimated_duration": "8 days"
+    },
+    "phase_4_configuration_and_monitoring": {
+      "components": ["DashboardWidget", "Chart.js/D3.js Wrapper", "ToggleSwitch", "DateRangePicker"],
+      "screens": ["Admin - Main Dashboard", "Admin - System Settings", "Admin - Audit Trail"],
+      "rationale": "Provide tools for system configuration and at-a-glance monitoring of platform health.",
+      "estimated_duration": "10 days"
+    },
+    "phase_5_advanced_tools": {
+      "components": ["GeofencingTool", "ReadOnlyChatViewer"],
+      "screens": ["Admin - Operational Zones (Geofencing)", "Admin - Support Ticket Management", "Admin - Reporting Center"],
+      "rationale": "Build the most complex, specialized tools for operations management and business intelligence.",
+      "estimated_duration": "15 days"
+    }
+  },
+  "platform_implementation_strategy": {
+    "target_platform": "Web (React.js) for the Administrator Dashboard.",
+    "implementation_approach": "Desktop-first, with a fully responsive design that gracefully degrades to tablet and mobile viewports.",
+    "responsive_strategy": "Use a combination of CSS Grid, Flexbox, and media queries to adapt complex layouts. Data tables will become scrollable on small screens.",
+    "progressive_enhancement": "Core CRUD functionalities will be prioritized. Real-time alerting and advanced interactive charts will be layered on top.",
+    "browser_support": "Latest two versions of Chrome, Firefox, Safari, and Edge.",
+    "accessibility_integration": "WCAG 2.1 AA compliance is a mandatory part of the Definition of Done for all components and screens. Automated and manual testing will be integrated into the development process."
+  },
+  "quality_assurance_plan": {
+    "component_testing": "Use Storybook for isolated visual regression and interaction testing of each component.",
+    "integration_testing": "Use React Testing Library to test component compositions and interactions on each screen.",
+    "responsive_testing": "Use Cypress or Playwright to run E2E tests across defined viewport sizes (desktop, tablet, mobile). Manual testing on real devices for critical flows.",
+    "accessibility_testing": "Run automated accessibility audits with Axe in the CI pipeline. Perform manual keyboard and screen reader (NVDA, VoiceOver) testing before each release.",
+    "performance_testing": "Use Lighthouse and WebPageTest for measuring key performance metrics like LCP, TTI. Profile components with React DevTools to identify rendering bottlenecks."
+  }
+}

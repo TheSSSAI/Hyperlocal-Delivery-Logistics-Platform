@@ -1,0 +1,36 @@
+flowchart TD
+    subgraph Component Structure
+        FG((FormGroup))
+        FG --- L(Label)
+        FG --- TI(TextInput)
+        FG --- EM(ErrorMessage)
+    end
+
+    subgraph State Flow
+        direction TB
+        Start --> DefaultState
+        DefaultState -- "User focuses input" --> FocusState
+        FocusState -- "User types" --> FocusState
+        FocusState -- "User blurs input (onBlur)" --> Validation{Validation Logic}
+        Validation -- "Input is valid" --> DefaultState
+        Validation -- "Input is invalid" --> ErrorState
+        ErrorState -- "User focuses input to correct" --> FocusState
+        ErrorState -- "Form is reset" --> DefaultState
+    end
+
+    subgraph UI Representation of States
+        style DefaultState_UI fill:#fff,stroke:#BCC4CF,color:#1C1F22
+        style FocusState_UI fill:#E6F0FF,stroke:#0068FF,color:#1C1F22
+        style ErrorState_UI fill:#FFEBEB,stroke:#FF4D4D,color:#1C1F22
+
+        DefaultState_UI["Default State<br/>- Standard border<br/>- ErrorMessage hidden"]
+        FocusState_UI["Focus State<br/>- Blue border/glow<br/>- ErrorMessage hidden"]
+        ErrorState_UI["Error State<br/>- Red border<br/>- ErrorMessage visible"]
+    end
+
+    linkStyle 3 stroke-width:2px,stroke:green
+    linkStyle 4 stroke-width:2px,stroke:red
+
+    DefaultState --> DefaultState_UI
+    FocusState --> FocusState_UI
+    ErrorState --> ErrorState_UI

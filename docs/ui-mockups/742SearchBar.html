@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SearchBar Component</title>
+  
+  <style>
+    /* ---------------------------------- */
+    /* --- DESIGN SYSTEM FOUNDATION --- */
+    /* ---------------------------------- */
+    :root {
+      /* Font Families */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      
+      /* Colors: Primary */
+      --color-primary-100: #B8D4FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      
+      /* Colors: Neutrals */
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray_50: #F7F9FC;
+      --color-neutrals-gray_100: #E9EDF2;
+      --color-neutrals-gray_200: #D3D9E1;
+      --color-neutrals-gray_300: #BCC4CF;
+      --color-neutrals-gray_500: #8E9BAA;
+      --color-neutrals-gray_900: #1C1F22;
+      
+      /* Spacing */
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      
+      /* Border Radius */
+      --radius-md: 8px;
+      
+      /* Shadows */
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+    }
+    
+    /* ---------------------------------- */
+    /* --- SHOWCASE & BASE STYLES --- */
+    /* ---------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutrals-gray_50);
+      color: var(--color-neutrals-gray_900);
+      margin: 0;
+      padding: var(--space-4);
+    }
+
+    @media (min-width: 768px) {
+      body {
+        padding: 48px;
+      }
+    }
+
+    .showcase-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: var(--color-neutrals-white);
+      padding: 32px;
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    h1 { font-size: 28px; margin-bottom: 8px; }
+    p { font-size: 16px; color: #555D66; margin-top: 0; margin-bottom: 32px; }
+    h2 { font-size: 20px; margin-top: 40px; margin-bottom: 16px; border-bottom: 1px solid var(--color-neutrals-gray_100); padding-bottom: 8px; }
+
+    /* Visually hidden class for accessible labels */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    /* ---------------------------------- */
+    /* --- SearchBar Component CSS --- */
+    /* ---------------------------------- */
+
+    .search-bar {
+      position: relative;
+      display: flex;
+      align-items: center;
+      width: 100%;
+      background-color: var(--color-neutrals-white);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-neutrals-gray_300);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-bar:hover {
+      border-color: var(--color-neutrals-gray_500);
+    }
+
+    /* Focus state for the entire component */
+    .search-bar:focus-within,
+    .search-bar.pseudo-focus-within {
+      border-color: var(--color-primary-500);
+      box-shadow: 0 0 0 3px var(--color-primary-100);
+    }
+
+    /* Icon inside the search bar */
+    .search-bar__icon {
+      position: absolute;
+      left: var(--space-4);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-neutrals-gray_500);
+      pointer-events: none; /* Allows click-through to the input */
+      transition: opacity 0.2s ease;
+      width: 20px;
+      height: 20px;
+    }
+
+    /* The text input field */
+    .search-bar__input {
+      flex-grow: 1;
+      width: 100%;
+      padding: var(--space-3) var(--space-4) var(--space-3) 48px; /* Left padding for icon */
+      font-size: 16px;
+      border: none;
+      background-color: transparent;
+      color: var(--color-neutrals-gray_900);
+      min-height: 44px; /* Touch target */
+    }
+
+    .search-bar__input:focus {
+      outline: none;
+    }
+
+    .search-bar__input::placeholder {
+      color: var(--color-neutrals-gray_500);
+    }
+    
+    /* Hide native clear button for search input */
+    .search-bar__input::-webkit-search-cancel-button {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+
+    /* The search button */
+    .search-bar__button {
+      flex-shrink: 0;
+      margin: var(--space-2);
+      background-color: var(--color-primary-500);
+      color: var(--color-neutrals-white);
+      border: none;
+      border-radius: 6px; /* Slightly smaller radius to fit inside */
+      padding: var(--space-2) var(--space-4);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      height: calc(100% - 16px);
+      min-height: 36px;
+    }
+
+    .search-bar__button:hover {
+      background-color: var(--color-primary-600);
+    }
+
+    /* Loading State */
+    .search-bar__spinner {
+      display: none; /* Hidden by default */
+      position: absolute;
+      left: var(--space-4);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-primary-500);
+      width: 20px;
+      height: 20px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: translateY(-50%) rotate(360deg); }
+    }
+    
+    .search-bar.is-loading .search-bar__icon {
+      opacity: 0;
+    }
+
+    .search-bar.is-loading .search-bar__spinner {
+      display: block;
+    }
+
+    .search-bar.is-loading .search-bar__button {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    /* Responsive Adaptations: Fixed width on desktop */
+    @media (min-width: 768px) {
+      .search-bar {
+        width: 480px;
+      }
+    }
+    
+  </style>
+</head>
+<body>
+
+  <div class="showcase-container">
+    <h1>SearchBar Component</h1>
+    <p>A composite input for search queries, combining a text input, icon, and button. It supports default, focus, and loading states and is responsive.</p>
+
+    <!-- DEFAULT STATE -->
+    <h2>Default State</h2>
+    <form role="search" onsubmit="event.preventDefault(); alert('Search submitted!');">
+        <label for="search-default" class="sr-only">Search for items or stores</label>
+        <div class="search-bar">
+            <svg class="search-bar__icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="search" id="search-default" class="search-bar__input" placeholder="Search for stores or items...">
+            <button class="search-bar__button" type="submit" aria-label="Submit search">Search</button>
+        </div>
+    </form>
+    
+    <!-- FOCUS STATE -->
+    <h2>Focus State</h2>
+    <p>This state is automatically applied when the user clicks into the input field. The `pseudo-focus-within` class is used here for demonstration.</p>
+    <form role="search" onsubmit="event.preventDefault();">
+        <label for="search-focus" class="sr-only">Search for items or stores</label>
+        <div class="search-bar pseudo-focus-within">
+            <svg class="search-bar__icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="search" id="search-focus" class="search-bar__input" placeholder="Search for stores or items...">
+            <button class="search-bar__button" type="submit" aria-label="Submit search">Search</button>
+        </div>
+    </form>
+
+    <!-- LOADING STATE -->
+    <h2>Loading State</h2>
+    <p>This state is applied by adding the `is-loading` class to the main `search-bar` container, typically via JavaScript while waiting for an API response.</p>
+    <form role="search" onsubmit="event.preventDefault();">
+        <label for="search-loading" class="sr-only">Search for items or stores</label>
+        <div class="search-bar is-loading">
+            <div class="search-bar__spinner" aria-hidden="true"></div>
+            <svg class="search-bar__icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="search" id="search-loading" class="search-bar__input" placeholder="Searching..." value="Pizza">
+            <button class="search-bar__button" type="submit" aria-label="Submit search">Search</button>
+        </div>
+    </form>
+    
+  </div>
+  
+  <div class="showcase-container" style="margin-top: 32px;">
+    <h2>Component Variations</h2>
+    <div>
+        <h3>Variant Name: "Simple"</h3>
+        <p>The primary and only defined variant. It includes a prefixed icon, a text input, and a submit button. It adapts to screen size, being full-width on mobile and a fixed width on desktop.</p>
+    </div>
+  </div>
+
+</body>
+</html>

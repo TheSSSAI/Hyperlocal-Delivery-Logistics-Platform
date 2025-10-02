@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: Modal Dialog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ---------------------------------- */
+    /* --- 1. DESIGN SYSTEM FOUNDATION -- */
+    /* ---------------------------------- */
+    :root {
+      /* Colors */
+      --color-primary-500: #0068FF; --color-primary-600: #0053CC;
+      --color-danger-500: #DC3545; --color-danger-600: #B02A37;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F8F9FA; --color-neutrals-gray-100: #F1F3F5; --color-neutrals-gray-200: #E9EDF2;
+      --color-neutrals-gray-500: #868E96; --color-neutrals-gray-800: #383E44; --color-neutrals-gray-900: #212529;
+      /* Typography */
+      --font-family-primary: 'Poppins', sans-serif; --font-family-secondary: 'Inter', sans-serif;
+      --font-size-h4: 20px; --font-weight-h4: 600;
+      --font-size-body: 16px; --font-size-caption: 14px;
+      /* Spacing */
+      --spacing-sm: 8px; --spacing-md: 16px; --spacing-lg: 24px; --spacing-xl: 32px;
+      /* Borders & Shadows */
+      --border-radius-sm: 4px; --border-radius-md: 8px; --border-radius-lg: 16px;
+      --shadow-lg: 0 10px 20px rgba(0,0,0,0.1), 0 3px 6px rgba(0,0,0,0.08);
+      /* Transitions */
+      --transition-base: all 0.2s ease-in-out;
+    }
+
+    /* ---------------------------------- */
+    /* -------- 2. BASE & LAYOUT -------- */
+    /* ---------------------------------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      font-family: var(--font-family-secondary);
+      background-color: var(--color-neutrals-gray-50);
+      color: var(--color-neutrals-gray-900);
+      margin: 0;
+      padding: var(--spacing-xl);
+    }
+    .showcase { max-width: 900px; margin: 0 auto; }
+    .showcase-header { text-align: center; margin-bottom: var(--spacing-xl); }
+    .showcase-header h1 { font-family: var(--font-family-primary); font-size: 2.5rem; margin: 0; }
+    .showcase-header p { font-size: 1.1rem; color: var(--color-neutrals-gray-500); }
+    .trigger-buttons { display: flex; justify-content: center; gap: var(--spacing-md); }
+    
+    /* Fake Atomic Button for Showcase */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-sm); font-weight: 600; text-decoration: none; border: 1px solid transparent; border-radius: var(--radius-md); cursor: pointer; transition: var(--transition-base); font-size: var(--font-size-body); padding: 11px 24px; min-height: 44px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutrals-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .btn--secondary { background-color: var(--color-neutrals-white); color: var(--color-neutrals-gray-800); border-color: var(--color-neutrals-gray-200); }
+    .btn--secondary:hover { background-color: var(--color-neutrals-gray-50); }
+    .btn--danger { background-color: var(--color-danger-500); color: var(--color-neutrals-white); }
+    .btn--danger:hover { background-color: var(--color-danger-600); }
+    
+    /* Fake Atomic Form Group for Showcase */
+    .form-group { display: flex; flex-direction: column; margin-bottom: var(--spacing-lg); }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-group__label { font-size: var(--font-size-caption); font-weight: 600; color: var(--color-neutrals-gray-800); margin-bottom: var(--spacing-sm); }
+    .form-group__control { font-size: var(--font-size-body); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--color-neutrals-gray-500); width: 100%; }
+    .form-group__control:focus-visible { outline: 2px solid var(--color-primary-500); border-color: transparent; }
+    
+    /* ---------------------------------- */
+    /* ----- 3. MODAL DIALOG COMPONENT -- */
+    /* ---------------------------------- */
+    .modal-dialog {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: flex-end; /* Mobile-first: bottom sheet */
+      justify-content: center;
+      background-color: rgba(28, 31, 34, 0.5);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s ease, visibility 0s 0.2s;
+    }
+    .modal-dialog:target {
+      opacity: 1;
+      visibility: visible;
+      transition-delay: 0s;
+    }
+
+    .modal-dialog__container {
+      background: var(--color-neutrals-white);
+      border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 100%;
+      display: flex;
+      flex-direction: column;
+      max-height: 90vh;
+      transform: translateY(100%);
+      transition: var(--transition-base);
+    }
+    .modal-dialog:target .modal-dialog__container {
+        transform: translateY(0);
+    }
+
+    .modal-dialog__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-bottom: 1px solid var(--color-neutrals-gray-100);
+      flex-shrink: 0;
+    }
+    .modal-dialog__title {
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-h4);
+      font-weight: 600;
+      color: var(--color-neutrals-gray-900);
+      margin: 0;
+    }
+    .modal-dialog__close-btn {
+      background: none;
+      border: none;
+      padding: var(--spacing-sm);
+      margin: calc(var(--spacing-sm) * -1); /* Negative margin to expand touch area */
+      cursor: pointer;
+      color: var(--color-neutrals-gray-500);
+      border-radius: 50%;
+      display: flex;
+      transition: background-color 0.2s ease;
+    }
+    .modal-dialog__close-btn:hover {
+        background-color: var(--color-neutrals-gray-100);
+        color: var(--color-neutrals-gray-900);
+    }
+    .modal-dialog__body {
+      padding: var(--spacing-lg);
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+    .modal-dialog__body p {
+        margin: 0;
+        color: var(--color-neutrals-gray-500);
+        line-height: 1.6;
+    }
+    .modal-dialog__footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--spacing-sm);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-top: 1px solid var(--color-neutrals-gray-100);
+      background-color: var(--color-neutrals-gray-50);
+      flex-shrink: 0;
+      flex-direction: column-reverse; /* Mobile-first: stacked buttons */
+    }
+    .modal-dialog__footer .btn {
+      width: 100%;
+    }
+
+    /* Desktop and Tablet Adaptations */
+    @media (min-width: 768px) {
+      .modal-dialog {
+        align-items: center; /* Center vertically on larger screens */
+      }
+      .modal-dialog__container {
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        border-radius: var(--border-radius-lg);
+        transform: scale(0.95);
+      }
+      .modal-dialog:target .modal-dialog__container {
+        transform: scale(1);
+      }
+      .modal-dialog__footer {
+        flex-direction: row;
+      }
+      .modal-dialog__footer .btn {
+        width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="showcase">
+    <header class="showcase-header">
+      <h1>Modal Dialog</h1>
+      <p>An overlay component for focused user interaction.</p>
+    </header>
+    <div class="trigger-buttons">
+      <a href="#confirmation-modal" class="btn btn--primary">Open Confirmation</a>
+      <a href="#form-modal" class="btn btn--secondary">Open Form Modal</a>
+      <a href="#info-modal" class="btn btn--secondary">Open Info Modal</a>
+    </div>
+  </div>
+
+  <!-- Confirmation Modal -->
+  <div id="confirmation-modal" class="modal-dialog">
+    <div class="modal-dialog__container" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+      <header class="modal-dialog__header">
+        <h3 id="confirm-title" class="modal-dialog__title">Confirm Deletion</h3>
+        <a href="#" class="modal-dialog__close-btn" aria-label="Close">
+            <svg class="icon icon--md" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </a>
+      </header>
+      <div class="modal-dialog__body">
+        <p>Are you sure you want to permanently delete this item? This action cannot be undone.</p>
+      </div>
+      <footer class="modal-dialog__footer">
+        <a href="#" class="btn btn--secondary">Cancel</a>
+        <a href="#" class="btn btn--danger">Delete Item</a>
+      </footer>
+    </div>
+    <a href="#" class="modal-dialog__backdrop-close" style="position: absolute; inset: 0; cursor: default; z-index: -1;"></a>
+  </div>
+
+  <!-- Form Modal -->
+  <div id="form-modal" class="modal-dialog">
+    <div class="modal-dialog__container" role="dialog" aria-modal="true" aria-labelledby="form-title">
+      <header class="modal-dialog__header">
+        <h3 id="form-title" class="modal-dialog__title">Add New Product</h3>
+        <a href="#" class="modal-dialog__close-btn" aria-label="Close">
+            <svg class="icon icon--md" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </a>
+      </header>
+      <div class="modal-dialog__body">
+        <form>
+          <div class="form-group">
+            <label class="form-group__label" for="product-name">Product Name</label>
+            <input type="text" class="form-group__control" id="product-name" placeholder="e.g., Spicy Chicken Ramen">
+          </div>
+          <div class="form-group">
+            <label class="form-group__label" for="product-price">Price (₹)</label>
+            <input type="number" class="form-group__control" id="product-price" placeholder="e.g., 350.00">
+          </div>
+        </form>
+      </div>
+      <footer class="modal-dialog__footer">
+        <a href="#" class="btn btn--secondary">Cancel</a>
+        <a href="#" class="btn btn--primary">Save Product</a>
+      </footer>
+    </div>
+    <a href="#" class="modal-dialog__backdrop-close" style="position: absolute; inset: 0; cursor: default; z-index: -1;"></a>
+  </div>
+
+  <!-- Info Modal -->
+  <div id="info-modal" class="modal-dialog">
+    <div class="modal-dialog__container" role="dialog" aria-modal="true" aria-labelledby="info-title" aria-describedby="info-desc">
+      <header class="modal-dialog__header">
+        <h3 id="info-title" class="modal-dialog__title">Account Update</h3>
+        <a href="#" class="modal-dialog__close-btn" aria-label="Close">
+             <svg class="icon icon--md" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </a>
+      </header>
+      <div class="modal-dialog__body">
+        <p id="info-desc">Your profile information has been successfully updated. All changes are now live.</p>
+      </div>
+      <footer class="modal-dialog__footer">
+        <a href="#" class="btn btn--primary">Okay, Got it</a>
+      </footer>
+    </div>
+    <a href="#" class="modal-dialog__backdrop-close" style="position: absolute; inset: 0; cursor: default; z-index: -1;"></a>
+  </div>
+  
+  <div class="showcase" style="margin-top: 2rem;">
+    <h2>Component Variations</h2>
+    <div style="display: grid; gap: 2rem;">
+        <div>
+            <h3>Variant Name: "confirmation"</h3>
+            <normal>Used to confirm a critical or destructive user action, like deletion. Typically includes a secondary and a primary (often destructive) action button.</normal>
+        </div>
+        <div>
+            <h3>Variant Name: "form-modal"</h3>
+            <normal>Used to collect focused user input without navigating to a new page. The body contains form elements, and the footer contains submission actions.</normal>
+        </div>
+        <div>
+            <h3>Variant Name: "info"</h3>
+            <normal>Used to present important information to the user that must be acknowledged. Typically contains a single action button to dismiss the modal.</normal>
+        </div>
+    </div>
+  </div>
+</body>
+</html>

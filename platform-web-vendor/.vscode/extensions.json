@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss", // Assuming Tailwind might be used in a shared UI lib
+    "aaron-bond.better-comments",
+    "eamodio.gitlens",
+    "ms-vscode.vscode-jest"
+  ]
+}

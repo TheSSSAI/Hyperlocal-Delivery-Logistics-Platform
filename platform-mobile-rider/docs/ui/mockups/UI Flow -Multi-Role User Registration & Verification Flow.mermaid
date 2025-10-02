@@ -1,0 +1,50 @@
+flowchart TD
+    A[User lands on App/Website] --> B(Chooses to Register)
+    B --> C{Select User Role}
+
+    C -->|Customer| D_sub(Customer Registration)
+    subgraph D_sub
+        D1[Enters Mobile Number] --> D2(Receives & Enters OTP)
+        D2 --> D3((Account Created<br/>Status: Active))
+    end
+
+    C -->|Vendor| E_sub(Vendor Registration - Web)
+    subgraph E_sub
+        E1[Fills Web Form<br/>Business Name, Address, Contact] --> E2(Uploads Documents<br/>GST, FSSAI etc.)
+        E2 --> E3[Submits Application]
+    end
+
+    C -->|Rider| F_sub(Rider Registration - App)
+    subgraph F_sub
+        F1[Fills App Form<br/>Personal, Vehicle, Bank Details] --> F2(Uploads Documents<br/>License, PAN, Aadhaar)
+        F2 --> F3[Submits Application]
+    end
+
+    E3 --> G((User Record Created<br/>Status: pending_verification))
+    F3 --> G
+
+    G --> H_sub(Admin Verification Workflow)
+    subgraph H_sub
+        H1["Application appears in<br/>Admin's Verification Queue"] --> H2(Admin reviews details & documents)
+        H2 --> H3{Admin Action: Approve or Reject?}
+    end
+
+    H3 -->|Approve| I((User status updated to 'Active'))
+    H3 -->|Reject| J((User status updated to 'Rejected'))
+
+    I --> K(Notification Sent to User<br/>'Your account is approved!')
+    J --> L(Notification Sent to User<br/>'Your application was not approved.')
+
+    %% Styling
+    classDef userAction fill:#e3f2fd,stroke:#2196f3,color:#000
+    classDef systemState fill:#e8f5e9,stroke:#4caf50,color:#000
+    classDef pendingState fill:#fff9c4,stroke:#fbc02d,color:#000
+    classDef finalState fill:#c8e6c9,stroke:#388e3c,color:#000
+    classDef rejectState fill:#ffcdd2,stroke:#d32f2f,color:#000
+    classDef process fill:#f3e5f5,stroke:#8e24aa,color:#000
+
+    class B,D1,D2,E1,E2,E3,F1,F2,F3 userAction
+    class G pendingState
+    class D3,I finalState
+    class J rejectState
+    class H1,H2,K,L process

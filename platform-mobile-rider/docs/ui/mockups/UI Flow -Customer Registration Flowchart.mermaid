@@ -1,0 +1,55 @@
+flowchart TD
+    subgraph User Interaction (Frontend)
+        A[User opens App and selects 'Register'] --> B[Enters 10-digit Mobile Number]
+        B --> C{Is format valid?}
+        C -->|No| D[Show 'Invalid number format' error]
+        D --> B
+        C -->|Yes| E[Taps 'Send OTP']
+        E --> F[Show OTP Entry Screen & Timer]
+        F --> G[Enters received OTP]
+        G --> H[Taps 'Verify & Register']
+    end
+
+    subgraph System Process (Backend)
+        E --> I{API: Request OTP}
+        I --> J[Check if mobile number already exists]
+        J -->|Yes| K[Return 'User Exists' error]
+        J -->|No| L[Generate & Hash OTP]
+        L --> M[Store OTP Hash with TTL in Redis]
+        M --> N[Send OTP via SMS Gateway]
+        N --> O[Return 'OTP Sent' success]
+
+        H --> P{API: Verify OTP & Register}
+        P --> Q[Retrieve OTP Hash from Redis]
+        Q --> R{Is OTP Hash found and not expired?}
+        R -->|No| S[Return 'OTP Expired' error]
+        R -->|Yes| T{Is submitted OTP correct?}
+        T -->|No| U[Increment failed attempt counter]
+        U --> V{Attempts >= 5?}
+        V -->|Yes| W[Lock account for 15 mins]
+        V -->|No| X[Return 'Invalid OTP' error]
+        T -->|Yes| Y[Reset failed attempt counter]
+        Y --> Z[Create User Account in DB]
+        Z --> AA[Issue JWT Access & Refresh Tokens]
+        AA --> AB[Return 'Registration Success' with tokens]
+    end
+
+    subgraph Final State
+        K --> AD[Show 'User Exists. Please Log In.' error]
+        S --> F
+        W --> AC[Show 'Account Locked' error]
+        X --> F
+        AB --> AE[Store Tokens Securely on Device]
+        AE --> AF[Navigate to Profile Setup/Home Screen]
+    end
+
+    %% Styling
+    classDef errorNode fill:#fdecea,stroke:#e53935,color:#b71c1c
+    classDef successNode fill:#e8f5e9,stroke:#43a047,color:#1b5e20
+    classDef processNode fill:#e3f2fd,stroke:#1e88e5,color:#01579b
+    classDef decisionNode fill:#fff8e1,stroke:#f9a825,color:#424242
+
+    class D,K,S,W,AC,X,AD errorNode
+    class Z,AA,AB,AE,AF successNode
+    class L,M,N,Q,U,Y,J,P processNode
+    class C,R,T,V decisionNode

@@ -1,0 +1,54 @@
+flowchart TD
+    subgraph "Admin Dashboard (UI)"
+        A["Admin views 'Pending Registrations' list"] --> B["Selects a registration for review"]
+        B --> C["Reviews applicant details & documents"]
+        C --> D{Approve or Reject?}
+        D -->|"Approve"| E["Clicks 'Approve'"]
+        E --> F["Confirms action in modal"]
+        F --> G["Sends 'Approve' request to API"]
+
+        D -->|"Reject"| H["Clicks 'Reject'"]
+        H --> I["Selects/enters reason in modal"]
+        I --> J["Confirms action in modal"]
+        J --> K["Sends 'Reject' request to API"]
+    end
+
+    subgraph "Backend (User Management Service)"
+        G --> L{Check current user status}
+        L -->|"Status is 'pending_verification'"| M["Update user status to 'active'"]
+        M --> N["Publish 'UserApproved' event"]
+        N --> O["Log 'Approve' action in Audit Trail"]
+        O --> P((Success))
+
+        K --> Q{Check current user status}
+        Q -->|"Status is 'pending_verification'"| R["Update user status to 'rejected' & save reason"]
+        R --> S["Publish 'UserRejected' event"]
+        S --> T["Log 'Reject' action in Audit Trail"]
+        T --> U((Success))
+
+        L -->|"Status is NOT 'pending'"| V["Handle Concurrency: Reject request"]
+        Q -->|"Status is NOT 'pending'"| V
+        V --> W((Failure))
+    end
+
+    subgraph "Downstream Event Consumers"
+        N --> X["Notification Service: Sends approval email/SMS"]
+        S --> Y["Notification Service: Sends rejection email/SMS"]
+    end
+
+    subgraph "Final UI Feedback"
+        P --> Z["UI shows success message & refreshes list"]
+        U --> Z
+        W --> AA["UI shows error: 'This registration has already been processed.'"]
+    end
+
+    %% Styling
+    classDef process fill:#e3f2fd,stroke:#2196f3,color:#000
+    classDef decision fill:#fff9c4,stroke:#fbc02d,color:#000
+    classDef success fill:#e8f5e9,stroke:#4caf50,color:#000
+    classDef error fill:#ffebee,stroke:#d32f2f,color:#000
+
+    class A,B,C,E,F,G,H,I,J,K,M,R,N,S,O,T,X,Y,Z,AA process
+    class D,L,Q decision
+    class P,U success
+    class W error

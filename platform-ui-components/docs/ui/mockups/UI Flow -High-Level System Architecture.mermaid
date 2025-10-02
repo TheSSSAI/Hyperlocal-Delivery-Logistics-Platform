@@ -1,0 +1,75 @@
+graph TD
+    subgraph Clients
+        CA[Customer App]
+        RA[Rider App]
+        VD[Vendor Dashboard]
+        AD[Admin Dashboard]
+    end
+
+    subgraph "Platform Backend (AWS)"
+        APIGateway[API Gateway]
+
+        subgraph "Microservices (on EKS)"
+            IdentityService["Identity & Access"]
+            VendorService["Vendor & Catalog"]
+            OrderService["Order Management"]
+            RiderService["Rider Logistics"]
+            PaymentService["Payments & Settlements"]
+            NotificationService["Notifications"]
+        end
+
+        MessageBus["Message Bus <br/> (AWS SNS/SQS)"]
+
+        subgraph "Data Stores"
+            UserDB[(User DB <br/> PostgreSQL)]
+            CatalogDB[(Catalog DB <br/> PostgreSQL)]
+            OrderDB[(Order DB <br/> PostgreSQL)]
+            RiderDB[(Rider DB <br/> PostgreSQL)]
+            PaymentDB[(Payment DB <br/> PostgreSQL)]
+            LiveLocationCache[(Live Cache <br/> Redis)]
+        end
+    end
+
+    subgraph "Third-Party Services"
+        PaymentGateway["Payment Gateway <br/> (Razorpay)"]
+        MappingService["Mapping Service <br/> (Mapbox)"]
+        FCM["Push Notifications <br/> (FCM)"]
+        SMSGateway["SMS Gateway <br/> (AWS SNS)"]
+    end
+
+    %% Client -> Gateway -> Services (Synchronous User Requests)
+    Clients --> APIGateway
+    APIGateway --> IdentityService
+    APIGateway --> VendorService
+    APIGateway --> OrderService
+    APIGateway --> RiderService
+    APIGateway --> PaymentService
+
+    %% Inter-service Synchronous Calls
+    OrderService -->|"Check Stock/Price"| VendorService
+    RiderService -->|"Get Order/Address Details"| OrderService
+    
+    %% Asynchronous Communication via Message Bus
+    OrderService --o|"Order Events"| MessageBus
+    PaymentService --o|"Payment Events"| MessageBus
+    RiderService --o|"Location Events"| MessageBus
+
+    MessageBus --o|" "| NotificationService
+    MessageBus --o|" "| RiderService
+    MessageBus --o|" "| PaymentService
+    MessageBus --o|" "| VendorService
+
+    %% Service -> Third-Party Integrations
+    PaymentService -->|"Process Txns, Payouts"| PaymentGateway
+    RiderService -->|"Routing, Maps"| MappingService
+    NotificationService -->|"Push"| FCM
+    NotificationService -->|"SMS"| SMSGateway
+    IdentityService -->|"OTP SMS"| SMSGateway
+
+    %% Service -> Data Store
+    IdentityService --- UserDB
+    VendorService --- CatalogDB
+    OrderService --- OrderDB
+    RiderService --- RiderDB
+    RiderService --- LiveLocationCache
+    PaymentService --- PaymentDB

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Molecular Component: StarRating</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================== */
+    /* 1. Design System Tokens & Base Styles           */
+    /* =============================================== */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-body: 16px;
+      --font-size-h3: 28px;
+
+      /* Colors */
+      --color-primary-500: #0068FF;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-200: #D3D9E1;
+      --color-neutrals-gray-300: #BCC4CF;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-warning: #FFB800;
+
+      /* Spacing */
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+
+      /* Borders & Shadows */
+      --border-radius-lg: 12px;
+      --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-family-primary);
+      font-size: var(--font-size-body);
+      line-height: 1.6;
+      color: var(--color-neutrals-gray-900);
+      background-color: var(--color-neutrals-gray-50);
+      padding: var(--space-32);
+    }
+
+    /* Showcase Layout Styles */
+    .showcase-wrapper { max-width: 900px; margin: 0 auto; }
+    .showcase-header { text-align: center; padding-bottom: var(--space-16); margin-bottom: var(--space-32); border-bottom: 1px solid var(--color-neutrals-gray-200); }
+    .showcase-header h1 { font-size: 36px; font-weight: 700; margin: 0; }
+    .showcase-header p { font-size: 18px; color: var(--color-neutrals-gray-700); margin: 8px 0 0 0; }
+    .component-display { background-color: var(--color-neutrals-white); padding: var(--space-32); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-sm); }
+    .variant { margin-bottom: var(--space-32); }
+    .variant:last-child { margin-bottom: 0; }
+    .variant h2 { font-size: var(--font-size-h3); margin: 0 0 var(--space-24) 0; }
+    .variant h3 { font-size: 16px; font-weight: 600; color: var(--color-neutrals-gray-700); margin: 0 0 var(--space-16) 0; text-transform: uppercase; letter-spacing: 0.5px; }
+    .variant-container { border: 1px solid var(--color-neutrals-gray-200); padding: var(--space-24); border-radius: var(--border-radius-lg); }
+
+    /* =============================================== */
+    /* 2. Molecular Component: StarRating              */
+    /* =============================================== */
+
+    /* Interactive Variant (using radio buttons for accessibility) */
+    .star-rating--interactive {
+      display: inline-flex;
+      flex-direction: row-reverse; /* Reverses order for the ~ selector trick */
+      justify-content: flex-end;
+      border: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .star-rating--interactive .star-rating__label {
+      cursor: pointer;
+      color: var(--color-neutrals-gray-300);
+      font-size: var(--star-size, 32px);
+      transition: color var(--transition-fast);
+      /* Large touch target requirement */
+      min-width: 44px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .star-rating--interactive .star-rating__input {
+      /* Visually hide the radio button */
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    /* Hover effect: color all stars up to the hovered one */
+    .star-rating--interactive .star-rating__label:hover,
+    .star-rating--interactive .star-rating__label:hover ~ .star-rating__label {
+      color: var(--color-semantic-warning);
+      opacity: 0.8;
+    }
+
+    /* Checked state: keep all stars up to the checked one colored */
+    .star-rating--interactive .star-rating__input:checked ~ .star-rating__label {
+      color: var(--color-semantic-warning);
+      opacity: 1;
+    }
+
+    /* Focus state for keyboard accessibility */
+    .star-rating--interactive .star-rating__input:focus-visible + .star-rating__label {
+      outline: 2px solid var(--color-primary-500);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* Read-Only Variant */
+    .star-rating--read-only {
+      display: inline-flex;
+      position: relative;
+      font-size: var(--star-size, 20px);
+      color: var(--color-neutrals-gray-300);
+    }
+
+    .star-rating--read-only .star-rating__filled {
+      position: absolute;
+      top: 0;
+      left: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      color: var(--color-semantic-warning);
+      width: calc(var(--rating, 0) / 5 * 100%);
+    }
+    
+    .star-rating--read-only .star-rating__icon {
+        /* Add slight padding between stars */
+        padding: 0 2px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="showcase-wrapper">
+    <header class="showcase-header">
+      <h1>StarRating</h1>
+      <p>A component for capturing or displaying star-based ratings.</p>
+    </header>
+
+    <main class="component-display">
+      <div class="variant">
+        <h2>Interactive Variant</h2>
+        <div class="variant-container">
+          
+          <h3>Default State (Select a rating)</h3>
+          <fieldset class="star-rating--interactive">
+            <legend style="position: absolute; opacity: 0; width: 0; height: 0;">Rate this item</legend>
+            <input type="radio" id="star5" name="rating" value="5" class="star-rating__input"><label for="star5" class="star-rating__label" title="5 out of 5 stars">★</label>
+            <input type="radio" id="star4" name="rating" value="4" class="star-rating__input"><label for="star4" class="star-rating__label" title="4 out of 5 stars">★</label>
+            <input type="radio" id="star3" name="rating" value="3" class="star-rating__input"><label for="star3" class="star-rating__label" title="3 out of 5 stars">★</label>
+            <input type="radio" id="star2" name="rating" value="2" class="star-rating__input"><label for="star2" class="star-rating__label" title="2 out of 5 stars">★</label>
+            <input type="radio" id="star1" name="rating" value="1" class="star-rating__input"><label for="star1" class="star-rating__label" title="1 out of 5 stars">★</label>
+          </fieldset>
+
+          <h3>Selected State (3 stars)</h3>
+           <fieldset class="star-rating--interactive">
+            <legend style="position: absolute; opacity: 0; width: 0; height: 0;">Rate this item</legend>
+            <input type="radio" id="star5-s" name="rating-selected" value="5" class="star-rating__input"><label for="star5-s" class="star-rating__label" title="5 out of 5 stars">★</label>
+            <input type="radio" id="star4-s" name="rating-selected" value="4" class="star-rating__input"><label for="star4-s" class="star-rating__label" title="4 out of 5 stars">★</label>
+            <input type="radio" id="star3-s" name="rating-selected" value="3" class="star-rating__input" checked><label for="star3-s" class="star-rating__label" title="3 out of 5 stars">★</label>
+            <input type="radio" id="star2-s" name="rating-selected" value="2" class="star-rating__input"><label for="star2-s" class="star-rating__label" title="2 out of 5 stars">★</label>
+            <input type="radio" id="star1-s" name="rating-selected" value="1" class="star-rating__input"><label for="star1-s" class="star-rating__label" title="1 out of 5 stars">★</label>
+          </fieldset>
+        </div>
+      </div>
+
+      <div class="variant">
+        <h2>Read-Only Variant</h2>
+        <div class="variant-container">
+
+          <h3>Full Stars (Rated 4 / 5)</h3>
+          <div class="star-rating--read-only" style="--rating: 4;" aria-label="Rated 4 out of 5 stars">
+            <div class="star-rating__empty">
+                <span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span>
+            </div>
+            <div class="star-rating__filled">
+                <span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span>
+            </div>
+          </div>
+          
+          <h3>Partial Stars (Rated 3.5 / 5)</h3>
+          <div class="star-rating--read-only" style="--rating: 3.5;" aria-label="Rated 3.5 out of 5 stars">
+            <div class="star-rating__empty">
+                <span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span>
+            </div>
+            <div class="star-rating__filled">
+                <span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span>
+            </div>
+          </div>
+          
+          <h3>Different Size (Rated 4.2 / 5)</h3>
+          <div class="star-rating--read-only" style="--rating: 4.2; --star-size: 24px;" aria-label="Rated 4.2 out of 5 stars">
+            <div class="star-rating__empty">
+                <span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span>
+            </div>
+            <div class="star-rating__filled">
+                <span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+	
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "interactive"</h3>
+		<!--description--><normal> Allows a user to select a rating from 1 to 5. Built with radio buttons for full accessibility via keyboard and screen readers. </normal>
+		<!-- vrient 1 html -->
+        <fieldset class="star-rating--interactive">
+            <legend style="position: absolute; opacity: 0; width: 0; height: 0;">Rate this item</legend>
+            <input type="radio" id="interactive-star5" name="interactive-rating" value="5" class="star-rating__input"><label for="interactive-star5" class="star-rating__label" title="5 out of 5 stars">★</label>
+            <input type="radio" id="interactive-star4" name="interactive-rating" value="4" class="star-rating__input"><label for="interactive-star4" class="star-rating__label" title="4 out of 5 stars">★</label>
+            <input type="radio" id="interactive-star3" name="interactive-rating" value="3" class="star-rating__input"><label for="interactive-star3" class="star-rating__label" title="3 out of 5 stars">★</label>
+            <input type="radio" id="interactive-star2" name="interactive-rating" value="2" class="star-rating__input"><label for="interactive-star2" class="star-rating__label" title="2 out of 5 stars">★</label>
+            <input type="radio" id="interactive-star1" name="interactive-rating" value="1" class="star-rating__input"><label for="interactive-star1" class="star-rating__label" title="1 out of 5 stars">★</label>
+          </fieldset>     
+		
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : "read-only"</h3>
+		<!--description--><normal> Displays a static rating value, including partial stars (e.g., 4.5). The rating is set via a CSS custom property `--rating`. </normal>
+		<!-- vrient 1 html -->
+        <div class="star-rating--read-only" style="--rating: 3.7; --star-size: 24px;" aria-label="Rated 3.7 out of 5 stars">
+            <div class="star-rating__empty">
+                <span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span>
+            </div>
+            <div class="star-rating__filled">
+                <span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span><span class="star-rating__icon">★</span>
+            </div>
+          </div>     
+		
+      </div>
+	 </div>    
+	
+	</body>
+</html>

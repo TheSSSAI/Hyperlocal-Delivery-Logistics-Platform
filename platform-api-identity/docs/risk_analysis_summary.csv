@@ -1,0 +1,2 @@
+"total_risks_identified","critical_risks","high_priority_risks","average_risk_score","key_risk_themes","immediate_actions_required"
+"8","0","5","14.75","[""Third-Party Service Dependencies"",""Distributed System Complexity (Sagas & Microservices)"",""Operational Readiness & Performance""]","[""Implement resilience patterns (circuit breakers, retries) for all external APIs."",""Finalize and test the Checkout Saga failure paths and compensating transactions."",""Resource and prioritize foundational DevOps and Infrastructure work (EPIC-001) to unblock all teams.""]"

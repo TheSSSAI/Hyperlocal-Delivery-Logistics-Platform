@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organism Component: ModalDialog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================== */
+    /* 1. Design System Tokens & Base Styles           */
+    /* =============================================== */
+    :root {
+      /* Typography */
+      --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-size-h4: 20px;
+      --font-size-body: 16px;
+      --font-size-caption: 14px;
+
+      /* Colors */
+      --color-primary-50: #E6F0FF;
+      --color-primary-300: #5C9EFF;
+      --color-primary-500: #0068FF;
+      --color-primary-600: #0053CC;
+      --color-primary-700: #003E99;
+      --color-neutrals-white: #FFFFFF;
+      --color-neutrals-gray-50: #F7F9FC;
+      --color-neutrals-gray-100: #E9EDF2;
+      --color-neutrals-gray-200: #D3D9E1;
+      --color-neutrals-gray-500: #8E9BAA;
+      --color-neutrals-gray-700: #555D66;
+      --color-neutrals-gray-900: #1C1F22;
+      --color-semantic-error: #FF4D4D;
+      --color-semantic-info: #0068FF;
+      --color-danger-hover: #D64040;
+      
+      /* Spacing */
+      --space-12: 12px;
+      --space-16: 16px;
+      --space-24: 24px;
+      
+      /* Borders & Shadows */
+      --border-radius-md: 8px;
+      --border-radius-lg: 12px;
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+
+      /* Transitions */
+      --transition-fast: 150ms ease-in-out;
+    }
+    
+    body {
+      font-family: var(--font-family-primary);
+      background-color: var(--color-neutrals-gray-100);
+      color: var(--color-neutrals-gray-900);
+      margin: 0;
+      padding: var(--space-24);
+    }
+
+    .showcase {
+        max-width: 900px;
+        margin: 40px auto;
+        background: white;
+        padding: 32px;
+        border-radius: 12px;
+    }
+    .showcase h1 { font-size: 32px; margin-bottom: 8px; }
+    .showcase p { color: var(--color-neutrals-gray-700); margin-bottom: 24px; }
+    .triggers { display: flex; flex-wrap: wrap; gap: 16px; }
+
+    /* =============================================== */
+    /* 2. Atomic Dependency Styles                     */
+    /* =============================================== */
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; padding: 12px 24px; min-height: 44px; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition: all var(--transition-fast); }
+    .btn:focus-visible { outline: 3px solid var(--color-primary-300); outline-offset: 2px; }
+    .btn--primary { background-color: var(--color-primary-500); color: var(--color-neutrals-white); }
+    .btn--primary:hover { background-color: var(--color-primary-600); }
+    .btn--secondary { background-color: var(--color-neutrals-white); color: var(--color-neutrals-gray-700); border-color: var(--color-neutrals-gray-200); }
+    .btn--secondary:hover { background-color: var(--color-neutrals-gray-50); }
+    .btn--danger { background-color: var(--color-semantic-error); color: var(--color-neutrals-white); }
+    .btn--danger:hover { background-color: var(--color-danger-hover); }
+    .btn--icon-only { padding: 10px; width: 44px; }
+
+    .icon { display: inline-block; width: 1.2em; height: 1.2em; stroke-width: 0; stroke: currentColor; fill: currentColor; }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+    
+    /* Form Group for Form Modal */
+    .form-group { margin-bottom: var(--space-16); }
+    .label { display: block; font-size: var(--font-size-caption); font-weight: 600; color: var(--color-neutrals-gray-700); margin-bottom: var(--space-8); }
+    .input { width: 100%; padding: 12px; font-size: var(--font-size-body); border-radius: var(--border-radius-md); border: 1px solid var(--color-neutrals-gray-200); }
+    .input:focus { outline: none; border-color: var(--color-primary-500); box-shadow: 0 0 0 3px var(--color-primary-50); }
+
+
+    /* =============================================== */
+    /* 3. Organism Component: ModalDialog              */
+    /* =============================================== */
+    dialog {
+      padding: 0;
+      border: none;
+      background: none;
+    }
+    
+    dialog::backdrop {
+      background-color: rgba(28, 31, 34, 0.5);
+      backdrop-filter: blur(4px);
+    }
+    
+    /* Base styles are MOBILE-FIRST (full-screen) */
+    .modal {
+      position: fixed;
+      inset: 0;
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      max-width: 100vw;
+      max-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--color-neutrals-white);
+      overflow: hidden;
+      transform: translateY(100%);
+      transition: transform 300ms ease-out;
+    }
+    
+    dialog[open].modal {
+        transform: translateY(0);
+    }
+
+    .modal__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-16) var(--space-24);
+      border-bottom: 1px solid var(--color-neutrals-gray-100);
+      flex-shrink: 0;
+    }
+
+    .modal__title {
+      font-size: var(--font-size-h4);
+      font-weight: 600;
+      color: var(--color-neutrals-gray-900);
+      margin: 0;
+    }
+
+    .modal__body {
+      padding: var(--space-24);
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+
+    .modal__body p {
+      color: var(--color-neutrals-gray-700);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    .modal__footer {
+      display: flex;
+      flex-direction: column-reverse; /* Stack buttons on mobile, primary action last/bottom */
+      gap: var(--space-12);
+      padding: var(--space-16) var(--space-24);
+      background-color: var(--color-neutrals-gray-50);
+      border-top: 1px solid var(--color-neutrals-gray-100);
+      flex-shrink: 0;
+    }
+
+    .modal__footer .btn {
+      width: 100%;
+    }
+
+    /* --- Variants --- */
+    .modal--confirmation .modal__body {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal--confirmation .modal__icon {
+      font-size: 48px;
+      margin-bottom: var(--space-16);
+    }
+    .modal--confirmation .modal__title {
+        width: 100%;
+        text-align: center;
+    }
+    .modal--confirmation [data-icon-type="danger"] { color: var(--color-semantic-error); }
+    .modal--confirmation [data-icon-type="info"] { color: var(--color-semantic-info); }
+    .modal--confirmation .modal__footer {
+        flex-direction: row;
+        justify-content: center;
+    }
+     .modal--confirmation .modal__footer .btn {
+        width: auto;
+    }
+    
+
+    /* --- Responsive Adaptations (Desktop) --- */
+    @media (min-width: 768px) {
+      .modal {
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.95);
+        opacity: 0;
+        inset: auto;
+        width: 90vw;
+        max-width: 500px;
+        max-height: 85vh;
+        border-radius: var(--border-radius-lg);
+        box-shadow: var(--shadow-lg);
+        transition: opacity 200ms ease-in-out, transform 200ms ease-in-out;
+      }
+      
+      dialog[open].modal {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      
+      .modal__header {
+        padding: var(--space-24);
+      }
+
+      .modal__footer {
+        flex-direction: row;
+        justify-content: flex-end;
+        padding: var(--space-16) var(--space-24);
+      }
+      .modal__footer .btn {
+        width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="showcase">
+    <h1>ModalDialog Showcase</h1>
+    <p>Click the buttons below to open different variants of the modal dialog component. The modals are responsive and accessible.</p>
+    
+    <div class="triggers">
+      <button class="btn btn--primary" data-modal-trigger="info-modal">Info Modal</button>
+      <button class="btn btn--secondary" data-modal-trigger="form-modal">Form Modal</button>
+      <button class="btn btn--danger" data-modal-trigger="confirmation-modal">Confirmation Modal</button>
+    </div>
+  </main>
+
+  <!-- ======================= MODAL DEFINITIONS ======================= -->
+  <!-- These would typically be at the end of the body tag -->
+
+  <!-- Info Modal -->
+  <dialog class="modal modal--info" id="info-modal" aria-labelledby="info-title" aria-describedby="info-desc">
+    <div class="modal__header">
+      <h2 id="info-title" class="modal__title">Platform Update</h2>
+      <button class="btn btn--icon-only btn--secondary" data-modal-close="info-modal" aria-label="Close dialog">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </div>
+    <div class="modal__body" id="info-desc">
+      <p>We've updated our terms of service. By continuing to use the platform, you agree to the new terms. Please take a moment to review them.</p>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--primary" data-modal-close="info-modal">Got it</button>
+    </div>
+  </dialog>
+
+  <!-- Form Modal -->
+  <dialog class="modal modal--form" id="form-modal" aria-labelledby="form-title" aria-describedby="form-desc">
+    <div class="modal__header">
+      <h2 id="form-title" class="modal__title">Add New Category</h2>
+      <button class="btn btn--icon-only btn--secondary" data-modal-close="form-modal" aria-label="Close dialog">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </div>
+    <div class="modal__body" id="form-desc">
+      <form>
+        <div class="form-group">
+          <label for="category-name" class="label">Category Name</label>
+          <input type="text" id="category-name" class="input" placeholder="e.g., Appetizers">
+        </div>
+      </form>
+    </div>
+    <div class="modal__footer">
+      <button class="btn btn--secondary" data-modal-close="form-modal">Cancel</button>
+      <button class="btn btn--primary">Save Category</button>
+    </div>
+  </dialog>
+
+  <!-- Confirmation Modal -->
+  <dialog class="modal modal--confirmation" id="confirmation-modal" aria-labelledby="confirm-title" aria-describedby="confirm-desc">
+    <div class="modal__header" style="border: none;">
+      <h2 id="confirm-title" class="modal__title sr-only">Confirm Deletion</h2>
+      <button class="btn btn--icon-only btn--secondary" data-modal-close="confirmation-modal" aria-label="Close dialog">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </div>
+    <div class="modal__body" id="confirm-desc">
+      <div class="modal__icon" data-icon-type="danger">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      </div>
+      <h3 class="modal__title" style="margin-bottom: 8px;">Delete Item?</h3>
+      <p>Are you sure you want to permanently delete this item? This action cannot be undone.</p>
+    </div>
+    <div class="modal__footer" style="border: none;">
+      <button class="btn btn--secondary" data-modal-close="confirmation-modal">Cancel</button>
+      <button class="btn btn--danger">Confirm Delete</button>
+    </div>
+  </dialog>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const triggers = document.querySelectorAll('[data-modal-trigger]');
+      
+      triggers.forEach(trigger => {
+        const modalId = trigger.getAttribute('data-modal-trigger');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          trigger.addEventListener('click', () => {
+            modal.showModal();
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+          });
+        }
+      });
+      
+      const closeButtons = document.querySelectorAll('[data-modal-close]');
+      closeButtons.forEach(button => {
+        const modalId = button.getAttribute('data-modal-close');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          button.addEventListener('click', () => {
+            modal.close();
+          });
+        }
+      });
+      
+      // Close modal on backdrop click
+      const dialogs = document.querySelectorAll('dialog.modal');
+      dialogs.forEach(dialog => {
+          dialog.addEventListener('click', (event) => {
+              if (event.target === dialog) {
+                  dialog.close();
+              }
+          });
+          dialog.addEventListener('close', () => {
+              document.body.style.overflow = ''; // Restore background scrolling
+          });
+      });
+    });
+  </script>
+	<div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : "confirmation"</h3>
+		<normal> Used for critical actions like deletion, requiring explicit user confirmation. Typically has a title, a brief message, and two distinct action buttons (e.g., 'Confirm', 'Cancel'). </normal>
+		<button class="btn btn--danger" data-modal-trigger="confirmation-modal">Show Confirmation Modal</button>
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : "form-modal"</h3>
+		<normal> Contains a form with input fields for data entry, such as adding or editing an item. It includes a body for the form elements and a footer with 'Save' and 'Cancel' buttons. </normal>
+		<button class="btn btn--secondary" data-modal-trigger="form-modal">Show Form Modal</button>
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : "info"</h3>
+		<normal> A simple variant for displaying informational messages to the user. It typically contains a title, a body of text, and a single 'Close' or 'OK' button. </normal>
+		<button class="btn btn--primary" data-modal-trigger="info-modal">Show Info Modal</button>
+      </div>
+	 </div>    
+	
+	</body>
+</html>

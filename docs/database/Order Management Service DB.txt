@@ -1,0 +1,54 @@
+-- Enable UUID generation extension if not already enabled
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- Create the Order table to store core order information
+CREATE TABLE "Order" (
+    "orderId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "customerId" UUID NOT NULL,
+    "vendorId" UUID NOT NULL,
+    "deliveryAddressId" UUID NOT NULL,
+    "customerName" VARCHAR(201),
+    "vendorStoreName" VARCHAR(255),
+    "subtotal" DECIMAL(10, 2) NOT NULL,
+    "taxes" DECIMAL(10, 2) NOT NULL,
+    "deliveryFee" DECIMAL(10, 2) NOT NULL,
+    "totalAmount" DECIMAL(10, 2) NOT NULL,
+    "status" VARCHAR(30) NOT NULL CHECK ("status" IN ('PAYMENT_PENDING', 'PAYMENT_PENDING_CONFIRMATION', 'PENDING_VENDOR_ACCEPTANCE', 'ACCEPTED', 'PREPARING', 'READY_FOR_PICKUP', 'IN_TRANSIT', 'DELIVERED', 'CANCELLED', 'ALLOCATION_FAILED')),
+    "paymentMethod" VARCHAR(20) NOT NULL CHECK ("paymentMethod" IN ('UPI', 'CREDIT_DEBIT_CARD', 'COD')),
+    "vendorInstructions" TEXT,
+    "riderInstructions" TEXT,
+    "placedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create the OrderItem table to store details of items within an order
+CREATE TABLE "OrderItem" (
+    "orderItemId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "orderId" UUID NOT NULL,
+    "productId" UUID NOT NULL,
+    "quantity" INT NOT NULL CHECK ("quantity" > 0),
+    "priceAtTimeOfOrder" DECIMAL(10, 2) NOT NULL,
+    "productName" VARCHAR(255) NOT NULL,
+    CONSTRAINT "FK_OrderItem_Order" FOREIGN KEY ("orderId") REFERENCES "Order"("orderId") ON DELETE CASCADE,
+    CONSTRAINT "UC_OrderItem_Order_Product" UNIQUE ("orderId", "productId")
+);
+
+-- Create the OrderStatusHistory table to log all status transitions for an order
+CREATE TABLE "OrderStatusHistory" (
+    "orderStatusHistoryId" UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    "orderId" UUID NOT NULL,
+    "status" VARCHAR(30) NOT NULL,
+    "actor" VARCHAR(50) NOT NULL,
+    "notes" TEXT,
+    "createdAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "FK_OrderStatusHistory_Order" FOREIGN KEY ("orderId") REFERENCES "Order"("orderId") ON DELETE CASCADE
+);
+
+-- Create indexes on the Order table for performance optimization
+CREATE INDEX "IX_Order_CustomerId_Status" ON "Order" ("customerId", "status");
+CREATE INDEX "IX_Order_VendorId_Status" ON "Order" ("vendorId", "status");
+CREATE INDEX "IX_Order_Status_PlacedAt" ON "Order" ("status", "placedAt");
+
+-- Create index on the OrderStatusHistory table for efficient status lookups
+CREATE INDEX "IX_OrderStatusHistory_OrderId_CreatedAt" ON "OrderStatusHistory" ("orderId", "createdAt");

@@ -1,0 +1,4 @@
+"component_name","business_criticality","technical_complexity","change_frequency","test_types_required","unit_test_coverage","integration_test_coverage","e2e_test_coverage","automation_percentage","manual_test_effort","automated_test_effort","total_test_cases","risk_mitigation_score","quality_confidence","maintenance_overhead","tool_compatibility","team_skill_alignment"
+"Identity & Access Service (Auth Flow)","Critical","High","Low","[""Unit"",""Integration"",""E2E"",""Security"",""Performance""]","95","98","90","95","8","80","75","0.98","High","Low","Excellent","Good"
+"Order Placement Saga","Critical","High","Medium","[""Unit"",""Integration"",""E2E"",""Performance""]","90","95","85","90","16","120","110","0.95","High","Medium","Excellent","Good"
+"Vendor Catalog Management (Web UI)","High","Medium","High","[""Unit"",""Integration"",""E2E"",""Accessibility""]","85","90","75","80","24","60","90","0.9","Medium","Medium","Excellent","Good"

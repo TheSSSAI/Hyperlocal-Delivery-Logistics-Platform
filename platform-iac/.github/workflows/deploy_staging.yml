@@ -1,0 +1,68 @@
+# .github/workflows/deploy_staging.yml
+name: "Deploy Infrastructure to Staging"
+
+on:
+  push:
+    branches:
+      - develop # Assumes 'develop' branch maps to staging environment
+    paths:
+      - "environments/staging/**"
+      - "modules/**"
+      - "**.tf"
+
+permissions:
+  id-token: write # Required for AWS OIDC authentication
+  contents: read # Required to checkout the code
+
+# Prevent concurrent deployments to the same environment
+concurrency:
+  group: "staging-deployment"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: "Deploy to Staging"
+    runs-on: ubuntu-latest
+    environment: staging # Optional: Can be used for environment-specific secrets and rules
+
+    steps:
+      - name: "Checkout Code"
+        uses: actions/checkout@v4
+
+      - name: "Setup Terraform"
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.0"
+
+      - name: "Configure AWS Credentials for Staging"
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: "arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/GitHubActionRole-staging"
+          aws-region: "ap-south-1"
+
+      - name: "Terraform Init"
+        id: init
+        run: terraform init
+        working-directory: ./environments/staging
+        env:
+          AWS_BUCKET_NAME: ${{ secrets.AWS_TF_STATE_BUCKET }}
+          AWS_DYNAMODB_TABLE: ${{ secrets.AWS_TF_LOCK_TABLE }}
+
+      - name: "Terraform Plan"
+        id: plan
+        run: terraform plan -no-color -out=tfplan
+        working-directory: ./environments/staging
+
+      - name: "Terraform Apply"
+        id: apply
+        run: terraform apply -auto-approve tfplan
+        working-directory: ./environments/staging
+
+      # Optional: Add a step for notifications (e.g., Slack) on success or failure
+      - name: "Notify on Success"
+        if: success()
+        run: echo "Staging deployment successful!"
+
+      - name: "Notify on Failure"
+        if: failure()
+        run: echo "Staging deployment failed!"

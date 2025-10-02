@@ -1,0 +1,24 @@
+sequenceDiagram
+    participant "Rider Logistics Service" as RiderLogisticsService
+    participant "Order Management Service" as OrderManagementService
+    participant "Notifications Service" as NotificationsService
+    participant "Admin Web Dashboard" as AdminWebDashboard
+
+    activate RiderLogisticsService
+    RiderLogisticsService->>RiderLogisticsService: 1. Detect Allocation Failure (e.g., 3 rejections or 5-min timeout)
+    RiderLogisticsService-->>OrderManagementService: 2. Publish 'RiderAllocationFailed' Event (to SNS/SQS)
+    
+    par 
+        OrderManagementService-->>OrderManagementService: 3a. Consume Event
+        OrderManagementService->>OrderManagementService: 4a. Update Order status to 'Allocation Failed' in DB
+        OrderManagementService->>OrderManagementService: 4b. Create high-priority alert record in DB
+        OrderManagementService-->>AdminWebDashboard: 5. (WebSocket) Push 'NewAdminAlert' event
+    and
+        NotificationsService-->>NotificationsService: 3b. Consume Event
+        NotificationsService->>NotificationsService: 4c. Send Push/SMS notifications to Customer & Vendor
+    end
+
+    deactivate RiderLogisticsService
+
+    note over OrderManagementService: The alert record created in step 4b is the source of truth for the admin dashboard's alert queue.
+    note over RiderLogisticsService: The event payload must include Order ID and failure reason for diagnostics (REQ-FUN-018).

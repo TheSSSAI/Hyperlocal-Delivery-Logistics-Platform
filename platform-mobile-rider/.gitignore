@@ -1,0 +1,51 @@
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# Environment variables
+.env
+.env.*
+
+# React Native
+.DS_Store
+*.js.map
+*.bundle
+/ios/Pods/
+/ios/build/
+/android/app/build/
+/android/.gradle/
+/android/build/
+/android/app/src/main/assets/index.android.bundle
+
+# Editor
+.vscode/
+.idea/
+
+# Jest
+/coverage/
+
+# Misc
+*.pem
+*.p12
+
+# macOS
+.AppleDouble
+.LSOverride
+# Thumbnails
+._*
+# Files that might appear in the root of a volume
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+# Directories potentially created on remote AFP share
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk

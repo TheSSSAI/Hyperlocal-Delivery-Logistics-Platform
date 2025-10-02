@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organism: AppHeader</title>
+    <style>
+        /* CSS Reset */
+        *, *::before, *::after { box-sizing: border-box; }
+        body, h1, h2, h3, p, nav, ul { margin: 0; }
+        ul { list-style: none; padding: 0; }
+        button, a { font: inherit; color: inherit; }
+
+        /* Design System Tokens */
+        :root {
+            /* Typography */
+            --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-weight-regular: 400;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+            --fs-h2: 36px; --fs-h3: 28px; --fs-h4: 20px; --fs-body: 16px; --fs-caption: 14px;
+            /* Colors */
+            --color-primary-50: #E6F0FF; --color-primary-100: #B8D4FF; --color-primary-200: #8AB9FF; --color-primary-300: #5C9EFF; --color-primary-500: #0068FF; --color-primary-600: #0053CC;
+            --color-white: #FFFFFF; --color-gray-50: #F7F9FC; --color-gray-100: #E9EDF2; --color-gray-200: #D3D9E1; --color-gray-300: #BCC4CF; --color-gray-500: #8E9BAA; --color-gray-600: #717C88; --color-gray-800: #383E44; --color-gray-900: #1C1F22;
+            /* Spacing */
+            --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px; --space-7: 48px; --space-8: 64px;
+            /* Borders & Shadows */
+            --border-radius-md: 8px; --border-radius-lg: 12px; --border-radius-full: 9999px;
+            --shadow-sm: 0px 2px 4px rgba(28, 31, 34, 0.06);
+            --shadow-lg: 0px 8px 16px rgba(28, 31, 34, 0.12);
+        }
+
+        /* Showcase Layout */
+        body {
+            font-family: var(--font-family-primary);
+            background-color: var(--color-gray-50);
+            color: var(--color-gray-800);
+        }
+        .showcase {
+            padding: var(--space-6);
+        }
+        .showcase-section {
+            margin-bottom: var(--space-7);
+        }
+        .showcase-section h2 {
+            font-size: var(--fs-h3);
+            margin-bottom: var(--space-4);
+            color: var(--color-gray-900);
+        }
+        .showcase-section h3 {
+            margin: var(--space-5) 0 var(--space-3) 0;
+            font-size: var(--fs-h4);
+            color: var(--color-gray-800);
+        }
+        .page-content {
+            padding: var(--space-5);
+            background-color: var(--color-gray-100);
+            border-radius: var(--border-radius-lg);
+            min-height: 200px;
+        }
+        .mobile-view-wrapper {
+            width: 100%;
+            max-width: 375px;
+            margin: var(--space-4) auto;
+            border: 8px solid var(--color-gray-900);
+            border-radius: 32px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* --- ATOMIC/MOLECULAR DEPENDENCIES --- */
+        .icon { display: inline-block; width: 1em; height: 1em; stroke-width: 0; stroke: currentColor; fill: currentColor; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); padding: var(--space-2) var(--space-4); font-weight: var(--font-weight-semibold); text-decoration: none; border-radius: var(--border-radius-md); border: 1px solid transparent; cursor: pointer; transition: all 0.2s ease; min-height: 44px; }
+        .btn:focus-visible { outline: 3px solid var(--color-primary-200); outline-offset: 2px; }
+        .btn--icon-only { padding: var(--space-2); line-height: 1; font-size: 1.5rem; }
+        .avatar { display: inline-block; border-radius: var(--border-radius-full); overflow: hidden; background-color: var(--color-gray-200); }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar--md { width: 40px; height: 40px; }
+        .search-bar { position: relative; display: flex; align-items: center; width: 100%; max-width: 320px; }
+        .search-bar__input { width: 100%; height: 44px; padding: var(--space-3) var(--space-4) var(--space-3) 40px; border: 1px solid var(--color-gray-300); border-radius: var(--border-radius-md); }
+        .search-bar__icon-prefix { position: absolute; left: var(--space-4); top: 50%; transform: translateY(-50%); color: var(--color-gray-500); font-size: 1.25rem; }
+
+        /* --- ORGANISM: AppHeader --- */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-5);
+            background-color: var(--color-white);
+            border-bottom: 1px solid var(--color-gray-200);
+            height: 64px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .app-header__brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: var(--fs-h4);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-gray-900);
+            text-decoration: none;
+        }
+        .app-header__logo {
+            height: 32px;
+            width: 32px;
+            color: var(--color-primary-500);
+        }
+        .app-header__nav {
+            display: none; /* Hidden on mobile by default for web */
+            gap: var(--space-5);
+        }
+        .app-header__nav-link {
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-gray-600);
+            text-decoration: none;
+            padding: var(--space-2) 0;
+            border-bottom: 2px solid transparent;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .app-header__nav-link:hover {
+            color: var(--color-primary-500);
+        }
+        .app-header__nav-link--active {
+            color: var(--color-primary-500);
+            border-bottom-color: var(--color-primary-500);
+        }
+        .app-header__utils {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+        /* Hamburger Menu for Web Dashboards */
+        .app-header__menu-toggle-label {
+            display: block;
+            cursor: pointer;
+            z-index: 102;
+            padding: var(--space-2);
+        }
+        .app-header__menu-toggle {
+            display: none; /* Hide the actual checkbox */
+        }
+        .app-header__hamburger {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            width: 24px;
+            height: 24px;
+            justify-content: center;
+        }
+        .app-header__hamburger span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: var(--color-gray-800);
+            border-radius: 3px;
+            transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+        }
+        /* Off-canvas Mobile Menu */
+        .app-header__mobile-nav {
+            position: fixed;
+            top: 0;
+            right: -100%; /* Start off-screen */
+            width: 280px;
+            height: 100vh;
+            background-color: var(--color-white);
+            box-shadow: var(--shadow-lg);
+            padding: var(--space-8) var(--space-5);
+            transition: right 0.4s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+            z-index: 101;
+        }
+        .app-header__mobile-nav .app-header__nav-link {
+            font-size: var(--fs-h4);
+        }
+        /* State: Mobile Menu Open */
+        .app-header__menu-toggle:checked ~ .app-header__mobile-nav {
+            right: 0;
+        }
+        .app-header__menu-toggle:checked ~ .app-header__menu-toggle-label .app-header__hamburger span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+        .app-header__menu-toggle:checked ~ .app-header__menu-toggle-label .app-header__hamburger span:nth-child(2) {
+            opacity: 0;
+        }
+        .app-header__menu-toggle:checked ~ .app-header__menu-toggle-label .app-header__hamburger span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+        /* Responsive Breakpoints for Web Dashboards */
+        @media (min-width: 768px) {
+            .app-header--web .app-header__menu-toggle-label { display: none; }
+            .app-header--web .app-header__nav { display: flex; }
+            .app-header--web .app-header__mobile-nav { display: none; }
+        }
+        @media (max-width: 767px) {
+            .app-header--web .app-header__nav { display: none; }
+        }
+
+        /* Mobile App Specific Headers */
+        .app-header--mobile {
+            justify-content: space-between;
+        }
+        .app-header--mobile .app-header__brand {
+            flex-grow: 1;
+            justify-content: center;
+        }
+        .app-header--mobile .app-header__nav-left,
+        .app-header--mobile .app-header__nav-right {
+            flex: 0 0 50px;
+        }
+        .app-header--mobile .app-header__nav-right {
+            display: flex;
+            justify-content: flex-end;
+        }
+        .app-header--mobile .app-header__title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: var(--font-weight-semibold);
+        }
+
+    </style>
+</head>
+<body>
+    <svg width="0" height="0" style="position:absolute">
+        <defs>
+            <symbol id="icon-logo" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5-10-5-10 5z"/></symbol>
+            <symbol id="icon-search" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></symbol>
+            <symbol id="icon-user" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></symbol>
+            <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></symbol>
+             <symbol id="icon-back" viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></symbol>
+             <symbol id="icon-cart" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.9 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></symbol>
+        </defs>
+    </svg>
+    <main class="showcase">
+        <section class="showcase-section">
+            <h2>Organism: AppHeader</h2>
+            
+            <h3>Variant: Admin/Vendor Web Dashboard</h3>
+            <p>This header is responsive. On screens wider than 768px, it shows navigation links. On smaller screens, it shows a hamburger menu.</p>
+            <header class="app-header app-header--web">
+                <a href="#" class="app-header__brand">
+                    <svg class="app-header__logo" aria-hidden="true"><use href="#icon-logo"></use></svg>
+                    <span>Platform</span>
+                </a>
+                <nav class="app-header__nav" aria-label="Main Navigation">
+                    <a href="#" class="app-header__nav-link app-header__nav-link--active">Dashboard</a>
+                    <a href="#" class="app-header__nav-link">Orders</a>
+                    <a href="#" class="app-header__nav-link">Users</a>
+                    <a href="#" class="app-header__nav-link">Settings</a>
+                </nav>
+                <div class="app-header__utils">
+                    <form class="search-bar" role="search" aria-label="Global Search">
+                        <div class="search-bar__wrapper">
+                            <div class="search-bar__icon-prefix"><svg class="icon"><use href="#icon-search"></use></svg></div>
+                            <input type="search" class="search-bar__input" placeholder="Search...">
+                        </div>
+                    </form>
+                    <button class="btn btn--icon-only" aria-label="Notifications"><svg class="icon"><use href="#icon-bell"></use></svg></button>
+                    <button class="avatar avatar--md" aria-label="User Menu">
+                        <img src="https://i.pravatar.cc/40?u=admin" alt="Admin User">
+                    </button>
+                </div>
+                <!-- Hamburger Menu for mobile -->
+                <input type="checkbox" id="menu-toggle-1" class="app-header__menu-toggle">
+                <label for="menu-toggle-1" class="app-header__menu-toggle-label">
+                    <div class="app-header__hamburger">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </label>
+                <nav class="app-header__mobile-nav" aria-label="Mobile Navigation">
+                    <a href="#" class="app-header__nav-link app-header__nav-link--active">Dashboard</a>
+                    <a href="#" class="app-header__nav-link">Orders</a>
+                    <a href="#" class="app-header__nav-link">Users</a>
+                    <a href="#" class="app-header__nav-link">Settings</a>
+                </nav>
+            </header>
+            <div class="page-content">Page Content for Web Dashboard</div>
+
+            <h3>Variant: Customer Mobile App</h3>
+            <p>A typical mobile app header with a back button, centered title, and action icons on the right.</p>
+            <div class="mobile-view-wrapper">
+                <header class="app-header app-header--mobile">
+                    <div class="app-header__nav-left">
+                        <button class="btn btn--icon-only" style="background: none; border: none;" aria-label="Go back">
+                            <svg class="icon"><use href="#icon-back"></use></svg>
+                        </button>
+                    </div>
+                    <h1 class="app-header__title">Global Bites Kitchen</h1>
+                    <div class="app-header__nav-right">
+                        <button class="btn btn--icon-only" style="background: none; border: none;" aria-label="View Cart">
+                            <svg class="icon"><use href="#icon-cart"></use></svg>
+                        </button>
+                    </div>
+                </header>
+                <div class="page-content">Page Content for Customer App</div>
+            </div>
+
+            <h3>Variant: Rider Mobile App</h3>
+            <p>A simple header focused on the primary action or information, with access to the user profile.</p>
+            <div class="mobile-view-wrapper">
+                <header class="app-header app-header--mobile">
+                     <div class="app-header__nav-left">
+                        <!-- Empty for this variant -->
+                    </div>
+                    <a href="#" class="app-header__brand">
+                        <svg class="app-header__logo" aria-hidden="true"><use href="#icon-logo"></use></svg>
+                        <span style="font-size: 18px;">Rider Dashboard</span>
+                    </a>
+                    <div class="app-header__nav-right">
+                        <button class="avatar avatar--md" aria-label="User Menu">
+                            <img src="https://i.pravatar.cc/40?u=rider" alt="Rider User">
+                        </button>
+                    </div>
+                </header>
+                <div class="page-content">Page Content for Rider App</div>
+            </div>
+        </section>
+    </main>
+
+    <div> <h2> Component Variations</h2>
+      <div>
+        <h3>Variant Name : customer-mobile</h3>
+		<normal> Header for the customer-facing mobile application. Typically includes a back button, a centered screen title, and utility actions like search or cart. </normal>
+		<div class="mobile-view-wrapper" style="margin-top: 16px;">
+            <header class="app-header app-header--mobile">
+                <div class="app-header__nav-left">
+                    <button class="btn btn--icon-only" style="background: none; border: none;" aria-label="Go back">
+                        <svg class="icon"><use href="#icon-back"></use></svg>
+                    </button>
+                </div>
+                <h1 class="app-header__title">Page Title</h1>
+                <div class="app-header__nav-right">
+                    <button class="btn btn--icon-only" style="background: none; border: none;" aria-label="View Cart">
+                        <svg class="icon"><use href="#icon-cart"></use></svg>
+                    </button>
+                </div>
+            </header>
+            <div style="height: 50px; background: #f0f0f0;"></div>
+        </div>
+      </div>
+	 </div>
+      <div>
+        <h3>Variant Name : rider-mobile</h3>
+		<normal> Header for the rider-facing mobile application. Simplified for at-a-glance information, often showing branding and a link to the rider's profile/earnings. </normal>
+		<div class="mobile-view-wrapper" style="margin-top: 16px;">
+            <header class="app-header app-header--mobile">
+                 <div class="app-header__nav-left"></div>
+                <a href="#" class="app-header__brand">
+                    <svg class="app-header__logo" aria-hidden="true"><use href="#icon-logo"></use></svg>
+                    <span style="font-size: 18px;">Rider App</span>
+                </a>
+                <div class="app-header__nav-right">
+                    <button class="avatar avatar--md" aria-label="User Menu">
+                        <img src="https://i.pravatar.cc/40?u=rider" alt="Rider User">
+                    </button>
+                </div>
+            </header>
+            <div style="height: 50px; background: #f0f0f0;"></div>
+        </div>
+      </div>
+	 </div>    
+      <div>
+        <h3>Variant Name : vendor-web</h3>
+		<normal> Header for the vendor web dashboard. Includes main navigation links on desktop and collapses to a hamburger menu on mobile/tablet screens. </normal>
+		<header class="app-header app-header--web" style="margin-top: 16px;">
+            <a href="#" class="app-header__brand">
+                <svg class="app-header__logo" aria-hidden="true"><use href="#icon-logo"></use></svg>
+                <span>Vendor Portal</span>
+            </a>
+            <nav class="app-header__nav" aria-label="Main Navigation">
+                <a href="#" class="app-header__nav-link app-header__nav-link--active">Dashboard</a>
+                <a href="#" class="app-header__nav-link">Products</a>
+                <a href="#" class="app-header__nav-link">Orders</a>
+            </nav>
+            <div class="app-header__utils">
+                <button class="avatar avatar--md" aria-label="User Menu">
+                    <img src="https://i.pravatar.cc/40?u=vendor" alt="Vendor User">
+                </button>
+            </div>
+            <input type="checkbox" id="menu-toggle-2" class="app-header__menu-toggle">
+            <label for="menu-toggle-2" class="app-header__menu-toggle-label">
+                <div class="app-header__hamburger"><span></span><span></span><span></span></div>
+            </label>
+        </header>
+      </div>
+	 </div>    
+      <div>
+        <h3>Variant Name : admin-web</h3>
+		<normal> Header for the admin web dashboard. Structurally similar to the vendor header, but with different navigation links and tools like a global search bar. </normal>
+		<header class="app-header app-header--web" style="margin-top: 16px;">
+            <a href="#" class="app-header__brand">
+                <svg class="app-header__logo" aria-hidden="true"><use href="#icon-logo"></use></svg>
+                <span>Admin Panel</span>
+            </a>
+            <nav class="app-header__nav" aria-label="Main Navigation">
+                <a href="#" class="app-header__nav-link app-header__nav-link--active">Dashboard</a>
+                <a href="#" class="app-header__nav-link">Users</a>
+                <a href="#" class="app-header__nav-link">Settings</a>
+            </nav>
+            <div class="app-header__utils">
+                <form class="search-bar" role="search"><div class="search-bar__wrapper"><div class="search-bar__icon-prefix"><svg class="icon"><use href="#icon-search"></use></svg></div><input type="search" class="search-bar__input" placeholder="Search..."></div></form>
+                <button class="btn btn--icon-only" aria-label="Notifications"><svg class="icon"><use href="#icon-bell"></use></svg></button>
+                <button class="avatar avatar--md" aria-label="User Menu"><img src="https://i.pravatar.cc/40?u=admin" alt="Admin User"></button>
+            </div>
+            <input type="checkbox" id="menu-toggle-3" class="app-header__menu-toggle">
+            <label for="menu-toggle-3" class="app-header__menu-toggle-label">
+                <div class="app-header__hamburger"><span></span><span></span><span></span></div>
+            </label>
+        </header>
+      </div>
+	 </div>    
+	
+	</body>
+</html>

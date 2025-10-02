@@ -1,0 +1,41 @@
+flowchart TD
+    subgraph "User Onboarding"
+        A[User Submits Registration<br/>(Vendor/Rider)] --> B((User Account Created<br/>Status: pending_verification));
+    end
+
+    subgraph "Admin Workflow"
+        C[Admin navigates to<br/>'Pending Registrations' Queue] --> D{Selects User to Review};
+        D --> E[Admin reviews submitted<br/>details and documents];
+        E --> F{Decision: Approve or Reject?};
+    end
+
+    subgraph "Approval Path"
+        F -->|Approve| G[Admin clicks 'Approve'];
+        G --> H[API: Update User Status to 'active'];
+        H --> I[Log 'REGISTRATION_APPROVED'<br/>in Audit Trail];
+        I --> J[Publish 'UserApproved' event];
+        J --> K((User Account: active));
+        J --> L[Notification Service sends<br/>'Welcome!' notification];
+    end
+
+    subgraph "Rejection Path"
+        F -->|Reject| M[Admin clicks 'Reject'<br/>and provides a reason];
+        M --> N[API: Update User Status to 'rejected'];
+        N --> O[Log 'REGISTRATION_REJECTED'<br/>with reason in Audit Trail];
+        O --> P[Publish 'UserRejected' event];
+        P --> Q((User Account: rejected));
+        P --> R[Notification Service sends<br/>'Application Unsuccessful' notification];
+    end
+
+    B --> C;
+
+    %% Styling
+    classDef success fill:#e8f5e8,stroke:#4caf50,color:#000;
+    classDef failure fill:#ffebee,stroke:#d32f2f,color:#000;
+    classDef process fill:#e3f2fd,stroke:#2196f3,color:#000;
+    classDef state fill:#fff9c4,stroke:#fbc02d,color:#000;
+
+    class G,H,I,J,K,L success;
+    class M,N,O,P,Q,R failure;
+    class C,D,E,F process;
+    class B state;

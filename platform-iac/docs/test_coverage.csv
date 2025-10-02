@@ -1,0 +1,6 @@
+"component_name","business_criticality","technical_complexity","change_frequency","test_types_required","unit_test_coverage","integration_test_coverage","e2e_test_coverage","automation_percentage","manual_test_effort","automated_test_effort","total_test_cases","risk_mitigation_score","quality_confidence","maintenance_overhead","tool_compatibility","team_skill_alignment"
+"Identity & Access Service","Critical","High","Low","[""Unit"",""Integration"",""Security"",""Performance""]","95","90","85","90","16","80","150","0.98","High","Low","Excellent","Good"
+"Order Management Service","Critical","High","Medium","[""Unit"",""Integration"",""System"",""Performance""]","92","95","90","88","24","120","250","0.95","High","Medium","Excellent","Good"
+"Payments & Settlements Service","Critical","High","Low","[""Unit"",""Integration"",""Security"",""E2E""]","98","95","90","92","12","100","200","0.99","Very High","Low","Excellent","Excellent"
+"Vendor & Catalog Service","High","Medium","High","[""Unit"",""Integration"",""System"",""Performance""]","85","90","80","80","32","110","300","0.9","High","Medium","Excellent","Good"
+"Customer Mobile App","High","Medium","High","[""Unit"",""E2E"",""Accessibility"",""Compatibility""]","80","","75","70","40","90","200","0.88","Medium","High","Good","Good"

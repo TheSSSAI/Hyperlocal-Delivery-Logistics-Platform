@@ -1,0 +1,4 @@
+"sprint_number","story_ids","total_points","sprint_goal","dependencies_resolved"
+"1","[""ADM-005"",""ADM-001""]","11","Establish the core user management dashboard, enabling admins to view all users and the queue of pending registrations.","true"
+"2","[""ADM-004"",""ADM-008"",""ADM-018""]","9","Build out key admin actions: rejecting registrations, configuring financial rules like the COD limit, and providing a real-time operational dashboard.","true"
+"3","[""ADM-013"",""ADM-024""]","26","Deliver complex, high-value features: the interactive geofencing tool for managing operational zones and the comprehensive support ticket management system.","true"

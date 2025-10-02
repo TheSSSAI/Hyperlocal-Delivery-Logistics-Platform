@@ -1,0 +1,35 @@
+flowchart TD
+    subgraph "Step 1: Mobile Number Verification"
+        A[User enters mobile number] --> B{Submit Number}
+        B --> C[API checks for duplicates]
+        C --> D{Number exists?}
+        D -- No --> E[Proceed to Details]
+        D -- Yes --> F["Show 'Number already registered. <br/> Please log in instead.' error"]
+    end
+
+    subgraph "Step 2: Form Details Validation"
+        E --> G[User fills personal/business details]
+        G --> H[User attempts to submit form]
+        H --> I{All mandatory fields filled?}
+        I -- Yes --> J[Proceed to Document Upload]
+        I -- No --> K["Show 'This field is required' <br/> inline validation error"]
+        K --> G
+    end
+
+    subgraph "Step 3: Document Validation"
+        J --> L[User selects a file to upload]
+        L --> M[Client/API validates file]
+        M --> N{File type and size valid?}
+        N -- Yes --> O[Submit Full Application]
+        N -- No --> P["Show 'Invalid file type or size' <br/> error message"]
+        P --> L
+    end
+
+    %% Styling
+    classDef errorNode fill:#ffebee,stroke:#d32f2f,color:#000
+    classDef successNode fill:#e8f5e8,stroke:#4caf50,color:#000
+    classDef processNode fill:#e3f2fd,stroke:#2196f3,color:#000
+    
+    class F,K,P errorNode
+    class E,J,O successNode
+    class A,G,L processNode

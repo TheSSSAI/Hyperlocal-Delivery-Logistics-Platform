@@ -1,0 +1,19 @@
+flowchart TD
+    A[Developer identifies need for a UI component] --> B[1. Finds component in Storybook];
+    B --> C[2. Reviews props, variants, and documentation];
+    C --> D[3. Copies implementation code/snippet];
+    D --> E{Is component's package installed?};
+    E -->|No| F[4a. Installs/imports component package];
+    F --> G[4b. Imports component into application file];
+    E -->|Yes| G;
+    G --> H[5. Passes data via props and handles events];
+    H --> I([Component successfully integrated]);
+
+    %% Styling
+    classDef process fill:#e3f2fd,stroke:#2196f3,color:#000;
+    classDef decision fill:#fff9c4,stroke:#fbc02d,color:#000;
+    classDef startend fill:#e8f5e9,stroke:#4caf50,color:#000;
+
+    class A,B,C,D,F,G,H process;
+    class E decision;
+    class I startend;

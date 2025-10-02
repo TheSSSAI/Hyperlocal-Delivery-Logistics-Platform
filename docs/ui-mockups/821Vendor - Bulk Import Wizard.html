@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Import Wizard</title>
+    <style>
+        /* CSS Reset & Base Styles */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            /* Color Palette */
+            --color-primary-50: #E6F0FF;
+            --color-primary-100: #B8D4FF;
+            --color-primary-300: #5C9EFF;
+            --color-primary-500: #0068FF;
+            --color-primary-600: #0053CC;
+            --color-neutrals-white: #FFFFFF;
+            --color-neutrals-gray-50: #F7F9FC;
+            --color-neutrals-gray-100: #E9EDF2;
+            --color-neutrals-gray-200: #D3D9E1;
+            --color-neutrals-gray-300: #BCC4CF;
+            --color-neutrals-gray-500: #8E9BAA;
+            --color-neutrals-gray-700: #555D66;
+            --color-neutrals-gray-900: #1C1F22;
+            --color-semantic-success: #00C875;
+            --color-semantic-error: #FF4D4D;
+            --color-success-bg: #E5F9F1;
+            --color-error-bg: #FFEBEB;
+
+            /* Typography */
+            --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            --font-size-h3: 28px;
+            --font-size-h4: 20px;
+            --font-size-body: 16px;
+            --font-size-caption: 14px;
+            --font-weight-normal: 400;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+
+            /* Spacing */
+            --space-4: 4px;
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-24: 24px;
+            --space-32: 32px;
+
+            /* Borders */
+            --border-radius-md: 8px;
+            --border-radius-lg: 12px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--color-neutrals-gray-50);
+            color: var(--color-neutrals-gray-900);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Screen Layout */
+        .screen-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: var(--space-24);
+        }
+
+        .wizard-card {
+            background-color: var(--color-neutrals-white);
+            border-radius: var(--border-radius-lg);
+            box-shadow: 0px 4px 12px rgba(28, 31, 34, 0.08);
+            padding: var(--space-32);
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            border: 1px solid var(--color-neutrals-gray-100);
+        }
+
+        .wizard-header {
+            margin-bottom: var(--space-24);
+        }
+
+        .wizard-header h3 {
+            font-size: var(--font-size-h3);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-neutrals-gray-900);
+        }
+        
+        .wizard-header p {
+            color: var(--color-neutrals-gray-700);
+            margin-top: var(--space-8);
+        }
+
+        /* Component Styles: FileUpload */
+        .file-upload-zone {
+            border: 2px dashed var(--color-neutrals-gray-300);
+            border-radius: var(--border-radius-md);
+            padding: var(--space-32);
+            background-color: var(--color-neutrals-gray-50);
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+            margin-bottom: var(--space-16);
+        }
+        
+        .file-upload-zone:hover {
+            border-color: var(--color-primary-500);
+            background-color: var(--color-primary-50);
+        }
+
+        .file-upload-icon {
+            width: 48px;
+            height: 48px;
+            color: var(--color-primary-500);
+            margin: 0 auto var(--space-16);
+        }
+        
+        .file-upload-text {
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutrals-gray-900);
+        }
+        
+        .file-upload-caption {
+            font-size: var(--font-size-caption);
+            color: var(--color-neutrals-gray-500);
+        }
+
+        /* Component Styles: Link */
+        .link {
+            color: var(--color-primary-500);
+            text-decoration: none;
+            font-weight: var(--font-weight-semibold);
+        }
+        
+        .link:hover {
+            text-decoration: underline;
+            color: var(--color-primary-600);
+        }
+
+        /* Component Styles: Button */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 24px;
+            border-radius: var(--border-radius-md);
+            font-weight: var(--font-weight-semibold);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-size: var(--font-size-body);
+            width: 100%;
+        }
+
+        .btn--primary {
+            background-color: var(--color-primary-500);
+            color: var(--color-neutrals-white);
+        }
+        
+        .btn--primary:hover {
+            background-color: var(--color-primary-600);
+        }
+        
+        .btn--secondary {
+            background-color: var(--color-neutrals-gray-100);
+            color: var(--color-neutrals-gray-900);
+            border-color: var(--color-neutrals-gray-200);
+        }
+        
+        .btn--secondary:hover {
+            background-color: var(--color-neutrals-gray-200);
+        }
+
+        .btn:disabled {
+            background-color: var(--color-neutrals-gray-200);
+            color: var(--color-neutrals-gray-500);
+            cursor: not-allowed;
+        }
+
+        /* Component Styles: Alert */
+        .alert {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-12);
+            padding: var(--space-16);
+            border-radius: var(--border-radius-md);
+            text-align: left;
+            margin-bottom: var(--space-24);
+        }
+        
+        .alert--success {
+            background-color: var(--color-success-bg);
+            color: var(--color-semantic-success);
+        }
+        
+        .alert--error {
+            background-color: var(--color-error-bg);
+            color: var(--color-semantic-error);
+        }
+
+        .alert-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+        }
+
+        .alert-content h4 {
+            font-size: var(--font-size-h4);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutrals-gray-900);
+        }
+        
+        .alert-content p {
+            font-size: var(--font-size-body);
+            color: var(--color-neutrals-gray-700);
+        }
+
+        /* State-specific components */
+        .processing-state, .uploading-state {
+            padding: var(--space-32) 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-16);
+        }
+
+        .filename {
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutrals-gray-700);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--color-neutrals-gray-100);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .progress-bar-inner {
+            width: 60%; /* Example progress */
+            height: 100%;
+            background-color: var(--color-primary-500);
+            border-radius: 4px;
+            animation: progress-animation 1s ease-out;
+        }
+        
+        @keyframes progress-animation {
+            from { width: 0; }
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid var(--color-neutrals-gray-200);
+            border-top-color: var(--color-primary-500);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .state-text {
+            font-size: var(--font-size-h4);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutrals-gray-900);
+        }
+        
+        .action-footer {
+            margin-top: var(--space-24);
+        }
+
+        /* Screen Variations Layout */
+        .screen-variations {
+            margin-top: 64px;
+            width: 100%;
+            max-width: 600px;
+        }
+        
+        .screen-variations h2 {
+            text-align: center;
+            font-size: var(--font-size-h3);
+            margin-bottom: var(--space-32);
+            color: var(--color-neutrals-gray-500);
+        }
+        
+        .variation-group {
+            margin-bottom: var(--space-32);
+        }
+        
+        .variation-group h3 {
+            margin-bottom: var(--space-12);
+            border-bottom: 1px solid var(--color-neutrals-gray-200);
+            padding-bottom: var(--space-8);
+        }
+        .variation-group h3 + normal {
+            display: block;
+            font-size: var(--font-size-caption);
+            color: var(--color-neutrals-gray-700);
+            margin-bottom: var(--space-16);
+        }
+
+        @media (min-width: 768px) {
+            .btn {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="screen-container">
+    <!-- This represents the initial "Idle" state of the wizard -->
+    <div class="wizard-card" id="idle-state">
+        <div class="wizard-header">
+            <h3>Bulk Import Products</h3>
+            <p>Upload a CSV file to add or update your product catalog.</p>
+        </div>
+        
+        <div class="wizard-body">
+            <div class="file-upload-zone" role="button" tabindex="0" aria-label="Select a file to upload">
+                <svg class="file-upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                </svg>
+                <p class="file-upload-text">Drag & drop your CSV file here</p>
+                <p class="file-upload-caption">or click to browse</p>
+            </div>
+            
+            <p class="file-upload-caption">Don't have a template? <a href="#" class="link">Download CSV Template</a></p>
+        </div>
+    </div>
+</div>
+
+<div class="screen-variations">
+    <h2>Screen Variations</h2>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Uploading"</h3>
+      <normal>Shown after a file is selected and is being uploaded to the server.</normal>
+        <div class="wizard-card">
+            <div class="uploading-state">
+                <p class="filename">products_2024-10-27.csv</p>
+                <div class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100">
+                    <div class="progress-bar-inner"></div>
+                </div>
+                <p class="state-text">Uploading...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="variation-group">
+      <h3>Variant Name: "Processing"</h3>
+      <normal>Shown after the file is uploaded and the backend is validating and importing the data.</normal>
+        <div class="wizard-card">
+            <div class="processing-state">
+                <div class="spinner" role="status" aria-label="Processing file"></div>
+                <p class="state-text">Processing your file...</p>
+                <p class="file-upload-caption">This may take a few moments. Please don't close this window.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="variation-group">
+      <h3>Variant Name: "Complete with Errors"</h3>
+      <normal>Shown when the import process is finished but some rows failed validation.</normal>
+        <div class="wizard-card">
+             <div class="wizard-header">
+                <h3>Import Complete</h3>
+            </div>
+            <div class="alert alert--error" role="alert">
+                <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                </svg>
+                <div class="alert-content">
+                    <h4>Import had issues</h4>
+                    <p>We successfully imported 97 products, but 3 rows had errors. Download the report to see the issues and re-upload the corrected rows.</p>
+                </div>
+            </div>
+            <a href="#" class="link">Download Error Report (.csv)</a>
+            <div class="action-footer">
+                <button class="btn btn--secondary" type="button">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="variation-group">
+      <h3>Variant Name: "Complete Success"</h3>
+      <normal>Shown when the import process is finished and all rows were imported successfully.</normal>
+        <div class="wizard-card">
+            <div class="wizard-header">
+                <h3>Import Successful!</h3>
+            </div>
+            <div class="alert alert--success" role="status">
+                 <svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div class="alert-content">
+                    <h4>All products imported</h4>
+                    <p>We've successfully added 150 new products to your catalog. You can now view them in your product list.</p>
+                </div>
+            </div>
+            <div class="action-footer">
+                <button class="btn btn--primary" type="button">View Products</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

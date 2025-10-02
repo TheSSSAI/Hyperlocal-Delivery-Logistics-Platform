@@ -1,0 +1,7 @@
+"sprint_number","story_ids","total_points","sprint_goal","dependencies_resolved"
+"1","[""PE-003"",""VND-008"",""VND-005""]","21","Establish the foundational infrastructure, vendor profile, and category management APIs for the Vendor & Catalog service.","true"
+"2","[""PE-001"",""VND-009""]","18","Implement the automated CI/CD pipeline and enable vendors to add new products to their catalog, allowing for the first end-to-end deployments.","true"
+"3","[""VND-010"",""PE-002"",""VND-007""]","16","Enhance product management with editing capabilities and integrate the service with the platform's observability stack for monitoring and logging.","true"
+"4","[""VND-027"",""SYS-004"",""SYS-005"",""VND-011""]","21","Deliver the full vendor compliance feature set, including license management, automated reminders, and account suspension for expired licenses.","true"
+"5","[""VND-013"",""VND-014""]","21","Launch the bulk product import capability, including the asynchronous processing worker and detailed error reporting, to streamline vendor onboarding.","true"
+"6","[""VND-015""]","5","Provide vendors with the ability to export their product catalog to CSV for data backup and analysis.","true"

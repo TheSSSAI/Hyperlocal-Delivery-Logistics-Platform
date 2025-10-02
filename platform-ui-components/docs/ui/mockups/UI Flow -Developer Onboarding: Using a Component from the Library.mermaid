@@ -1,0 +1,25 @@
+flowchart TD
+    A[Start: Developer needs a UI component for a new feature] --> B[1. Sync with Main Branch<br/>`git pull origin main`]
+    B --> C[2. Create Feature Branch<br/>`git checkout -b feature/new-screen`]
+    C --> D[3. Explore Component Library<br/>Run Storybook locally to find components]
+    D --> E{Does a suitable<br/>component exist?}
+
+    E -->|No| F[Discuss with UI/Lead Developer<br/>for new component creation or modification]
+    
+    E -->|Yes| G[4. Find Component in Storybook<br/>Review its documentation, props, and variants]
+    G --> H["5. Import the Component<br/>e.g., `import { Button } from '@/components/ui';`"]
+    H --> I["6. Use the Component in Code<br/>e.g., `<Button variant='primary'>Submit</Button>`"]
+    I --> J[7. Commit & Push Changes<br/>`git commit -m 'feat: add new screen using Button'`<br/>`git push origin feature/new-screen`]
+    J --> K[8. Create a Pull Request on GitHub]
+    K --> L[End: Await Code Review]
+
+    %% Styling
+    classDef process fill:#e3f2fd,stroke:#2196f3,color:#000
+    classDef decision fill:#fff9c4,stroke:#fbc02d,color:#000
+    classDef action fill:#e8f5e9,stroke:#4caf50,color:#000
+    classDef endpoint fill:#f3e5f5,stroke:#8e24aa,color:#000
+
+    class B,C,D,J,K,L process
+    class E decision
+    class G,H,I action
+    class F endpoint

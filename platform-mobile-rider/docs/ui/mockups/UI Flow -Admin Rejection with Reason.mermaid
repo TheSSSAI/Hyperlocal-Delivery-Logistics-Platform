@@ -1,0 +1,57 @@
+sequenceDiagram
+    actor Administrator
+    participant AdminWebDashboard as "Admin Web Dashboard"
+    participant IdentityAccessService as "Identity & Access Service"
+    participant Database as "PostgreSQL DB"
+    participant MessageBus as "Message Bus (SNS)"
+    participant NotificationService as "Notification Service"
+    participant AuditLogService as "Audit Log Service"
+
+    Administrator->>AdminWebDashboard: 1. Clicks 'Reject' on a pending registration
+    activate AdminWebDashboard
+    AdminWebDashboard->>Administrator: 2. Displays rejection modal with reason dropdown/textarea
+    deactivate AdminWebDashboard
+
+    Administrator->>AdminWebDashboard: 3. Selects a reason and clicks 'Confirm Rejection'
+    activate AdminWebDashboard
+    AdminWebDashboard->>IdentityAccessService: 4. POST /api/v1/admin/registrations/{id}/reject (with reason)
+    activate IdentityAccessService
+
+    Note over IdentityAccessService: RBAC check: Verifies user is an Admin
+    IdentityAccessService->>Database: 5. BEGIN TRANSACTION
+    activate Database
+    IdentityAccessService->>Database: 6. SELECT status FROM users WHERE id = {id} FOR UPDATE
+    Database-->>IdentityAccessService: Returns status: 'pending_verification'
+    Note over IdentityAccessService: Handles race condition: Fails if status is not 'pending_verification'
+
+    IdentityAccessService->>Database: 7. UPDATE users SET status='rejected', rejection_reason={reason} WHERE id = {id}
+    Database-->>IdentityAccessService: Success (1 row updated)
+
+    IdentityAccessService->>MessageBus: 8. Publish 'AdminActionOccurred' event (for auditing)
+    activate MessageBus
+    MessageBus-->>IdentityAccessService: Acknowledge
+    deactivate MessageBus
+
+    IdentityAccessService->>MessageBus: 9. Publish 'UserRegistrationRejected' event (for notification)
+    activate MessageBus
+    MessageBus-->>IdentityAccessService: Acknowledge
+    deactivate MessageBus
+
+    IdentityAccessService->>Database: 10. COMMIT TRANSACTION
+    deactivate Database
+    IdentityAccessService-->>AdminWebDashboard: 11. 200 OK
+    deactivate IdentityAccessService
+    AdminWebDashboard->>Administrator: 12. Displays 'Rejection Successful' notification and redirects
+    deactivate AdminWebDashboard
+
+    par Asynchronous Auditing
+        MessageBus->>AuditLogService: 13a. Delivers 'AdminActionOccurred' event
+        activate AuditLogService
+        AuditLogService->>AuditLogService: 14a. Creates immutable audit log entry
+        deactivate AuditLogService
+    and Asynchronous Notification
+        MessageBus->>NotificationService: 13b. Delivers 'UserRegistrationRejected' event
+        activate NotificationService
+        NotificationService->>NotificationService: 14b. Sends SMS/Email to rejected applicant with reason
+        deactivate NotificationService
+    end

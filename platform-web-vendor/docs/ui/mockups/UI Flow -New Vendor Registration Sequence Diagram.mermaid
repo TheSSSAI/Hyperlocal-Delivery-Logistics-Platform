@@ -1,0 +1,48 @@
+sequenceDiagram
+    actor Vendor
+    participant VendorWebApp as "Vendor Web Dashboard (React)"
+    participant APIGateway as "API Gateway"
+    participant IdentityService as "Identity & Access Service"
+    participant S3 as "Amazon S3"
+    participant DB as "PostgreSQL Database"
+
+    Vendor->>VendorWebApp: 1. Navigates to registration page & fills form
+
+    activate VendorWebApp
+    VendorWebApp->>APIGateway: 2. Requests secure upload URL for document (e.g., GST cert)
+    activate APIGateway
+    APIGateway->>IdentityService: 3. Forwards request
+    activate IdentityService
+    IdentityService->>S3: 4. Generates pre-signed PUT URL
+    activate S3
+    S3-->>IdentityService: 5. Returns secure, time-limited URL
+    deactivate S3
+    IdentityService-->>APIGateway: 6. Returns pre-signed URL
+    APIGateway-->>VendorWebApp: 7. Forwards URL to client
+    deactivate APIGateway
+
+    VendorWebApp->>S3: 8. PUT file directly to pre-signed URL
+    activate S3
+    S3-->>VendorWebApp: 9. HTTP 200 OK (Upload success)
+    deactivate S3
+
+    VendorWebApp->>APIGateway: 10. POST /api/v1/auth/register/vendor (with all data & S3 document key)
+    activate APIGateway
+    APIGateway->>IdentityService: 11. Forwards validated registration data
+    IdentityService->>DB: 12. BEGIN TRANSACTION;
+    activate DB
+    IdentityService->>DB: 13. CHECK for duplicate mobile number or GST number
+    DB-->>IdentityService: 14. No duplicates found
+    IdentityService->>DB: 15. INSERT INTO users (status='pending_verification'); INSERT INTO vendor_profiles;
+    DB-->>IdentityService: 16. New User & Vendor Profile objects
+    IdentityService->>DB: 17. COMMIT TRANSACTION;
+    deactivate DB
+
+    IdentityService-->>APIGateway: 18. HTTP 201 Created
+    deactivate IdentityService
+    APIGateway-->>VendorWebApp: 19. Forwards success response
+    deactivate APIGateway
+    VendorWebApp-->>Vendor: 20. Redirects to 'Pending Verification' screen
+    deactivate VendorWebApp
+
+    note over VendorWebApp, DB: This flow fulfills REQ-FUN-001 for vendor registration, creating an account in a 'pending_verification' state for admin review.

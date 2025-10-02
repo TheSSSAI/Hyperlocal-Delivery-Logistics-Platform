@@ -1,0 +1,41 @@
+flowchart TD
+    subgraph "Find User"
+        A[Admin navigates to User Management] --> B(Enters search query / applies filters);
+        B --> C{User list updates};
+    end
+
+    subgraph "Select & Act"
+        C --> D[Admin selects a user from the list];
+        D --> E[Navigates to User Detail Page];
+        E --> F{Chooses a management action};
+    end
+
+    subgraph "Critical Action Confirmation (e.g., Suspend)"
+        F -->|Selects 'Suspend'| G[Confirmation modal appears with warning];
+        G --> H{Confirm or Cancel?};
+        H -->|'Confirm'| I[API call to suspend user is sent];
+        H -->|'Cancel'| J[Modal closes, no action taken];
+    end
+
+    subgraph "System Processing & Feedback"
+        I --> K{Backend validates action};
+        K -->|Success| L[User status updated to 'Suspended'];
+        L --> M[Audit log is created];
+        M --> N[Success notification is displayed];
+        N --> E;
+        K -->|Failure (e.g., race condition)| O[Error notification is displayed];
+        O --> E;
+    end
+
+    J --> E;
+
+    %% Styling
+    classDef action fill:#e3f2fd,stroke:#2196f3,color:#000;
+    classDef confirmation fill:#fff3e0,stroke:#fb8c00,color:#000;
+    classDef outcome fill:#e8f5e9,stroke:#4caf50,color:#000;
+    classDef error fill:#ffebee,stroke:#d32f2f,color:#000;
+
+    class A,B,C,D,E,F action;
+    class G,H,J confirmation;
+    class I,K,L,M,N outcome;
+    class O error;

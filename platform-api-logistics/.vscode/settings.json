@@ -1,0 +1,22 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "files.eol": "\n",
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "cSpell.words": [
+    "geofenced",
+    "geofencing",
+    "geospatial",
+    "GIST",
+    "mapbox",
+    "nestjs",
+    "pnpm",
+    "postgis",
+    "typeorm",
+    "wellknown",
+    "winston"
+  ]
+}

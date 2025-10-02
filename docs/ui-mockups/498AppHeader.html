@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organism: App Header</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ---------------------------------- */
+        /* --- 1. SETUP & DESIGN TOKENS ----- */
+        /* ---------------------------------- */
+        :root {
+            /* Colors */
+            --color-primary-500: #0068FF;
+            --color-primary-600: #0053CC;
+            --color-neutrals-white: #FFFFFF;
+            --color-neutrals-gray-50: #F7F9FC;
+            --color-neutrals-gray-100: #E9EDF2;
+            --color-neutrals-gray-500: #8E9BAA;
+            --color-neutrals-gray-800: #383E44;
+            --color-neutrals-gray-900: #1C1F22;
+            --color-semantic-success: #00C875;
+            /* Typography */
+            --font-family-primary: 'Poppins', sans-serif;
+            --font-family-secondary: 'Inter', sans-serif;
+            --font-size-body: 16px;
+            --font-size-caption: 14px;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+            /* Spacing */
+            --space-xs: 4px;
+            --space-sm: 8px;
+            --space-md: 16px;
+            --space-lg: 24px;
+            /* Borders & Shadows */
+            --border-radius-md: 8px;
+            --border-radius-full: 9999px;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+            --focus-outline: 2px solid #5C9EFF;
+            --focus-outline-offset: 2px;
+            /* Transitions */
+            --transition-base: all 0.2s ease-in-out;
+        }
+
+        /* ---------------------------------- */
+        /* --- 2. BASE & SHOWCASE STYLES ---- */
+        /* ---------------------------------- */
+        *, *::before, *::after { box-sizing: border-box; }
+        body {
+            font-family: var(--font-family-secondary);
+            background-color: var(--color-neutrals-gray-50);
+            color: var(--color-neutrals-gray-900);
+            margin: 0;
+            padding: var(--space-lg);
+        }
+        .showcase { max-width: 1200px; margin: 0 auto; }
+        .showcase__section { margin-bottom: calc(var(--space-lg) * 2); }
+        .showcase__section h2 { 
+            font-family: var(--font-family-primary);
+            font-size: 24px;
+            margin: 0 0 var(--space-md) 0;
+            border-bottom: 1px solid var(--color-neutrals-gray-100);
+            padding-bottom: var(--space-sm);
+        }
+        .sr-only {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border-width: 0;
+        }
+
+        /* ---------------------------------- */
+        /* --- 3. APP HEADER COMPONENT ------ */
+        /* ---------------------------------- */
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-md);
+            height: 64px;
+            background-color: var(--color-neutrals-white);
+            border-bottom: 1px solid var(--color-neutrals-gray-100);
+            position: relative;
+            z-index: 100;
+        }
+        .app-header__section {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+        .app-header__section--left { justify-content: flex-start; }
+        .app-header__section--center { justify-content: center; flex-grow: 1; }
+        .app-header__section--right { justify-content: flex-end; }
+        
+        .app-header__logo {
+            font-family: var(--font-family-primary);
+            font-weight: var(--font-weight-bold);
+            font-size: 24px;
+            color: var(--color-primary-500);
+            text-decoration: none;
+        }
+
+        .app-header__icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 50%;
+            color: var(--color-neutrals-gray-800);
+            transition: var(--transition-base);
+        }
+        .app-header__icon-btn:hover { background-color: var(--color-neutrals-gray-50); }
+        .app-header__icon-btn:focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-outline-offset); }
+        .app-header__icon-btn .icon { width: 24px; height: 24px; }
+        
+        .app-header__avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--color-neutrals-gray-100);
+        }
+
+        /* --- Web Dashboard Variants (Vendor/Admin) --- */
+        .app-header--web .app-header__nav { display: none; }
+        .app-header--web .app-header__menu-toggle { display: inline-flex; }
+
+        .app-header--web .app-header__mobile-menu {
+            position: absolute;
+            top: 64px; left: 0; right: 0;
+            background-color: var(--color-neutrals-white);
+            box-shadow: var(--shadow-md);
+            padding: var(--space-md);
+            border-top: 1px solid var(--color-neutrals-gray-100);
+            transform: translateY(-100%);
+            visibility: hidden;
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .app-header--web.is-menu-open .app-header__mobile-menu {
+            transform: translateY(0);
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .app-header--web .app-header__mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .app-header--web .app-header__mobile-nav-links a {
+            padding: var(--space-sm) var(--space-md);
+            border-radius: var(--border-radius-md);
+            text-decoration: none;
+            color: var(--color-neutrals-gray-800);
+            font-weight: var(--font-weight-semibold);
+        }
+        .app-header--web .app-header__mobile-nav-links a:hover {
+            background-color: var(--color-neutrals-gray-50);
+        }
+
+        /* Desktop styles for web headers */
+        @media (min-width: 1024px) {
+            .app-header--web .app-header__nav {
+                display: flex;
+                align-items: center;
+                gap: var(--space-lg);
+            }
+            .app-header--web .app-header__nav-link {
+                font-size: var(--font-size-caption);
+                font-weight: var(--font-weight-semibold);
+                color: var(--color-neutrals-gray-500);
+                text-decoration: none;
+                transition: var(--transition-base);
+                position: relative;
+                padding: var(--space-sm) 0;
+            }
+            .app-header--web .app-header__nav-link:hover { color: var(--color-primary-500); }
+            .app-header--web .app-header__nav-link.is-active { color: var(--color-primary-500); }
+            .app-header--web .app-header__nav-link.is-active::after {
+                content: '';
+                position: absolute; bottom: -1px;
+                left: 0; right: 0; height: 2px;
+                background-color: var(--color-primary-500);
+            }
+            .app-header--web .app-header__menu-toggle { display: none; }
+        }
+
+        /* --- Admin Header Specifics --- */
+        .app-header--admin .app-header__search-bar { display: none; }
+        @media (min-width: 1024px) {
+            .app-header--admin .app-header__search-bar {
+                display: block;
+                width: 300px;
+                /* Simplified SearchBar styles for demo */
+                padding: 8px 16px;
+                border: 1px solid var(--color-neutrals-gray-100);
+                border-radius: var(--border-radius-full);
+                background-color: var(--color-neutrals-gray-50);
+            }
+        }
+
+        /* --- Mobile App Header Variants --- */
+        .app-header--customer { background-color: var(--color-neutrals-white); }
+        .app-header--customer .app-header__location { text-align: center; }
+        .app-header--customer .app-header__location-title {
+            font-size: 12px;
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutrals-gray-500);
+            text-transform: uppercase;
+        }
+        .app-header--customer .app-header__location-address {
+            font-size: var(--font-size-caption);
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-neutrals-gray-800);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .app-header--rider {
+            background-color: var(--color-neutrals-gray-900);
+            color: var(--color-neutrals-white);
+        }
+        .app-header--rider .app-header__logo { color: var(--color-neutrals-white); }
+        .app-header--rider .app-header__icon-btn { color: var(--color-neutrals-white); }
+        .app-header--rider .app-header__icon-btn:hover { background-color: rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <div class="showcase">
+
+        <!-- Customer Mobile Header -->
+        <section class="showcase__section">
+            <h2>Customer Mobile Header</h2>
+            <header class="app-header app-header--customer">
+                <div class="app-header__section app-header__section--left">
+                    <button class="app-header__icon-btn" aria-label="Go back">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                    </button>
+                </div>
+                <div class="app-header__section app-header__section--center">
+                    <div class="app-header__location">
+                        <div class="app-header__location-title">Deliver to</div>
+                        <div class="app-header__location-address">
+                            <span>123, Main Street, Mumbai</span>
+                            <svg class="icon" style="width:16px; height:16px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-header__section app-header__section--right">
+                    <button class="app-header__icon-btn" aria-label="View Cart">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c.51 0 .962-.343 1.087-.835l1.823-6.491a1.125 1.125 0 00-.44-1.323l-1.343-.895M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125V6.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.002c0 .621.504 1.125 1.125 1.125z" /></svg>
+                    </button>
+                </div>
+            </header>
+        </section>
+
+        <!-- Rider Mobile Header -->
+        <section class="showcase__section">
+            <h2>Rider Mobile Header</h2>
+            <header class="app-header app-header--rider">
+                <div class="app-header__section app-header__section--left">
+                    <button class="app-header__icon-btn" aria-label="Open menu">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                    </button>
+                </div>
+                <div class="app-header__section app-header__section--center">
+                    <a href="#" class="app-header__logo">Deliverly</a>
+                </div>
+                <div class="app-header__section app-header__section--right">
+                     <button class="app-header__icon-btn" aria-label="Notifications">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>
+                    </button>
+                </div>
+            </header>
+        </section>
+
+        <!-- Vendor Web Header -->
+        <section class="showcase__section">
+            <h2>Vendor Web Dashboard Header</h2>
+            <header class="app-header app-header--web app-header--vendor" id="vendor-header">
+                <div class="app-header__section app-header__section--left">
+                    <a href="#" class="app-header__logo">Deliverly</a>
+                    <nav class="app-header__nav" aria-label="Main navigation">
+                        <a href="#" class="app-header__nav-link is-active">Dashboard</a>
+                        <a href="#" class="app-header__nav-link">Orders</a>
+                        <a href="#" class="app-header__nav-link">Products</a>
+                        <a href="#" class="app-header__nav-link">Reports</a>
+                    </nav>
+                </div>
+                <div class="app-header__section app-header__section--right">
+                    <button class="app-header__icon-btn" aria-label="Notifications">
+                         <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>
+                    </button>
+                    <img class="app-header__avatar" src="https://i.pravatar.cc/40?u=vendor" alt="Vendor profile picture">
+                    <button class="app-header__icon-btn app-header__menu-toggle" aria-label="Open menu" aria-controls="vendor-mobile-menu" aria-expanded="false">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                    </button>
+                </div>
+                <div class="app-header__mobile-menu" id="vendor-mobile-menu">
+                    <nav class="app-header__mobile-nav-links">
+                        <a href="#">Dashboard</a>
+                        <a href="#">Orders</a>
+                        <a href="#">Products</a>
+                        <a href="#">Reports</a>
+                    </nav>
+                </div>
+            </header>
+        </section>
+
+        <!-- Admin Web Header -->
+        <section class="showcase__section">
+            <h2>Admin Web Dashboard Header (Menu Open Demo)</h2>
+            <header class="app-header app-header--web app-header--admin is-menu-open" id="admin-header">
+                <div class="app-header__section app-header__section--left">
+                    <a href="#" class="app-header__logo">Deliverly</a>
+                    <nav class="app-header__nav" aria-label="Main navigation">
+                        <a href="#" class="app-header__nav-link is-active">Dashboard</a>
+                        <a href="#" class="app-header__nav-link">Users</a>
+                        <a href="#" class="app-header__nav-link">Zones</a>
+                        <a href="#" class="app-header__nav-link">Settings</a>
+                    </nav>
+                </div>
+                <div class="app-header__section app-header__section--right">
+                    <input type="search" class="app-header__search-bar" placeholder="Search users, orders...">
+                    <button class="app-header__icon-btn" aria-label="Notifications">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>
+                    </button>
+                    <img class="app-header__avatar" src="https://i.pravatar.cc/40?u=admin" alt="Admin profile picture">
+                    <button class="app-header__icon-btn app-header__menu-toggle" aria-label="Close menu" aria-controls="admin-mobile-menu" aria-expanded="true">
+                        <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                </div>
+                <div class="app-header__mobile-menu" id="admin-mobile-menu">
+                     <nav class="app-header__mobile-nav-links">
+                        <a href="#">Dashboard</a>
+                        <a href="#">Users</a>
+                        <a href="#">Zones</a>
+                        <a href="#">Settings</a>
+                    </nav>
+                </div>
+            </header>
+        </section>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const vendorHeader = document.getElementById('vendor-header');
+            const adminHeader = document.getElementById('admin-header');
+
+            if(vendorHeader) {
+                const vendorToggle = vendorHeader.querySelector('.app-header__menu-toggle');
+                vendorToggle.addEventListener('click', () => {
+                    vendorHeader.classList.toggle('is-menu-open');
+                    const isExpanded = vendorHeader.classList.contains('is-menu-open');
+                    vendorToggle.setAttribute('aria-expanded', isExpanded);
+                });
+            }
+
+            if(adminHeader) {
+                const adminToggle = adminHeader.querySelector('.app-header__menu-toggle');
+                adminToggle.addEventListener('click', () => {
+                    adminHeader.classList.toggle('is-menu-open');
+                     const isExpanded = adminHeader.classList.contains('is-menu-open');
+                    adminToggle.setAttribute('aria-expanded', isExpanded);
+                });
+            }
+        });
+    </script>
+	
+	<div class="showcase"> <h2> Component Variations</h2>
+      <div class="showcase__section">
+        <h3>Variant Name : customer-mobile</h3>
+		<!--description--><normal> The header for the customer mobile app. Features a back button, a central location/address display, and a cart icon. It's optimized for the primary task of ordering. </normal>
+		<!-- vrient 1 html -->
+        <header class="app-header app-header--customer">
+            <div class="app-header__section app-header__section--left">
+                <button class="app-header__icon-btn" aria-label="Go back">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                </button>
+            </div>
+            <div class="app-header__section app-header__section--center">
+                <div class="app-header__location">
+                    <div class="app-header__location-title">Deliver to</div>
+                    <div class="app-header__location-address">
+                        <span>123, Main Street, Mumbai</span>
+                        <svg class="icon" style="width:16px; height:16px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                    </div>
+                </div>
+            </div>
+            <div class="app-header__section app-header__section--right">
+                <button class="app-header__icon-btn" aria-label="View Cart">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c.51 0 .962-.343 1.087-.835l1.823-6.491a1.125 1.125 0 00-.44-1.323l-1.343-.895M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125V6.375c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v.002c0 .621.504 1.125 1.125 1.125z" /></svg>
+                </button>
+            </div>
+        </header>
+		
+      </div>
+      <div class="showcase__section">
+        <h3>Variant Name : rider-mobile</h3>
+		<!--description--><normal> The header for the rider mobile app. It has a dark theme for better visibility and focuses on core actions like menu access and notifications. </normal>
+		<!-- vrient 1 html -->
+        <header class="app-header app-header--rider">
+            <div class="app-header__section app-header__section--left">
+                <button class="app-header__icon-btn" aria-label="Open menu">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                </button>
+            </div>
+            <div class="app-header__section app-header__section--center">
+                <a href="#" class="app-header__logo">Deliverly</a>
+            </div>
+            <div class="app-header__section app-header__section--right">
+                 <button class="app-header__icon-btn" aria-label="Notifications">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>
+                </button>
+            </div>
+        </header>
+		
+      </div>
+      <div class="showcase__section">
+        <h3>Variant Name : vendor-web</h3>
+		<!--description--><normal> The header for the vendor web dashboard. It features a full navigation bar on desktop that collapses into a hamburger menu on smaller screens. </normal>
+		<!-- vrient 1 html -->
+        <header class="app-header app-header--web app-header--vendor">
+            <div class="app-header__section app-header__section--left">
+                <a href="#" class="app-header__logo">Deliverly</a>
+                <nav class="app-header__nav" aria-label="Main navigation">
+                    <a href="#" class="app-header__nav-link is-active">Dashboard</a>
+                    <a href="#" class="app-header__nav-link">Orders</a>
+                    <a href="#" class="app-header__nav-link">Products</a>
+                </nav>
+            </div>
+            <div class="app-header__section app-header__section--right">
+                <button class="app-header__icon-btn" aria-label="Notifications">
+                     <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>
+                </button>
+                <img class="app-header__avatar" src="https://i.pravatar.cc/40?u=vendor" alt="Vendor profile picture">
+                <button class="app-header__icon-btn app-header__menu-toggle" aria-label="Open menu" aria-expanded="false">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                </button>
+            </div>
+        </header>
+		
+      </div>
+      <div class="showcase__section">
+        <h3>Variant Name : admin-web</h3>
+		<!--description--><normal> The header for the admin web dashboard. Similar to the vendor header but includes a global search bar for finding users, orders, etc. </normal>
+		<!-- vrient 1 html -->
+        <header class="app-header app-header--web app-header--admin">
+            <div class="app-header__section app-header__section--left">
+                <a href="#" class="app-header__logo">Deliverly</a>
+                <nav class="app-header__nav" aria-label="Main navigation">
+                    <a href="#" class="app-header__nav-link is-active">Dashboard</a>
+                    <a href="#" class="app-header__nav-link">Users</a>
+                </nav>
+            </div>
+            <div class="app-header__section app-header__section--right">
+                <input type="search" class="app-header__search-bar" placeholder="Search users, orders...">
+                <img class="app-header__avatar" src="https://i.pravatar.cc/40?u=admin" alt="Admin profile picture">
+                <button class="app-header__icon-btn app-header__menu-toggle" aria-label="Open menu" aria-expanded="false">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+                </button>
+            </div>
+        </header>
+		
+      </div>
+	 </div>
+</body>
+</html>

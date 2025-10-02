@@ -1,0 +1,63 @@
+flowchart TD
+    subgraph Customer
+        A[Places Order] --> B{Selects Payment Method}
+    end
+
+    subgraph System
+        B --> C{Payment Success?}
+        C -->|No| D[Order Failed/Cancelled]
+        C -->|Yes| E[Order Status: Pending Vendor Acceptance]
+        subgraph " "
+        direction LR
+        E --> F{Vendor Action within Time Limit?}
+        end
+        F -->|No| G[Auto-reject Order]
+        G --> H[Initiate Full Refund]
+        H --> I[Notify Customer of Cancellation]
+        I --> J[End]
+    end
+
+    subgraph Vendor
+        F -->|Yes| K[Accepts Order & Sets Prep Time]
+        K --> L[Order Status: Preparing]
+        L --> M[Marks as Ready for Pickup]
+    end
+
+    subgraph System
+        M --> N[Trigger Rider Allocation]
+        N --> O{Rider Accepts Task?}
+        O -->|No| P[Order Status: Allocation Failed]
+        P --> Q[Alert Admin & Notify Parties]
+        Q --> J
+    end
+
+    subgraph Rider
+        O -->|Yes| R[Picks Up Order]
+        R --> S[Order Status: In Transit]
+        S --> T[Arrives at Destination]
+        T --> U[Completes Proof of Delivery]
+        U --> V[Marks as Delivered]
+    end
+
+    subgraph System
+        V --> W[Order Status: Delivered]
+        W --> X[Trigger Ratings & Financial Settlement]
+        X --> J
+    end
+
+    %% Styling
+    classDef endState fill:#f8f9fa,stroke:#adb5bd,stroke-width:2px,color:#495057
+    classDef failureState fill:#ffebee,stroke:#d32f2f,color:#b71c1c
+    classDef successState fill:#e8f5e9,stroke:#4caf50,color:#2e7d32
+    classDef actorSys fill:#e3f2fd,stroke:#1565c0,color:#0d47a1
+    classDef actorVen fill:#fff3e0,stroke:#ef6c00,color:#e65100
+    classDef actorRid fill:#e8eaf6,stroke:#3949ab,color:#1a237e
+    classDef actorCust fill:#e0f7fa,stroke:#00838f,color:#004d40
+
+    class D,P,Q failureState
+    class W,X successState
+    class J endState
+    class C,E,F,G,H,I,N,O actorSys
+    class K,L,M actorVen
+    class R,S,T,U,V actorRid
+    class A,B actorCust
