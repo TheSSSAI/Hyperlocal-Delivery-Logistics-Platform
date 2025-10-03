@@ -1,1 +1,0 @@
-This diagram illustrates the structure for the Live Tracking Cache, which uses Redis GEO. The 'RiderLiveLocation' represents a Redis Geospatial set. Each entry consists of a member (the rider's ID) and its longitude/latitude, all stored under a common key (geoSetKey). The composite primary key of 'geoSetKey' and 'member' uniquely identifies a rider's location within the cache.
